@@ -10,20 +10,51 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled  true
+    }
+    signingConfigs {
+        sign
     }
     buildTypes {
         release {
             minifyEnabled false
+            signingConfig signingConfigs.sign
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+        debug {
+            signingConfig signingConfigs.sign
         }
     }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.amazonaws:aws-android-sdk-core:2.+'
+    compile 'com.amazonaws:aws-android-sdk-iot:2.+'
+    compile 'com.google.android.gms:play-services:10.0.1'
+    compile 'com.google.android.gms:play-services-maps:10.0.1'
+    compile 'com.android.support:multidex:1.0.0'
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile 'com.android.support:appcompat-v7:23.4.0'
     testCompile 'junit:junit:4.12'
+}
+
+def ksFile = rootProject.file('keystore.properties')
+def props = new Properties();
+if (ksFile.canRead()) {
+    props.load(new FileInputStream(ksFile))
+
+    if (props != null) {
+        android.signingConfigs.sign.storeFile file(props['KEYSTORE_FILE'])
+        android.signingConfigs.sign.storePassword props['KEYSTORE_PASSWORD']
+        android.signingConfigs.sign.keyAlias props['KEYSTORE_ALIAS']
+        android.signingConfigs.sign.keyPassword props['KEYSTORE_ALIAS_PASSWORD']
+    } else {
+        println 'some entries in \'keystore.properties\' not found!'
+    }
+} else {
+    println '\'keystore.properties\' not found!'
 }
