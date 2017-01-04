@@ -145,7 +145,7 @@ public class ChannelListActivity extends AppCompatActivity {
             }
         }
 
-        setContentView(R.layout.activity_home);
+        setContentView(R.layout.activity_channel_list);
 
         mListView = (ListView) findViewById(R.id.channel_list);
         mListView.setAdapter(mAdapter);
