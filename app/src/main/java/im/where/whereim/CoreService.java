@@ -137,6 +137,7 @@ public class CoreService extends Service {
         keyStorePath = getFilesDir().getAbsolutePath();
 
         mqttManager = new AWSIotMqttManager(client_id, REGION_ID, ACCOUNT_ENDPOINT_PREFIX);
+        mqttManager.setAutoReconnect(true);
         String cert = assetsFileToString(CERT_FILE);
         String priv = assetsFileToString(PRIVATE_KEY_FILE);
         File keyStoreFile = new File(keyStorePath, KEY_STORE_NAME);
@@ -152,10 +153,10 @@ public class CoreService extends Service {
                 switch (status){
                     case Connected:
                         mqttOnConnected();
-                        mConnected = true;
+                        mMqttConnected = true;
                         break;
                     default:
-                        mConnected = false;
+                        mMqttConnected = false;
                         break;
                 }
             }
@@ -182,7 +183,7 @@ public class CoreService extends Service {
 
     private AWSIotMqttManager mqttManager;
 
-    private boolean mConnected = false;
+    private boolean mMqttConnected = false;
     private boolean mIsForeground = false;
 
     private void notifyChannelListChangedListeners(){
