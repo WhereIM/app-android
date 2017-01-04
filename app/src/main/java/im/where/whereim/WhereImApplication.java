@@ -1,5 +1,6 @@
 package im.where.whereim;
 
+import android.content.Intent;
 import android.support.multidex.MultiDexApplication;
 
 /**
@@ -7,4 +8,10 @@ import android.support.multidex.MultiDexApplication;
  */
 
 public class WhereImApplication extends MultiDexApplication {
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        startService(new Intent(this, CoreService.class));
+    }
 }

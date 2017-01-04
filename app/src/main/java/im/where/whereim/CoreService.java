@@ -1,6 +1,7 @@
 package im.where.whereim;
 
 import android.Manifest;
+import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -13,6 +14,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.amazonaws.mobileconnectors.iot.AWSIotKeystoreHelper;
@@ -102,6 +104,37 @@ public class CoreService extends Service {
 
     }
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        keyStorePath = getFilesDir().getAbsolutePath();
+
+        mqttManager = new AWSIotMqttManager(UUID.randomUUID().toString(), REGION_ID, ACCOUNT_ENDPOINT_PREFIX);
+        String cert = assetsFileToString(CERT_FILE);
+        String priv = assetsFileToString(PRIVATE_KEY_FILE);
+        File keyStoreFile = new File(keyStorePath, KEY_STORE_NAME);
+        if(!keyStoreFile.exists() || !AWSIotKeystoreHelper.keystoreContainsAlias(CERT_ID, keyStorePath, KEY_STORE_NAME, KEY_STORE_PASSWORD)){
+            AWSIotKeystoreHelper.saveCertificateAndPrivateKey(CERT_ID, cert, priv, keyStorePath, KEY_STORE_NAME, KEY_STORE_PASSWORD);
+        }
+        Log.e(TAG, "Service Started");
+        keyStore = AWSIotKeystoreHelper.getIotKeystore(CERT_ID, keyStorePath, KEY_STORE_NAME, KEY_STORE_PASSWORD);
+        mqttManager.connect(keyStore, new AWSIotMqttClientStatusCallback() {
+            @Override
+            public void onStatusChanged(AWSIotMqttClientStatus status, Throwable throwable) {
+                Log.d(TAG, "AWSIotMqttClientStatus changed: "+status);
+                switch (status){
+                    case Connected:
+                        mqttOnConnected();
+                        mConnected = true;
+                        break;
+                    default:
+                        mConnected = false;
+                        break;
+                }
+            }
+        });
+        return super.onStartCommand(intent, flags, startId);
+    }
+
     private List<Models.Channel> mChannelList = new ArrayList<>();
     private HashMap<String, Models.Channel> mChannelMap = new HashMap<>();
 
@@ -122,6 +155,7 @@ public class CoreService extends Service {
     private AWSIotMqttManager mqttManager;
 
     private boolean mConnected = false;
+    private boolean mIsForeground = false;
 
     private void notifyChannelListChangedListeners(){
         synchronized (mChannelListChangedListener){
@@ -152,42 +186,28 @@ public class CoreService extends Service {
         }
         if(!pending) {
             if(enableCount>0){
+                if(!mIsForeground){
+                    mIsForeground = true;
+                    Notification notification = new NotificationCompat.Builder(this)
+                            .setContentTitle(getResources().getString(R.string.app_name))
+                            .setSmallIcon(R.mipmap.ic_launcher)
+                            .build();
+
+                    startForeground(1, notification);
+                }
                 startLocationService();
             }else if(enableCount==0){
                 stopLocationService();
+                if(mIsForeground){
+                    mIsForeground = false;
+                    stopForeground(true);
+                }
             }
         }
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        keyStorePath = getFilesDir().getAbsolutePath();
-
-        mqttManager = new AWSIotMqttManager(UUID.randomUUID().toString(), REGION_ID, ACCOUNT_ENDPOINT_PREFIX);
-        String cert = assetsFileToString(CERT_FILE);
-        String priv = assetsFileToString(PRIVATE_KEY_FILE);
-        File keyStoreFile = new File(keyStorePath, KEY_STORE_NAME);
-        if(!keyStoreFile.exists() || !AWSIotKeystoreHelper.keystoreContainsAlias(CERT_ID, keyStorePath, KEY_STORE_NAME, KEY_STORE_PASSWORD)){
-            AWSIotKeystoreHelper.saveCertificateAndPrivateKey(CERT_ID, cert, priv, keyStorePath, KEY_STORE_NAME, KEY_STORE_PASSWORD);
-        }
-        Log.e(TAG, "Service Started");
-        keyStore = AWSIotKeystoreHelper.getIotKeystore(CERT_ID, keyStorePath, KEY_STORE_NAME, KEY_STORE_PASSWORD);
-        mqttManager.connect(keyStore, new AWSIotMqttClientStatusCallback() {
-            @Override
-            public void onStatusChanged(AWSIotMqttClientStatus status, Throwable throwable) {
-                Log.d(TAG, "AWSIotMqttClientStatus changed: "+status);
-                switch (status){
-                    case Connected:
-                        mqttOnConnected();
-                        mConnected = true;
-                        break;
-                    default:
-                        mConnected = false;
-                        break;
-                }
-            }
-        });
-
         return mBinder;
     }
 
