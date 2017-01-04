@@ -13,6 +13,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -67,12 +69,14 @@ public class ChannelMapFragment extends SupportMapFragment {
     }
 
     private HashMap<String, Circle> mCircleList = new HashMap<>();
+    private HashMap<String, Marker> mMarkerList = new HashMap<>();
     public void onMapData(final JSONObject data){
         getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 try {
                     String mate_id = data.getString("mate");
+
                     synchronized (mCircleList) {
                         Circle circle = mCircleList.get(mate_id);
                         if(circle!=null){
@@ -88,6 +92,17 @@ public class ChannelMapFragment extends SupportMapFragment {
                             .strokeColor(Color.RED));
                     synchronized (mCircleList) {
                         mCircleList.put(mate_id, circle);
+                    }
+
+                    synchronized (mMarkerList) {
+                        Marker marker = mMarkerList.get(mate_id);
+                        if(marker!=null){
+                            marker.remove();
+                        }
+                    }
+                    Marker marker = googleMap.addMarker(new MarkerOptions().position(new LatLng(lat, lng)).title(mate_id));
+                    synchronized (mMarkerList){
+                        mMarkerList.put(mate_id, marker);
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
