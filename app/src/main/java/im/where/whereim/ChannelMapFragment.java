@@ -1,9 +1,26 @@
 package im.where.whereim;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
+import com.google.android.gms.maps.model.LatLng;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class ChannelMapFragment extends SupportMapFragment {
     private CoreService.CoreBinder mBinder;
@@ -12,9 +29,32 @@ public class ChannelMapFragment extends SupportMapFragment {
         // Required empty public constructor
     }
 
+    private double defaultLat = 0;
+    private double defaultLng = 0;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+        Location locationByGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        Location locationByNetwork = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        long positionTime = 0;
+        if(locationByNetwork != null){
+            positionTime = locationByNetwork.getTime();
+            defaultLat = locationByNetwork.getLatitude();
+            defaultLng = locationByNetwork.getLongitude();
+        }
+        if(locationByGPS != null && locationByGPS.getTime() > positionTime){
+            defaultLat = locationByGPS.getLatitude();
+            defaultLng = locationByGPS.getLongitude();
+        }
+        getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(defaultLat, defaultLng), 15));
+            }
+        });
     }
 
     @Override
@@ -27,5 +67,35 @@ public class ChannelMapFragment extends SupportMapFragment {
     public void onDetach() {
         super.onDetach();
         mBinder = null;
+    }
+
+    private HashMap<String, Circle> mCircleList = new HashMap<>();
+    public void onMapData(final JSONObject data){
+        getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                try {
+                    String mate_id = data.getString("mate");
+                    synchronized (mCircleList) {
+                        Circle circle = mCircleList.get(mate_id);
+                        if(circle!=null){
+                            circle.remove();
+                        }
+                    }
+                    double lat = data.getDouble("lat");
+                    double lng = data.getDouble("lng");
+                    double acc = data.getDouble("acc");
+                    Circle circle = googleMap.addCircle(new CircleOptions()
+                            .center(new LatLng(lat, lng))
+                            .radius(acc)
+                            .strokeColor(Color.RED));
+                    synchronized (mCircleList) {
+                        mCircleList.put(mate_id, circle);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 }

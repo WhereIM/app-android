@@ -42,6 +42,10 @@ import java.util.regex.Pattern;
 
 public class CoreService extends Service {
     private final static String TAG = "CoreService";
+    public interface MapDataReceiver{
+        public void onMapData(JSONObject data);
+    };
+
     public class CoreBinder extends Binder{
         public void clearChannelList(){
             mChannelList.clear(); // minor leak in mChannelMap
@@ -95,9 +99,17 @@ public class CoreService extends Service {
             }
         }
 
-        public boolean openChannel(Models.Channel channel){
+        public boolean openChannel(Models.Channel channel, MapDataReceiver receiver){
             if(channel==null)
                 return false;
+            if(!mMqttConnected)
+                return false;
+            synchronized (mMapDataReceiver){
+                if(!mMapDataReceiver.containsKey(channel.id)){
+                    mMapDataReceiver.put(channel.id, new ArrayList<MapDataReceiver>());
+                }
+                mMapDataReceiver.get(channel.id).add(receiver);
+            }
             String topic = String.format("channel/%s/get/+", channel.id);
             Log.e(TAG, "Subscribe "+topic);
             mqttManager.subscribeToTopic(topic, AWSIotMqttQos.QOS1, new AWSIotMqttNewMessageCallback() {
@@ -113,9 +125,14 @@ public class CoreService extends Service {
             return true;
         }
 
-        public void closeChannel(Models.Channel channel){
+        public void closeChannel(Models.Channel channel, MapDataReceiver receiver){
             if(channel==null)
                 return;
+            synchronized (mMapDataReceiver){
+                if(mMapDataReceiver.containsKey(channel.id)){
+                    mMapDataReceiver.get(channel.id).remove(receiver);
+                }
+            }
             mqttManager.unsubscribeTopic(String.format("channel/%s/get/+", channel.id));
         }
 
@@ -127,6 +144,8 @@ public class CoreService extends Service {
     private Handler mHandler = new Handler();
     private List<Runnable> mChannelListChangedListener = new ArrayList<>();
     private final IBinder mBinder = new CoreBinder();
+
+    private HashMap<String, List<MapDataReceiver>> mMapDataReceiver = new HashMap<>();
 
     public CoreService() {
 
@@ -311,8 +330,25 @@ public class CoreService extends Service {
         }
     }
 
-    private void mqttChannelGetHandler(String topic, JSONObject msg){
+    private void mqttChannelGetHandler(String topic, final JSONObject msg){
         Log.e(TAG, "Receive "+topic+" "+msg.toString());
+        Matcher m = mChannelGetPattern.matcher(topic);
+        m.find();
+        final String channel_id = m.group(1);
+
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (mMapDataReceiver){
+                    if(mMapDataReceiver.containsKey(channel_id)){
+                        for (MapDataReceiver mapDataReceiver : mMapDataReceiver.get(channel_id)) {
+                            mapDataReceiver.onMapData(msg);
+                        }
+                    }
+                }
+
+            }
+        });
     }
 
     private String assetsFileToString(String path){

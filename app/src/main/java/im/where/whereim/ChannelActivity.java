@@ -15,12 +15,13 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-public class ChannelActivity extends AppCompatActivity {
+import org.json.JSONObject;
+
+public class ChannelActivity extends AppCompatActivity implements CoreService.MapDataReceiver {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -92,6 +93,12 @@ public class ChannelActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onMapData(JSONObject data) {
+        mMapFragment.onMapData(data);
+    }
+
+    private ChannelMapFragment mMapFragment;
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         public SectionsPagerAdapter(FragmentManager fm) {
@@ -100,9 +107,13 @@ public class ChannelActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            return new ChannelMapFragment();
+            switch (position) {
+                case 0:
+                    if(mMapFragment==null)
+                        mMapFragment = new ChannelMapFragment();
+                    return mMapFragment;
+            }
+            return null;
         }
 
         @Override
@@ -130,7 +141,7 @@ public class ChannelActivity extends AppCompatActivity {
             mBinder = (CoreService.CoreBinder) service;
             String channel_id = getIntent().getStringExtra("channel");
             mChannel = mBinder.getChannelById(channel_id);
-            if(!mBinder.openChannel(mChannel)){
+            if(!mBinder.openChannel(mChannel, ChannelActivity.this)){
                 finish();
                 return;
             }
@@ -157,7 +168,7 @@ public class ChannelActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        mBinder.closeChannel(mChannel);
+        mBinder.closeChannel(mChannel, ChannelActivity.this);
         unbindService(mConnection);
         mBinder = null;
         super.onPause();
