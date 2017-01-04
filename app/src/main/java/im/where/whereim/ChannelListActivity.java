@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.Switch;
@@ -45,6 +46,8 @@ public class ChannelListActivity extends AppCompatActivity {
     private Runnable mChannelListChangedListener = new Runnable() {
         @Override
         public void run() {
+            if(mBinder==null)
+                return;
             mChannelList = mBinder.getChannelList();
             mAdapter.notifyDataSetChanged();
         }
@@ -76,6 +79,14 @@ public class ChannelListActivity extends AppCompatActivity {
             View mLoading;
 
             public ViewHolder(View view) {
+                view.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(ChannelListActivity.this, ChannelActivity.class);
+                        intent.putExtra("channel", mChannel.id);
+                        startActivity(intent);
+                    }
+                });
                 mTitle = (TextView) view.findViewById(R.id.title);
                 mSubtitle = (TextView) view.findViewById(R.id.subtitle);
                 mEnable = (Switch) view.findViewById(R.id.enable);
@@ -156,7 +167,6 @@ public class ChannelListActivity extends AppCompatActivity {
                                            String permissions[], int[] grantResults) {
         switch (requestCode) {
             case 0: {
-                // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
@@ -166,9 +176,6 @@ public class ChannelListActivity extends AppCompatActivity {
                 }
                 return;
             }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
         }
     }
 
@@ -181,11 +188,12 @@ public class ChannelListActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        super.onPause();
         if(mBinder!=null) {
             mBinder.removeChannelListChangedListener(mChannelListChangedListener);
         }
         unbindService(mConnection);
+        mBinder = null;
+        super.onPause();
     }
 
 }

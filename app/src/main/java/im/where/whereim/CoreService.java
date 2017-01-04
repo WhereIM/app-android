@@ -37,14 +37,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CoreService extends Service {
     private final static String TAG = "CoreService";
     public class CoreBinder extends Binder{
         public void clearChannelList(){
-            mChannelList.clear();
-            mChannelMap.clear();
+            mChannelList.clear(); // minor leak in mChannelMap
         }
 
         public void addChannelListChangedListener(Runnable r){
@@ -66,6 +66,16 @@ public class CoreService extends Service {
             }
         }
 
+        public Models.Channel getChannelById(String id){
+            synchronized (mChannelList){
+                for (Models.Channel channel : mChannelList) {
+                    if(channel.id.equals(id))
+                        return channel;
+                }
+            }
+            return null;
+        }
+
         public void toggleChannelEnabled(Models.Channel channel){
             if(channel.enable==null){
                 return;
@@ -75,20 +85,38 @@ public class CoreService extends Service {
                 payload.put("channel", channel.id);
                 payload.put("enable", !channel.enable);
                 channel.enable = null;
-                String topic = String.format("client/%s/setting/set", user_id);
+                String topic = String.format("client/%s/setting/set", client_id);
                 String message = payload.toString();
                 mqttManager.publishString(message, topic, AWSIotMqttQos.QOS1);
-                Log.e(TAG, "pub "+topic+" "+message);
+                Log.e(TAG, "Publish "+topic+" "+message);
                 notifyChannelListChangedListeners();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
 
-        public void clientInfo(){
-            if(!mConnected){
+        public boolean openChannel(Models.Channel channel){
+            if(channel==null)
+                return false;
+            String topic = String.format("channel/%s/get/+", channel.id);
+            Log.e(TAG, "Subscribe "+topic);
+            mqttManager.subscribeToTopic(topic, AWSIotMqttQos.QOS1, new AWSIotMqttNewMessageCallback() {
+                @Override
+                public void onMessageArrived(String topic, byte[] data) {
+                    try {
+                        mqttChannelGetHandler(topic, new JSONObject(new String(data, "UTF-8")));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            return true;
+        }
+
+        public void closeChannel(Models.Channel channel){
+            if(channel==null)
                 return;
-            }
+            mqttManager.unsubscribeTopic(String.format("channel/%s/get/+", channel.id));
         }
 
         public void checkLocationService(){
@@ -108,7 +136,7 @@ public class CoreService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         keyStorePath = getFilesDir().getAbsolutePath();
 
-        mqttManager = new AWSIotMqttManager(UUID.randomUUID().toString(), REGION_ID, ACCOUNT_ENDPOINT_PREFIX);
+        mqttManager = new AWSIotMqttManager(client_id, REGION_ID, ACCOUNT_ENDPOINT_PREFIX);
         String cert = assetsFileToString(CERT_FILE);
         String priv = assetsFileToString(PRIVATE_KEY_FILE);
         File keyStoreFile = new File(keyStorePath, KEY_STORE_NAME);
@@ -138,7 +166,7 @@ public class CoreService extends Service {
     private List<Models.Channel> mChannelList = new ArrayList<>();
     private HashMap<String, Models.Channel> mChannelMap = new HashMap<>();
 
-    private final static String user_id= "a535d42efaff46278c37764f84abcc01";
+    private final static String client_id = "a535d42efaff46278c37764f84abcc01";
 
     private final static String ACCOUNT_ENDPOINT_PREFIX = "a3ftvwpcurxils";
     private final static Region REGION_ID = Region.getRegion(Regions.AP_NORTHEAST_1);
@@ -213,11 +241,16 @@ public class CoreService extends Service {
 
     private void mqttOnConnected(){
         Log.e(TAG, "mqttOnConnected");
-        mqttManager.subscribeToTopic(String.format("client/%s/unicast", user_id), AWSIotMqttQos.QOS1, new AWSIotMqttNewMessageCallback() {
+        String topic;
+
+        topic = String.format("client/%s/unicast", client_id);
+        Log.e(TAG, "Subscribe "+topic);
+        mqttManager.subscribeToTopic(topic, AWSIotMqttQos.QOS1, new AWSIotMqttNewMessageCallback() {
             @Override
             public void onMessageArrived(String topic, byte[] data) {
                 try {
                     String message = new String(data, "UTF-8");
+                    Log.e(TAG, "Receive "+topic+" "+message);
                     JSONObject payload = new JSONObject(message);
                     mqttClientUnicastHandler(payload.getString("topic"), new JSONObject(payload.getString("message")));
                 } catch (Exception e) {
@@ -225,7 +258,9 @@ public class CoreService extends Service {
                 }
             }
         });
-        mqttManager.subscribeToTopic(String.format("client/%s/setting/get", user_id), AWSIotMqttQos.QOS1, new AWSIotMqttNewMessageCallback() {
+        topic = String.format("client/%s/setting/get", client_id);
+        Log.e(TAG, "Subscribe "+topic);
+        mqttManager.subscribeToTopic(topic, AWSIotMqttQos.QOS1, new AWSIotMqttNewMessageCallback() {
             @Override
             public void onMessageArrived(String topic, byte[] data) {
                 try {
@@ -236,25 +271,31 @@ public class CoreService extends Service {
                 }
             }
         });
-        Log.e(TAG, "Topics subscribed");
     }
 
+    private Pattern mChannelGetPattern = Pattern.compile("^channel/([A-Fa-f0-9]{32})/get/([0-9]+)$");
     private void mqttClientUnicastHandler(String topic, JSONObject msg){
-        Log.e(TAG, topic+" "+msg.toString());
-
+        Matcher m;
+        m = mChannelGetPattern.matcher(topic);
+        if(m.matches()){
+            mqttChannelGetHandler(topic, msg);
+            return;
+        }
     }
 
     private void mqttClientSettingGetHandler(String topic, JSONObject msg){
         try {
-            Log.e(TAG, System.currentTimeMillis()+" "+topic+" "+msg.toString());
+            Log.e(TAG, "Receive "+topic+" "+msg.toString());
             Models.Channel channel;
             String channel_id = msg.getString("channel");
             if(mChannelMap.containsKey(channel_id)){
                 channel = mChannelMap.get(channel_id);
             }else{
                 channel = new Models.Channel();
-                mChannelList.add(channel);
                 mChannelMap.put(channel_id, channel);
+            }
+            if(!mChannelList.contains(channel)){
+                mChannelList.add(channel);
             }
             channel.id = msg.getString("channel");
             channel.channel_name  = msg.optString("channel_name", channel.channel_name);
@@ -267,6 +308,10 @@ public class CoreService extends Service {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    private void mqttChannelGetHandler(String topic, JSONObject msg){
+        Log.e(TAG, "Receive "+topic+" "+msg.toString());
     }
 
     private String assetsFileToString(String path){
@@ -312,14 +357,13 @@ public class CoreService extends Service {
     private LocationListener mGpsLocationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
-            Log.e("lala", "Accuracy: "+location.getAccuracy());
+            processLocation("GPS", location);
         }
 
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
             if (LocationProvider.OUT_OF_SERVICE == status) {
                 Log.e(TAG, "GPS provider out of service");
-                startNetworkListener();
             }
 
         }
@@ -337,7 +381,7 @@ public class CoreService extends Service {
     private LocationListener mNetworkLocationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
-            Log.e("lala", "Accuracy: "+location.getAccuracy());
+            processLocation("NETWORK", location);
         }
 
         @Override
@@ -371,4 +415,95 @@ public class CoreService extends Service {
         }
         mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 5, mNetworkLocationListener);
     }
+
+    private void processLocation(String provider, Location loc){
+        if(!isBetterLocation(loc, lastBestLocation)){
+            return;
+        }
+        lastBestLocation = loc;
+        try {
+            JSONObject msg = new JSONObject();
+            msg.put("lat", loc.getLatitude());
+            msg.put("lng", loc.getLongitude());
+            if(loc.hasAccuracy()){
+                msg.put("acc", loc.getAccuracy());
+            }
+            if(loc.hasAltitude()){
+                msg.put("alt", loc.getAltitude());
+            }
+            if(loc.hasBearing()){
+                msg.put("bear", loc.getBearing());
+            }
+            if(loc.hasSpeed()){
+                msg.put("spd", loc.getSpeed());
+            }
+            msg.put("time", System.currentTimeMillis());
+            msg.put("pvdr", provider);
+            String topic = String.format("client/%s/info", client_id);
+            String message = msg.toString();
+            mqttManager.publishString(message, topic, AWSIotMqttQos.QOS1);
+            Log.e(TAG, "Publish "+topic+" "+message);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Location lastBestLocation = null;
+
+    private static final int EXPIRATION = 1000 * 60 * 1; // 1 min
+
+    /** Determines whether one Location reading is better than the current Location fix
+     * @param location  The new Location that you want to evaluate
+     * @param currentBestLocation  The current Location fix, to which you want to compare the new one
+     */
+    protected boolean isBetterLocation(Location location, Location currentBestLocation) {
+        if (currentBestLocation == null) {
+            // A new location is always better than no location
+            return true;
+        }
+
+        // Check whether the new location fix is newer or older
+        long timeDelta = location.getTime() - currentBestLocation.getTime();
+        boolean isSignificantlyNewer = timeDelta > EXPIRATION;
+        boolean isSignificantlyOlder = timeDelta < -EXPIRATION;
+        boolean isNewer = timeDelta > 0;
+
+        // If it's been more than two minutes since the current location, use the new location
+        // because the user has likely moved
+        if (isSignificantlyNewer) {
+            return true;
+            // If the new location is more than two minutes older, it must be worse
+        } else if (isSignificantlyOlder) {
+            return false;
+        }
+
+        // Check whether the new location fix is more or less accurate
+        int accuracyDelta = (int) (location.getAccuracy() - currentBestLocation.getAccuracy());
+        boolean isLessAccurate = accuracyDelta > 0;
+        boolean isMoreAccurate = accuracyDelta < 0;
+        boolean isSignificantlyLessAccurate = accuracyDelta > 200;
+
+        // Check if the old and new location are from the same provider
+        boolean isFromSameProvider = isSameProvider(location.getProvider(),
+                currentBestLocation.getProvider());
+
+        // Determine location quality using a combination of timeliness and accuracy
+        if (isMoreAccurate) {
+            return true;
+        } else if (isNewer && !isLessAccurate) {
+            return true;
+        } else if (isNewer && !isSignificantlyLessAccurate && isFromSameProvider) {
+            return true;
+        }
+        return false;
+    }
+
+    /** Checks whether two providers are the same */
+    private boolean isSameProvider(String provider1, String provider2) {
+        if (provider1 == null) {
+            return provider2 == null;
+        }
+        return provider1.equals(provider2);
+    }
+
 }
