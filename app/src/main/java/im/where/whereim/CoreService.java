@@ -59,7 +59,9 @@ public class CoreService extends Service {
         }
 
         public List<Models.Channel> getChannelList(){
-            return Collections.unmodifiableList(mChannelList);
+            synchronized (mChannelList) {
+                return Collections.unmodifiableList(mChannelList);
+            }
         }
 
         public void toggleChannelEnabled(Models.Channel channel){
@@ -87,6 +89,9 @@ public class CoreService extends Service {
             }
         }
 
+        public void checkLocationService(){
+            _checkLocationService();
+        }
     };
 
     private Handler mHandler = new Handler();
@@ -124,12 +129,38 @@ public class CoreService extends Service {
                 mHandler.post(runnable);
             }
         }
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                _checkLocationService();
+            }
+        });
+    }
+
+    private void _checkLocationService(){
+        boolean pending = false;
+        int enableCount = 0;
+        synchronized (mChannelList){
+            for (Models.Channel channel : mChannelList) {
+                if(channel.enable==null){
+                    pending = true;
+                    break;
+                }
+                if(channel.enable)
+                    enableCount += 1;
+            }
+        }
+        if(!pending) {
+            if(enableCount>0){
+                startLocationService();
+            }else if(enableCount==0){
+                stopLocationService();
+            }
+        }
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        startLocationService();
-
         keyStorePath = getFilesDir().getAbsolutePath();
 
         mqttManager = new AWSIotMqttManager(UUID.randomUUID().toString(), REGION_ID, ACCOUNT_ENDPOINT_PREFIX);
@@ -161,6 +192,7 @@ public class CoreService extends Service {
     }
 
     private void mqttOnConnected(){
+        Log.e(TAG, "mqttOnConnected");
         mqttManager.subscribeToTopic(String.format("client/%s/unicast", user_id), AWSIotMqttQos.QOS1, new AWSIotMqttNewMessageCallback() {
             @Override
             public void onMessageArrived(String topic, byte[] data) {
@@ -231,72 +263,92 @@ public class CoreService extends Service {
 
     private LocationManager mLocationManager;
 
+    private boolean mLocationServiceRunning = false;
     private void startLocationService() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        if(mLocationServiceRunning)
+            return;
+        mLocationServiceRunning = true;
+        Log.e(TAG, "startLocationService");
         mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         startGPSListener();
         startNetworkListener();
     }
 
-    private void startGPSListener() {
-        Log.e("lala", "startGPSListener");
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+    private void stopLocationService(){
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        Log.e("lala", "startGPSListener checked");
-        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                Log.e("lala", "Accuracy: "+location.getAccuracy());
+        if(!mLocationServiceRunning)
+            return;
+        mLocationServiceRunning = false;
+        Log.e(TAG, "stopLocationService");
+        mLocationManager.removeUpdates(mGpsLocationListener);
+        mLocationManager.removeUpdates(mNetworkLocationListener);
+    }
+
+    private LocationListener mGpsLocationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+            Log.e("lala", "Accuracy: "+location.getAccuracy());
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+            if (LocationProvider.OUT_OF_SERVICE == status) {
+                Log.e(TAG, "GPS provider out of service");
+                startNetworkListener();
             }
 
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-                if (LocationProvider.OUT_OF_SERVICE == status) {
-                    Log.e(TAG, "GPS provider out of service");
-                    startNetworkListener();
-                }
+        }
 
+        @Override
+        public void onProviderEnabled(String provider) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+        }
+    };
+
+    private LocationListener mNetworkLocationListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+            Log.e("lala", "Accuracy: "+location.getAccuracy());
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+            if (LocationProvider.OUT_OF_SERVICE == status) {
+                Log.e(TAG, "Network provider out of service");
             }
 
-            @Override
-            public void onProviderEnabled(String provider) {
+        }
 
-            }
+        @Override
+        public void onProviderEnabled(String provider) {
 
-            @Override
-            public void onProviderDisabled(String provider) {
-            }
-        });
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+        }
+    };
+
+    private void startGPSListener() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, mGpsLocationListener);
     }
 
     private void startNetworkListener(){
-        Log.e("lala", "startNetworkListener");
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        Log.e("lala", "startNetworkListener checked");
-        mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 5, new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                Log.e("lala", "Accuracy: "+location.getAccuracy());
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-                if (LocationProvider.OUT_OF_SERVICE == status) {
-                    Log.e(TAG, "Network provider out of service");
-                }
-
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-            }
-        });
+        mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 5, mNetworkLocationListener);
     }
 }

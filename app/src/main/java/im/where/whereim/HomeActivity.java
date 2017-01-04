@@ -1,13 +1,16 @@
 package im.where.whereim;
 
+import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.IBinder;
-import android.support.v7.app.AppCompatActivity;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.IBinder;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +18,7 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -124,10 +128,48 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (ContextCompat.checkSelfPermission(HomeActivity.this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(HomeActivity.this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                Toast.makeText(HomeActivity.this, R.string.permission_rationale, Toast.LENGTH_SHORT).show();
+
+            } else {
+                ActivityCompat.requestPermissions(HomeActivity.this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        0);
+            }
+        }
+
         setContentView(R.layout.activity_home);
 
         mListView = (ListView) findViewById(R.id.channel_list);
         mListView.setAdapter(mAdapter);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 0: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    if(mBinder!=null){
+                        mBinder.checkLocationService();
+                    }
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
     }
 
     @Override
