@@ -22,7 +22,7 @@ import android.widget.Toast;
 
 import java.util.List;
 
-public class HomeActivity extends AppCompatActivity {
+public class ChannelListActivity extends AppCompatActivity {
 
     private ServiceConnection mConnection = new ServiceConnection() {
 
@@ -112,7 +112,7 @@ public class HomeActivity extends AppCompatActivity {
         public View getView(int position, View view, ViewGroup parent) {
             ViewHolder vh;
             if(view==null){
-                view = LayoutInflater.from(HomeActivity.this).inflate(R.layout.channel_list_item, null);
+                view = LayoutInflater.from(ChannelListActivity.this).inflate(R.layout.channel_list_item, null);
                 vh = new ViewHolder(view);
                 view.setTag(vh);
             }else{
@@ -129,17 +129,17 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (ContextCompat.checkSelfPermission(HomeActivity.this,
+        if (ContextCompat.checkSelfPermission(ChannelListActivity.this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
 
-            if (ActivityCompat.shouldShowRequestPermissionRationale(HomeActivity.this,
+            if (ActivityCompat.shouldShowRequestPermissionRationale(ChannelListActivity.this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
 
-                Toast.makeText(HomeActivity.this, R.string.permission_rationale, Toast.LENGTH_SHORT).show();
+                Toast.makeText(ChannelListActivity.this, R.string.permission_rationale, Toast.LENGTH_SHORT).show();
 
             } else {
-                ActivityCompat.requestPermissions(HomeActivity.this,
+                ActivityCompat.requestPermissions(ChannelListActivity.this,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                         0);
             }
