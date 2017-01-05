@@ -51,6 +51,7 @@ public class ChannelMapFragment extends SupportMapFragment {
         getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
+                googleMap.setMyLocationEnabled(true);
                 googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(defaultLat, defaultLng), 15));
             }
         });
