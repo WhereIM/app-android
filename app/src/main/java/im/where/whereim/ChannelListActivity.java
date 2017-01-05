@@ -3,19 +3,23 @@ package im.where.whereim;
 import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -160,6 +164,34 @@ public class ChannelListActivity extends AppCompatActivity {
 
         mListView = (ListView) findViewById(R.id.channel_list);
         mListView.setAdapter(mAdapter);
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final View dialog_view = LayoutInflater.from(ChannelListActivity.this).inflate(R.layout.dialog_channel_create,  null);
+                final EditText et_channel_name = (EditText) dialog_view.findViewById(R.id.channel_name);
+                final EditText et_mate_name = (EditText) dialog_view.findViewById(R.id.mate_name);
+                new AlertDialog.Builder(ChannelListActivity.this)
+                        .setTitle(R.string.create_channel)
+                        .setView(dialog_view)
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String channel_name = et_channel_name.getText().toString();
+                                String mate_name = et_mate_name.getText().toString();
+                                mBinder.createChannel(channel_name, mate_name);
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        }).show();
+            }
+        });
+
     }
 
     @Override

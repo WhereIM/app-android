@@ -31,15 +31,15 @@
     </LinearLayout>
 
     <FrameLayout
-        android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:padding="5dp">
+        android:padding="5dp"
+        android:layout_width="100dp">
+
         <Switch
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/enable"
-            android:layout_gravity="center" />
+            android:id="@+id/enable" />
 
         <ProgressBar
             android:layout_width="wrap_content"

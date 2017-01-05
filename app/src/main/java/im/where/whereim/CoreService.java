@@ -99,6 +99,21 @@ public class CoreService extends Service {
             }
         }
 
+        public void createChannel(String channel_name, String mate_name){
+            try {
+                JSONObject payload = new JSONObject();
+                payload.put("channel_name", channel_name);
+                payload.put("mate_name", mate_name);
+                String topic = String.format("channel/create");
+                String message = payload.toString();
+                mqttManager.publishString(message, topic, AWSIotMqttQos.QOS1);
+                Log.e(TAG, "Publish "+topic+" "+message);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+
         public boolean openChannel(Models.Channel channel, MapDataReceiver receiver){
             if(channel==null)
                 return false;
