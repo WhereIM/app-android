@@ -90,9 +90,7 @@ public class CoreService extends Service {
                 payload.put("enable", !channel.enable);
                 channel.enable = null;
                 String topic = String.format("client/%s/setting/set", client_id);
-                String message = payload.toString();
-                mqttManager.publishString(message, topic, AWSIotMqttQos.QOS1);
-                Log.e(TAG, "Publish "+topic+" "+message);
+                publish(topic, payload);
                 notifyChannelListChangedListeners();
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -105,9 +103,7 @@ public class CoreService extends Service {
                 payload.put("channel_name", channel_name);
                 payload.put("mate_name", mate_name);
                 String topic = String.format("channel/create");
-                String message = payload.toString();
-                mqttManager.publishString(message, topic, AWSIotMqttQos.QOS1);
-                Log.e(TAG, "Publish "+topic+" "+message);
+                publish(topic, payload);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -126,8 +122,7 @@ public class CoreService extends Service {
                 mMapDataReceiver.get(channel.id).add(receiver);
             }
             String topic = String.format("channel/%s/get/+", channel.id);
-            Log.e(TAG, "Subscribe "+topic);
-            mqttManager.subscribeToTopic(topic, AWSIotMqttQos.QOS1, new AWSIotMqttNewMessageCallback() {
+            subscribe(topic, new AWSIotMqttNewMessageCallback() {
                 @Override
                 public void onMessageArrived(String topic, byte[] data) {
                     try {
@@ -148,7 +143,7 @@ public class CoreService extends Service {
                     mMapDataReceiver.get(channel.id).remove(receiver);
                 }
             }
-            mqttManager.unsubscribeTopic(String.format("channel/%s/get/+", channel.id));
+            unsubscribe(String.format("channel/%s/get/+", channel.id));
         }
 
         public void checkLocationService(){
@@ -279,8 +274,7 @@ public class CoreService extends Service {
         String topic;
 
         topic = String.format("client/%s/unicast", client_id);
-        Log.e(TAG, "Subscribe "+topic);
-        mqttManager.subscribeToTopic(topic, AWSIotMqttQos.QOS1, new AWSIotMqttNewMessageCallback() {
+        subscribe(topic, new AWSIotMqttNewMessageCallback() {
             @Override
             public void onMessageArrived(String topic, byte[] data) {
                 try {
@@ -294,8 +288,7 @@ public class CoreService extends Service {
             }
         });
         topic = String.format("client/%s/setting/get", client_id);
-        Log.e(TAG, "Subscribe "+topic);
-        mqttManager.subscribeToTopic(topic, AWSIotMqttQos.QOS1, new AWSIotMqttNewMessageCallback() {
+        subscribe(topic, new AWSIotMqttNewMessageCallback() {
             @Override
             public void onMessageArrived(String topic, byte[] data) {
                 try {
@@ -364,6 +357,38 @@ public class CoreService extends Service {
 
             }
         });
+    }
+
+    private boolean subscribe(String topic, AWSIotMqttNewMessageCallback callback){
+        try{
+            Log.e(TAG, "Subscribe "+topic);
+            mqttManager.subscribeToTopic(topic, AWSIotMqttQos.QOS1, callback);
+            return true;
+        }catch(Exception e){
+            return false;
+        }
+    }
+
+    private boolean unsubscribe(String topic){
+        try{
+            Log.e(TAG, "Unsubscribe "+topic);
+            mqttManager.unsubscribeTopic(topic);
+            return true;
+        }catch(Exception e){
+            return false;
+        }
+    }
+
+
+    private boolean publish(String topic, JSONObject payload){
+        try {
+            String message = payload.toString();
+            Log.e(TAG, "Publish "+topic+" "+message);
+            mqttManager.publishString(message, topic, AWSIotMqttQos.QOS1);
+            return true;
+        }catch(Exception e){
+            return false;
+        }
     }
 
     private String assetsFileToString(String path){
@@ -492,9 +517,7 @@ public class CoreService extends Service {
             msg.put("time", System.currentTimeMillis());
             msg.put("pvdr", provider);
             String topic = String.format("client/%s/info", client_id);
-            String message = msg.toString();
-            mqttManager.publishString(message, topic, AWSIotMqttQos.QOS1);
-            Log.e(TAG, "Publish "+topic+" "+message);
+            publish(topic, msg);
         } catch (JSONException e) {
             e.printStackTrace();
         }
