@@ -10,7 +10,6 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -105,8 +104,8 @@ public class ChannelListActivity extends AppCompatActivity {
 
             public void setItem(Models.Channel channel){
                 mChannel = channel;
-                if(channel.name!=null){
-                    mTitle.setText(channel.name);
+                if(channel.user_channel_name !=null){
+                    mTitle.setText(channel.user_channel_name);
                     mSubtitle.setText(channel.channel_name);
                 }else{
                     mTitle.setText(channel.channel_name);

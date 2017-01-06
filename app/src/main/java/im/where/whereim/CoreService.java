@@ -334,7 +334,7 @@ public class CoreService extends Service {
             }
             channel.id = msg.getString("channel");
             channel.channel_name  = msg.optString("channel_name", channel.channel_name);
-            channel.name  = msg.optString("name", channel.name);
+            channel.user_channel_name = Util.JsonOptNullableString(msg, "user_channel_name", channel.user_channel_name);
             if(msg.has("enable")){
                 channel.enable = msg.getBoolean("enable");
             }

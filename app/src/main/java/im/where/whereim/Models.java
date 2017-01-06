@@ -8,7 +8,7 @@ public class Models {
     public static class Channel{
         String id;
         String channel_name;
-        String name;
+        String user_channel_name;
         Boolean enable;
     }
 }
