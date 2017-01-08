@@ -57,17 +57,23 @@ public class LoginActivity extends BaseActivity {
             @Override
             public void onSuccess(final LoginResult loginResult) {
                 startLoading();
-                ProfileTracker profileTracker = new ProfileTracker() {
-                    @Override
-                    protected void onCurrentProfileChanged(
-                            Profile oldProfile,
-                            Profile currentProfile) {
-                        String name = currentProfile.getName();
-                        stopTracking();
-                        mPendingRegistration = new Registration("facebook", loginResult.getAccessToken().getUserId(), name);
-                        processRegistration();
-                    }
-                };
+                Profile profile = Profile.getCurrentProfile();
+                if(profile==null){
+                    new ProfileTracker() {
+                        @Override
+                        protected void onCurrentProfileChanged(
+                                Profile oldProfile,
+                                Profile currentProfile) {
+                            String name = currentProfile.getName();
+                            stopTracking();
+                            mPendingRegistration = new Registration("facebook", loginResult.getAccessToken().getUserId(), name);
+                            processRegistration();
+                        }
+                    }.startTracking();
+                }else{
+                    mPendingRegistration = new Registration("facebook", loginResult.getAccessToken().getUserId(), profile.getName());
+                    processRegistration();
+                }
             }
 
             @Override
