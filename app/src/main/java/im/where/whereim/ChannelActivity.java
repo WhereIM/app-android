@@ -1,9 +1,6 @@
 package im.where.whereim;
 
 import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
@@ -13,7 +10,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -132,11 +128,15 @@ public class ChannelActivity extends BaseActivity implements CoreService.MapData
         }
     }
 
+    String mChannelId;
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         super.onServiceConnected(name, service);
         String channel_id = getIntent().getStringExtra("channel");
-        mChannel = mBinder.getChannelById(channel_id);
+        if(channel_id!=null){
+            mChannelId = channel_id;
+        }
+        mChannel = mBinder.getChannelById(mChannelId);
         if(!mBinder.openChannel(mChannel, ChannelActivity.this)){
             finish();
             return;

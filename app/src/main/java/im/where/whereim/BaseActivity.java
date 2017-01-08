@@ -4,9 +4,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.Bundle;
 import android.os.IBinder;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
 /**
@@ -22,18 +20,18 @@ public class BaseActivity extends AppCompatActivity implements ServiceConnection
     }
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onResume() {
+        super.onResume();
         Intent intent = new Intent(this, CoreService.class);
         bindService(intent, this, Context.BIND_AUTO_CREATE);
     }
 
     @Override
-    protected void onDestroy() {
+    protected void onPause() {
         unbindService(this);
         mBinder = null;
 
-        super.onDestroy();
+        super.onPause();
     }
 
     @Override
