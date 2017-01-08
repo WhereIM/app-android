@@ -2,6 +2,7 @@ package im.where.whereim;
 
 import android.content.ComponentName;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,10 +19,25 @@ import com.facebook.login.widget.LoginButton;
 
 public class LoginActivity extends BaseActivity {
 
+    private Handler mHandler = new Handler();
     private CallbackManager mCallbackManager;
 
     private View mLogin;
     private View mLoading;
+
+    private static class Registration {
+        String auth_provider;
+        String auth_id;
+        String name;
+
+        public Registration(String auth_provider, String auth_id, String name) {
+            this.auth_provider = auth_provider;
+            this.auth_id = auth_id;
+            this.name = name;
+        }
+    }
+
+    private Registration mPendingRegistration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,15 +63,9 @@ public class LoginActivity extends BaseActivity {
                             Profile oldProfile,
                             Profile currentProfile) {
                         String name = currentProfile.getName();
-                        Log.e("lala", "name="+name);
                         stopTracking();
-                        mBinder.register_client("facebook", loginResult.getAccessToken().getUserId(), name, new Runnable(){
-
-                            @Override
-                            public void run() {
-                                checkLogin();
-                            }
-                        });
+                        mPendingRegistration = new Registration("facebook", loginResult.getAccessToken().getUserId(), name);
+                        processRegistration();
                     }
                 };
             }
@@ -72,12 +82,33 @@ public class LoginActivity extends BaseActivity {
         });
     }
 
+    private void processRegistration() {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                if(mBinder==null || mPendingRegistration==null){
+                    return;
+                }
+                Registration reg = mPendingRegistration;
+                mPendingRegistration = null;
+                mBinder.register_client(reg.auth_provider, reg.auth_id, reg.name, new Runnable(){
+
+                    @Override
+                    public void run() {
+                        checkLogin();
+                    }
+                });
+            }
+        });
+    }
+
     private void checkLogin(){
         if(getBinder().getClientId()==null){
             stopLoading();
         }else{
             Intent intent = new Intent(LoginActivity.this, ChannelListActivity.class);
             startActivity(intent);
+            finish();
         }
     }
 
@@ -94,7 +125,11 @@ public class LoginActivity extends BaseActivity {
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         super.onServiceConnected(name, service);
-        checkLogin();
+        if(mPendingRegistration!=null){
+            processRegistration();
+        }else{
+            checkLogin();
+        }
     }
 
     @Override
