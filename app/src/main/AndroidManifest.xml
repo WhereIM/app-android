@@ -35,11 +35,30 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDz9vrIpEVzN7EtQo7mClEIsARpHagJjHI" />
 
-        <activity android:name=".ChannelListActivity">
+        <meta-data android:name="io.branch.sdk.BranchKey" android:value="key_live_aayb4b97WVkvLOgKbltUBogaFBg655VB" />
+
+        <activity android:name=".ChannelListActivity"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="where.im" />
+            </intent-filter>
+            <intent-filter>
+                <data android:scheme="whereim" android:host="open" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
         </activity>
 
@@ -62,6 +81,12 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
+
+        <receiver android:name="io.branch.referral.InstallListener" android:exported="true">
+            <intent-filter>
+                <action android:name="com.android.vending.INSTALL_REFERRER" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
