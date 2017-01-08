@@ -13,7 +13,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,24 +25,7 @@ import android.widget.Toast;
 
 import java.util.List;
 
-public class ChannelListActivity extends AppCompatActivity {
-
-    private ServiceConnection mConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            mBinder = (CoreService.CoreBinder) service;
-            mBinder.addChannelListChangedListener(mChannelListChangedListener);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-
-        }
-    };
-
-    private CoreService.CoreBinder mBinder;
+public class ChannelListActivity extends BaseActivity {
     private List<Models.Channel> mChannelList;
     private ListView mListView;
     private Runnable mChannelListChangedListener = new Runnable() {
@@ -211,10 +193,9 @@ public class ChannelListActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        Intent intent = new Intent(this, CoreService.class);
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+    public void onServiceConnected(ComponentName name, IBinder service) {
+        super.onServiceConnected(name, service);
+        mBinder.addChannelListChangedListener(mChannelListChangedListener);
     }
 
     @Override
@@ -222,9 +203,6 @@ public class ChannelListActivity extends AppCompatActivity {
         if(mBinder!=null) {
             mBinder.removeChannelListChangedListener(mChannelListChangedListener);
         }
-        unbindService(mConnection);
-        mBinder = null;
         super.onPause();
     }
-
 }

@@ -3,7 +3,9 @@ package im.where.whereim;
 import android.Manifest;
 import android.app.Notification;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -17,13 +19,13 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.iot.AWSIotKeystoreHelper;
 import com.amazonaws.mobileconnectors.iot.AWSIotMqttClientStatusCallback;
 import com.amazonaws.mobileconnectors.iot.AWSIotMqttManager;
 import com.amazonaws.mobileconnectors.iot.AWSIotMqttNewMessageCallback;
 import com.amazonaws.mobileconnectors.iot.AWSIotMqttQos;
 import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.util.IOUtils;
 
 import org.json.JSONException;
@@ -32,6 +34,8 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
 import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,6 +44,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.net.ssl.HttpsURLConnection;
+
 public class CoreService extends Service {
     private final static String TAG = "CoreService";
     public interface MapDataReceiver{
@@ -47,6 +53,80 @@ public class CoreService extends Service {
     };
 
     public class CoreBinder extends Binder{
+        public String getClientId(){
+            return mClientId;
+        }
+
+        public void register_client(final String provider, final String auth_id, final String name, final Runnable callback){
+            new Thread(){
+                @Override
+                public void run() {
+                    try {
+                        JSONObject payload = new JSONObject();
+                        payload.put("auth_provider", provider);
+                        payload.put("auth_id", auth_id);
+                        payload.put("name", name);
+
+                        HttpsURLConnection conn;
+                        InputStream is;
+
+                        URL url = new URL(Config.AWS_API_GATEWAY_REGISTER_CLIENT);
+                        conn = (HttpsURLConnection) url.openConnection();
+                        conn.setRequestMethod("POST");
+                        conn.setUseCaches(false);
+                        conn.setDoInput(true);
+                        conn.setDoOutput(true);
+
+                        OutputStream os = conn.getOutputStream();
+                        os.write(payload.toString().getBytes());
+                        os.close();
+
+                        is = conn.getInputStream();
+                        String json = IOUtils.toString(is);
+                        is.close();
+                        conn.disconnect();
+
+                        JSONObject res = new JSONObject(json);
+
+                        URL key_url = new URL(res.getString("key"));
+                        conn = (HttpsURLConnection) key_url.openConnection();
+                        is = conn.getInputStream();
+                        String key_str = IOUtils.toString(is);
+                        is.close();
+                        conn.disconnect();
+
+                        URL crt_url = new URL(res.getString("crt"));
+                        conn = (HttpsURLConnection) crt_url.openConnection();
+                        is = conn.getInputStream();
+                        String crt_str = IOUtils.toString(is);
+                        is.close();
+                        conn.disconnect();
+
+                        File keyStoreFile = new File(keyStorePath, Config.KEY_STORE_NAME);
+                        if(keyStoreFile.exists()){
+                            keyStoreFile.delete();
+                        }
+                        AWSIotKeystoreHelper.saveCertificateAndPrivateKey(Config.CERT_ID, crt_str, key_str, keyStorePath, Config.KEY_STORE_NAME, Config.KEY_STORE_PASSWORD);
+
+                        mClientId = res.getString("id");
+
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                SharedPreferences.Editor editor = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
+                                editor.putString("client_id", mClientId);
+                                editor.commit();
+                                onAuthed();
+                                callback.run();
+                            }
+                        });
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }.start();
+        }
+
         public void clearChannelList(){
             mChannelList.clear(); // minor leak in mChannelMap
         }
@@ -89,7 +169,7 @@ public class CoreService extends Service {
                 payload.put("channel", channel.id);
                 payload.put("enable", !channel.enable);
                 channel.enable = null;
-                String topic = String.format("client/%s/setting/set", client_id);
+                String topic = String.format("client/%s/setting/set", mClientId);
                 publish(topic, payload);
                 notifyChannelListChangedListeners();
             } catch (JSONException e) {
@@ -161,20 +241,24 @@ public class CoreService extends Service {
 
     }
 
+    CognitoCachingCredentialsProvider credentialsProvider;
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         keyStorePath = getFilesDir().getAbsolutePath();
 
-        mqttManager = new AWSIotMqttManager(client_id, REGION_ID, ACCOUNT_ENDPOINT_PREFIX);
-        mqttManager.setAutoReconnect(true);
-        String cert = assetsFileToString(CERT_FILE);
-        String priv = assetsFileToString(PRIVATE_KEY_FILE);
-        File keyStoreFile = new File(keyStorePath, KEY_STORE_NAME);
-        if(!keyStoreFile.exists() || !AWSIotKeystoreHelper.keystoreContainsAlias(CERT_ID, keyStorePath, KEY_STORE_NAME, KEY_STORE_PASSWORD)){
-            AWSIotKeystoreHelper.saveCertificateAndPrivateKey(CERT_ID, cert, priv, keyStorePath, KEY_STORE_NAME, KEY_STORE_PASSWORD);
+        SharedPreferences settings = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+        mClientId = settings.getString("client_id", null);
+        if(mClientId!=null){
+            onAuthed();
         }
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    private void onAuthed(){
+        mqttManager = new AWSIotMqttManager(mClientId, Region.getRegion(Config.AWS_REGION_ID), Config.AWS_IOT_MQTT_ENDPOINT);
+        mqttManager.setAutoReconnect(true);
         Log.e(TAG, "Service Started");
-        keyStore = AWSIotKeystoreHelper.getIotKeystore(CERT_ID, keyStorePath, KEY_STORE_NAME, KEY_STORE_PASSWORD);
+        keyStore = AWSIotKeystoreHelper.getIotKeystore(Config.CERT_ID, keyStorePath, Config.KEY_STORE_NAME, Config.KEY_STORE_PASSWORD);
         mqttManager.connect(keyStore, new AWSIotMqttClientStatusCallback() {
             @Override
             public void onStatusChanged(AWSIotMqttClientStatus status, Throwable throwable) {
@@ -190,25 +274,16 @@ public class CoreService extends Service {
                 }
             }
         });
-        return super.onStartCommand(intent, flags, startId);
     }
 
     private List<Models.Channel> mChannelList = new ArrayList<>();
     private HashMap<String, Models.Channel> mChannelMap = new HashMap<>();
 
-    private final static String client_id = "a535d42efaff46278c37764f84abcc01";
-
-    private final static String ACCOUNT_ENDPOINT_PREFIX = "a3ftvwpcurxils";
-    private final static Region REGION_ID = Region.getRegion(Regions.AP_NORTHEAST_1);
-
-    private static final String CERT_ID = "xxxxx";
-    private static final String CERT_FILE = "test1.crt";
-    private static final String PRIVATE_KEY_FILE = "test1.key";
 
     private KeyStore keyStore;
-    private static final String KEY_STORE_NAME = "xxxxx.jks";
-    private static final String KEY_STORE_PASSWORD = "xxxxx";
     private String keyStorePath;
+
+    private String mClientId;
 
     private AWSIotMqttManager mqttManager;
 
@@ -273,7 +348,7 @@ public class CoreService extends Service {
         Log.e(TAG, "mqttOnConnected");
         String topic;
 
-        topic = String.format("client/%s/unicast", client_id);
+        topic = String.format("client/%s/unicast", mClientId);
         subscribe(topic, new AWSIotMqttNewMessageCallback() {
             @Override
             public void onMessageArrived(String topic, byte[] data) {
@@ -287,7 +362,7 @@ public class CoreService extends Service {
                 }
             }
         });
-        topic = String.format("client/%s/setting/get", client_id);
+        topic = String.format("client/%s/setting/get", mClientId);
         subscribe(topic, new AWSIotMqttNewMessageCallback() {
             @Override
             public void onMessageArrived(String topic, byte[] data) {
@@ -516,7 +591,7 @@ public class CoreService extends Service {
             }
             msg.put("time", System.currentTimeMillis());
             msg.put("pvdr", provider);
-            String topic = String.format("client/%s/info", client_id);
+            String topic = String.format("client/%s/info", mClientId);
             publish(topic, msg);
         } catch (JSONException e) {
             e.printStackTrace();

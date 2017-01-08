@@ -21,7 +21,7 @@ import android.view.View;
 
 import org.json.JSONObject;
 
-public class ChannelActivity extends AppCompatActivity implements CoreService.MapDataReceiver {
+public class ChannelActivity extends BaseActivity implements CoreService.MapDataReceiver {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -132,45 +132,21 @@ public class ChannelActivity extends AppCompatActivity implements CoreService.Ma
         }
     }
 
-    private CoreService.CoreBinder mBinder;
-    private ServiceConnection mConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            mBinder = (CoreService.CoreBinder) service;
-            String channel_id = getIntent().getStringExtra("channel");
-            mChannel = mBinder.getChannelById(channel_id);
-            if(!mBinder.openChannel(mChannel, ChannelActivity.this)){
-                finish();
-                return;
-            }
-            mTabLayout.setupWithViewPager(mViewPager);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-
-        }
-    };
-
-    public CoreService.CoreBinder getBinder(){
-        return mBinder;
-    }
-
     @Override
-    protected void onResume() {
-        super.onResume();
-
-        Intent intent = new Intent(this, CoreService.class);
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+    public void onServiceConnected(ComponentName name, IBinder service) {
+        super.onServiceConnected(name, service);
+        String channel_id = getIntent().getStringExtra("channel");
+        mChannel = mBinder.getChannelById(channel_id);
+        if(!mBinder.openChannel(mChannel, ChannelActivity.this)){
+            finish();
+            return;
+        }
+        mTabLayout.setupWithViewPager(mViewPager);
     }
 
     @Override
     protected void onPause() {
         mBinder.closeChannel(mChannel, ChannelActivity.this);
-        unbindService(mConnection);
-        mBinder = null;
         super.onPause();
     }
 }
