@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 
 /**
  * Created by buganini on 07/01/17.
@@ -31,7 +30,6 @@ public class BaseActivity extends AppCompatActivity implements ServiceConnection
 
     @Override
     protected void onDestroy() {
-        Log.e("lala", "destroy");
         unbindService(this);
         mBinder = null;
 

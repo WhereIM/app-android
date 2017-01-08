@@ -201,17 +201,10 @@ public class CoreService extends Service {
                 }
                 mMapDataReceiver.get(channel.id).add(receiver);
             }
-            String topic = String.format("channel/%s/get/+", channel.id);
-            subscribe(topic, new AWSIotMqttNewMessageCallback() {
-                @Override
-                public void onMessageArrived(String topic, byte[] data) {
-                    try {
-                        mqttChannelGetHandler(topic, new JSONObject(new String(data, "UTF-8")));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
+            synchronized (mOpenedChannel) {
+                mOpenedChannel.add(channel.id);
+            }
+            subscribeChannel(channel.id);
             return true;
         }
 
@@ -235,6 +228,7 @@ public class CoreService extends Service {
     private List<Runnable> mChannelListChangedListener = new ArrayList<>();
     private final IBinder mBinder = new CoreBinder();
 
+    private List<String> mOpenedChannel = new ArrayList<>();
     private HashMap<String, List<MapDataReceiver>> mMapDataReceiver = new HashMap<>();
 
     public CoreService() {
@@ -255,6 +249,8 @@ public class CoreService extends Service {
     }
 
     private void onAuthed(){
+        if(mqttManager!=null)
+            return;
         mqttManager = new AWSIotMqttManager(mClientId, Region.getRegion(Config.AWS_REGION_ID), Config.AWS_IOT_MQTT_ENDPOINT);
         mqttManager.setAutoReconnect(true);
         Log.e(TAG, "Service Started");
@@ -265,10 +261,12 @@ public class CoreService extends Service {
                 Log.d(TAG, "AWSIotMqttClientStatus changed: "+status);
                 switch (status){
                     case Connected:
+                        Log.e(TAG, "MQTT Connected");
                         mqttOnConnected();
                         mMqttConnected = true;
                         break;
                     default:
+                        Log.e(TAG, "MQTT Disconnected");
                         mMqttConnected = false;
                         break;
                 }
@@ -345,7 +343,6 @@ public class CoreService extends Service {
     }
 
     private void mqttOnConnected(){
-        Log.e(TAG, "mqttOnConnected");
         String topic;
 
         topic = String.format("client/%s/unicast", mClientId);
@@ -374,6 +371,7 @@ public class CoreService extends Service {
                 }
             }
         });
+        _subscribeOpenedChannel();
     }
 
     private Pattern mChannelGetPattern = Pattern.compile("^channel/([A-Fa-f0-9]{32})/get/([0-9]+)$");
@@ -430,6 +428,28 @@ public class CoreService extends Service {
                     }
                 }
 
+            }
+        });
+    }
+
+    private void _subscribeOpenedChannel(){
+        synchronized (mOpenedChannel) {
+            for (String c : mOpenedChannel) {
+                subscribeChannel(c);
+            }
+        }
+    }
+
+    private void subscribeChannel(String channel_id){
+        String topic = String.format("channel/%s/get/+", channel_id);
+        subscribe(topic, new AWSIotMqttNewMessageCallback() {
+            @Override
+            public void onMessageArrived(String topic, byte[] data) {
+                try {
+                    mqttChannelGetHandler(topic, new JSONObject(new String(data, "UTF-8")));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
