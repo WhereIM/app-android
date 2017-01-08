@@ -77,8 +77,10 @@ public class CoreService extends Service {
                         conn.setDoInput(true);
                         conn.setDoOutput(true);
 
+                        String content = payload.toString();
+                        Log.e(TAG, "register_client: "+content);
                         OutputStream os = conn.getOutputStream();
-                        os.write(payload.toString().getBytes());
+                        os.write(content.getBytes());
                         os.close();
 
                         is = conn.getInputStream();

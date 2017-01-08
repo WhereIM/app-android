@@ -2,10 +2,8 @@ package im.where.whereim;
 
 import android.Manifest;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -195,6 +193,11 @@ public class ChannelListActivity extends BaseActivity {
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         super.onServiceConnected(name, service);
+        if(getBinder().getClientId()==null){
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        }
         mBinder.addChannelListChangedListener(mChannelListChangedListener);
     }
 
