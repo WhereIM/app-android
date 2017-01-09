@@ -1,6 +1,7 @@
 package im.where.whereim;
 
 import android.content.ComponentName;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
@@ -82,11 +83,20 @@ public class ChannelActivity extends BaseActivity implements CoreService.MapData
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_invite) {
+            invite_join();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void invite_join(){
+        Intent i = new Intent(Intent.ACTION_SEND);
+        i.setType("text/plain");
+        i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.action_invite));
+        i.putExtra(Intent.EXTRA_TEXT, "http://where.im/channel/"+mChannelId);
+        startActivity(Intent.createChooser(i, getString(R.string.action_invite)));
     }
 
     @Override
