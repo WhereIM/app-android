@@ -15,6 +15,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Switch;
 
 import org.json.JSONObject;
 
@@ -38,11 +39,28 @@ public class ChannelActivity extends BaseActivity implements CoreService.MapData
 
     private Models.Channel mChannel;
 
+    private Switch mEnable;
+    private View mEnableLoading;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_channel);
+
+        mEnable = (Switch) findViewById(R.id.enable);
+        mEnableLoading = findViewById(R.id.enable_loading);
+
+        mEnable.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                postBinderTask(new Models.BinderTask() {
+                    @Override
+                    public void onBinderReady(CoreService.CoreBinder binder) {
+                        binder.toggleChannelEnabled(mChannel);
+                    }
+                });
+            }
+        });
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -138,6 +156,26 @@ public class ChannelActivity extends BaseActivity implements CoreService.MapData
         }
     }
 
+    private Runnable mChannelListChangedListener = new Runnable() {
+        @Override
+        public void run() {
+            if(mChannel==null) {
+                mEnable.setVisibility(View.GONE);
+                mEnableLoading.setVisibility(View.GONE);
+                return;
+            }
+            Boolean enable = mChannel.enable;
+            if(enable==null){
+                mEnable.setVisibility(View.GONE);
+                mEnableLoading.setVisibility(View.VISIBLE);
+            }else{
+                mEnable.setVisibility(View.VISIBLE);
+                mEnableLoading.setVisibility(View.GONE);
+                mEnable.setChecked(enable);
+            }
+        }
+    };
+
     String mChannelId;
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
@@ -146,6 +184,8 @@ public class ChannelActivity extends BaseActivity implements CoreService.MapData
         if(channel_id!=null){
             mChannelId = channel_id;
         }
+        mBinder.addChannelListChangedListener(mChannelListChangedListener);
+
         mChannel = mBinder.getChannelById(mChannelId);
         if(!mBinder.openChannel(mChannel, ChannelActivity.this)){
             finish();
@@ -156,6 +196,10 @@ public class ChannelActivity extends BaseActivity implements CoreService.MapData
 
     @Override
     protected void onPause() {
+        if(mBinder!=null) {
+            mBinder.removeChannelListChangedListener(mChannelListChangedListener);
+        }
+
         mBinder.closeChannel(mChannel, ChannelActivity.this);
         super.onPause();
     }

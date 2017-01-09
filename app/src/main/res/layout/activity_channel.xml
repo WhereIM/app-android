@@ -23,6 +23,27 @@
             app:layout_scrollFlags="scroll|enterAlways"
             app:popupTheme="@style/AppTheme.PopupOverlay">
 
+            <FrameLayout
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:padding="5dp"
+                android:layout_width="80dp">
+
+                <Switch
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/enable"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:background="@null" />
+
+                <ProgressBar
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/enable_loading"
+                    android:layout_gravity="center" />
+
+            </FrameLayout>
         </android.support.v7.widget.Toolbar>
 
         <android.support.design.widget.TabLayout

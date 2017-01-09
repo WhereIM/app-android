@@ -164,6 +164,9 @@ public class CoreService extends Service {
         }
 
         public void toggleChannelEnabled(Models.Channel channel){
+            if(channel==null){
+                return;
+            }
             if(channel.enable==null){
                 return;
             }
