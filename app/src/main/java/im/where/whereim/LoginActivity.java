@@ -110,6 +110,7 @@ public class LoginActivity extends BaseActivity {
         if(getBinder().getClientId()==null){
             stopLoading();
         }else{
+            Log.e("LoginActivity", "start ChannelListActivity");
             Intent intent = new Intent(LoginActivity.this, ChannelListActivity.class);
             startActivity(intent);
             finish();

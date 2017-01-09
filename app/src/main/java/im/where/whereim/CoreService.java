@@ -78,7 +78,7 @@ public class CoreService extends Service {
                         conn.setDoOutput(true);
 
                         String content = payload.toString();
-                        Log.e(TAG, "register_client: "+content);
+                        Log.e(TAG, "register_client -> "+content);
                         OutputStream os = conn.getOutputStream();
                         os.write(content.getBytes());
                         os.close();
@@ -88,6 +88,7 @@ public class CoreService extends Service {
                         is.close();
                         conn.disconnect();
 
+                        Log.e(TAG, "register_client <- "+json);
                         JSONObject res = new JSONObject(json);
 
                         URL key_url = new URL(res.getString("key"));
@@ -189,7 +190,18 @@ public class CoreService extends Service {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+        }
 
+        public void joinChannel(String channel_id, String channel_alias, String mate_name){
+            try {
+                JSONObject payload = new JSONObject();
+                payload.put("channel_name", channel_alias);
+                payload.put("mate_name", mate_name);
+                String topic = String.format("channel/%s/join", channel_id);
+                publish(topic, payload);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
 
         public boolean openChannel(Models.Channel channel, MapDataReceiver receiver){

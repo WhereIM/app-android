@@ -23,7 +23,11 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ChannelListActivity extends BaseActivity {
     private List<Models.Channel> mChannelList;
@@ -124,6 +128,55 @@ public class ChannelListActivity extends BaseActivity {
         }
     };
 
+    Pattern mPatternChannelJoin = Pattern.compile("^channel/([A-Fa-f0-9]{32})$");
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Uri data = intent.getData();
+        if (data != null && data.isHierarchical()) {
+            try {
+                URI uri = new URI(intent.getDataString());
+                String action = uri.getHost()+uri.getPath();
+                Matcher m = mPatternChannelJoin.matcher(action);
+                if(m.matches()){
+                    channelJoin(m.group(1));
+                    return;
+                }
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void channelJoin(final String channel_id){
+        final View dialog_view = LayoutInflater.from(ChannelListActivity.this).inflate(R.layout.dialog_channel_join,  null);
+        final TextView tv_channel_name = (TextView) dialog_view.findViewById(R.id.channel_name);
+//        final EditText et_channel_alias = (EditText) dialog_view.findViewById(R.id.channel_alias);
+        final EditText et_mate_name = (EditText) dialog_view.findViewById(R.id.mate_name);
+        new AlertDialog.Builder(ChannelListActivity.this)
+                .setTitle(R.string.join_channel)
+                .setView(dialog_view)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+//                        final String channel_alias = et_channel_alias.getText().toString();
+                        final String mate_name = et_mate_name.getText().toString();
+                        postBinderTask(new Models.BinderTask() {
+                            @Override
+                            public void onBinderReady(CoreService.CoreBinder binder) {
+                                binder.joinChannel(channel_id, null /*channel_alias*/, mate_name);
+                            }
+                        });
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                }).show();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -143,6 +196,8 @@ public class ChannelListActivity extends BaseActivity {
                         0);
             }
         }
+
+        onNewIntent(this.getIntent());
 
         setContentView(R.layout.activity_channel_list);
 
@@ -202,6 +257,7 @@ public class ChannelListActivity extends BaseActivity {
     public void onServiceConnected(ComponentName name, IBinder service) {
         super.onServiceConnected(name, service);
         if(getBinder().getClientId()==null){
+            Log.e("ChannelListActivity", "start LoginActivity");
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
             finish();

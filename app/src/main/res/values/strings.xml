@@ -11,4 +11,6 @@
     <string name="display_name">Display Name</string>
     <string name="create_channel">Create Channel</string>
     <string name="ok">OK</string>
+    <string name="channel_alias">Channel Alias</string>
+    <string name="join_channel">Join Channel</string>
 </resources>
