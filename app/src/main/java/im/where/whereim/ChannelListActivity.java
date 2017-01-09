@@ -5,12 +5,14 @@ import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,10 +31,13 @@ public class ChannelListActivity extends BaseActivity {
     private Runnable mChannelListChangedListener = new Runnable() {
         @Override
         public void run() {
-            if(mBinder==null)
-                return;
-            mChannelList = mBinder.getChannelList();
-            mAdapter.notifyDataSetChanged();
+            postBinderTask(new Models.BinderTask() {
+                @Override
+                public void onBinderReady(CoreService.CoreBinder binder) {
+                    mChannelList = binder.getChannelList();
+                    mAdapter.notifyDataSetChanged();
+                }
+            });
         }
     };
 
@@ -181,9 +186,12 @@ public class ChannelListActivity extends BaseActivity {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                    if(mBinder!=null){
-                        mBinder.checkLocationService();
-                    }
+                    postBinderTask(new Models.BinderTask() {
+                        @Override
+                        public void onBinderReady(CoreService.CoreBinder binder) {
+                            binder.checkLocationService();
+                        }
+                    });
                 }
                 return;
             }

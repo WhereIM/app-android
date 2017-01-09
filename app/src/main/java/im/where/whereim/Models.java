@@ -11,4 +11,8 @@ public class Models {
         String user_channel_name;
         Boolean enable;
     }
+
+    public interface BinderTask{
+        void onBinderReady(CoreService.CoreBinder binder);
+    };
 }

@@ -18,8 +18,6 @@ import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
 public class LoginActivity extends BaseActivity {
-
-    private Handler mHandler = new Handler();
     private CallbackManager mCallbackManager;
 
     private View mLogin;
@@ -54,6 +52,23 @@ public class LoginActivity extends BaseActivity {
         loginButton.setReadPermissions("public_profile");
 
         loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
+            private Models.BinderTask mTask = new Models.BinderTask(){
+
+                @Override
+                public void onBinderReady(CoreService.CoreBinder binder) {
+                    startLoading();
+                    binder.register_client("facebook", mAuthId, mName, new Runnable(){
+
+                        @Override
+                        public void run() {
+                            checkLogin();
+                        }
+                    });
+                }
+            };
+
+            private String mAuthId;
+            private String mName;
             @Override
             public void onSuccess(final LoginResult loginResult) {
                 startLoading();
@@ -66,13 +81,16 @@ public class LoginActivity extends BaseActivity {
                                 Profile currentProfile) {
                             String name = currentProfile.getName();
                             stopTracking();
-                            mPendingRegistration = new Registration("facebook", loginResult.getAccessToken().getUserId(), name);
-                            processRegistration();
+
+                            mAuthId = loginResult.getAccessToken().getUserId();
+                            mName = name;
+                            postBinderTask(mTask);
                         }
                     }.startTracking();
                 }else{
-                    mPendingRegistration = new Registration("facebook", loginResult.getAccessToken().getUserId(), profile.getName());
-                    processRegistration();
+                    mAuthId = loginResult.getAccessToken().getUserId();
+                    mName = profile.getName();
+                    postBinderTask(mTask);
                 }
             }
 
@@ -84,26 +102,6 @@ public class LoginActivity extends BaseActivity {
             @Override
             public void onError(FacebookException exception) {
                 // App code
-            }
-        });
-    }
-
-    private void processRegistration() {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                if(mBinder==null || mPendingRegistration==null){
-                    return;
-                }
-                Registration reg = mPendingRegistration;
-                mPendingRegistration = null;
-                mBinder.register_client(reg.auth_provider, reg.auth_id, reg.name, new Runnable(){
-
-                    @Override
-                    public void run() {
-                        checkLogin();
-                    }
-                });
             }
         });
     }
@@ -131,11 +129,7 @@ public class LoginActivity extends BaseActivity {
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         super.onServiceConnected(name, service);
-        if(mPendingRegistration!=null){
-            processRegistration();
-        }else{
-            checkLogin();
-        }
+        checkLogin();
     }
 
     @Override
