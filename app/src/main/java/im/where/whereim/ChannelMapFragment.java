@@ -2,11 +2,13 @@ package im.where.whereim;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -18,8 +20,6 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-
-import org.json.JSONException;
 
 import java.util.HashMap;
 
@@ -33,13 +33,11 @@ public class ChannelMapFragment extends SupportMapFragment {
     private double defaultLat = 0;
     private double defaultLng = 0;
 
-    Bitmap mMarkerBitmap;
-
+    private View mMarkerView;
+    private TextView mMarkerViewTitle;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mMarkerBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.marker_mate);
 
         LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
         Location locationByGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
@@ -65,14 +63,15 @@ public class ChannelMapFragment extends SupportMapFragment {
 
     @Override
     public void onDestroy() {
-        mMarkerBitmap.recycle();
-        mMarkerBitmap = null;
         super.onDestroy();
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        mMarkerView = LayoutInflater.from(context).inflate(R.layout.map_mate, null);
+        mMarkerViewTitle = (TextView) mMarkerView.findViewById(R.id.title);
+
         mBinder = ((ChannelActivity) context).getBinder();
     }
 
@@ -80,6 +79,7 @@ public class ChannelMapFragment extends SupportMapFragment {
     public void onDetach() {
         super.onDetach();
         mBinder = null;
+        mMarkerView = null;
     }
 
     private HashMap<String, Circle> mCircleList = new HashMap<>();
@@ -111,13 +111,21 @@ public class ChannelMapFragment extends SupportMapFragment {
                         marker.remove();
                     }
                 }
+
+                mMarkerViewTitle.setText(mate.getDisplayName());
+                mMarkerView.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                        View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+                mMarkerView.layout(0, 0, mMarkerView.getMeasuredWidth(), mMarkerView.getMeasuredHeight());
+                mMarkerView.setDrawingCacheEnabled(true);
+                mMarkerView.buildDrawingCache();
+
                 Marker marker = googleMap.addMarker(
                         new MarkerOptions()
                                 .position(new LatLng(mate.latitude, mate.longitude))
-                                .title(mate.getDisplayName())
                                 .anchor(0.5f, 1f)
-                                .icon(BitmapDescriptorFactory.fromBitmap(mMarkerBitmap))
+                                .icon(BitmapDescriptorFactory.fromBitmap(mMarkerView.getDrawingCache()))
                 );
+
                 synchronized (mMarkerList){
                     mMarkerList.put(mate.id, marker);
                 }
