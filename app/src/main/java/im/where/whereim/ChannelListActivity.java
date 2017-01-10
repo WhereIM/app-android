@@ -94,11 +94,12 @@ public class ChannelListActivity extends BaseActivity {
             public void setItem(Models.Channel channel){
                 mChannel = channel;
                 if(channel.user_channel_name !=null){
+                    mSubtitle.setVisibility(View.VISIBLE);
                     mTitle.setText(channel.user_channel_name);
                     mSubtitle.setText(channel.channel_name);
                 }else{
                     mTitle.setText(channel.channel_name);
-                    mSubtitle.setText("");
+                    mSubtitle.setVisibility(View.GONE);
                 }
                 if(channel.enable==null){
                     mLoading.setVisibility(View.VISIBLE);
