@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import org.json.JSONObject;
 
@@ -39,6 +40,8 @@ public class ChannelActivity extends BaseActivity implements CoreService.MapData
 
     private Models.Channel mChannel;
 
+    private TextView mChannelTitle;
+    private TextView mChannelSubtitle;
     private Switch mEnable;
     private View mEnableLoading;
     @Override
@@ -47,6 +50,8 @@ public class ChannelActivity extends BaseActivity implements CoreService.MapData
 
         setContentView(R.layout.activity_channel);
 
+        mChannelTitle = (TextView) findViewById(R.id.channel_title);
+        mChannelSubtitle = (TextView) findViewById(R.id.channel_subtitle);
         mEnable = (Switch) findViewById(R.id.enable);
         mEnableLoading = findViewById(R.id.enable_loading);
 
@@ -64,6 +69,7 @@ public class ChannelActivity extends BaseActivity implements CoreService.MapData
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(null);
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -163,6 +169,14 @@ public class ChannelActivity extends BaseActivity implements CoreService.MapData
                 mEnable.setVisibility(View.GONE);
                 mEnableLoading.setVisibility(View.GONE);
                 return;
+            }
+            if(mChannel.user_channel_name==null){
+                mChannelTitle.setText(mChannel.channel_name);
+                mChannelSubtitle.setVisibility(View.GONE);
+            }else{
+                mChannelSubtitle.setVisibility(View.VISIBLE);
+                mChannelTitle.setText(mChannel.user_channel_name);
+                mChannelSubtitle.setText(mChannel.channel_name);
             }
             Boolean enable = mChannel.enable;
             if(enable==null){
