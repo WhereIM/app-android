@@ -1,6 +1,8 @@
 package im.where.whereim;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
@@ -10,6 +12,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -31,9 +34,13 @@ public class ChannelMapFragment extends SupportMapFragment {
     private double defaultLat = 0;
     private double defaultLng = 0;
 
+    Bitmap mMarkerBitmap;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mMarkerBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.marker_mate);
 
         LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
         Location locationByGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
@@ -55,6 +62,13 @@ public class ChannelMapFragment extends SupportMapFragment {
                 googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(defaultLat, defaultLng), 15));
             }
         });
+    }
+
+    @Override
+    public void onDestroy() {
+        mMarkerBitmap.recycle();
+        mMarkerBitmap = null;
+        super.onDestroy();
     }
 
     @Override
@@ -101,7 +115,13 @@ public class ChannelMapFragment extends SupportMapFragment {
                             marker.remove();
                         }
                     }
-                    Marker marker = googleMap.addMarker(new MarkerOptions().position(new LatLng(lat, lng)).title(mate_id));
+                    Marker marker = googleMap.addMarker(
+                        new MarkerOptions()
+                            .position(new LatLng(lat, lng))
+                            .title(mate_id)
+                            .anchor(0.5f, 1f)
+                            .icon(BitmapDescriptorFactory.fromBitmap(mMarkerBitmap))
+                    );
                     synchronized (mMarkerList){
                         mMarkerList.put(mate_id, marker);
                     }
