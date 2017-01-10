@@ -18,9 +18,7 @@ import android.view.View;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import org.json.JSONObject;
-
-public class ChannelActivity extends BaseActivity implements CoreService.MapDataReceiver {
+public class ChannelActivity extends BaseActivity implements CoreService.MateDataReceiver {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -124,8 +122,8 @@ public class ChannelActivity extends BaseActivity implements CoreService.MapData
     }
 
     @Override
-    public void onMapData(JSONObject data) {
-        mMapFragment.onMapData(data);
+    public void onMateData(Models.Mate mate) {
+        mMapFragment.onMateData(mate);
     }
 
     private ChannelMapFragment mMapFragment;

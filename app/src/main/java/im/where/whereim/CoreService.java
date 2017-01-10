@@ -19,7 +19,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.iot.AWSIotKeystoreHelper;
 import com.amazonaws.mobileconnectors.iot.AWSIotMqttClientStatusCallback;
 import com.amazonaws.mobileconnectors.iot.AWSIotMqttManager;
@@ -48,8 +47,8 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class CoreService extends Service {
     private final static String TAG = "CoreService";
-    public interface MapDataReceiver{
-        public void onMapData(JSONObject data);
+    public interface MateDataReceiver {
+        public void onMateData(Models.Mate mate);
     };
 
     public class CoreBinder extends Binder{
@@ -207,25 +206,28 @@ public class CoreService extends Service {
             }
         }
 
-        public boolean openChannel(Models.Channel channel, MapDataReceiver receiver){
+        public boolean openChannel(Models.Channel channel, MateDataReceiver receiver){
             if(channel==null)
                 return false;
             if(!mMqttConnected)
                 return false;
             synchronized (mMapDataReceiver){
                 if(!mMapDataReceiver.containsKey(channel.id)){
-                    mMapDataReceiver.put(channel.id, new ArrayList<MapDataReceiver>());
+                    mMapDataReceiver.put(channel.id, new ArrayList<MateDataReceiver>());
                 }
                 mMapDataReceiver.get(channel.id).add(receiver);
             }
             synchronized (mOpenedChannel) {
                 mOpenedChannel.add(channel.id);
             }
+            synchronized (mChannelMate) {
+                mChannelMate.clear();
+            }
             subscribeChannel(channel.id);
             return true;
         }
 
-        public void closeChannel(Models.Channel channel, MapDataReceiver receiver){
+        public void closeChannel(Models.Channel channel, MateDataReceiver receiver){
             if(channel==null)
                 return;
             synchronized (mMapDataReceiver){
@@ -246,13 +248,12 @@ public class CoreService extends Service {
     private final IBinder mBinder = new CoreBinder();
 
     private List<String> mOpenedChannel = new ArrayList<>();
-    private HashMap<String, List<MapDataReceiver>> mMapDataReceiver = new HashMap<>();
+    private HashMap<String, List<MateDataReceiver>> mMapDataReceiver = new HashMap<>();
 
     public CoreService() {
 
     }
 
-    CognitoCachingCredentialsProvider credentialsProvider;
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         keyStorePath = getFilesDir().getAbsolutePath();
@@ -391,7 +392,7 @@ public class CoreService extends Service {
         _subscribeOpenedChannel();
     }
 
-    private Pattern mChannelGetPattern = Pattern.compile("^channel/([A-Fa-f0-9]{32})/get/([0-9]+)$");
+    private Pattern mChannelGetPattern = Pattern.compile("^channel/([A-Fa-f0-9]{32})/get/([^/]+)$");
     private void mqttClientUnicastHandler(String topic, JSONObject msg){
         Matcher m;
         m = mChannelGetPattern.matcher(topic);
@@ -428,25 +429,90 @@ public class CoreService extends Service {
         }
     }
 
-    private void mqttChannelGetHandler(String topic, final JSONObject msg){
-        Log.e(TAG, "Receive "+topic+" "+msg.toString());
+    private HashMap<String, HashMap<String, Models.Mate>> mChannelMate = new HashMap<>();
+    private Models.Mate getChannelMate(String channel_id, String mate_id){
+        HashMap<String, Models.Mate> mateMap;
+        synchronized (mChannelMate) {
+            mateMap = mChannelMate.get(channel_id);
+            if(mateMap==null){
+                mateMap = new HashMap<>();
+                mChannelMate.put(channel_id, mateMap);
+            }
+        }
+        Models.Mate mate;
+        synchronized (mateMap) {
+            mate = mateMap.get(mate_id);
+            if(mate==null){
+                mate = new Models.Mate();
+                mate.id = mate_id;
+                mateMap.put(mate_id, mate);
+            }
+        }
+        return mate;
+    }
+    private void mqttChannelGetHandler(String topic, final JSONObject data){
+        Log.e(TAG, "Receive "+topic+" "+data.toString());
         Matcher m = mChannelGetPattern.matcher(topic);
         m.find();
         final String channel_id = m.group(1);
+        final String target = m.group(2);
 
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                synchronized (mMapDataReceiver){
-                    if(mMapDataReceiver.containsKey(channel_id)){
-                        for (MapDataReceiver mapDataReceiver : mMapDataReceiver.get(channel_id)) {
-                            mapDataReceiver.onMapData(msg);
+        String mate_id;
+        Models.Mate mate = null;
+
+        switch(target){
+            case Models.TARGET_0:
+            case Models.TARGET_1:
+            case Models.TARGET_2:
+            case Models.TARGET_3:
+                try {
+                    mate_id = data.getString("mate");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    return;
+                }
+                mate = getChannelMate(channel_id, mate_id);
+                try {
+                    mate.latitude = data.getDouble(Models.KEY_LATITUDE);
+                    mate.longitude = data.getDouble(Models.KEY_LONGITURE);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    mate.accuracy = data.getDouble(Models.KEY_ACCURACY);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case Models.TARGET_MATE:
+                try {
+                    mate_id = data.getString("mate");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    return;
+                }
+                mate = getChannelMate(channel_id, mate_id);
+                mate.mate_name = Util.JsonGetNullableString(data, Models.KEY_MATE_NAME);
+                mate.user_mate_name = Util.JsonGetNullableString(data, Models.KEY_USER_MATE_NAME);
+                break;
+        }
+
+        if(mate!=null){
+            final Models.Mate _m = mate;
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    synchronized (mMapDataReceiver){
+                        if(mMapDataReceiver.containsKey(channel_id)){
+                            for (MateDataReceiver mateDataReceiver : mMapDataReceiver.get(channel_id)) {
+                                mateDataReceiver.onMateData(_m);
+                            }
                         }
                     }
-                }
 
-            }
-        });
+                }
+            });
+        }
     }
 
     private void _subscribeOpenedChannel(){
