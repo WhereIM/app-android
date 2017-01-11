@@ -174,7 +174,7 @@ public class CoreService extends Service {
                 payload.put("channel", channel.id);
                 payload.put("enable", !channel.enable);
                 channel.enable = null;
-                String topic = String.format("client/%s/setting/set", mClientId);
+                String topic = String.format("client/%s/channel/set", mClientId);
                 publish(topic, payload);
                 notifyChannelListChangedListeners();
             } catch (JSONException e) {
@@ -377,7 +377,7 @@ public class CoreService extends Service {
                 }
             }
         });
-        topic = String.format("client/%s/setting/get", mClientId);
+        topic = String.format("client/%s/channel/get", mClientId);
         subscribe(topic, new AWSIotMqttNewMessageCallback() {
             @Override
             public void onMessageArrived(String topic, byte[] data) {
