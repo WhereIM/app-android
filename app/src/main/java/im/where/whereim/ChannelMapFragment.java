@@ -99,7 +99,6 @@ public class ChannelMapFragment extends BaseFragment implements GoogleMap.OnMapL
         }
     }
 
-    @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_channel_map, container, false);
