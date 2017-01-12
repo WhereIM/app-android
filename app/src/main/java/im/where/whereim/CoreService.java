@@ -48,7 +48,8 @@ import javax.net.ssl.HttpsURLConnection;
 public class CoreService extends Service {
     private final static String TAG = "CoreService";
     public interface MateDataReceiver {
-        public void onMateData(Models.Mate mate);
+        void onMateData(Models.Mate mate);
+        void onEnchantmentData(Models.Enchantment enchantment);
     };
 
     public class CoreBinder extends Binder{
@@ -171,8 +172,8 @@ public class CoreService extends Service {
             }
             try {
                 JSONObject payload = new JSONObject();
-                payload.put("channel", channel.id);
-                payload.put("enable", !channel.enable);
+                payload.put(Models.KEY_CHANNEL, channel.id);
+                payload.put(Models.KEY_ENABLE, !channel.enable);
                 channel.enable = null;
                 String topic = String.format("client/%s/channel/set", mClientId);
                 publish(topic, payload);
@@ -223,6 +224,13 @@ public class CoreService extends Service {
             synchronized (mChannelMate) {
                 mChannelMate.clear();
             }
+            synchronized (mEnchantment) {
+                for (Models.Enchantment enchantment : mEnchantment.values()) {
+                    if(enchantment.channel_id.equals(channel.id)){
+                        receiver.onEnchantmentData(enchantment);
+                    }
+                }
+            }
             subscribeChannel(channel.id);
             return true;
         }
@@ -240,6 +248,22 @@ public class CoreService extends Service {
 
         public void checkLocationService(){
             _checkLocationService();
+        }
+
+        public void createEnchantment(String name, String channel_id, double latitude, double longitude, int radius, boolean enable) {
+            try {
+                JSONObject payload = new JSONObject();
+                payload.put(Models.KEY_NAME, name);
+                payload.put(Models.KEY_CHANNEL, channel_id);
+                payload.put(Models.KEY_LATITUDE, latitude);
+                payload.put(Models.KEY_LONGITURE, longitude);
+                payload.put(Models.KEY_RADIUS, radius);
+                payload.put(Models.KEY_ENABLE, enable);
+                String topic = String.format("client/%s/enchantment/set", mClientId);
+                publish(topic, payload);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     };
 
@@ -269,6 +293,7 @@ public class CoreService extends Service {
     private void onAuthed(){
         if(mqttManager!=null)
             return;
+        Log.e(TAG, "ClientId: "+mClientId);
         mqttManager = new AWSIotMqttManager(mClientId, Region.getRegion(Config.AWS_REGION_ID), Config.AWS_IOT_MQTT_ENDPOINT);
         mqttManager.setAutoReconnect(true);
         Log.e(TAG, "Service Started");
@@ -383,7 +408,19 @@ public class CoreService extends Service {
             public void onMessageArrived(String topic, byte[] data) {
                 try {
                     String message = new String(data, "UTF-8");
-                    mqttClientSettingGetHandler(topic, new JSONObject(message));
+                    mqttClientChannelGetHandler(topic, new JSONObject(message));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        topic = String.format("client/%s/enchantment/get", mClientId);
+        subscribe(topic, new AWSIotMqttNewMessageCallback() {
+            @Override
+            public void onMessageArrived(String topic, byte[] data) {
+                try {
+                    String message = new String(data, "UTF-8");
+                    mqttClientEnchantmentGetHandler(topic, new JSONObject(message));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -402,11 +439,61 @@ public class CoreService extends Service {
         }
     }
 
-    private void mqttClientSettingGetHandler(String topic, JSONObject msg){
+    final private HashMap<String, Models.Enchantment> mEnchantment = new HashMap<>();
+    final private HashMap<String, Models.Enchantment> mEnabledEnchantment = new HashMap<>();
+    private void mqttClientEnchantmentGetHandler(String topic, JSONObject msg){
+        Log.e(TAG, "Receive "+topic+" "+msg.toString());
+
+        try {
+            String channel_id = msg.getString(Models.KEY_CHANNEL);
+            String enchantment_id = msg.getString(Models.KEY_ID);
+            Models.Enchantment enchantment;
+
+            synchronized (mEnchantment) {
+                if(!mEnchantment.containsKey(enchantment_id)){
+                    enchantment = new Models.Enchantment();
+                    enchantment.id = enchantment_id;
+                    mEnchantment.put(enchantment.id, enchantment);
+                }else{
+                    enchantment = mEnchantment.get(enchantment_id);
+                }
+            }
+
+            enchantment.channel_id = channel_id;
+            enchantment.name = msg.getString(Models.KEY_NAME);
+            enchantment.latitude = msg.getDouble(Models.KEY_LATITUDE);
+            enchantment.longitude = msg.getDouble(Models.KEY_LONGITURE);
+            enchantment.radius = msg.getDouble(Models.KEY_RADIUS);
+            enchantment.enable = msg.getBoolean(Models.KEY_ENABLE);
+
+            if(enchantment.enable){
+                synchronized (mEnabledEnchantment) {
+                    mEnabledEnchantment.put(enchantment.id, enchantment);
+                }
+            }else{
+                synchronized (mEnabledEnchantment) {
+                    mEnabledEnchantment.remove(enchantment.id);
+                }
+            }
+            synchronized (mMapDataReceiver){
+                if(mMapDataReceiver.containsKey(channel_id)){
+                    for (MateDataReceiver mateDataReceiver : mMapDataReceiver.get(channel_id)) {
+                        mateDataReceiver.onEnchantmentData(enchantment);
+                    }
+                }
+            }
+
+//            processEnabledEnchantment();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void mqttClientChannelGetHandler(String topic, JSONObject msg){
         try {
             Log.e(TAG, "Receive "+topic+" "+msg.toString());
             Models.Channel channel;
-            String channel_id = msg.getString("channel");
+            String channel_id = msg.getString(Models.KEY_CHANNEL);
             if(mChannelMap.containsKey(channel_id)){
                 channel = mChannelMap.get(channel_id);
             }else{
@@ -416,7 +503,7 @@ public class CoreService extends Service {
             if(!mChannelList.contains(channel)){
                 mChannelList.add(channel);
             }
-            channel.id = msg.getString("channel");
+            channel.id = channel_id;
             channel.channel_name  = msg.optString("channel_name", channel.channel_name);
             channel.user_channel_name = Util.JsonOptNullableString(msg, "user_channel_name", channel.user_channel_name);
             if(msg.has("enable")){

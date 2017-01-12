@@ -1,15 +1,18 @@
 package im.where.whereim;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -17,7 +20,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
@@ -29,13 +31,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class ChannelMapFragment extends Fragment implements GoogleMap.OnMapLongClickListener {
-    private CoreService.CoreBinder mBinder;
-
+public class ChannelMapFragment extends BaseFragment implements GoogleMap.OnMapLongClickListener {
     public ChannelMapFragment() {
         // Required empty public constructor
     }
 
+    private Handler mHandler = new Handler();
     private List<OnMapReadyCallback> mPendingTask = new ArrayList<>();
 
     protected void postMapTask(OnMapReadyCallback task){
@@ -45,32 +46,40 @@ public class ChannelMapFragment extends Fragment implements GoogleMap.OnMapLongC
         processMapTask();
     }
 
-
+    private Runnable mMapTaskRunnable = new Runnable() {
+        @Override
+        public void run() {
+            while(true){
+                OnMapReadyCallback task = null;
+                synchronized (mPendingTask){
+                    if(mPendingTask.size()>0){
+                        task = mPendingTask.remove(0);
+                    }
+                }
+                if(task==null){
+                    break;
+                }else{
+                    mMapView.getMapAsync(task);
+                }
+            }
+        }
+    };
     private void processMapTask() {
         if(mMapView==null){
             return;
         }
-        while(true){
-            OnMapReadyCallback task = null;
-            synchronized (mPendingTask){
-                if(mPendingTask.size()>0){
-                    task = mPendingTask.remove(0);
-                }
-            }
-            if(task==null){
-                break;
-            }else{
-                mMapView.getMapAsync(task);
-            }
-        }
+        mHandler.post(mMapTaskRunnable);
     }
 
     private double defaultLat = 0;
     private double defaultLng = 0;
 
     private MapView mMapView;
+    private View mEnchantmentController;
     private View mMarkerView;
     private TextView mMarkerViewTitle;
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,9 +104,51 @@ public class ChannelMapFragment extends Fragment implements GoogleMap.OnMapLongC
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_channel_map, container, false);
 
-//        MapsInitializer.initialize(getActivity());
+        mEnchantmentController = view.findViewById(R.id.enchantment_controller);
+        view.findViewById(R.id.enchantment_enlarge).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int n = mEditingEnchantmentRadiusIndex + 1;
+                if(n < Config.ENCHANTMENT_RADIUS.length){
+                    mEditingEnchantmentRadiusIndex = n;
+                    refreshEditingEnchantment();
+                }
+            }
+        });
+        view.findViewById(R.id.enchantment_reduce).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int n = mEditingEnchantmentRadiusIndex - 1;
+                if(n >= 0){
+                    mEditingEnchantmentRadiusIndex = n;
+                    refreshEditingEnchantment();
+                }
+            }
+        });
+        view.findViewById(R.id.enchantment_ok).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                postBinderTask(new Models.BinderTask() {
+                    @Override
+                    public void onBinderReady(final CoreService.CoreBinder binder) {
+                        getChannel(new ChannelActivity.GetChannelCallback() {
+                            @Override
+                            public void onGetChannel(Models.Channel channel) {
+                                binder.createEnchantment(mEditingEnchantmentName, channel.id, mEditingEnchantmentPosition.latitude, mEditingEnchantmentPosition.longitude, Config.ENCHANTMENT_RADIUS[mEditingEnchantmentRadiusIndex], true);
+                                mEditingEnchantmentPosition = null;
+                                mEditingEnchantmentName = null;
+                                refreshEditingEnchantment();
+                            }
+                        });
+                    }
+                });
+            }
+        });
 
         mMapView = (MapView) view.findViewById(R.id.map);
+
+        MapsInitializer.initialize(getActivity());
+
         mMapView.onCreate(savedInstanceState);
 
         mMapView.getMapAsync(new OnMapReadyCallback() {
@@ -118,51 +169,57 @@ public class ChannelMapFragment extends Fragment implements GoogleMap.OnMapLongC
         super.onAttach(context);
         mMarkerView = LayoutInflater.from(context).inflate(R.layout.map_mate, null);
         mMarkerViewTitle = (TextView) mMarkerView.findViewById(R.id.title);
-
-        mBinder = ((ChannelActivity) context).getBinder();
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mBinder = null;
         mMarkerView = null;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        mMapView.onResume();
+        if(mMapView!=null)
+            mMapView.onResume();
     }
 
     @Override
     public void onPause() {
-        mMapView.onPause();
+        if(mMapView!=null)
+            mMapView.onPause();
         super.onPause();
     }
 
     @Override
     public void onDestroy() {
-        mMapView.onDestroy();
+        try {
+            if (mMapView != null)
+                mMapView.onDestroy();
+        }catch(Exception e){
+            // noop
+        }
         super.onDestroy();
     }
-
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        mMapView.onSaveInstanceState(outState);
+        if(mMapView!=null)
+            mMapView.onSaveInstanceState(outState);
     }
 
     @Override
     public void onLowMemory() {
-        mMapView.onLowMemory();
+        if(mMapView!=null)
+            mMapView.onLowMemory();
         super.onLowMemory();
     }
 
     @Override
     public void onDestroyView() {
-        mMapView.onDestroy();
+        if(mMapView!=null)
+            mMapView.onDestroy();
         super.onDestroyView();
     }
 
@@ -185,7 +242,7 @@ public class ChannelMapFragment extends Fragment implements GoogleMap.OnMapLongC
                 Circle circle = googleMap.addCircle(new CircleOptions()
                         .center(new LatLng(mate.latitude, mate.longitude))
                         .radius(mate.accuracy)
-                        .strokeColor(Color.RED));
+                        .strokeColor(Color.BLUE));
                 synchronized (mCircleList) {
                     mCircleList.put(mate.id, circle);
                 }
@@ -216,5 +273,82 @@ public class ChannelMapFragment extends Fragment implements GoogleMap.OnMapLongC
                 }
             }
         });
+    }
+
+    final private HashMap<String, Circle> mEnchantmentCircle = new HashMap<>();
+    public void onEnchantmentData(final Models.Enchantment enchantment){
+        postMapTask(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                synchronized (mEnchantmentCircle) {
+                    Circle circle = mEnchantmentCircle.get(enchantment.id);
+                    if(circle!=null){
+                        circle.remove();
+                    }
+                }
+                Circle circle = googleMap.addCircle(new CircleOptions()
+                        .center(new LatLng(enchantment.latitude, enchantment.longitude))
+                        .radius(enchantment.radius)
+                        .strokeColor(enchantment.enable?Color.RED:Color.YELLOW));
+                synchronized (mEnchantmentCircle) {
+                    mEnchantmentCircle.put(enchantment.id, circle);
+                }
+            }
+        });
+    }
+
+    private String mEditingEnchantmentName;
+    private LatLng mEditingEnchantmentPosition;
+    private int mEditingEnchantmentRadiusIndex = Config.DEFAULT_ENCHANTMENT_RADIUS_INDEX;
+    private Circle mEditingEnchantmentCircle = null;
+    @Override
+    public void onMapLongClick(final LatLng latLng) {
+        mEditingEnchantmentPosition = latLng;
+        if(mEditingEnchantmentName==null){
+            final View dialog_view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_enchantment_create,  null);
+            final EditText et_name = (EditText) dialog_view.findViewById(R.id.name);
+            new AlertDialog.Builder(getActivity())
+                    .setTitle(R.string.create_enchantment)
+                    .setView(dialog_view)
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            mEditingEnchantmentName = et_name.getText().toString();
+                            refreshEditingEnchantment();
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    }).show();
+        }else{
+            refreshEditingEnchantment();
+        }
+    }
+
+    private void refreshEditingEnchantment(){
+        if(mEditingEnchantmentPosition!=null){
+            mEnchantmentController.setVisibility(View.VISIBLE);
+            mMapView.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(GoogleMap googleMap) {
+                    if(mEditingEnchantmentCircle !=null){
+                        mEditingEnchantmentCircle.remove();
+                    }
+                    mEditingEnchantmentCircle = googleMap.addCircle(new CircleOptions()
+                            .center(mEditingEnchantmentPosition)
+                            .radius(Config.ENCHANTMENT_RADIUS[mEditingEnchantmentRadiusIndex])
+                            .strokeColor(Color.RED));
+                }
+            });
+        }else{
+            mEnchantmentController.setVisibility(View.GONE);
+            if(mEditingEnchantmentCircle!=null){
+                mEditingEnchantmentCircle.remove();
+            }
+            return;
+        }
     }
 }

@@ -34,6 +34,16 @@ class Models {
         }
     }
 
+    static class Enchantment{
+        String id;
+        String channel_id;
+        String name;
+        double latitude;
+        double longitude;
+        double radius;
+        boolean enable;
+    }
+
     interface BinderTask{
         void onBinderReady(CoreService.CoreBinder binder);
     };
@@ -46,7 +56,11 @@ class Models {
     final static String KEY_SPEED = "spd";
     final static String KEY_TIME = "time";
     final static String KEY_PROVIDER = "pvdr";
-
+    final static String KEY_RADIUS = "r";
+    final static String KEY_ENABLE = "enable";
+    final static String KEY_ID = "id";
+    static final String KEY_NAME = "name";
+    final static String KEY_CHANNEL = "channel";
     final static String KEY_MATE_NAME = "mate_name";
     final static String KEY_USER_MATE_NAME = "user_mate_name";
 

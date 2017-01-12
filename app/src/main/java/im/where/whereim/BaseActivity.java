@@ -45,6 +45,7 @@ public class BaseActivity extends AppCompatActivity implements ServiceConnection
             }
         }
     }
+
     protected CoreService.CoreBinder mBinder;
 
     public CoreService.CoreBinder getBinder(){

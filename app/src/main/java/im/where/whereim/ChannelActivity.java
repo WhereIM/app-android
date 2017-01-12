@@ -36,6 +36,14 @@ public class ChannelActivity extends BaseActivity implements CoreService.MateDat
 
     private Models.Channel mChannel;
 
+    interface GetChannelCallback{
+        public void onGetChannel(Models.Channel channel);
+    }
+
+    public Models.Channel getChannel(){
+        return mChannel;
+    }
+
     private TextView mChannelTitle;
     private TextView mChannelSubtitle;
     private Switch mEnable;
@@ -111,10 +119,15 @@ public class ChannelActivity extends BaseActivity implements CoreService.MateDat
 
     @Override
     public void onMateData(Models.Mate mate) {
-        mMapFragment.onMateData(mate);
+        mChannelMapFragment.onMateData(mate);
     }
 
-    private ChannelMapFragment mMapFragment;
+    @Override
+    public void onEnchantmentData(Models.Enchantment enchantment) {
+        mChannelMapFragment.onEnchantmentData(enchantment);
+    }
+
+    private ChannelMapFragment mChannelMapFragment;
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         public SectionsPagerAdapter(FragmentManager fm) {
@@ -125,9 +138,9 @@ public class ChannelActivity extends BaseActivity implements CoreService.MateDat
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    if(mMapFragment==null)
-                        mMapFragment = new ChannelMapFragment();
-                    return mMapFragment;
+                    if(mChannelMapFragment ==null)
+                        mChannelMapFragment = new ChannelMapFragment();
+                    return mChannelMapFragment;
             }
             return null;
         }
@@ -198,9 +211,8 @@ public class ChannelActivity extends BaseActivity implements CoreService.MateDat
     protected void onPause() {
         if(mBinder!=null) {
             mBinder.removeChannelListChangedListener(mChannelListChangedListener);
+            mBinder.closeChannel(mChannel, ChannelActivity.this);
         }
-
-        mBinder.closeChannel(mChannel, ChannelActivity.this);
         super.onPause();
     }
 }
