@@ -20,7 +20,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChannelActivity extends BaseActivity implements CoreService.MapDataReceiver {
+public class ChannelActivity extends BaseActivity {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -100,10 +100,6 @@ public class ChannelActivity extends BaseActivity implements CoreService.MapData
                 mBinder.addChannelListChangedListener(mChannelListChangedListener);
 
                 mChannel = mBinder.getChannelById(mChannelId);
-                if(!mBinder.openChannel(mChannel, ChannelActivity.this)){
-                    finish();
-                    return;
-                }
                 mTabLayout.setupWithViewPager(mViewPager);
             }
         });
@@ -139,26 +135,6 @@ public class ChannelActivity extends BaseActivity implements CoreService.MapData
         i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.action_invite));
         i.putExtra(Intent.EXTRA_TEXT, "http://where.im/channel/"+mChannelId);
         startActivity(Intent.createChooser(i, getString(R.string.action_invite)));
-    }
-
-    @Override
-    public void onMateData(final Models.Mate mate) {
-        postMap(new MapFragmentCallback() {
-            @Override
-            public void onMapFragmentReady(ChannelMapFragment fragment) {
-                fragment.onMateData(mate);
-            }
-        });
-    }
-
-    @Override
-    public void onEnchantmentData(final Models.Enchantment enchantment) {
-        postMap(new MapFragmentCallback() {
-            @Override
-            public void onMapFragmentReady(ChannelMapFragment fragment) {
-                fragment.onEnchantmentData(enchantment);
-            }
-        });
     }
 
     private ChannelMapFragment mChannelMapFragment;
@@ -237,7 +213,6 @@ public class ChannelActivity extends BaseActivity implements CoreService.MapData
     protected void onPause() {
         if(mBinder!=null) {
             mBinder.removeChannelListChangedListener(mChannelListChangedListener);
-            mBinder.closeChannel(mChannel, ChannelActivity.this);
         }
         super.onPause();
     }

@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class ChannelMapFragment extends BaseFragment implements GoogleMap.OnMapLongClickListener {
+public class ChannelMapFragment extends BaseFragment implements CoreService.MapDataReceiver, GoogleMap.OnMapLongClickListener {
     public ChannelMapFragment() {
         // Required empty public constructor
     }
@@ -76,6 +76,7 @@ public class ChannelMapFragment extends BaseFragment implements GoogleMap.OnMapL
 
     private MapView mMapView;
     private View mEnchantmentController;
+    private View mMarkerController;
     private View mMarkerView;
     private TextView mMarkerViewTitle;
 
@@ -104,13 +105,14 @@ public class ChannelMapFragment extends BaseFragment implements GoogleMap.OnMapL
         View view = inflater.inflate(R.layout.fragment_channel_map, container, false);
 
         mEnchantmentController = view.findViewById(R.id.enchantment_controller);
+        mMarkerController = view.findViewById(R.id.marker_controller);
         view.findViewById(R.id.enchantment_enlarge).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 int n = mEditingEnchantmentRadiusIndex + 1;
                 if(n < Config.ENCHANTMENT_RADIUS.length){
                     mEditingEnchantmentRadiusIndex = n;
-                    refreshEditingEnchantment();
+                    refreshEditing();
                 }
             }
         });
@@ -120,7 +122,7 @@ public class ChannelMapFragment extends BaseFragment implements GoogleMap.OnMapL
                 int n = mEditingEnchantmentRadiusIndex - 1;
                 if(n >= 0){
                     mEditingEnchantmentRadiusIndex = n;
-                    refreshEditingEnchantment();
+                    refreshEditing();
                 }
             }
         });
@@ -133,14 +135,39 @@ public class ChannelMapFragment extends BaseFragment implements GoogleMap.OnMapL
                         getChannel(new ChannelActivity.GetChannelCallback() {
                             @Override
                             public void onGetChannel(Models.Channel channel) {
-                                binder.createEnchantment(mEditingEnchantmentName, channel.id, mEditingEnchantmentPosition.latitude, mEditingEnchantmentPosition.longitude, Config.ENCHANTMENT_RADIUS[mEditingEnchantmentRadiusIndex], true);
-                                mEditingEnchantmentPosition = null;
-                                mEditingEnchantmentName = null;
-                                refreshEditingEnchantment();
+                                binder.createEnchantment(mEditingName, channel.id, mEditingPosition.latitude, mEditingPosition.longitude, Config.ENCHANTMENT_RADIUS[mEditingEnchantmentRadiusIndex], true);
+                                mEditingType = 0;
+                                refreshEditing();
                             }
                         });
                     }
                 });
+            }
+        });
+        view.findViewById(R.id.marker_ok).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                postBinderTask(new Models.BinderTask() {
+                    @Override
+                    public void onBinderReady(final CoreService.CoreBinder binder) {
+                        getChannel(new ChannelActivity.GetChannelCallback() {
+                            @Override
+                            public void onGetChannel(Models.Channel channel) {
+                                binder.createMarker(mEditingName, channel.id, mEditingPosition.latitude, mEditingPosition.longitude);
+                                mEditingType = 0;
+                                refreshEditing();
+                            }
+                        });
+                    }
+                });
+
+            }
+        });
+        view.findViewById(R.id.marker_cancel).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mEditingType = 0;
+                refreshEditing();
             }
         });
 
@@ -163,16 +190,36 @@ public class ChannelMapFragment extends BaseFragment implements GoogleMap.OnMapL
         return view;
     }
 
+    private Models.Channel mChannel;
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         mMarkerView = LayoutInflater.from(context).inflate(R.layout.map_mate, null);
         mMarkerViewTitle = (TextView) mMarkerView.findViewById(R.id.title);
+        postBinderTask(new Models.BinderTask() {
+            @Override
+            public void onBinderReady(final CoreService.CoreBinder binder) {
+                getChannel(new ChannelActivity.GetChannelCallback() {
+                    @Override
+                    public void onGetChannel(Models.Channel channel) {
+                        mChannel = channel;
+                        binder.openChannel(channel, ChannelMapFragment.this);
+                    }
+                });
+            }
+        });
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        postBinderTask(new Models.BinderTask() {
+            @Override
+            public void onBinderReady(CoreService.CoreBinder binder) {
+                binder.closeChannel(mChannel, ChannelMapFragment.this);
+            }
+        });
         mMarkerView = null;
     }
 
@@ -222,8 +269,10 @@ public class ChannelMapFragment extends BaseFragment implements GoogleMap.OnMapL
         super.onDestroyView();
     }
 
-    private HashMap<String, Circle> mCircleList = new HashMap<>();
-    private HashMap<String, Marker> mMarkerList = new HashMap<>();
+    private HashMap<String, Circle> mMateCircle = new HashMap<>();
+    private HashMap<String, Marker> mMateMarker = new HashMap<>();
+
+    @Override
     public void onMateData(final Models.Mate mate){
         if(mate.latitude==null){
             return;
@@ -232,8 +281,8 @@ public class ChannelMapFragment extends BaseFragment implements GoogleMap.OnMapL
         postMapTask(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
-                synchronized (mCircleList) {
-                    Circle circle = mCircleList.get(mate.id);
+                synchronized (mMateCircle) {
+                    Circle circle = mMateCircle.get(mate.id);
                     if(circle!=null){
                         circle.remove();
                     }
@@ -242,12 +291,12 @@ public class ChannelMapFragment extends BaseFragment implements GoogleMap.OnMapL
                         .center(new LatLng(mate.latitude, mate.longitude))
                         .radius(mate.accuracy)
                         .strokeColor(Color.BLUE));
-                synchronized (mCircleList) {
-                    mCircleList.put(mate.id, circle);
+                synchronized (mMateCircle) {
+                    mMateCircle.put(mate.id, circle);
                 }
 
-                synchronized (mMarkerList) {
-                    Marker marker = mMarkerList.get(mate.id);
+                synchronized (mMateMarker) {
+                    Marker marker = mMateMarker.get(mate.id);
                     if(marker!=null){
                         marker.remove();
                     }
@@ -267,14 +316,16 @@ public class ChannelMapFragment extends BaseFragment implements GoogleMap.OnMapL
                                 .icon(BitmapDescriptorFactory.fromBitmap(mMarkerView.getDrawingCache()))
                 );
 
-                synchronized (mMarkerList){
-                    mMarkerList.put(mate.id, marker);
+                synchronized (mMateMarker){
+                    mMateMarker.put(mate.id, marker);
                 }
             }
         });
     }
 
     final private HashMap<String, Circle> mEnchantmentCircle = new HashMap<>();
+
+    @Override
     public void onEnchantmentData(final Models.Enchantment enchantment){
         postMapTask(new OnMapReadyCallback() {
             @Override
@@ -296,39 +347,109 @@ public class ChannelMapFragment extends BaseFragment implements GoogleMap.OnMapL
         });
     }
 
-    private String mEditingEnchantmentName;
-    private LatLng mEditingEnchantmentPosition;
-    private int mEditingEnchantmentRadiusIndex = Config.DEFAULT_ENCHANTMENT_RADIUS_INDEX;
-    private Circle mEditingEnchantmentCircle = null;
-    @Override
-    public void onMapLongClick(final LatLng latLng) {
-        mEditingEnchantmentPosition = latLng;
-        if(mEditingEnchantmentName==null){
-            final View dialog_view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_enchantment_create,  null);
-            final EditText et_name = (EditText) dialog_view.findViewById(R.id.name);
-            new AlertDialog.Builder(getActivity())
-                    .setTitle(R.string.create_enchantment)
-                    .setView(dialog_view)
-                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            mEditingEnchantmentName = et_name.getText().toString();
-                            refreshEditingEnchantment();
-                        }
-                    })
-                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
+    final private HashMap<String, Marker> mMarkerMarker = new HashMap<>();
 
-                        }
-                    }).show();
-        }else{
-            refreshEditingEnchantment();
-        }
+    @Override
+    public void onMarkerData(final Models.Marker marker) {
+        postMapTask(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                Marker m;
+                synchronized (mMarkerMarker) {
+                    m = mMarkerMarker.get(marker.id);
+                    if(m!=null){
+                        m.remove();
+                    }
+                }
+                m = googleMap.addMarker(
+                        new MarkerOptions()
+                                .position(new LatLng(marker.latitude, marker.longitude))
+                );
+
+                synchronized (mMarkerMarker){
+                    mMarkerMarker.put(marker.id, m);
+                }
+            }
+        });
     }
 
-    private void refreshEditingEnchantment(){
-        if(mEditingEnchantmentPosition!=null){
+    private String mEditingName;
+    private LatLng mEditingPosition;
+    private int mEditingType = 0;
+    private int mEditingEnchantmentRadiusIndex = Config.DEFAULT_ENCHANTMENT_RADIUS_INDEX;
+    private Circle mEditingEnchantmentCircle = null;
+    private Marker mEditingMarker = null;
+    @Override
+    public void onMapLongClick(final LatLng latLng) {
+        mEditingPosition = latLng;
+        if(mEditingType!=0){
+            refreshEditing();
+            return;
+        }
+        final View dialog_view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_map_object_create,  null);
+        final AlertDialog dialog = new AlertDialog.Builder(getActivity())
+                .setView(dialog_view)
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                }).create();
+        dialog_view.findViewById(R.id.enchantment).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                final View dialog_view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_enchantment_create,  null);
+                final EditText et_name = (EditText) dialog_view.findViewById(R.id.name);
+                new AlertDialog.Builder(getActivity())
+                        .setTitle(R.string.create_enchantment)
+                        .setView(dialog_view)
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                mEditingName = et_name.getText().toString();
+                                mEditingType = R.string.create_enchantment;
+                                refreshEditing();
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        }).show();
+            }
+        });
+        dialog_view.findViewById(R.id.marker).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                final View dialog_view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_marker_create,  null);
+                final EditText et_name = (EditText) dialog_view.findViewById(R.id.name);
+                new AlertDialog.Builder(getActivity())
+                        .setTitle(R.string.create_marker)
+                        .setView(dialog_view)
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                mEditingName = et_name.getText().toString();
+                                mEditingType = R.string.create_marker;
+                                refreshEditing();
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        }).show();
+            }
+        });
+        dialog.show();
+    }
+
+    private void refreshEditing(){
+        if(mEditingType==R.string.create_enchantment){
             mEnchantmentController.setVisibility(View.VISIBLE);
             mMapView.getMapAsync(new OnMapReadyCallback() {
                 @Override
@@ -337,7 +458,7 @@ public class ChannelMapFragment extends BaseFragment implements GoogleMap.OnMapL
                         mEditingEnchantmentCircle.remove();
                     }
                     mEditingEnchantmentCircle = googleMap.addCircle(new CircleOptions()
-                            .center(mEditingEnchantmentPosition)
+                            .center(mEditingPosition)
                             .radius(Config.ENCHANTMENT_RADIUS[mEditingEnchantmentRadiusIndex])
                             .strokeColor(Color.RED));
                 }
@@ -347,7 +468,27 @@ public class ChannelMapFragment extends BaseFragment implements GoogleMap.OnMapL
             if(mEditingEnchantmentCircle!=null){
                 mEditingEnchantmentCircle.remove();
             }
-            return;
+        }
+        if(mEditingType==R.string.create_marker){
+            mMarkerController.setVisibility(View.VISIBLE);
+            mMapView.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(GoogleMap googleMap) {
+                    if(mEditingMarker !=null){
+                        mEditingMarker.remove();
+                    }
+                    mEditingMarker = googleMap.addMarker(
+                            new MarkerOptions()
+                                    .position(mEditingPosition)
+                    );
+                }
+            });
+
+        }else{
+            mMarkerController.setVisibility(View.GONE);
+            if(mEditingMarker!=null){
+                mEditingMarker.remove();
+            }
         }
     }
 }

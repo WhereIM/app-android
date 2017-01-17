@@ -53,6 +53,7 @@ public class CoreService extends Service {
     public interface MapDataReceiver {
         void onMateData(Models.Mate mate);
         void onEnchantmentData(Models.Enchantment enchantment);
+        void onMarkerData(Models.Marker marker);
     };
 
     public class CoreBinder extends Binder{
@@ -238,6 +239,14 @@ public class CoreService extends Service {
                     }
                 }
             }
+            synchronized (mChannelMarker) {
+                HashMap<String, Models.Marker> list = mChannelMarker.get(channel.id);
+                if(list!=null){
+                    for (Models.Marker marker : list.values()) {
+                        receiver.onMarkerData(marker);
+                    }
+                }
+            }
             subscribeChannel(channel.id);
             return true;
         }
@@ -267,13 +276,38 @@ public class CoreService extends Service {
                 payload.put(Models.KEY_NAME, name);
                 payload.put(Models.KEY_CHANNEL, channel_id);
                 payload.put(Models.KEY_LATITUDE, latitude);
-                payload.put(Models.KEY_LONGITURE, longitude);
+                payload.put(Models.KEY_LONGITUDE, longitude);
                 payload.put(Models.KEY_RADIUS, radius);
                 payload.put(Models.KEY_ENABLE, enable);
                 String topic = String.format("client/%s/enchantment/put", mClientId);
                 publish(topic, payload);
             } catch (JSONException e) {
                 e.printStackTrace();
+            }
+        }
+
+        public void createMarker(String name, String channel_id, double latitude, double longitude) {
+            try {
+                JSONObject payload = new JSONObject();
+                payload.put(Models.KEY_NAME, name);
+                payload.put(Models.KEY_CHANNEL, channel_id);
+                payload.put(Models.KEY_LATITUDE, latitude);
+                payload.put(Models.KEY_LONGITUDE, longitude);
+                String topic = String.format("channel/%s/data/marker/put", channel_id);
+                publish(topic, payload);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public Models.Marker getChannelMarker(String channel_id, String marker_id){
+            synchronized (mChannelMarker) {
+                HashMap<String, Models.Marker> list;
+                list = mChannelMarker.get(channel_id);
+                if(list==null){
+                    return null;
+                }
+                return list.get(marker_id);
             }
         }
 
@@ -473,7 +507,7 @@ public class CoreService extends Service {
                             mqttClientChannelHandler(payload);
                             break;
                         case "enchantment":
-                            mqttClientEnchantmentGetHandler(payload);
+                            mqttClientEnchantmentHandler(payload);
                             break;
                     }
                 } catch (Exception e) {
@@ -498,8 +532,11 @@ public class CoreService extends Service {
         if(m.matches()){
             String channel_id = m.group(1);
             switch (m.group(2)){
-                case Models.KEY_MATE:
+                case "mate":
                     mqttChannelMateHandler(channel_id, msg);
+                    break;
+                case "marker":
+                    mqttChannelMarkerHandler(channel_id, msg);
                     break;
             }
             return;
@@ -508,7 +545,7 @@ public class CoreService extends Service {
 
     final private HashMap<String, Models.Enchantment> mEnchantment = new HashMap<>();
     final private HashMap<String, Models.Enchantment> mEnabledEnchantment = new HashMap<>();
-    private void mqttClientEnchantmentGetHandler(JSONObject msg){
+    private void mqttClientEnchantmentHandler(JSONObject msg){
         try {
             String channel_id = msg.getString(Models.KEY_CHANNEL);
             String enchantment_id = msg.getString(Models.KEY_ID);
@@ -527,7 +564,7 @@ public class CoreService extends Service {
             enchantment.channel_id = channel_id;
             enchantment.name = msg.getString(Models.KEY_NAME);
             enchantment.latitude = msg.getDouble(Models.KEY_LATITUDE);
-            enchantment.longitude = msg.getDouble(Models.KEY_LONGITURE);
+            enchantment.longitude = msg.getDouble(Models.KEY_LONGITUDE);
             enchantment.radius = msg.getDouble(Models.KEY_RADIUS);
             enchantment.enable = msg.getBoolean(Models.KEY_ENABLE);
 
@@ -588,12 +625,15 @@ public class CoreService extends Service {
                         Log.e(TAG, "Receive "+topic+" "+message);
                         JSONObject payload = new JSONObject(message);
                         switch(m.group(2)){
-                            case Models.KEY_MATE:
+                            case "mate":
                                 mqttChannelMateHandler(channel_id, payload);
                                 break;
                             case "message":
                                 mWimDBHelper.insert(Message.parse(payload));
                                 notifyMessageListener(channel_id);
+                                break;
+                            case "marker":
+                                mqttChannelMarkerHandler(channel_id, payload);
                                 break;
                         }
                     } catch (Exception e) {
@@ -609,6 +649,58 @@ public class CoreService extends Service {
     }
 
     // ================ Channel Data ================
+
+    // ================ Channel Data - Marker ================
+    private final HashMap<String, HashMap<String, Models.Marker>> mChannelMarker = new HashMap<>();
+    private void mqttChannelMarkerHandler(final String channel_id, JSONObject data){
+        String marker_id;
+        String name;
+        double latitude;
+        double longitude;
+        try {
+            marker_id = data.getString(Models.KEY_ID);
+            name = data.getString(Models.KEY_NAME);
+            latitude = data.getDouble(Models.KEY_LATITUDE);
+            longitude = data.getDouble(Models.KEY_LONGITUDE);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+        Models.Marker marker;
+        synchronized (mChannelMarker) {
+            HashMap<String, Models.Marker> list = mChannelMarker.get(channel_id);
+            if(list==null){
+                list = new HashMap<>();
+                mChannelMarker.put(channel_id, list);
+            }
+
+            marker = list.get(marker_id);
+            if(marker==null){
+                marker = new Models.Marker();
+                list.put(marker_id, marker);
+            }
+            marker.id = marker_id;
+            marker.channel_id = channel_id;
+            marker.name = name;
+            marker.latitude = latitude;
+            marker.longitude = longitude;
+        }
+
+        final Models.Marker _m = marker;
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (mMapDataReceiver){
+                    if(mMapDataReceiver.containsKey(channel_id)){
+                        for (MapDataReceiver mapDataReceiver : mMapDataReceiver.get(channel_id)) {
+                            mapDataReceiver.onMarkerData(_m);
+                        }
+                    }
+                }
+
+            }
+        });
+    }
 
     // ================ Channel Data - Mate ================
     private void mqttChannelMateHandler(String channel_id, JSONObject data){
@@ -644,7 +736,6 @@ public class CoreService extends Service {
                 mateMap.put(mate_id, mate);
             }
         }
-        Log.e("lala", "chhane_id="+channel_id+"; id="+mate_id+"; instance="+mate);
         return mate;
     }
 
@@ -681,7 +772,7 @@ public class CoreService extends Service {
         Models.Mate mate = getChannelMate(channel_id, mate_id);
         try {
             mate.latitude = data.getDouble(Models.KEY_LATITUDE);
-            mate.longitude = data.getDouble(Models.KEY_LONGITURE);
+            mate.longitude = data.getDouble(Models.KEY_LONGITUDE);
         } catch (JSONException e) {
             e.printStackTrace();
         }

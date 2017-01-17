@@ -34,6 +34,14 @@ public class Models {
         }
     }
 
+    public static class Marker{
+        public String id;
+        public String channel_id;
+        public String name;
+        public double latitude;
+        public double longitude;
+    }
+
     public static class Enchantment{
         public String id;
         public String channel_id;
@@ -49,7 +57,7 @@ public class Models {
     };
 
     final static String KEY_LATITUDE = "lat";
-    final static String KEY_LONGITURE = "lng";
+    final static String KEY_LONGITUDE = "lng";
     final static String KEY_ACCURACY = "acc";
     final static String KEY_ALTITUDE = "alt";
     final static String KEY_BEARING = "bear";

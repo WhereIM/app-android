@@ -60,7 +60,16 @@ public class ChannelMessengerFragment extends BaseFragment {
             Message m = Message.parse(cursor);
             ViewHolder vh = (ViewHolder) view.getTag();
             vh.sender.setText(binder.getChannelMate(mChannel.id, m.mate_id).getDisplayName());
-            vh.message.setText(m.message);
+            Models.Marker marker;
+            switch(m.type){
+                case "text":
+                    vh.message.setText(m.message);
+                    break;
+                case "marker_create":
+                    marker = binder.getChannelMarker(mChannel.id, m.message);
+                    vh.message.setText(getResources().getString(R.string.message_marker_create, marker==null?"":marker.name));
+                    break;
+            }
             vh.time.setText(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Timestamp(m.time*1000)));
         }
     };
