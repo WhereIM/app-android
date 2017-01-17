@@ -83,13 +83,18 @@ public class ChannelMessengerFragment extends BaseFragment {
         view.findViewById(R.id.send).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                final String message = input.getEditableText().toString();
+                if(message.isEmpty()){
+                    return;
+                }
+                input.setText(null);
                 postBinderTask(new Models.BinderTask() {
                     @Override
                     public void onBinderReady(final CoreService.CoreBinder binder) {
                         getChannel(new ChannelActivity.GetChannelCallback() {
                             @Override
                             public void onGetChannel(Models.Channel channel) {
-                                binder.sendMessage(channel, input.getEditableText().toString());
+                                binder.sendMessage(channel, message);
                             }
                         });
                     }
