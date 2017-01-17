@@ -4,29 +4,29 @@ package im.where.whereim;
  * Created by buganini on 04/01/17.
  */
 
-class Models {
-    static class Channel{
-        String id;
-        String channel_name;
-        String user_channel_name;
-        Boolean enable;
+public class Models {
+    public static class Channel{
+        public String id;
+        public String channel_name;
+        public String user_channel_name;
+        public Boolean enable;
     }
 
-    static class Mate{
-        String id;
-        String mate_name;
-        String user_mate_name;
+    public static class Mate{
+        public String id;
+        public String mate_name;
+        public String user_mate_name;
 
-        Double latitude;
-        Double longitude;
-        Double accuracy;
-        Double altitude; //m
-        Double bearing;
-        Double speed; //m
-        Long time;
-        String provider;
+        public Double latitude;
+        public Double longitude;
+        public Double accuracy;
+        public Double altitude; //m
+        public Double bearing;
+        public Double speed; //m
+        public Long time;
+        public String provider;
 
-        String getDisplayName(){
+        public String getDisplayName(){
             if(this.user_mate_name!=null){
                 return this.user_mate_name;
             }
@@ -34,14 +34,14 @@ class Models {
         }
     }
 
-    static class Enchantment{
-        String id;
-        String channel_id;
-        String name;
-        double latitude;
-        double longitude;
-        double radius;
-        boolean enable;
+    public static class Enchantment{
+        public String id;
+        public String channel_id;
+        public String name;
+        public double latitude;
+        public double longitude;
+        public double radius;
+        public boolean enable;
     }
 
     interface BinderTask{
@@ -65,4 +65,5 @@ class Models {
     final static String KEY_USER_MATE_NAME = "user_mate_name";
     final static String KEY_MATE = "mate";
     final static String KEY_CLIENT_ID = "client_id";
+    final static String KEY_MESSAGE = "msg";
 }

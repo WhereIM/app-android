@@ -3,6 +3,7 @@ package im.where.whereim;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -15,6 +16,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Switch;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ChannelActivity extends BaseActivity implements CoreService.MapDataReceiver {
 
@@ -35,6 +39,8 @@ public class ChannelActivity extends BaseActivity implements CoreService.MapData
     private TabLayout mTabLayout;
 
     private Models.Channel mChannel;
+
+    private Handler mHandler = new Handler();
 
     interface GetChannelCallback{
         public void onGetChannel(Models.Channel channel);
@@ -83,6 +89,24 @@ public class ChannelActivity extends BaseActivity implements CoreService.MapData
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         mTabLayout = (TabLayout) findViewById(R.id.tabs);
+
+        postBinderTask(new Models.BinderTask() {
+            @Override
+            public void onBinderReady(CoreService.CoreBinder binder) {
+                String channel_id = getIntent().getStringExtra("channel");
+                if(channel_id!=null){
+                    mChannelId = channel_id;
+                }
+                mBinder.addChannelListChangedListener(mChannelListChangedListener);
+
+                mChannel = mBinder.getChannelById(mChannelId);
+                if(!mBinder.openChannel(mChannel, ChannelActivity.this)){
+                    finish();
+                    return;
+                }
+                mTabLayout.setupWithViewPager(mViewPager);
+            }
+        });
     }
 
 
@@ -118,16 +142,27 @@ public class ChannelActivity extends BaseActivity implements CoreService.MapData
     }
 
     @Override
-    public void onMateData(Models.Mate mate) {
-        mChannelMapFragment.onMateData(mate);
+    public void onMateData(final Models.Mate mate) {
+        postMap(new MapFragmentCallback() {
+            @Override
+            public void onMapFragmentReady(ChannelMapFragment fragment) {
+                fragment.onMateData(mate);
+            }
+        });
     }
 
     @Override
-    public void onEnchantmentData(Models.Enchantment enchantment) {
-        mChannelMapFragment.onEnchantmentData(enchantment);
+    public void onEnchantmentData(final Models.Enchantment enchantment) {
+        postMap(new MapFragmentCallback() {
+            @Override
+            public void onMapFragmentReady(ChannelMapFragment fragment) {
+                fragment.onEnchantmentData(enchantment);
+            }
+        });
     }
 
     private ChannelMapFragment mChannelMapFragment;
+    private ChannelMessengerFragment mChannelMessengerFragment;
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         public SectionsPagerAdapter(FragmentManager fm) {
@@ -138,17 +173,22 @@ public class ChannelActivity extends BaseActivity implements CoreService.MapData
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    if(mChannelMapFragment ==null)
+                    if(mChannelMapFragment==null) {
                         mChannelMapFragment = new ChannelMapFragment();
+                        processMapRunnable();
+                    }
                     return mChannelMapFragment;
+                case 1:
+                    if(mChannelMessengerFragment ==null)
+                        mChannelMessengerFragment = new ChannelMessengerFragment();
+                    return mChannelMessengerFragment;
             }
             return null;
         }
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
-            return 1;
+            return 2;
         }
 
         @Override
@@ -156,6 +196,8 @@ public class ChannelActivity extends BaseActivity implements CoreService.MapData
             switch (position) {
                 case 0:
                     return "Map";
+                case 1:
+                    return "Messenger";
             }
             return null;
         }
@@ -190,22 +232,6 @@ public class ChannelActivity extends BaseActivity implements CoreService.MapData
     };
 
     String mChannelId;
-    @Override
-    public void onServiceConnected(ComponentName name, IBinder service) {
-        super.onServiceConnected(name, service);
-        String channel_id = getIntent().getStringExtra("channel");
-        if(channel_id!=null){
-            mChannelId = channel_id;
-        }
-        mBinder.addChannelListChangedListener(mChannelListChangedListener);
-
-        mChannel = mBinder.getChannelById(mChannelId);
-        if(!mBinder.openChannel(mChannel, ChannelActivity.this)){
-            finish();
-            return;
-        }
-        mTabLayout.setupWithViewPager(mViewPager);
-    }
 
     @Override
     protected void onPause() {
@@ -214,5 +240,33 @@ public class ChannelActivity extends BaseActivity implements CoreService.MapData
             mBinder.closeChannel(mChannel, ChannelActivity.this);
         }
         super.onPause();
+    }
+
+    private interface MapFragmentCallback{
+        public void onMapFragmentReady(ChannelMapFragment fragment);
+    }
+    private List<MapFragmentCallback> mPendingMapRunnable = new ArrayList<>();
+    private void postMap(MapFragmentCallback r){
+        synchronized (mPendingMapRunnable) {
+            mPendingMapRunnable.add(r);
+        }
+        processMapRunnable();
+    }
+
+    private void processMapRunnable(){
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                if(mChannelMapFragment==null){
+                    return;
+                }
+                synchronized (mPendingMapRunnable) {
+                    while(mPendingMapRunnable.size()>0){
+                        MapFragmentCallback r = mPendingMapRunnable.remove(0);
+                        r.onMapFragmentReady(mChannelMapFragment);
+                    }
+                }
+            }
+        });
     }
 }

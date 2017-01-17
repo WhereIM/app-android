@@ -13,6 +13,14 @@ import java.util.List;
 public class BaseFragment extends Fragment {
     private List<Models.BinderTask> mPendingTask = new ArrayList<>();
 
+    protected CoreService.CoreBinder getBinder(){
+        BaseActivity activity = (BaseActivity) getActivity();
+        if(activity==null){
+            return null;
+        }
+        return activity.getBinder();
+    }
+
     protected void postBinderTask(Models.BinderTask task){
         synchronized (mPendingTask) {
             mPendingTask.add(task);

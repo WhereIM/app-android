@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -43,6 +44,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.net.ssl.HttpsURLConnection;
+
+import im.where.whereim.database.Message;
+import im.where.whereim.database.WimDBHelper;
 
 public class CoreService extends Service {
     private final static String TAG = "CoreService";
@@ -253,6 +257,10 @@ public class CoreService extends Service {
             _checkLocationService();
         }
 
+        public Models.Mate getChannelMate(String channel_id, String mate_id){
+            return CoreService.this.getChannelMate(channel_id, mate_id);
+        }
+
         public void createEnchantment(String name, String channel_id, double latitude, double longitude, int radius, boolean enable) {
             try {
                 JSONObject payload = new JSONObject();
@@ -268,10 +276,49 @@ public class CoreService extends Service {
                 e.printStackTrace();
             }
         }
+
+        public void addMessageListener(Models.Channel channel, Runnable r){
+            List<Runnable> list;
+            synchronized (mMessageListener){
+                list = mMessageListener.get(channel.id);
+                if(list==null){
+                    list = new ArrayList<>();
+                    mMessageListener.put(channel.id, list);
+                }
+            }
+            list.add(r);
+        }
+
+        public void removeMessageListener(Models.Channel channel, Runnable r){
+            List<Runnable> list;
+            synchronized (mMessageListener){
+                list = mMessageListener.get(channel.id);
+                if(list!=null){
+                    list.remove(r);
+                }
+            }
+        }
+
+
+        public void sendMessage(Models.Channel channel, String s) {
+            try {
+                JSONObject payload = new JSONObject();
+                payload.put(Models.KEY_MESSAGE, s);
+                String topic = String.format("channel/%s/data/message/put", channel.id);
+                publish(topic, payload);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public Cursor getMessageCursor(Models.Channel channel){
+            return Message.getCursor(mWimDBHelper.getDatabase(), channel);
+        }
     };
 
     private Handler mHandler = new Handler();
-    private List<Runnable> mChannelListChangedListener = new ArrayList<>();
+    private final List<Runnable> mChannelListChangedListener = new ArrayList<>();
+    private final HashMap<String, List<Runnable>> mMessageListener = new HashMap<>();
     private final IBinder mBinder = new CoreBinder();
 
     private List<String> mOpenedChannel = new ArrayList<>();
@@ -281,8 +328,11 @@ public class CoreService extends Service {
 
     }
 
+    private WimDBHelper mWimDBHelper;
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        mWimDBHelper = new WimDBHelper(this);
+
         keyStorePath = getFilesDir().getAbsolutePath();
 
         SharedPreferences settings = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
@@ -506,7 +556,7 @@ public class CoreService extends Service {
 
     private void mqttClientChannelHandler(JSONObject msg){
         try {
-            Models.Channel channel;
+            final Models.Channel channel;
             String channel_id = msg.getString(Models.KEY_CHANNEL);
             if(mChannelMap.containsKey(channel_id)){
                 channel = mChannelMap.get(channel_id);
@@ -540,6 +590,10 @@ public class CoreService extends Service {
                         switch(m.group(2)){
                             case Models.KEY_MATE:
                                 mqttChannelMateHandler(channel_id, payload);
+                                break;
+                            case "message":
+                                mWimDBHelper.insert(Message.parse(payload));
+                                notifyMessageListener(channel_id);
                                 break;
                         }
                     } catch (Exception e) {
@@ -592,6 +646,20 @@ public class CoreService extends Service {
         }
         Log.e("lala", "chhane_id="+channel_id+"; id="+mate_id+"; instance="+mate);
         return mate;
+    }
+
+    // ================ Channel Data - Message ================
+
+    private void notifyMessageListener(String channel_id){
+        synchronized (mMessageListener) {
+            List<Runnable> list = mMessageListener.get(channel_id);
+            if(list==null){
+                return;
+            }
+            for (Runnable runnable : list) {
+                mHandler.post(runnable);
+            }
+        }
     }
 
     // ================ Channel Location ================
