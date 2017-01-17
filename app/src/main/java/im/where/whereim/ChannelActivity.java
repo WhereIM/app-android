@@ -16,7 +16,7 @@ import android.view.View;
 import android.widget.Switch;
 import android.widget.TextView;
 
-public class ChannelActivity extends BaseActivity implements CoreService.MateDataReceiver {
+public class ChannelActivity extends BaseActivity implements CoreService.MapDataReceiver {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide

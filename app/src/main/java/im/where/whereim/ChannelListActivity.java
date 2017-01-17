@@ -154,6 +154,7 @@ public class ChannelListActivity extends BaseActivity {
         final TextView tv_channel_name = (TextView) dialog_view.findViewById(R.id.channel_name);
 //        final EditText et_channel_alias = (EditText) dialog_view.findViewById(R.id.channel_alias);
         final EditText et_mate_name = (EditText) dialog_view.findViewById(R.id.mate_name);
+        et_mate_name.setText(mBinder.getUserName());
         new AlertDialog.Builder(ChannelListActivity.this)
                 .setTitle(R.string.join_channel)
                 .setView(dialog_view)
@@ -212,6 +213,7 @@ public class ChannelListActivity extends BaseActivity {
                 final View dialog_view = LayoutInflater.from(ChannelListActivity.this).inflate(R.layout.dialog_channel_create,  null);
                 final EditText et_channel_name = (EditText) dialog_view.findViewById(R.id.channel_name);
                 final EditText et_mate_name = (EditText) dialog_view.findViewById(R.id.mate_name);
+                et_mate_name.setText(mBinder.getUserName());
                 new AlertDialog.Builder(ChannelListActivity.this)
                         .setTitle(R.string.create_channel)
                         .setView(dialog_view)

@@ -31,7 +31,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
@@ -47,7 +46,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class CoreService extends Service {
     private final static String TAG = "CoreService";
-    public interface MateDataReceiver {
+    public interface MapDataReceiver {
         void onMateData(Models.Mate mate);
         void onEnchantmentData(Models.Enchantment enchantment);
     };
@@ -57,15 +56,22 @@ public class CoreService extends Service {
             return mClientId;
         }
 
+        public String getUserName(){
+            return mUserName;
+        }
+
         public void register_client(final String provider, final String auth_id, final String name, final Runnable callback){
             new Thread(){
                 @Override
                 public void run() {
                     try {
+                        SharedPreferences.Editor editor = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
+                        editor.putString(Models.KEY_NAME, name);
+                        editor.apply();
+
                         JSONObject payload = new JSONObject();
                         payload.put("auth_provider", provider);
                         payload.put("auth_id", auth_id);
-                        payload.put("name", name);
 
                         HttpsURLConnection conn;
                         InputStream is;
@@ -111,13 +117,13 @@ public class CoreService extends Service {
                         }
                         AWSIotKeystoreHelper.saveCertificateAndPrivateKey(Config.CERT_ID, crt_str, key_str, keyStorePath, Config.KEY_STORE_NAME, Config.KEY_STORE_PASSWORD);
 
-                        mClientId = res.getString("id");
+                        mClientId = res.getString(Models.KEY_ID);
 
                         mHandler.post(new Runnable() {
                             @Override
                             public void run() {
                                 SharedPreferences.Editor editor = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
-                                editor.putString("client_id", mClientId);
+                                editor.putString(Models.KEY_CLIENT_ID, mClientId);
                                 editor.commit();
                                 onAuthed();
                                 callback.run();
@@ -175,7 +181,7 @@ public class CoreService extends Service {
                 payload.put(Models.KEY_CHANNEL, channel.id);
                 payload.put(Models.KEY_ENABLE, !channel.enable);
                 channel.enable = null;
-                String topic = String.format("client/%s/channel/set", mClientId);
+                String topic = String.format("client/%s/channel/put", mClientId);
                 publish(topic, payload);
                 notifyChannelListChangedListeners();
             } catch (JSONException e) {
@@ -207,22 +213,19 @@ public class CoreService extends Service {
             }
         }
 
-        public boolean openChannel(Models.Channel channel, MateDataReceiver receiver){
+        public boolean openChannel(Models.Channel channel, MapDataReceiver receiver){
             if(channel==null)
                 return false;
             if(!mMqttConnected)
                 return false;
             synchronized (mMapDataReceiver){
                 if(!mMapDataReceiver.containsKey(channel.id)){
-                    mMapDataReceiver.put(channel.id, new ArrayList<MateDataReceiver>());
+                    mMapDataReceiver.put(channel.id, new ArrayList<MapDataReceiver>());
                 }
                 mMapDataReceiver.get(channel.id).add(receiver);
             }
             synchronized (mOpenedChannel) {
                 mOpenedChannel.add(channel.id);
-            }
-            synchronized (mChannelMate) {
-                mChannelMate.clear();
             }
             synchronized (mEnchantment) {
                 for (Models.Enchantment enchantment : mEnchantment.values()) {
@@ -235,7 +238,7 @@ public class CoreService extends Service {
             return true;
         }
 
-        public void closeChannel(Models.Channel channel, MateDataReceiver receiver){
+        public void closeChannel(Models.Channel channel, MapDataReceiver receiver){
             if(channel==null)
                 return;
             synchronized (mMapDataReceiver){
@@ -243,7 +246,7 @@ public class CoreService extends Service {
                     mMapDataReceiver.get(channel.id).remove(receiver);
                 }
             }
-            unsubscribe(String.format("channel/%s/get/+", channel.id));
+            unsubscribe(String.format("channel/%s/location/private/get", channel.id));
         }
 
         public void checkLocationService(){
@@ -259,7 +262,7 @@ public class CoreService extends Service {
                 payload.put(Models.KEY_LONGITURE, longitude);
                 payload.put(Models.KEY_RADIUS, radius);
                 payload.put(Models.KEY_ENABLE, enable);
-                String topic = String.format("client/%s/enchantment/set", mClientId);
+                String topic = String.format("client/%s/enchantment/put", mClientId);
                 publish(topic, payload);
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -272,7 +275,7 @@ public class CoreService extends Service {
     private final IBinder mBinder = new CoreBinder();
 
     private List<String> mOpenedChannel = new ArrayList<>();
-    private HashMap<String, List<MateDataReceiver>> mMapDataReceiver = new HashMap<>();
+    private HashMap<String, List<MapDataReceiver>> mMapDataReceiver = new HashMap<>();
 
     public CoreService() {
 
@@ -283,7 +286,8 @@ public class CoreService extends Service {
         keyStorePath = getFilesDir().getAbsolutePath();
 
         SharedPreferences settings = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
-        mClientId = settings.getString("client_id", null);
+        mClientId = settings.getString(Models.KEY_CLIENT_ID, null);
+        mUserName = settings.getString(Models.KEY_NAME, null);
         if(mClientId!=null){
             onAuthed();
         }
@@ -304,6 +308,16 @@ public class CoreService extends Service {
                 Log.d(TAG, "AWSIotMqttClientStatus changed: "+status);
                 switch (status){
                     case Connected:
+                        synchronized (mChannelMate) {
+                            mChannelMate.clear();
+                        }
+                        synchronized (mChannelList) {
+                            mChannelList.clear();
+                        }
+                        synchronized (mChannelMap) {
+                            mChannelMap.clear();
+                        }
+
                         Log.e(TAG, "MQTT Connected");
                         mqttOnConnected();
                         mMqttConnected = true;
@@ -325,6 +339,7 @@ public class CoreService extends Service {
     private String keyStorePath;
 
     private String mClientId;
+    private String mUserName;
 
     private AWSIotMqttManager mqttManager;
 
@@ -385,42 +400,32 @@ public class CoreService extends Service {
         return mBinder;
     }
 
-    private void mqttOnConnected(){
-        String topic;
+    private Pattern mClientGetPattern = Pattern.compile("^client/[A-Fa-f0-9]{32}/([^/]+)/get$");
 
-        topic = String.format("client/%s/unicast", mClientId);
-        subscribe(topic, new AWSIotMqttNewMessageCallback() {
+    private void mqttOnConnected(){
+        subscribe(String.format("client/%s/+/get", mClientId), new AWSIotMqttNewMessageCallback() {
             @Override
             public void onMessageArrived(String topic, byte[] data) {
+                Matcher m;
+                m = mClientGetPattern.matcher(topic);
+                if(!m.matches()){
+                    return;
+                }
                 try {
                     String message = new String(data, "UTF-8");
                     Log.e(TAG, "Receive "+topic+" "+message);
                     JSONObject payload = new JSONObject(message);
-                    mqttClientUnicastHandler(payload.getString("topic"), new JSONObject(payload.getString("message")));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        topic = String.format("client/%s/channel/get", mClientId);
-        subscribe(topic, new AWSIotMqttNewMessageCallback() {
-            @Override
-            public void onMessageArrived(String topic, byte[] data) {
-                try {
-                    String message = new String(data, "UTF-8");
-                    mqttClientChannelGetHandler(topic, new JSONObject(message));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        topic = String.format("client/%s/enchantment/get", mClientId);
-        subscribe(topic, new AWSIotMqttNewMessageCallback() {
-            @Override
-            public void onMessageArrived(String topic, byte[] data) {
-                try {
-                    String message = new String(data, "UTF-8");
-                    mqttClientEnchantmentGetHandler(topic, new JSONObject(message));
+                    switch(m.group(1)){
+                        case "unicast":
+                            mqttClientUnicastHandler(payload.getString("topic"), payload.getJSONObject("message"));
+                            break;
+                        case "channel":
+                            mqttClientChannelHandler(payload);
+                            break;
+                        case "enchantment":
+                            mqttClientEnchantmentGetHandler(payload);
+                            break;
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -429,21 +434,31 @@ public class CoreService extends Service {
         _subscribeOpenedChannel();
     }
 
-    private Pattern mChannelGetPattern = Pattern.compile("^channel/([A-Fa-f0-9]{32})/get/([^/]+)$");
+    private Pattern mChannelDataPattern = Pattern.compile("^channel/([a-f0-9]{32})/data/([^/]+)/get$");
+    private Pattern mChannelLocationPattern = Pattern.compile("^channel/([a-f0-9]{32})/location/([^/]+)/get$");
     private void mqttClientUnicastHandler(String topic, JSONObject msg){
         Matcher m;
-        m = mChannelGetPattern.matcher(topic);
+        m = mChannelLocationPattern.matcher(topic);
         if(m.matches()){
-            mqttChannelGetHandler(topic, msg);
+            mqttChannelLocationHandler(topic, msg);
+            return;
+        }
+
+        m = mChannelDataPattern.matcher(topic);
+        if(m.matches()){
+            String channel_id = m.group(1);
+            switch (m.group(2)){
+                case Models.KEY_MATE:
+                    mqttChannelMateHandler(channel_id, msg);
+                    break;
+            }
             return;
         }
     }
 
     final private HashMap<String, Models.Enchantment> mEnchantment = new HashMap<>();
     final private HashMap<String, Models.Enchantment> mEnabledEnchantment = new HashMap<>();
-    private void mqttClientEnchantmentGetHandler(String topic, JSONObject msg){
-        Log.e(TAG, "Receive "+topic+" "+msg.toString());
-
+    private void mqttClientEnchantmentGetHandler(JSONObject msg){
         try {
             String channel_id = msg.getString(Models.KEY_CHANNEL);
             String enchantment_id = msg.getString(Models.KEY_ID);
@@ -477,8 +492,8 @@ public class CoreService extends Service {
             }
             synchronized (mMapDataReceiver){
                 if(mMapDataReceiver.containsKey(channel_id)){
-                    for (MateDataReceiver mateDataReceiver : mMapDataReceiver.get(channel_id)) {
-                        mateDataReceiver.onEnchantmentData(enchantment);
+                    for (MapDataReceiver mapDataReceiver : mMapDataReceiver.get(channel_id)) {
+                        mapDataReceiver.onEnchantmentData(enchantment);
                     }
                 }
             }
@@ -489,9 +504,8 @@ public class CoreService extends Service {
         }
     }
 
-    private void mqttClientChannelGetHandler(String topic, JSONObject msg){
+    private void mqttClientChannelHandler(JSONObject msg){
         try {
-            Log.e(TAG, "Receive "+topic+" "+msg.toString());
             Models.Channel channel;
             String channel_id = msg.getString(Models.KEY_CHANNEL);
             if(mChannelMap.containsKey(channel_id)){
@@ -510,10 +524,51 @@ public class CoreService extends Service {
                 channel.enable = msg.getBoolean("enable");
             }
 
+            subscribe(String.format("channel/%s/data/+/get", channel_id), new AWSIotMqttNewMessageCallback() {
+                @Override
+                public void onMessageArrived(String topic, byte[] data) {
+                    Matcher m;
+                    m = mChannelDataPattern.matcher(topic);
+                    if(!m.matches()){
+                        return;
+                    }
+                    try {
+                        String channel_id = m.group(1);
+                        String message = new String(data, "UTF-8");
+                        Log.e(TAG, "Receive "+topic+" "+message);
+                        JSONObject payload = new JSONObject(message);
+                        switch(m.group(2)){
+                            case Models.KEY_MATE:
+                                mqttChannelMateHandler(channel_id, payload);
+                                break;
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
             notifyChannelListChangedListeners();
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    // ================ Channel Data ================
+
+    // ================ Channel Data - Mate ================
+    private void mqttChannelMateHandler(String channel_id, JSONObject data){
+        String mate_id;
+        try {
+            mate_id = data.getString(Models.KEY_ID);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+        Models.Mate mate = getChannelMate(channel_id, mate_id);
+        mate.mate_name = Util.JsonGetNullableString(data, Models.KEY_MATE_NAME);
+        mate.user_mate_name = Util.JsonGetNullableString(data, Models.KEY_USER_MATE_NAME);
+        Log.e("lala", "mate.mate_name="+mate.mate_name);
     }
 
     private HashMap<String, HashMap<String, Models.Mate>> mChannelMate = new HashMap<>();
@@ -535,72 +590,56 @@ public class CoreService extends Service {
                 mateMap.put(mate_id, mate);
             }
         }
+        Log.e("lala", "chhane_id="+channel_id+"; id="+mate_id+"; instance="+mate);
         return mate;
     }
-    private void mqttChannelGetHandler(String topic, final JSONObject data){
+
+    // ================ Channel Location ================
+
+    private void mqttChannelLocationHandler(String topic, final JSONObject data){
         Log.e(TAG, "Receive "+topic+" "+data.toString());
-        Matcher m = mChannelGetPattern.matcher(topic);
+        Matcher m = mChannelLocationPattern.matcher(topic);
         m.find();
         final String channel_id = m.group(1);
-        final String target = m.group(2);
 
         String mate_id;
-        Models.Mate mate = null;
 
-        switch(target){
-            case Models.TARGET_0:
-            case Models.TARGET_1:
-            case Models.TARGET_2:
-            case Models.TARGET_3:
-                try {
-                    mate_id = data.getString("mate");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    return;
-                }
-                mate = getChannelMate(channel_id, mate_id);
-                try {
-                    mate.latitude = data.getDouble(Models.KEY_LATITUDE);
-                    mate.longitude = data.getDouble(Models.KEY_LONGITURE);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    mate.accuracy = data.getDouble(Models.KEY_ACCURACY);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                break;
-            case Models.TARGET_MATE:
-                try {
-                    mate_id = data.getString("mate");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    return;
-                }
-                mate = getChannelMate(channel_id, mate_id);
-                mate.mate_name = Util.JsonGetNullableString(data, Models.KEY_MATE_NAME);
-                mate.user_mate_name = Util.JsonGetNullableString(data, Models.KEY_USER_MATE_NAME);
-                break;
+        try {
+            mate_id = data.getString("mate");
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+        Models.Mate mate = getChannelMate(channel_id, mate_id);
+        try {
+            mate.latitude = data.getDouble(Models.KEY_LATITUDE);
+            mate.longitude = data.getDouble(Models.KEY_LONGITURE);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        try {
+            mate.accuracy = data.getDouble(Models.KEY_ACCURACY);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
 
-        if(mate!=null){
-            final Models.Mate _m = mate;
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    synchronized (mMapDataReceiver){
-                        if(mMapDataReceiver.containsKey(channel_id)){
-                            for (MateDataReceiver mateDataReceiver : mMapDataReceiver.get(channel_id)) {
-                                mateDataReceiver.onMateData(_m);
-                            }
+        final Models.Mate _m = mate;
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (mMapDataReceiver){
+                    if(mMapDataReceiver.containsKey(channel_id)){
+                        for (MapDataReceiver mapDataReceiver : mMapDataReceiver.get(channel_id)) {
+                            mapDataReceiver.onMateData(_m);
                         }
                     }
-
                 }
-            });
-        }
+
+            }
+        });
     }
+
+    // ================ Util Functions ================
 
     private void _subscribeOpenedChannel(){
         synchronized (mOpenedChannel) {
@@ -611,12 +650,12 @@ public class CoreService extends Service {
     }
 
     private void subscribeChannel(String channel_id){
-        String topic = String.format("channel/%s/get/+", channel_id);
+        String topic = String.format("channel/%s/location/private/get", channel_id);
         subscribe(topic, new AWSIotMqttNewMessageCallback() {
             @Override
             public void onMessageArrived(String topic, byte[] data) {
                 try {
-                    mqttChannelGetHandler(topic, new JSONObject(new String(data, "UTF-8")));
+                    mqttChannelLocationHandler(topic, new JSONObject(new String(data, "UTF-8")));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -624,24 +663,32 @@ public class CoreService extends Service {
         });
     }
 
-    private boolean subscribe(String topic, AWSIotMqttNewMessageCallback callback){
-        try{
-            Log.e(TAG, "Subscribe "+topic);
-            mqttManager.subscribeToTopic(topic, AWSIotMqttQos.QOS1, callback);
-            return true;
-        }catch(Exception e){
-            return false;
-        }
+    private void subscribe(final String topic, final AWSIotMqttNewMessageCallback callback){
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    Log.e(TAG, "Subscribe "+topic);
+                    mqttManager.subscribeToTopic(topic, AWSIotMqttQos.QOS1, callback);
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
-    private boolean unsubscribe(String topic){
-        try{
-            Log.e(TAG, "Unsubscribe "+topic);
-            mqttManager.unsubscribeTopic(topic);
-            return true;
-        }catch(Exception e){
-            return false;
-        }
+    private void unsubscribe(final String topic){
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    Log.e(TAG, "Unsubscribe "+topic);
+                    mqttManager.unsubscribeTopic(topic);
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
 
@@ -656,17 +703,7 @@ public class CoreService extends Service {
         }
     }
 
-    private String assetsFileToString(String path){
-        try {
-            InputStream json = getAssets().open(path);
-            String ret = IOUtils.toString(json);
-            json.close();
-            return ret;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+    // ================ Location Service ================
 
     private LocationManager mLocationManager;
 
@@ -784,7 +821,7 @@ public class CoreService extends Service {
             }
             msg.put("time", System.currentTimeMillis());
             msg.put("pvdr", provider);
-            String topic = String.format("client/%s/info", mClientId);
+            String topic = String.format("client/%s/location/put", mClientId);
             publish(topic, msg);
         } catch (JSONException e) {
             e.printStackTrace();

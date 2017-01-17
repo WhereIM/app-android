@@ -59,14 +59,10 @@ class Models {
     final static String KEY_RADIUS = "r";
     final static String KEY_ENABLE = "enable";
     final static String KEY_ID = "id";
-    static final String KEY_NAME = "name";
+    final static String KEY_NAME = "name";
     final static String KEY_CHANNEL = "channel";
     final static String KEY_MATE_NAME = "mate_name";
     final static String KEY_USER_MATE_NAME = "user_mate_name";
-
-    final static String TARGET_0 = "0";
-    final static String TARGET_1 = "1";
-    final static String TARGET_2 = "2";
-    final static String TARGET_3 = "3";
-    final static String TARGET_MATE = "mate";
+    final static String KEY_MATE = "mate";
+    final static String KEY_CLIENT_ID = "client_id";
 }
