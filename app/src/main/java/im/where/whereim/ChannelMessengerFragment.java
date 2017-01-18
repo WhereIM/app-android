@@ -59,6 +59,12 @@ public class ChannelMessengerFragment extends BaseFragment {
             CoreService.CoreBinder binder = getBinder();
             Message m = Message.parse(cursor);
             ViewHolder vh = (ViewHolder) view.getTag();
+            if(binder==null){
+                vh.sender.setText(null);
+                vh.message.setText(null);
+                vh.time.setText(null);
+                return;
+            }
             vh.sender.setText(binder.getChannelMate(mChannel.id, m.mate_id).getDisplayName());
             Models.Marker marker;
             switch(m.type){
