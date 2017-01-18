@@ -1048,6 +1048,7 @@ public class CoreService extends Service {
     private void processLocation(String provider, Location newLocation){
         Location loc;
         if(mMocking){
+            provider = "MOCKING";
             if(mMockingLocation==null){
                 if(isBetterLocation(newLocation, mLastBestLocation)){
                     mMockingLocation = new Location(newLocation);
