@@ -218,7 +218,7 @@ public class CoreService extends Service {
             }
         }
 
-        public boolean openChannel(Models.Channel channel, MapDataReceiver receiver){
+        public boolean openMap(Models.Channel channel, MapDataReceiver receiver){
             if(channel==null)
                 return false;
             if(!mMqttConnected)
@@ -247,11 +247,11 @@ public class CoreService extends Service {
                     }
                 }
             }
-            subscribeChannel(channel.id);
+            subscribeChannelLocation(channel.id);
             return true;
         }
 
-        public void closeChannel(Models.Channel channel, MapDataReceiver receiver){
+        public void closeMap(Models.Channel channel, MapDataReceiver receiver){
             if(channel==null)
                 return;
             synchronized (mMapDataReceiver){
@@ -259,7 +259,7 @@ public class CoreService extends Service {
                     mMapDataReceiver.get(channel.id).remove(receiver);
                 }
             }
-            unsubscribe(String.format("channel/%s/location/private/get", channel.id));
+            unsubscribeChannelLocation(channel.id);
         }
 
         public void checkLocationService(){
@@ -826,12 +826,12 @@ public class CoreService extends Service {
     private void _subscribeOpenedChannel(){
         synchronized (mOpenedChannel) {
             for (String c : mOpenedChannel) {
-                subscribeChannel(c);
+                subscribeChannelLocation(c);
             }
         }
     }
 
-    private void subscribeChannel(String channel_id){
+    private void subscribeChannelLocation(String channel_id){
         String topic = String.format("channel/%s/location/private/get", channel_id);
         subscribe(topic, new AWSIotMqttNewMessageCallback() {
             @Override
@@ -843,6 +843,11 @@ public class CoreService extends Service {
                 }
             }
         });
+    }
+
+    private void unsubscribeChannelLocation(String channel_id){
+        String topic = String.format("channel/%s/location/private/get", channel_id);
+        unsubscribe(topic);
     }
 
     private void subscribe(final String topic, final AWSIotMqttNewMessageCallback callback){

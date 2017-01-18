@@ -204,7 +204,7 @@ public class ChannelMapFragment extends BaseFragment implements CoreService.MapD
                     @Override
                     public void onGetChannel(Models.Channel channel) {
                         mChannel = channel;
-                        binder.openChannel(channel, ChannelMapFragment.this);
+                        binder.openMap(channel, ChannelMapFragment.this);
                     }
                 });
             }
@@ -217,7 +217,7 @@ public class ChannelMapFragment extends BaseFragment implements CoreService.MapD
         postBinderTask(new Models.BinderTask() {
             @Override
             public void onBinderReady(CoreService.CoreBinder binder) {
-                binder.closeChannel(mChannel, ChannelMapFragment.this);
+                binder.closeMap(mChannel, ChannelMapFragment.this);
             }
         });
         mMarkerView = null;
