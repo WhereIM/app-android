@@ -604,8 +604,10 @@ public class CoreService extends Service {
                 channel = new Models.Channel();
                 mChannelMap.put(channel_id, channel);
             }
-            if(!mChannelList.contains(channel)){
-                mChannelList.add(channel);
+            synchronized (mChannelList) {
+                if(!mChannelList.contains(channel)){
+                    mChannelList.add(channel);
+                }
             }
             channel.id = channel_id;
             channel.channel_name  = msg.optString("channel_name", channel.channel_name);
