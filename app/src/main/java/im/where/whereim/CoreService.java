@@ -249,6 +249,9 @@ public class CoreService extends Service {
                     }
                 }
             }
+            if(mMocking) {
+                receiver.onMockData(mMockMate);
+            }
             subscribeChannelLocation(channel.id);
             return true;
         }
@@ -349,6 +352,10 @@ public class CoreService extends Service {
 
         public Cursor getMessageCursor(Models.Channel channel){
             return Message.getCursor(mWimDBHelper.getDatabase(), channel);
+        }
+
+        public boolean isMocking(){
+            return mMocking;
         }
 
         public void startMocking(){

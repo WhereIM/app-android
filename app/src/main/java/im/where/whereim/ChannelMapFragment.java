@@ -5,10 +5,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -141,6 +139,12 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
                                 }
                             }).show();
                 }
+            }
+        });
+        postBinderTask(new Models.BinderTask() {
+            @Override
+            public void onBinderReady(CoreService.CoreBinder binder) {
+                mock.setChecked(binder.isMocking());
             }
         });
 
