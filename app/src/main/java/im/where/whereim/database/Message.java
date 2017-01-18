@@ -91,16 +91,16 @@ public class Message extends ORM {
         long first;
         long last;
 
-        cursor = db.rawQuery("SELECT * FROM "+ TABLE_NAME +" WHERE "+COL_CHANNEL+"=? ORDER BY "+COL_ID+" ASC LIMIT 1\n", new String[]{channel.id});
-        if(cursor.getCount()>0){
+        cursor = db.rawQuery("SELECT "+COL_ID+" FROM "+ TABLE_NAME +" WHERE "+COL_CHANNEL+"=? ORDER BY "+COL_ID+" ASC LIMIT 1", new String[]{channel.id});
+        if(cursor.moveToFirst()){
             first = cursor.getLong(cursor.getColumnIndexOrThrow(COL_ID));
         }else{
             first = -1;
         }
         cursor.close();
 
-        cursor = db.rawQuery("SELECT * FROM "+ TABLE_NAME +" WHERE "+COL_CHANNEL+"=? ORDER BY "+COL_ID+" DESC LIMIT 1\n", new String[]{channel.id});
-        if(cursor.getCount()>0){
+        cursor = db.rawQuery("SELECT "+COL_ID+" FROM "+ TABLE_NAME +" WHERE "+COL_CHANNEL+"=? ORDER BY "+COL_ID+" DESC LIMIT 1", new String[]{channel.id});
+        if(cursor.moveToFirst()){
             last = cursor.getLong(cursor.getColumnIndexOrThrow(COL_ID));
         }else{
             last = -1;
