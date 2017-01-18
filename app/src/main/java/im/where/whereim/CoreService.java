@@ -538,6 +538,9 @@ public class CoreService extends Service {
                 case "marker":
                     mqttChannelMarkerHandler(channel_id, msg);
                     break;
+                case "message":
+                    mqttChannelMessageHandler(channel_id, msg);
+                    break;
             }
             return;
         }
@@ -594,7 +597,7 @@ public class CoreService extends Service {
     private void mqttClientChannelHandler(JSONObject msg){
         try {
             final Models.Channel channel;
-            String channel_id = msg.getString(Models.KEY_CHANNEL);
+            final String channel_id = msg.getString(Models.KEY_CHANNEL);
             if(mChannelMap.containsKey(channel_id)){
                 channel = mChannelMap.get(channel_id);
             }else{
@@ -629,8 +632,7 @@ public class CoreService extends Service {
                                 mqttChannelMateHandler(channel_id, payload);
                                 break;
                             case "message":
-                                mWimDBHelper.insert(Message.parse(payload));
-                                notifyMessageListener(channel_id);
+                                mqttChannelMessageHandler(channel_id, payload);
                                 break;
                             case "marker":
                                 mqttChannelMarkerHandler(channel_id, payload);
@@ -643,6 +645,23 @@ public class CoreService extends Service {
             });
 
             notifyChannelListChangedListeners();
+
+            new Thread(){
+                @Override
+                public void run() {
+                    JSONObject data = Message.getSyncData(mWimDBHelper.getDatabase(), channel);
+                    if(data==null){
+                        return;
+                    }
+                    try {
+                        data.put(Models.KEY_CHANNEL, channel.id);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        return;
+                    }
+                    publish(String.format("client/%s/message/sync", mClientId), data);
+                }
+            }.start();
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -714,7 +733,6 @@ public class CoreService extends Service {
         Models.Mate mate = getChannelMate(channel_id, mate_id);
         mate.mate_name = Util.JsonGetNullableString(data, Models.KEY_MATE_NAME);
         mate.user_mate_name = Util.JsonGetNullableString(data, Models.KEY_USER_MATE_NAME);
-        Log.e("lala", "mate.mate_name="+mate.mate_name);
     }
 
     private HashMap<String, HashMap<String, Models.Mate>> mChannelMate = new HashMap<>();
@@ -740,6 +758,11 @@ public class CoreService extends Service {
     }
 
     // ================ Channel Data - Message ================
+
+    private void mqttChannelMessageHandler(String channel_id, JSONObject payload){
+        mWimDBHelper.insert(Message.parse(payload));
+        notifyMessageListener(channel_id);
+    }
 
     private void notifyMessageListener(String channel_id){
         synchronized (mMessageListener) {

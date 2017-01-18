@@ -85,5 +85,37 @@ public class Message extends ORM {
     public static Cursor getCursor(SQLiteDatabase db, Models.Channel channel){
         return db.rawQuery("SELECT * FROM "+TABLE_NAME+" WHERE "+COL_CHANNEL+"=? ORDER BY time ASC", new String[]{channel.id});
     }
+
+    public static JSONObject getSyncData(SQLiteDatabase db, Models.Channel channel){
+        Cursor cursor;
+        long first;
+        long last;
+
+        cursor = db.rawQuery("SELECT * FROM "+ TABLE_NAME +" WHERE "+COL_CHANNEL+"=? ORDER BY "+COL_ID+" ASC LIMIT 1\n", new String[]{channel.id});
+        if(cursor.getCount()>0){
+            first = cursor.getLong(cursor.getColumnIndexOrThrow(COL_ID));
+        }else{
+            first = -1;
+        }
+        cursor.close();
+
+        cursor = db.rawQuery("SELECT * FROM "+ TABLE_NAME +" WHERE "+COL_CHANNEL+"=? ORDER BY "+COL_ID+" DESC LIMIT 1\n", new String[]{channel.id});
+        if(cursor.getCount()>0){
+            last = cursor.getLong(cursor.getColumnIndexOrThrow(COL_ID));
+        }else{
+            last = -1;
+        }
+        cursor.close();
+
+        JSONObject data = new JSONObject();
+        try {
+            data.put("first", first);
+            data.put("last", last);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return data;
+    }
 }
 
