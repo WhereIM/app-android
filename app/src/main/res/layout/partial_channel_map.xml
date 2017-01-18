@@ -53,14 +53,27 @@
 
     </LinearLayout>
 
-    <im.where.whereim.view.Joystick
-        android:id="@+id/joystick"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:background="@drawable/joystick"
+    <LinearLayout
+        android:id="@+id/mocking_controller"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_marginBottom="16dp"
-        android:layout_marginLeft="16dp"/>
+        android:layout_marginLeft="16dp">
+
+        <ToggleButton
+            android:id="@+id/mock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/mock" />
+
+        <im.where.whereim.view.Joystick
+            android:id="@+id/joystick"
+            android:layout_width="100dp"
+            android:layout_height="100dp" />
+
+    </LinearLayout>
 
 </merge>

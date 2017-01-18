@@ -19,6 +19,7 @@ import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.amazonaws.mobileconnectors.iot.AWSIotKeystoreHelper;
 import com.amazonaws.mobileconnectors.iot.AWSIotMqttClientStatusCallback;
@@ -51,6 +52,7 @@ import im.where.whereim.database.WimDBHelper;
 public class CoreService extends Service {
     private final static String TAG = "CoreService";
     public interface MapDataReceiver {
+        void onMockData(Models.Mate mock);
         void onMateData(Models.Mate mate);
         void onEnchantmentData(Models.Enchantment enchantment);
         void onMarkerData(Models.Marker marker);
@@ -348,8 +350,50 @@ public class CoreService extends Service {
         public Cursor getMessageCursor(Models.Channel channel){
             return Message.getCursor(mWimDBHelper.getDatabase(), channel);
         }
+
+        public void startMocking(){
+            if(mMocking){
+                return;
+            }
+            mMocking = true;
+            if(!mLocationServiceRunning){
+                Toast.makeText(CoreService.this, R.string.mock_location_service_not_running, Toast.LENGTH_SHORT).show();
+            }
+            if(mLastBestLocation!=null){
+                mMockingLocation = new Location(mLastBestLocation);
+                notifyMocking();
+            }
+        }
+
+        public void moveMocking(float x, float y){
+            if(mMockingLocation==null)
+                return;
+            mMockingLocation.setLongitude(mMockingLocation.getLongitude() + 0.0005*x);
+            mMockingLocation.setLatitude(mMockingLocation.getLatitude() - 0.0005*y);
+
+            notifyMocking();
+        }
+
+        public void stopMocking(){
+            mMocking = false;
+            mMockingLocation = null;
+        }
     };
 
+    private Models.Mate mMockMate = new Models.Mate();
+    private void notifyMocking(){
+        mMockMate.latitude = mMockingLocation.getLatitude();
+        mMockMate.longitude = mMockingLocation.getLongitude();
+        synchronized (mMapDataReceiver) {
+            for (List<MapDataReceiver> mapDataReceivers : mMapDataReceiver.values()) {
+                for (MapDataReceiver mapDataReceiver : mapDataReceivers) {
+                    mapDataReceiver.onMockData(mMockMate);
+                }
+            }
+        }
+    }
+
+    private boolean mMocking = false;
     private Handler mHandler = new Handler();
     private final List<Runnable> mChannelListChangedListener = new ArrayList<>();
     private final HashMap<String, List<Runnable>> mMessageListener = new HashMap<>();
@@ -987,11 +1031,26 @@ public class CoreService extends Service {
         mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, UPDATE_MIN_TIME, UPDATE_MIN_DISTANCE, mNetworkLocationListener);
     }
 
-    private void processLocation(String provider, Location loc){
-        if(!isBetterLocation(loc, lastBestLocation)){
-            return;
+    Location mMockingLocation;
+    private void processLocation(String provider, Location newLocation){
+        Location loc;
+        if(mMocking){
+            if(mMockingLocation==null){
+                if(isBetterLocation(newLocation, mLastBestLocation)){
+                    mMockingLocation = new Location(newLocation);
+                }else{
+                    mMockingLocation = new Location(mLastBestLocation);
+                }
+                notifyMocking();
+            }
+            loc = mMockingLocation;
+        }else{
+            if(!isBetterLocation(newLocation, mLastBestLocation)){
+                return;
+            }
+            mLastBestLocation = newLocation;
+            loc = mLastBestLocation;
         }
-        lastBestLocation = loc;
         try {
             JSONObject msg = new JSONObject();
             msg.put("lat", loc.getLatitude());
@@ -1017,7 +1076,7 @@ public class CoreService extends Service {
         }
     }
 
-    private Location lastBestLocation = null;
+    private Location mLastBestLocation = null;
 
     private static final int EXPIRATION = 1000 * 60 * 1; // 1 min
 

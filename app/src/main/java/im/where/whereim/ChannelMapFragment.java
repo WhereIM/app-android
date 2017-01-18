@@ -5,10 +5,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.ToggleButton;
+
+import im.where.whereim.view.Joystick;
 
 /**
  * Created by buganini on 19/01/17.
@@ -21,6 +27,7 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
     protected View mMarkerController;
     protected View mMarkerView;
     protected TextView mMarkerViewTitle;
+    protected Joystick mJoystick;
 
     protected double mEditingLatitude;
     protected double mEditingLongitude;
@@ -101,7 +108,65 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
             }
         });
 
+        final ToggleButton mock = (ToggleButton) view.findViewById(R.id.mock);
+        mock.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    postBinderTask(new Models.BinderTask() {
+                        @Override
+                        public void onBinderReady(CoreService.CoreBinder binder) {
+                            binder.startMocking();
+                        }
+                    });
+                }else{
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle(R.string.mock)
+                            .setMessage(R.string.mock_confirm_disable)
+                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    postBinderTask(new Models.BinderTask() {
+                                        @Override
+                                        public void onBinderReady(CoreService.CoreBinder binder) {
+                                            binder.stopMocking();
+                                        }
+                                    });
+                                }
+                            })
+                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    mock.setChecked(true);
+                                }
+                            }).show();
+                }
+            }
+        });
+
+        mJoystick = (Joystick) view.findViewById(R.id.joystick);
+        mJoystick.addListener(mJoystickCallback);
     }
+
+    @Override
+    public void onDestroyView() {
+        mJoystick.removeListener(mJoystickCallback);
+        super.onDestroyView();
+    }
+
+
+    private Joystick.Callback mJoystickCallback = new Joystick.Callback(){
+
+        @Override
+        public void callback(final float x, final float y) {
+            postBinderTask(new Models.BinderTask() {
+                @Override
+                public void onBinderReady(CoreService.CoreBinder binder) {
+                    binder.moveMocking(x, y);
+                }
+            });
+        }
+    };
 
     abstract protected void refreshEditing();
 

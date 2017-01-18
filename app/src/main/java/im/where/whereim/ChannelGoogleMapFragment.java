@@ -1,18 +1,14 @@
 package im.where.whereim;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -197,8 +193,38 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         super.onDestroyView();
     }
 
+    private Marker mMockMarker;
     private HashMap<String, Circle> mMateCircle = new HashMap<>();
     private HashMap<String, Marker> mMateMarker = new HashMap<>();
+
+    @Override
+    public void onMockData(final Models.Mate mock) {
+        postMapTask(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                if(mMockMarker!=null){
+                    mMockMarker.remove();
+                }
+                if(mock==null){
+                    return;
+                }
+                mMarkerViewTitle.setText(getString(R.string.mock));
+                mMarkerView.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                        View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+                mMarkerView.layout(0, 0, mMarkerView.getMeasuredWidth(), mMarkerView.getMeasuredHeight());
+                mMarkerView.setDrawingCacheEnabled(true);
+                mMarkerView.buildDrawingCache();
+
+                mMockMarker = googleMap.addMarker(
+                        new MarkerOptions()
+                                .position(new LatLng(mock.latitude, mock.longitude))
+                                .alpha(0.3f)
+                                .anchor(0.5f, 1f)
+                                .icon(BitmapDescriptorFactory.fromBitmap(mMarkerView.getDrawingCache()))
+                );
+            }
+        });
+    }
 
     @Override
     public void onMateData(final Models.Mate mate){
