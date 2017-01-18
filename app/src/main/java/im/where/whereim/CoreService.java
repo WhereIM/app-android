@@ -361,7 +361,7 @@ public class CoreService extends Service {
             }
             if(mLastBestLocation!=null){
                 mMockingLocation = new Location(mLastBestLocation);
-                notifyMocking();
+                notifyMocking(mMockingLocation);
             }
         }
 
@@ -371,23 +371,28 @@ public class CoreService extends Service {
             mMockingLocation.setLongitude(mMockingLocation.getLongitude() + 0.0005*x);
             mMockingLocation.setLatitude(mMockingLocation.getLatitude() - 0.0005*y);
 
-            notifyMocking();
+            notifyMocking(mMockingLocation);
         }
 
         public void stopMocking(){
             mMocking = false;
             mMockingLocation = null;
+            notifyMocking(null);
         }
     };
 
     private Models.Mate mMockMate = new Models.Mate();
-    private void notifyMocking(){
-        mMockMate.latitude = mMockingLocation.getLatitude();
-        mMockMate.longitude = mMockingLocation.getLongitude();
+    private void notifyMocking(Location loc){
+        Models.Mate mate = null;
+        if(loc!=null){
+            mMockMate.latitude = loc.getLatitude();
+            mMockMate.longitude = loc.getLongitude();
+            mate = mMockMate;
+        }
         synchronized (mMapDataReceiver) {
             for (List<MapDataReceiver> mapDataReceivers : mMapDataReceiver.values()) {
                 for (MapDataReceiver mapDataReceiver : mapDataReceivers) {
-                    mapDataReceiver.onMockData(mMockMate);
+                    mapDataReceiver.onMockData(mate);
                 }
             }
         }
@@ -656,6 +661,7 @@ public class CoreService extends Service {
             channel.id = channel_id;
             channel.channel_name  = msg.optString("channel_name", channel.channel_name);
             channel.user_channel_name = Util.JsonOptNullableString(msg, "user_channel_name", channel.user_channel_name);
+            channel.mate_id = Util.JsonOptNullableString(msg, Models.KEY_MATE, channel.mate_id);
             if(msg.has("enable")){
                 channel.enable = msg.getBoolean("enable");
             }
@@ -1041,7 +1047,7 @@ public class CoreService extends Service {
                 }else{
                     mMockingLocation = new Location(mLastBestLocation);
                 }
-                notifyMocking();
+                notifyMocking(mMockingLocation);
             }
             loc = mMockingLocation;
         }else{

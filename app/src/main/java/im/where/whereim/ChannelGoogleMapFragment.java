@@ -201,27 +201,37 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     public void onMockData(final Models.Mate mock) {
         postMapTask(new OnMapReadyCallback() {
             @Override
-            public void onMapReady(GoogleMap googleMap) {
+            public void onMapReady(final GoogleMap googleMap) {
                 if(mMockMarker!=null){
                     mMockMarker.remove();
                 }
                 if(mock==null){
                     return;
                 }
-                mMarkerViewTitle.setText(getString(R.string.mock));
-                mMarkerView.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-                        View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-                mMarkerView.layout(0, 0, mMarkerView.getMeasuredWidth(), mMarkerView.getMeasuredHeight());
-                mMarkerView.setDrawingCacheEnabled(true);
-                mMarkerView.buildDrawingCache();
+                postBinderTask(new Models.BinderTask() {
+                    @Override
+                    public void onBinderReady(CoreService.CoreBinder binder) {
+                        if(mChannel==null){
+                            mMarkerViewTitle.setText(null);
+                        }else{
+                            Models.Mate m = binder.getChannelMate(mChannel.id, mChannel.mate_id);
+                            mMarkerViewTitle.setText(m.getDisplayName());
+                        }
+                        mMarkerView.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+                        mMarkerView.layout(0, 0, mMarkerView.getMeasuredWidth(), mMarkerView.getMeasuredHeight());
+                        mMarkerView.setDrawingCacheEnabled(true);
+                        mMarkerView.buildDrawingCache();
 
-                mMockMarker = googleMap.addMarker(
-                        new MarkerOptions()
-                                .position(new LatLng(mock.latitude, mock.longitude))
-                                .alpha(0.3f)
-                                .anchor(0.5f, 1f)
-                                .icon(BitmapDescriptorFactory.fromBitmap(mMarkerView.getDrawingCache()))
-                );
+                        mMockMarker = googleMap.addMarker(
+                                new MarkerOptions()
+                                        .position(new LatLng(mock.latitude, mock.longitude))
+                                        .alpha(0.3f)
+                                        .anchor(0.5f, 1f)
+                                        .icon(BitmapDescriptorFactory.fromBitmap(mMarkerView.getDrawingCache()))
+                        );
+                    }
+                });
             }
         });
     }

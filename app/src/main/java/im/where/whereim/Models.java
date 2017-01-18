@@ -9,6 +9,7 @@ public class Models {
         public String id;
         public String channel_name;
         public String user_channel_name;
+        public String mate_id;
         public Boolean enable;
     }
 
