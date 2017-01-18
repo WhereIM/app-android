@@ -846,7 +846,7 @@ public class CoreService extends Service {
         String mate_id;
 
         try {
-            mate_id = data.getString("mate");
+            mate_id = data.getString(Models.KEY_MATE);
         } catch (JSONException e) {
             e.printStackTrace();
             return;
@@ -1066,22 +1066,22 @@ public class CoreService extends Service {
         }
         try {
             JSONObject msg = new JSONObject();
-            msg.put("lat", loc.getLatitude());
-            msg.put("lng", loc.getLongitude());
+            msg.put(Models.KEY_LATITUDE, loc.getLatitude());
+            msg.put(Models.KEY_LONGITUDE, loc.getLongitude());
             if(loc.hasAccuracy()){
-                msg.put("acc", loc.getAccuracy());
+                msg.put(Models.KEY_ACCURACY, loc.getAccuracy());
             }
             if(loc.hasAltitude()){
-                msg.put("alt", loc.getAltitude());
+                msg.put(Models.KEY_ALTITUDE, loc.getAltitude());
             }
             if(loc.hasBearing()){
-                msg.put("bear", loc.getBearing());
+                msg.put(Models.KEY_BEARING, loc.getBearing());
             }
             if(loc.hasSpeed()){
-                msg.put("spd", loc.getSpeed());
+                msg.put(Models.KEY_SPEED, loc.getSpeed());
             }
-            msg.put("time", System.currentTimeMillis());
-            msg.put("pvdr", provider);
+            msg.put(Models.KEY_TIME, System.currentTimeMillis());
+            msg.put(Models.KEY_PROVIDER, provider);
             String topic = String.format("client/%s/location/put", mClientId);
             publish(topic, msg);
         } catch (JSONException e) {

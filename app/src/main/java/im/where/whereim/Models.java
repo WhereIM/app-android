@@ -25,7 +25,6 @@ public class Models {
         public Double bearing;
         public Double speed; //m
         public Long time;
-        public String provider;
 
         public String getDisplayName(){
             if(this.user_mate_name!=null){
