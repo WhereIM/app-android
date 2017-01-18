@@ -1,10 +1,8 @@
 package im.where.whereim;
 
-import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -149,8 +147,8 @@ public class ChannelActivity extends BaseActivity {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    if(mChannelMapFragment==null) {
-                        mChannelMapFragment = new ChannelMapFragment();
+                    if(mChannelMapFragment ==null) {
+                        mChannelMapFragment = new ChannelGoogleMapFragment();
                         processMapRunnable();
                     }
                     return mChannelMapFragment;
@@ -218,7 +216,7 @@ public class ChannelActivity extends BaseActivity {
     }
 
     private interface MapFragmentCallback{
-        public void onMapFragmentReady(ChannelMapFragment fragment);
+        public void onMapFragmentReady(CoreService.MapDataReceiver fragment);
     }
     private List<MapFragmentCallback> mPendingMapRunnable = new ArrayList<>();
     private void postMap(MapFragmentCallback r){
@@ -232,7 +230,7 @@ public class ChannelActivity extends BaseActivity {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                if(mChannelMapFragment==null){
+                if(mChannelMapFragment ==null){
                     return;
                 }
                 synchronized (mPendingMapRunnable) {

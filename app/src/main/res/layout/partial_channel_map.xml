@@ -1,18 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="im.where.whereim.ChannelActivity">
-
-    <com.google.android.gms.maps.MapView
-        android:id="@+id/map"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clickable="true"
-        android:enabled="true" />
-
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
     <LinearLayout
         android:id="@+id/enchantment_controller"
         android:layout_width="wrap_content"
@@ -66,4 +53,14 @@
 
     </LinearLayout>
 
-</RelativeLayout>
+    <im.where.whereim.view.Joystick
+        android:id="@+id/joystick"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:background="@drawable/joystick"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="16dp"/>
+
+</merge>
