@@ -464,6 +464,12 @@ public class CoreService extends Service {
                         break;
                     default:
                         Log.e(TAG, "MQTT Disconnected");
+                        synchronized (mSubscribedTopics) {
+                            mSubscribedTopics.clear();
+                        }
+                        synchronized (mChannelMessageSync) {
+                            mChannelMessageSync.clear();
+                        }
                         mMqttConnected = false;
                         break;
                 }
@@ -643,13 +649,12 @@ public class CoreService extends Service {
                     }
                 }
             }
-
-//            processEnabledEnchantment();
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
+    private final HashMap<String, Boolean> mChannelMessageSync = new HashMap<>();
     private void mqttClientChannelHandler(JSONObject msg){
         try {
             final Models.Channel channel;
@@ -705,22 +710,31 @@ public class CoreService extends Service {
 
             notifyChannelListChangedListeners();
 
-            new Thread(){
-                @Override
-                public void run() {
-                    JSONObject data = Message.getSyncData(mWimDBHelper.getDatabase(), channel);
-                    if(data==null){
-                        return;
-                    }
-                    try {
-                        data.put(Models.KEY_CHANNEL, channel.id);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        return;
-                    }
-                    publish(String.format("client/%s/message/sync", mClientId), data);
+            boolean needSync = true;
+            synchronized (mChannelMessageSync) {
+                if(mChannelMessageSync.containsKey(channel_id)) {
+                    needSync = false;
                 }
-            }.start();
+                mChannelMessageSync.put(channel_id, true);
+            }
+            if(needSync){
+                new Thread(){
+                    @Override
+                    public void run() {
+                        JSONObject data = Message.getSyncData(mWimDBHelper.getDatabase(), channel);
+                        if(data==null){
+                            return;
+                        }
+                        try {
+                            data.put(Models.KEY_CHANNEL, channel.id);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            return;
+                        }
+                        publish(String.format("client/%s/message/sync", mClientId), data);
+                    }
+                }.start();
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -909,11 +923,18 @@ public class CoreService extends Service {
         unsubscribe(topic);
     }
 
+    private final List<String> mSubscribedTopics = new ArrayList<>();
+
     private void subscribe(final String topic, final AWSIotMqttNewMessageCallback callback){
         mHandler.post(new Runnable() {
             @Override
             public void run() {
                 try{
+                    synchronized (mSubscribedTopics) {
+                        if(mSubscribedTopics.contains(topic))
+                            return;
+                        mSubscribedTopics.add(topic);
+                    }
                     Log.e(TAG, "Subscribe "+topic);
                     mqttManager.subscribeToTopic(topic, AWSIotMqttQos.QOS1, callback);
                 }catch(Exception e){
@@ -930,6 +951,9 @@ public class CoreService extends Service {
                 try{
                     Log.e(TAG, "Unsubscribe "+topic);
                     mqttManager.unsubscribeTopic(topic);
+                    synchronized (mSubscribedTopics) {
+                        mSubscribedTopics.remove(topic);
+                    }
                 }catch(Exception e){
                     e.printStackTrace();
                 }
