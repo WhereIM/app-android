@@ -76,6 +76,18 @@ public class ChannelMessengerFragment extends BaseFragment {
                     enchantment = binder.getChannelEnchantment(mChannel.id, m.message);
                     vh.message.setText(getResources().getString(R.string.message_enchantment_create, enchantment==null?"":enchantment.name));
                     break;
+                case "enchantment_emerge":
+                    enchantment = binder.getChannelEnchantment(mChannel.id, m.message);
+                    vh.message.setText(getResources().getString(R.string.message_enchantment_emerge, enchantment==null?"":enchantment.name));
+                    break;
+                case "enchantment_in":
+                    enchantment = binder.getChannelEnchantment(mChannel.id, m.message);
+                    vh.message.setText(getResources().getString(R.string.message_enchantment_in, enchantment==null?"":enchantment.name));
+                    break;
+                case "enchantment_out":
+                    enchantment = binder.getChannelEnchantment(mChannel.id, m.message);
+                    vh.message.setText(getResources().getString(R.string.message_enchantment_out, enchantment==null?"":enchantment.name));
+                    break;
                 case "marker_create":
                     marker = binder.getChannelMarker(mChannel.id, m.message);
                     vh.message.setText(getResources().getString(R.string.message_marker_create, marker==null?"":marker.name));
