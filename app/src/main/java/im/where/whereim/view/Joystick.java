@@ -66,8 +66,10 @@ public class Joystick extends View {
     @Override
     protected void onDraw(Canvas canvas){
         super.onDraw(canvas);
+
         if (mBgPaint == null) {
             mBgPaint = new Paint();
+            mBgPaint.setAntiAlias(true);
             mBgPaint.setColor(Color.BLACK);
             mBgPaint.setStrokeWidth(1);
             mBgPaint.setStyle(Paint.Style.FILL_AND_STROKE);
@@ -77,6 +79,7 @@ public class Joystick extends View {
 
         if (mPaint == null) {
             mPaint = new Paint();
+            mPaint.setAntiAlias(true);
             mPaint.setColor(Color.RED);
             mPaint.setStyle(Paint.Style.FILL);
         }
