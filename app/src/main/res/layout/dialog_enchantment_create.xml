@@ -23,4 +23,11 @@
         android:ems="10"
         android:id="@+id/name" />
 
+    <CheckBox
+        android:id="@+id/ispublic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/is_public"
+        android:checked="true" />
+
 </GridLayout>

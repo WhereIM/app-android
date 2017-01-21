@@ -234,9 +234,10 @@ public class CoreService extends Service {
             synchronized (mOpenedChannel) {
                 mOpenedChannel.add(channel.id);
             }
-            synchronized (mEnchantment) {
-                for (Models.Enchantment enchantment : mEnchantment.values()) {
-                    if(enchantment.channel_id.equals(channel.id)){
+            synchronized (mChannelEnchantment) {
+                HashMap<String, Models.Enchantment> list = mChannelEnchantment.get(channel.id);
+                if(list!=null){
+                    for (Models.Enchantment enchantment : list.values()) {
                         receiver.onEnchantmentData(enchantment);
                     }
                 }
@@ -275,7 +276,7 @@ public class CoreService extends Service {
             return CoreService.this.getChannelMate(channel_id, mate_id);
         }
 
-        public void createEnchantment(String name, String channel_id, double latitude, double longitude, int radius, boolean enable) {
+        public void createEnchantment(String name, String channel_id, boolean ispublic, double latitude, double longitude, int radius, boolean enable) {
             try {
                 JSONObject payload = new JSONObject();
                 payload.put(Models.KEY_NAME, name);
@@ -284,24 +285,45 @@ public class CoreService extends Service {
                 payload.put(Models.KEY_LONGITUDE, longitude);
                 payload.put(Models.KEY_RADIUS, radius);
                 payload.put(Models.KEY_ENABLE, enable);
-                String topic = String.format("client/%s/enchantment/put", mClientId);
+                String topic;
+                if(ispublic){
+                    topic = String.format("channel/%s/data/enchantment/put", channel_id);
+                }else{
+                    topic = String.format("client/%s/enchantment/put", mClientId);
+                }
                 publish(topic, payload);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
 
-        public void createMarker(String name, String channel_id, double latitude, double longitude) {
+        public void createMarker(String name, String channel_id, boolean ispublic, double latitude, double longitude) {
             try {
                 JSONObject payload = new JSONObject();
                 payload.put(Models.KEY_NAME, name);
                 payload.put(Models.KEY_CHANNEL, channel_id);
                 payload.put(Models.KEY_LATITUDE, latitude);
                 payload.put(Models.KEY_LONGITUDE, longitude);
-                String topic = String.format("channel/%s/data/marker/put", channel_id);
+                String topic;
+                if(ispublic){
+                    topic = String.format("channel/%s/data/marker/put", channel_id);
+                }else{
+                    topic = String.format("client/%s/marker/put", mClientId);
+                }
                 publish(topic, payload);
             } catch (JSONException e) {
                 e.printStackTrace();
+            }
+        }
+
+        public Models.Enchantment getChannelEnchantment(String channel_id, String enchantment_id){
+            synchronized (mChannelEnchantment) {
+                HashMap<String, Models.Enchantment> list;
+                list = mChannelEnchantment.get(channel_id);
+                if(list==null){
+                    return null;
+                }
+                return list.get(enchantment_id);
             }
         }
 
@@ -569,7 +591,10 @@ public class CoreService extends Service {
                             mqttClientChannelHandler(payload);
                             break;
                         case "enchantment":
-                            mqttClientEnchantmentHandler(payload);
+                            mqttEnchantmentHandler(payload);
+                            break;
+                        case "marker":
+                            mqttMarkerHandler(payload);
                             break;
                     }
                 } catch (Exception e) {
@@ -597,8 +622,11 @@ public class CoreService extends Service {
                 case "mate":
                     mqttChannelMateHandler(channel_id, msg);
                     break;
+                case "enchantment":
+                    mqttEnchantmentHandler(msg);
+                    break;
                 case "marker":
-                    mqttChannelMarkerHandler(channel_id, msg);
+                    mqttMarkerHandler(msg);
                     break;
                 case "message":
                     mqttChannelMessageHandler(channel_id, msg);
@@ -608,50 +636,122 @@ public class CoreService extends Service {
         }
     }
 
-    final private HashMap<String, Models.Enchantment> mEnchantment = new HashMap<>();
-    final private HashMap<String, Models.Enchantment> mEnabledEnchantment = new HashMap<>();
-    private void mqttClientEnchantmentHandler(JSONObject msg){
+    private final HashMap<String, HashMap<String, Models.Enchantment>> mChannelEnchantment = new HashMap<>();
+    private void mqttEnchantmentHandler(JSONObject msg){
+        final String channel_id;
+        String enchantment_id;
+        String name;
+        double latitude;
+        double longitude;
+        double radius;
+        boolean is_public;
+        boolean enable;
         try {
-            String channel_id = msg.getString(Models.KEY_CHANNEL);
-            String enchantment_id = msg.getString(Models.KEY_ID);
-            Models.Enchantment enchantment;
-
-            synchronized (mEnchantment) {
-                if(!mEnchantment.containsKey(enchantment_id)){
-                    enchantment = new Models.Enchantment();
-                    enchantment.id = enchantment_id;
-                    mEnchantment.put(enchantment.id, enchantment);
-                }else{
-                    enchantment = mEnchantment.get(enchantment_id);
-                }
-            }
-
-            enchantment.channel_id = channel_id;
-            enchantment.name = msg.getString(Models.KEY_NAME);
-            enchantment.latitude = msg.getDouble(Models.KEY_LATITUDE);
-            enchantment.longitude = msg.getDouble(Models.KEY_LONGITUDE);
-            enchantment.radius = msg.getDouble(Models.KEY_RADIUS);
-            enchantment.enable = msg.getBoolean(Models.KEY_ENABLE);
-
-            if(enchantment.enable){
-                synchronized (mEnabledEnchantment) {
-                    mEnabledEnchantment.put(enchantment.id, enchantment);
-                }
-            }else{
-                synchronized (mEnabledEnchantment) {
-                    mEnabledEnchantment.remove(enchantment.id);
-                }
-            }
-            synchronized (mMapDataReceiver){
-                if(mMapDataReceiver.containsKey(channel_id)){
-                    for (MapDataReceiver mapDataReceiver : mMapDataReceiver.get(channel_id)) {
-                        mapDataReceiver.onEnchantmentData(enchantment);
-                    }
-                }
-            }
+            channel_id = msg.getString(Models.KEY_CHANNEL);
+            enchantment_id = msg.getString(Models.KEY_ID);
+            name = msg.getString(Models.KEY_NAME);
+            latitude = msg.getDouble(Models.KEY_LATITUDE);
+            longitude = msg.getDouble(Models.KEY_LONGITUDE);
+            radius = msg.getDouble(Models.KEY_RADIUS);
+            is_public = msg.getBoolean(Models.KEY_PUBLIC);
+            enable = msg.getBoolean(Models.KEY_ENABLE);
         } catch (JSONException e) {
             e.printStackTrace();
+            return;
         }
+        Models.Enchantment enchantment;
+        synchronized (mChannelEnchantment) {
+            HashMap<String, Models.Enchantment> list = mChannelEnchantment.get(channel_id);
+            if(list==null){
+                list = new HashMap<>();
+                mChannelEnchantment.put(channel_id, list);
+            }
+
+            enchantment = list.get(enchantment_id);
+            if(enchantment==null){
+                enchantment = new Models.Enchantment();
+                list.put(enchantment_id, enchantment);
+            }
+            enchantment.id = enchantment_id;
+            enchantment.channel_id = channel_id;
+            enchantment.name = name;
+            enchantment.latitude = latitude;
+            enchantment.longitude = longitude;
+            enchantment.radius = radius;
+            enchantment.isPublic = is_public;
+            enchantment.enable = enable;
+        }
+
+        final Models.Enchantment _e = enchantment;
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (mMapDataReceiver){
+                    if(mMapDataReceiver.containsKey(channel_id)){
+                        for (MapDataReceiver mapDataReceiver : mMapDataReceiver.get(channel_id)) {
+                            mapDataReceiver.onEnchantmentData(_e);
+                        }
+                    }
+                }
+
+            }
+        });
+    }
+
+    private final HashMap<String, HashMap<String, Models.Marker>> mChannelMarker = new HashMap<>();
+    private void mqttMarkerHandler(JSONObject data){
+        final String channel_id;
+        String marker_id;
+        String name;
+        double latitude;
+        double longitude;
+        boolean is_public;
+        try {
+            channel_id = data.getString(Models.KEY_CHANNEL);
+            marker_id = data.getString(Models.KEY_ID);
+            name = data.getString(Models.KEY_NAME);
+            latitude = data.getDouble(Models.KEY_LATITUDE);
+            longitude = data.getDouble(Models.KEY_LONGITUDE);
+            is_public = data.getBoolean(Models.KEY_PUBLIC);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+        Models.Marker marker;
+        synchronized (mChannelMarker) {
+            HashMap<String, Models.Marker> list = mChannelMarker.get(channel_id);
+            if(list==null){
+                list = new HashMap<>();
+                mChannelMarker.put(channel_id, list);
+            }
+
+            marker = list.get(marker_id);
+            if(marker==null){
+                marker = new Models.Marker();
+                list.put(marker_id, marker);
+            }
+            marker.id = marker_id;
+            marker.channel_id = channel_id;
+            marker.name = name;
+            marker.latitude = latitude;
+            marker.longitude = longitude;
+            marker.isPublic = is_public;
+        }
+
+        final Models.Marker _m = marker;
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (mMapDataReceiver){
+                    if(mMapDataReceiver.containsKey(channel_id)){
+                        for (MapDataReceiver mapDataReceiver : mMapDataReceiver.get(channel_id)) {
+                            mapDataReceiver.onMarkerData(_m);
+                        }
+                    }
+                }
+
+            }
+        });
     }
 
     private final HashMap<String, Boolean> mChannelMessageSync = new HashMap<>();
@@ -698,8 +798,11 @@ public class CoreService extends Service {
                             case "message":
                                 mqttChannelMessageHandler(channel_id, payload);
                                 break;
+                            case "enchantment":
+                                mqttEnchantmentHandler(payload);
+                                break;
                             case "marker":
-                                mqttChannelMarkerHandler(channel_id, payload);
+                                mqttMarkerHandler(payload);
                                 break;
                         }
                     } catch (Exception e) {
@@ -741,58 +844,6 @@ public class CoreService extends Service {
     }
 
     // ================ Channel Data ================
-
-    // ================ Channel Data - Marker ================
-    private final HashMap<String, HashMap<String, Models.Marker>> mChannelMarker = new HashMap<>();
-    private void mqttChannelMarkerHandler(final String channel_id, JSONObject data){
-        String marker_id;
-        String name;
-        double latitude;
-        double longitude;
-        try {
-            marker_id = data.getString(Models.KEY_ID);
-            name = data.getString(Models.KEY_NAME);
-            latitude = data.getDouble(Models.KEY_LATITUDE);
-            longitude = data.getDouble(Models.KEY_LONGITUDE);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return;
-        }
-        Models.Marker marker;
-        synchronized (mChannelMarker) {
-            HashMap<String, Models.Marker> list = mChannelMarker.get(channel_id);
-            if(list==null){
-                list = new HashMap<>();
-                mChannelMarker.put(channel_id, list);
-            }
-
-            marker = list.get(marker_id);
-            if(marker==null){
-                marker = new Models.Marker();
-                list.put(marker_id, marker);
-            }
-            marker.id = marker_id;
-            marker.channel_id = channel_id;
-            marker.name = name;
-            marker.latitude = latitude;
-            marker.longitude = longitude;
-        }
-
-        final Models.Marker _m = marker;
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                synchronized (mMapDataReceiver){
-                    if(mMapDataReceiver.containsKey(channel_id)){
-                        for (MapDataReceiver mapDataReceiver : mMapDataReceiver.get(channel_id)) {
-                            mapDataReceiver.onMarkerData(_m);
-                        }
-                    }
-                }
-
-            }
-        });
-    }
 
     // ================ Channel Data - Mate ================
     private void mqttChannelMateHandler(String channel_id, JSONObject data){

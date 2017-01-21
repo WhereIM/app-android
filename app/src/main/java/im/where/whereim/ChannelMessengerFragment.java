@@ -66,10 +66,15 @@ public class ChannelMessengerFragment extends BaseFragment {
                 return;
             }
             vh.sender.setText(binder.getChannelMate(mChannel.id, m.mate_id).getDisplayName());
+            Models.Enchantment enchantment;
             Models.Marker marker;
             switch(m.type){
                 case "text":
                     vh.message.setText(m.message);
+                    break;
+                case "enchantment_create":
+                    enchantment = binder.getChannelEnchantment(mChannel.id, m.message);
+                    vh.message.setText(getResources().getString(R.string.message_enchantment_create, enchantment==null?"":enchantment.name));
                     break;
                 case "marker_create":
                     marker = binder.getChannelMarker(mChannel.id, m.message);

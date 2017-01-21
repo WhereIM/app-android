@@ -40,6 +40,7 @@ public class Models {
         public String name;
         public double latitude;
         public double longitude;
+        public boolean isPublic;
     }
 
     public static class Enchantment{
@@ -49,6 +50,7 @@ public class Models {
         public double latitude;
         public double longitude;
         public double radius;
+        public boolean isPublic;
         public boolean enable;
     }
 
@@ -65,6 +67,7 @@ public class Models {
     final static String KEY_TIME = "time";
     final static String KEY_PROVIDER = "pvdr";
     final static String KEY_RADIUS = "r";
+    final static String KEY_PUBLIC = "public";
     final static String KEY_ENABLE = "enable";
     final static String KEY_ID = "id";
     final static String KEY_NAME = "name";

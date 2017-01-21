@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -30,7 +31,8 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
     protected double mEditingLatitude;
     protected double mEditingLongitude;
 
-    protected String mEditingName;
+    protected Models.Marker mEditingMarker = new Models.Marker();
+    protected Models.Enchantment mEditingEnchantment = new Models.Enchantment();
     protected int mEditingType = 0;
     protected int mEditingEnchantmentRadiusIndex = Config.DEFAULT_ENCHANTMENT_RADIUS_INDEX;
 
@@ -68,7 +70,7 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
                         getChannel(new ChannelActivity.GetChannelCallback() {
                             @Override
                             public void onGetChannel(Models.Channel channel) {
-                                binder.createEnchantment(mEditingName, channel.id, mEditingLatitude, mEditingLongitude, Config.ENCHANTMENT_RADIUS[mEditingEnchantmentRadiusIndex], true);
+                                binder.createEnchantment(mEditingEnchantment.name, channel.id, mEditingEnchantment.isPublic, mEditingLatitude, mEditingLongitude, Config.ENCHANTMENT_RADIUS[mEditingEnchantmentRadiusIndex], true);
                                 mEditingType = 0;
                                 refreshEditing();
                             }
@@ -88,7 +90,7 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
                         getChannel(new ChannelActivity.GetChannelCallback() {
                             @Override
                             public void onGetChannel(Models.Channel channel) {
-                                binder.createMarker(mEditingName, channel.id, mEditingLatitude, mEditingLongitude);
+                                binder.createMarker(mEditingMarker.name, channel.id, mEditingMarker.isPublic, mEditingLatitude, mEditingLongitude);
                                 mEditingType = 0;
                                 refreshEditing();
                             }
@@ -194,13 +196,15 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
                 dialog.dismiss();
                 final View dialog_view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_enchantment_create,  null);
                 final EditText et_name = (EditText) dialog_view.findViewById(R.id.name);
+                final CheckBox isPublic = (CheckBox) dialog_view.findViewById(R.id.ispublic);
                 new AlertDialog.Builder(getActivity())
                         .setTitle(R.string.create_enchantment)
                         .setView(dialog_view)
                         .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                mEditingName = et_name.getText().toString();
+                                mEditingEnchantment.name = et_name.getText().toString();
+                                mEditingEnchantment.isPublic = isPublic.isChecked();
                                 mEditingType = R.string.create_enchantment;
                                 refreshEditing();
                             }
@@ -219,13 +223,15 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
                 dialog.dismiss();
                 final View dialog_view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_marker_create,  null);
                 final EditText et_name = (EditText) dialog_view.findViewById(R.id.name);
+                final CheckBox isPublic = (CheckBox) dialog_view.findViewById(R.id.ispublic);
                 new AlertDialog.Builder(getActivity())
                         .setTitle(R.string.create_marker)
                         .setView(dialog_view)
                         .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                mEditingName = et_name.getText().toString();
+                                mEditingMarker.name = et_name.getText().toString();
+                                mEditingMarker.isPublic = isPublic.isChecked();
                                 mEditingType = R.string.create_marker;
                                 refreshEditing();
                             }
