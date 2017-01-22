@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">位爾.IM</string>
+    <string name="permission_rationale">本程式需要定位功能才能運作喔</string>
+    <string name="action_invite">邀請</string>
+    <string name="action_quit">關閉程式</string>
+
+    <string name="channel_name">群組名稱</string>
+    <string name="display_name">個人暱稱</string>
+    <string name="create_channel">建立群組</string>
+    <string name="ok">好</string>
+    <string name="cancel">取消</string>
+    <string name="join_channel">加入群組</string>
+    <string name="create_enchantment">設立結界</string>
+    <string name="create_marker">放置圖釘</string>
+    <string name="name">名稱</string>
+    <string name="mock">假資料</string>
+
+    <string name="is_public">公用</string>
+
+    <string name="message_enchantment_create">%1$s 結界已設立.</string>
+    <string name="message_enchantment_emerge">出現在 %1$s 結界</string>
+    <string name="message_enchantment_in">進入 %1$s 結界</string>
+    <string name="message_enchantment_out">離開 %1$s 結界</string>
+    <string name="message_marker_create">放了 %1$s 圖釘</string>
+    <string name="mock_location_service_not_running">定位傳送功能未啟用，無法傳送假資料</string>
+    <string name="mock_confirm_disable">確定不再傳送假資料？</string>
+</resources>
