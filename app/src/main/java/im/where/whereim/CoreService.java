@@ -552,7 +552,7 @@ public class CoreService extends Service {
                     mIsForeground = true;
                     Notification notification = new NotificationCompat.Builder(this)
                             .setContentTitle(getResources().getString(R.string.app_name))
-                            .setSmallIcon(R.mipmap.ic_launcher)
+                            .setSmallIcon(R.drawable.ic_stat_logo)
                             .build();
 
                     startForeground(1, notification);
@@ -910,7 +910,7 @@ public class CoreService extends Service {
             if(!"text".equals(message.type)){
                 NotificationCompat.Builder mBuilder =
                         new NotificationCompat.Builder(this)
-                                .setSmallIcon(R.drawable.ic_stat_ic_stat_logo)
+                                .setSmallIcon(R.drawable.ic_stat_logo)
                                 .setContentTitle(getString(R.string.app_name))
                                 .setContentText(message.getText(this, mBinder))
                                 .setDefaults(Notification.DEFAULT_SOUND)

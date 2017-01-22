@@ -66,33 +66,8 @@ public class ChannelMessengerFragment extends BaseFragment {
                 return;
             }
             vh.sender.setText(binder.getChannelMate(mChannel.id, m.mate_id).getDisplayName());
-            Models.Enchantment enchantment;
-            Models.Marker marker;
-            switch(m.type){
-                case "text":
-                    vh.message.setText(m.message);
-                    break;
-                case "enchantment_create":
-                    enchantment = binder.getChannelEnchantment(mChannel.id, m.message);
-                    vh.message.setText(getResources().getString(R.string.message_enchantment_create, enchantment==null?"":enchantment.name));
-                    break;
-                case "enchantment_emerge":
-                    enchantment = binder.getChannelEnchantment(mChannel.id, m.message);
-                    vh.message.setText(getResources().getString(R.string.message_enchantment_emerge, enchantment==null?"":enchantment.name));
-                    break;
-                case "enchantment_in":
-                    enchantment = binder.getChannelEnchantment(mChannel.id, m.message);
-                    vh.message.setText(getResources().getString(R.string.message_enchantment_in, enchantment==null?"":enchantment.name));
-                    break;
-                case "enchantment_out":
-                    enchantment = binder.getChannelEnchantment(mChannel.id, m.message);
-                    vh.message.setText(getResources().getString(R.string.message_enchantment_out, enchantment==null?"":enchantment.name));
-                    break;
-                case "marker_create":
-                    marker = binder.getChannelMarker(mChannel.id, m.message);
-                    vh.message.setText(getResources().getString(R.string.message_marker_create, marker==null?"":marker.name));
-                    break;
-            }
+            String text = m.getText(getActivity(), binder);
+            vh.message.setText(text);
             vh.time.setText(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Timestamp(m.time*1000)));
         }
     };
