@@ -446,19 +446,52 @@ public class CoreService extends Service {
     }
 
     private WimDBHelper mWimDBHelper;
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        mWimDBHelper = new WimDBHelper(this);
-
-        keyStorePath = getFilesDir().getAbsolutePath();
-
-        SharedPreferences settings = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
-        mClientId = settings.getString(Models.KEY_CLIENT_ID, null);
-        mUserName = settings.getString(Models.KEY_NAME, null);
-        if(mClientId!=null){
-            onAuthed();
-        }
+        init();
         return super.onStartCommand(intent, flags, startId);
+    }
+
+    @Override
+    public void onDestroy() {
+        stopLocationService();
+        if(mIsForeground){
+            mIsForeground = false;
+            stopForeground(true);
+        }
+
+        mInited = false;
+
+        super.onDestroy();
+    }
+
+
+    private final Object mutex = new Object();
+    private boolean mInited = false;
+    private void init(){
+        synchronized (mutex) {
+            if(!mInited) {
+                mInited = true;
+                mWimDBHelper = new WimDBHelper(this);
+
+                keyStorePath = getFilesDir().getAbsolutePath();
+
+                SharedPreferences settings = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+                mClientId = settings.getString(Models.KEY_CLIENT_ID, null);
+                mUserName = settings.getString(Models.KEY_NAME, null);
+                if (mClientId != null) {
+                    onAuthed();
+                }
+            }
+        }
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        init();
+
+        return mBinder;
     }
 
     private void onAuthed(){
@@ -566,11 +599,6 @@ public class CoreService extends Service {
                 }
             }
         }
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return mBinder;
     }
 
     private Pattern mClientGetPattern = Pattern.compile("^client/[A-Fa-f0-9]{32}/([^/]+)/get$");
