@@ -241,7 +241,6 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         if(mate.latitude==null){
             return;
         }
-
         postMapTask(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {

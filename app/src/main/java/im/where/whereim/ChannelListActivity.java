@@ -152,33 +152,38 @@ public class ChannelListActivity extends BaseActivity {
     }
 
     private void channelJoin(final String channel_id){
-        final View dialog_view = LayoutInflater.from(ChannelListActivity.this).inflate(R.layout.dialog_channel_join,  null);
-        final TextView tv_channel_name = (TextView) dialog_view.findViewById(R.id.channel_name);
+        postBinderTask(new Models.BinderTask() {
+            @Override
+            public void onBinderReady(CoreService.CoreBinder binder) {
+                final View dialog_view = LayoutInflater.from(ChannelListActivity.this).inflate(R.layout.dialog_channel_join,  null);
+                final TextView tv_channel_name = (TextView) dialog_view.findViewById(R.id.channel_name);
 //        final EditText et_channel_alias = (EditText) dialog_view.findViewById(R.id.channel_alias);
-        final EditText et_mate_name = (EditText) dialog_view.findViewById(R.id.mate_name);
-        et_mate_name.setText(mBinder.getUserName());
-        new AlertDialog.Builder(ChannelListActivity.this)
-                .setTitle(R.string.join_channel)
-                .setView(dialog_view)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-//                        final String channel_alias = et_channel_alias.getText().toString();
-                        final String mate_name = et_mate_name.getText().toString();
-                        postBinderTask(new Models.BinderTask() {
+                final EditText et_mate_name = (EditText) dialog_view.findViewById(R.id.mate_name);
+                et_mate_name.setText(binder.getUserName());
+                new AlertDialog.Builder(ChannelListActivity.this)
+                        .setTitle(R.string.join_channel)
+                        .setView(dialog_view)
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
-                            public void onBinderReady(CoreService.CoreBinder binder) {
-                                binder.joinChannel(channel_id, null /*channel_alias*/, mate_name);
+                            public void onClick(DialogInterface dialog, int which) {
+//                        final String channel_alias = et_channel_alias.getText().toString();
+                                final String mate_name = et_mate_name.getText().toString();
+                                postBinderTask(new Models.BinderTask() {
+                                    @Override
+                                    public void onBinderReady(CoreService.CoreBinder binder) {
+                                        binder.joinChannel(channel_id, null /*channel_alias*/, mate_name);
+                                    }
+                                });
                             }
-                        });
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                        })
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
 
-                    }
-                }).show();
+                            }
+                        }).show();
+            }
+        });
     }
 
     @Override
