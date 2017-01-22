@@ -2,6 +2,7 @@ package im.where.whereim;
 
 import android.Manifest;
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +13,9 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
@@ -51,6 +55,7 @@ import im.where.whereim.database.WimDBHelper;
 
 public class CoreService extends Service {
     private final static String TAG = "CoreService";
+
     public interface MapDataReceiver {
         void onMockData(Models.Mate mock);
         void onMateData(Models.Mate mate);
@@ -431,7 +436,7 @@ public class CoreService extends Service {
     private Handler mHandler = new Handler();
     private final List<Runnable> mChannelListChangedListener = new ArrayList<>();
     private final HashMap<String, List<Runnable>> mMessageListener = new HashMap<>();
-    private final IBinder mBinder = new CoreBinder();
+    private final CoreBinder mBinder = new CoreBinder();
 
     private List<String> mOpenedChannel = new ArrayList<>();
     private HashMap<String, List<MapDataReceiver>> mMapDataReceiver = new HashMap<>();
@@ -884,20 +889,36 @@ public class CoreService extends Service {
     // ================ Channel Data - Message ================
 
     private void mqttChannelMessageHandler(String channel_id, JSONObject payload){
-        mWimDBHelper.insert(Message.parse(payload));
-        notifyMessageListener(channel_id);
+        Message message = Message.parse(payload);
+        mWimDBHelper.insert(message);
+        notifyMessageListener(channel_id, message);
     }
 
-    private void notifyMessageListener(String channel_id){
+    private void notifyMessageListener(String channel_id, Message message){
+        int count = 0;
         synchronized (mMessageListener) {
             List<Runnable> list = mMessageListener.get(channel_id);
-            if(list==null){
-                return;
-            }
-            for (Runnable runnable : list) {
-                mHandler.post(runnable);
+            if(list!=null){
+                for (Runnable runnable : list) {
+                    mHandler.post(runnable);
+                    count += 1;
+                }
             }
         }
+//        if(count==0){
+        Log.e("lala","count="+count);
+            if(!"text".equals(message.type)){
+                NotificationCompat.Builder mBuilder =
+                        new NotificationCompat.Builder(this)
+                                .setSmallIcon(R.drawable.ic_stat_ic_stat_logo)
+                                .setContentTitle(getString(R.string.app_name))
+                                .setContentText(message.getText(this, mBinder))
+                                .setDefaults(Notification.DEFAULT_SOUND)
+                                .setAutoCancel(true);
+                NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                notificationManager.notify((int)message.id, mBuilder.build());
+            }
+//        }
     }
 
     // ================ Channel Location ================

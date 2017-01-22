@@ -1,13 +1,16 @@
 package im.where.whereim.database;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import im.where.whereim.CoreService;
 import im.where.whereim.Models;
+import im.where.whereim.R;
 
 /**
  * Created by buganini on 17/01/17.
@@ -63,6 +66,37 @@ public class Message extends ORM {
         m.message = cursor.getString(cursor.getColumnIndexOrThrow(COL_MESSAGE));
         m.time = cursor.getLong(cursor.getColumnIndexOrThrow(COL_TIME));
         return m;
+    }
+
+    public String getText(Context context, CoreService.CoreBinder binder){
+        Models.Enchantment enchantment;
+        Models.Marker marker;
+
+        switch(this.type){
+            case "text":
+                return this.message;
+
+            case "enchantment_create":
+                enchantment = binder.getChannelEnchantment(this.channel_id, this.message);
+                return context.getResources().getString(R.string.message_enchantment_create, enchantment==null?"":enchantment.name);
+
+            case "enchantment_emerge":
+                enchantment = binder.getChannelEnchantment(this.channel_id, this.message);
+                return context.getResources().getString(R.string.message_enchantment_emerge, enchantment==null?"":enchantment.name);
+
+            case "enchantment_in":
+                enchantment = binder.getChannelEnchantment(this.channel_id, this.message);
+                return context.getResources().getString(R.string.message_enchantment_in, enchantment==null?"":enchantment.name);
+
+            case "enchantment_out":
+                enchantment = binder.getChannelEnchantment(this.channel_id, this.message);
+                return context.getResources().getString(R.string.message_enchantment_out, enchantment==null?"":enchantment.name);
+
+            case "marker_create":
+                marker = binder.getChannelMarker(this.channel_id, this.message);
+                return context.getResources().getString(R.string.message_marker_create, marker==null?"":marker.name);
+        }
+        return null;
     }
 
     @Override
