@@ -266,6 +266,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                     }
                 }
 
+                mMarkerView.invalidate();
                 mMarkerViewTitle.setText(mate.getDisplayName());
                 mMarkerView.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
                         View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
