@@ -44,8 +44,24 @@ public class ChannelActivity extends BaseActivity {
         public void onGetChannel(Models.Channel channel);
     }
 
-    public Models.Channel getChannel(){
-        return mChannel;
+    private final List<GetChannelCallback> mGetChannelCallback = new ArrayList<>();
+    public void getChannel(GetChannelCallback callback){
+        synchronized (mGetChannelCallback) {
+            mGetChannelCallback.add(callback);
+        }
+        processGetChannelCallback();
+    }
+
+    private void processGetChannelCallback(){
+        if(mChannel==null){
+            return;
+        }
+        synchronized (mGetChannelCallback) {
+            while(mGetChannelCallback.size()>0){
+                GetChannelCallback callback = mGetChannelCallback.remove(0);
+                callback.onGetChannel(mChannel);
+            }
+        }
     }
 
     private TextView mChannelTitle;
@@ -98,6 +114,7 @@ public class ChannelActivity extends BaseActivity {
                 mBinder.addChannelListChangedListener(mChannelListChangedListener);
 
                 mChannel = mBinder.getChannelById(mChannelId);
+                processGetChannelCallback();
                 mTabLayout.setupWithViewPager(mViewPager);
             }
         });

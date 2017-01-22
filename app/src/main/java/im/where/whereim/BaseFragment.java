@@ -60,8 +60,7 @@ public class BaseFragment extends Fragment {
         postBinderTask(new Models.BinderTask() {
             @Override
             public void onBinderReady(CoreService.CoreBinder binder) {
-                Models.Channel channel = ((ChannelActivity) getActivity()).getChannel();
-                callback.onGetChannel(channel);
+                ((ChannelActivity) getActivity()).getChannel(callback);
             }
         });
     }

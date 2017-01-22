@@ -117,11 +117,7 @@ public class Message extends ORM {
     }
 
     public static Cursor getCursor(SQLiteDatabase db, Models.Channel channel){
-        String channel_id = channel.id;
-        if(channel_id==null){
-            return null;
-        }
-        return db.rawQuery("SELECT * FROM "+TABLE_NAME+" WHERE "+COL_CHANNEL+"=? ORDER BY time ASC", new String[]{channel_id});
+        return db.rawQuery("SELECT * FROM "+TABLE_NAME+" WHERE "+COL_CHANNEL+"=? ORDER BY time ASC", new String[]{channel.id});
     }
 
     public static JSONObject getSyncData(SQLiteDatabase db, Models.Channel channel){
