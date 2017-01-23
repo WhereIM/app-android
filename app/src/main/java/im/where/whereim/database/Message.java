@@ -69,32 +69,24 @@ public class Message extends ORM {
     }
 
     public String getText(Context context, CoreService.CoreBinder binder){
-        Models.Enchantment enchantment;
-        Models.Marker marker;
-
         switch(this.type){
             case "text":
                 return this.message;
 
             case "enchantment_create":
-                enchantment = binder.getChannelEnchantment(this.channel_id, this.message);
-                return context.getResources().getString(R.string.message_enchantment_create, enchantment==null?"":enchantment.name);
+                return context.getResources().getString(R.string.message_enchantment_create, this.message);
 
             case "enchantment_emerge":
-                enchantment = binder.getChannelEnchantment(this.channel_id, this.message);
-                return context.getResources().getString(R.string.message_enchantment_emerge, enchantment==null?"":enchantment.name);
+                return context.getResources().getString(R.string.message_enchantment_emerge, this.message);
 
             case "enchantment_in":
-                enchantment = binder.getChannelEnchantment(this.channel_id, this.message);
-                return context.getResources().getString(R.string.message_enchantment_in, enchantment==null?"":enchantment.name);
+                return context.getResources().getString(R.string.message_enchantment_in, this.message);
 
             case "enchantment_out":
-                enchantment = binder.getChannelEnchantment(this.channel_id, this.message);
-                return context.getResources().getString(R.string.message_enchantment_out, enchantment==null?"":enchantment.name);
+                return context.getResources().getString(R.string.message_enchantment_out, this.message);
 
             case "marker_create":
-                marker = binder.getChannelMarker(this.channel_id, this.message);
-                return context.getResources().getString(R.string.message_marker_create, marker==null?"":marker.name);
+                return context.getResources().getString(R.string.message_marker_create, this.message);
         }
         return null;
     }
