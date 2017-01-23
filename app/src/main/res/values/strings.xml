@@ -16,6 +16,7 @@
     <string name="mock">Mock</string>
 
     <string name="is_public">Public</string>
+    <string name="is_private">Private</string>
 
     <string name="message_enchantment_create">Enchantment %1$s is created.</string>
     <string name="message_enchantment_emerge">Emerged in enchantment %1$s.</string>

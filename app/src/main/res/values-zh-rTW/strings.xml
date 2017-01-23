@@ -16,6 +16,7 @@
     <string name="mock">假資料</string>
 
     <string name="is_public">公用</string>
+    <string name="is_private">自用</string>
 
     <string name="message_enchantment_create">%1$s 結界已設立.</string>
     <string name="message_enchantment_emerge">出現在 %1$s 結界</string>

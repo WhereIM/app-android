@@ -1,11 +1,14 @@
 package im.where.whereim;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by buganini on 04/01/17.
  */
 
 public class Models {
-    public static class Channel{
+    public static class Channel {
         public String id;
         public String channel_name;
         public String user_channel_name;
@@ -13,7 +16,7 @@ public class Models {
         public Boolean enable;
     }
 
-    public static class Mate{
+    public static class Mate {
         public String id;
         public String mate_name;
         public String user_mate_name;
@@ -34,16 +37,27 @@ public class Models {
         }
     }
 
-    public static class Marker{
+    public static class Marker {
         public String id;
         public String channel_id;
         public String name;
         public double latitude;
         public double longitude;
         public boolean isPublic;
+        public Boolean enable;
     }
 
-    public static class Enchantment{
+    public static class MarkerList {
+        public List<Marker> public_list;
+        public List<Marker> private_list;
+
+        public MarkerList() {
+            public_list = new ArrayList<>();
+            private_list = new ArrayList<>();
+        }
+    }
+
+    public static class Enchantment {
         public String id;
         public String channel_id;
         public String name;
@@ -51,7 +65,17 @@ public class Models {
         public double longitude;
         public double radius;
         public boolean isPublic;
-        public boolean enable;
+        public Boolean enable;
+    }
+
+    public static class EnchantmentList {
+        public List<Enchantment> public_list;
+        public List<Enchantment> private_list;
+
+        public EnchantmentList() {
+            public_list = new ArrayList<>();
+            private_list = new ArrayList<>();
+        }
     }
 
     interface BinderTask{

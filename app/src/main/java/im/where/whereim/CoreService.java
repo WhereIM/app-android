@@ -13,9 +13,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
@@ -302,13 +299,39 @@ public class CoreService extends Service {
             }
         }
 
-        public void createMarker(String name, String channel_id, boolean ispublic, double latitude, double longitude) {
+        public void toggleEnchantmentEnabled(Models.Enchantment enchantment){
+            if(enchantment==null){
+                return;
+            }
+            if(enchantment.enable==null){
+                return;
+            }
+            try {
+                JSONObject payload = new JSONObject();
+                payload.put(Models.KEY_ID, enchantment.id);
+                payload.put(Models.KEY_ENABLE, !enchantment.enable);
+                enchantment.enable = null;
+                String topic;
+                if(enchantment.isPublic){
+                    topic = String.format("channel/%s/data/enchantment/put", enchantment.channel_id);
+                }else{
+                    topic = String.format("client/%s/enchantment/put", mClientId);
+                }
+                publish(topic, payload);
+                notifyChannelEnchantmentListChangedListeners(enchantment.channel_id);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void createMarker(String name, String channel_id, boolean ispublic, double latitude, double longitude, boolean enable) {
             try {
                 JSONObject payload = new JSONObject();
                 payload.put(Models.KEY_NAME, name);
                 payload.put(Models.KEY_CHANNEL, channel_id);
                 payload.put(Models.KEY_LATITUDE, latitude);
                 payload.put(Models.KEY_LONGITUDE, longitude);
+                payload.put(Models.KEY_ENABLE, enable);
                 String topic;
                 if(ispublic){
                     topic = String.format("channel/%s/data/marker/put", channel_id);
@@ -316,6 +339,31 @@ public class CoreService extends Service {
                     topic = String.format("client/%s/marker/put", mClientId);
                 }
                 publish(topic, payload);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void toggleMarkerEnabled(Models.Marker marker){
+            if(marker==null){
+                return;
+            }
+            if(marker.enable==null){
+                return;
+            }
+            try {
+                JSONObject payload = new JSONObject();
+                payload.put(Models.KEY_ID, marker.id);
+                payload.put(Models.KEY_ENABLE, !marker.enable);
+                marker.enable = null;
+                String topic;
+                if(marker.isPublic){
+                    topic = String.format("channel/%s/data/marker/put", marker.channel_id);
+                }else{
+                    topic = String.format("client/%s/marker/put", mClientId);
+                }
+                publish(topic, payload);
+                notifyChannelMarkerListChangedListeners(marker.channel_id);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -332,6 +380,48 @@ public class CoreService extends Service {
             }
         }
 
+        public Models.EnchantmentList getChannelEnchantment(String channel_id){
+            Models.EnchantmentList ret = new Models.EnchantmentList();
+            synchronized (mChannelEnchantment) {
+                HashMap<String, Models.Enchantment> list;
+                list = mChannelEnchantment.get(channel_id);
+                if(list==null){
+                    return ret;
+                }
+                for (Models.Enchantment enchantment : list.values()) {
+                    if(enchantment.isPublic){
+                        ret.public_list.add(enchantment);
+                    }else{
+                        ret.private_list.add(enchantment);
+                    }
+                }
+            }
+            return ret;
+        }
+
+        public void addEnchantmentListener(Models.Channel channel, Runnable r){
+            List<Runnable> list;
+            synchronized (mEnchantmentListener){
+                list = mEnchantmentListener.get(channel.id);
+                if(list==null){
+                    list = new ArrayList<>();
+                    mEnchantmentListener.put(channel.id, list);
+                }
+            }
+            list.add(r);
+            mHandler.post(r);
+        }
+
+        public void removeEnchantmentListener(Models.Channel channel, Runnable r){
+            List<Runnable> list;
+            synchronized (mEnchantmentListener){
+                list = mEnchantmentListener.get(channel.id);
+                if(list!=null){
+                    list.remove(r);
+                }
+            }
+        }
+
         public Models.Marker getChannelMarker(String channel_id, String marker_id){
             synchronized (mChannelMarker) {
                 HashMap<String, Models.Marker> list;
@@ -340,6 +430,48 @@ public class CoreService extends Service {
                     return null;
                 }
                 return list.get(marker_id);
+            }
+        }
+
+        public Models.MarkerList getChannelMarker(String channel_id){
+            Models.MarkerList ret = new Models.MarkerList();
+            synchronized (mChannelMarker) {
+                HashMap<String, Models.Marker> list;
+                list = mChannelMarker.get(channel_id);
+                if(list==null){
+                    return ret;
+                }
+                for (Models.Marker marker : list.values()) {
+                    if(marker.isPublic){
+                        ret.public_list.add(marker);
+                    }else{
+                        ret.private_list.add(marker);
+                    }
+                }
+            }
+            return ret;
+        }
+
+        public void addMarkerListener(Models.Channel channel, Runnable r){
+            List<Runnable> list;
+            synchronized (mMarkerListener){
+                list = mMarkerListener.get(channel.id);
+                if(list==null){
+                    list = new ArrayList<>();
+                    mMarkerListener.put(channel.id, list);
+                }
+            }
+            list.add(r);
+            mHandler.post(r);
+        }
+
+        public void removeMarkerListener(Models.Channel channel, Runnable r){
+            List<Runnable> list;
+            synchronized (mMarkerListener){
+                list = mMarkerListener.get(channel.id);
+                if(list!=null){
+                    list.remove(r);
+                }
             }
         }
 
@@ -435,6 +567,8 @@ public class CoreService extends Service {
     private boolean mMocking = false;
     private Handler mHandler = new Handler();
     private final List<Runnable> mChannelListChangedListener = new ArrayList<>();
+    private final HashMap<String, List<Runnable>> mEnchantmentListener = new HashMap<>();
+    private final HashMap<String, List<Runnable>> mMarkerListener = new HashMap<>();
     private final HashMap<String, List<Runnable>> mMessageListener = new HashMap<>();
     private final CoreBinder mBinder = new CoreBinder();
 
@@ -566,6 +700,32 @@ public class CoreService extends Service {
         });
     }
 
+    private void notifyChannelEnchantmentListChangedListeners(String channel_id){
+        List<Runnable> list;
+        synchronized (mEnchantmentListener){
+            list = mEnchantmentListener.get(channel_id);
+            if(list!=null){
+                for (Runnable runnable : list) {
+                    mHandler.post(runnable);
+                }
+            }
+        }
+
+    }
+
+    private void notifyChannelMarkerListChangedListeners(String channel_id){
+        List<Runnable> list;
+        synchronized (mMarkerListener){
+            list = mMarkerListener.get(channel_id);
+            if(list!=null){
+                for (Runnable runnable : list) {
+                    mHandler.post(runnable);
+                }
+            }
+        }
+
+    }
+
     private void _checkLocationService(){
         boolean pending = false;
         int enableCount = 0;
@@ -671,28 +831,16 @@ public class CoreService extends Service {
 
     private final HashMap<String, HashMap<String, Models.Enchantment>> mChannelEnchantment = new HashMap<>();
     private void mqttEnchantmentHandler(JSONObject msg){
+        final String enchantment_id;
         final String channel_id;
-        String enchantment_id;
-        String name;
-        double latitude;
-        double longitude;
-        double radius;
-        boolean is_public;
-        boolean enable;
+        Models.Enchantment enchantment;
         try {
-            channel_id = msg.getString(Models.KEY_CHANNEL);
             enchantment_id = msg.getString(Models.KEY_ID);
-            name = msg.getString(Models.KEY_NAME);
-            latitude = msg.getDouble(Models.KEY_LATITUDE);
-            longitude = msg.getDouble(Models.KEY_LONGITUDE);
-            radius = msg.getDouble(Models.KEY_RADIUS);
-            is_public = msg.getBoolean(Models.KEY_PUBLIC);
-            enable = msg.getBoolean(Models.KEY_ENABLE);
+            channel_id = msg.getString(Models.KEY_CHANNEL);
         } catch (JSONException e) {
             e.printStackTrace();
             return;
         }
-        Models.Enchantment enchantment;
         synchronized (mChannelEnchantment) {
             HashMap<String, Models.Enchantment> list = mChannelEnchantment.get(channel_id);
             if(list==null){
@@ -707,12 +855,12 @@ public class CoreService extends Service {
             }
             enchantment.id = enchantment_id;
             enchantment.channel_id = channel_id;
-            enchantment.name = name;
-            enchantment.latitude = latitude;
-            enchantment.longitude = longitude;
-            enchantment.radius = radius;
-            enchantment.isPublic = is_public;
-            enchantment.enable = enable;
+            enchantment.name = Util.JsonOptNullableString(msg, Models.KEY_NAME, enchantment.name);
+            enchantment.latitude = msg.optDouble(Models.KEY_LATITUDE, enchantment.latitude);
+            enchantment.longitude = msg.optDouble(Models.KEY_LONGITUDE, enchantment.longitude);
+            enchantment.radius = msg.optDouble(Models.KEY_RADIUS, enchantment.radius);
+            enchantment.isPublic = msg.optBoolean(Models.KEY_PUBLIC, enchantment.isPublic);
+            enchantment.enable = Util.JsonOptBoolean(msg, Models.KEY_ENABLE, enchantment.enable);
         }
 
         final Models.Enchantment _e = enchantment;
@@ -729,23 +877,16 @@ public class CoreService extends Service {
 
             }
         });
+        notifyChannelEnchantmentListChangedListeners(channel_id);
     }
 
     private final HashMap<String, HashMap<String, Models.Marker>> mChannelMarker = new HashMap<>();
     private void mqttMarkerHandler(JSONObject data){
+        final String marker_id;
         final String channel_id;
-        String marker_id;
-        String name;
-        double latitude;
-        double longitude;
-        boolean is_public;
         try {
-            channel_id = data.getString(Models.KEY_CHANNEL);
             marker_id = data.getString(Models.KEY_ID);
-            name = data.getString(Models.KEY_NAME);
-            latitude = data.getDouble(Models.KEY_LATITUDE);
-            longitude = data.getDouble(Models.KEY_LONGITUDE);
-            is_public = data.getBoolean(Models.KEY_PUBLIC);
+            channel_id = data.getString(Models.KEY_CHANNEL);
         } catch (JSONException e) {
             e.printStackTrace();
             return;
@@ -765,10 +906,11 @@ public class CoreService extends Service {
             }
             marker.id = marker_id;
             marker.channel_id = channel_id;
-            marker.name = name;
-            marker.latitude = latitude;
-            marker.longitude = longitude;
-            marker.isPublic = is_public;
+            marker.name = Util.JsonOptNullableString(data, Models.KEY_NAME, marker.name);
+            marker.latitude = data.optDouble(Models.KEY_LATITUDE, marker.latitude);
+            marker.longitude = data.optDouble(Models.KEY_LONGITUDE, marker.longitude);
+            marker.isPublic = data.optBoolean(Models.KEY_PUBLIC, marker.isPublic);
+            marker.enable = Util.JsonOptBoolean(data, Models.KEY_ENABLE, marker.enable);
         }
 
         final Models.Marker _m = marker;
@@ -785,6 +927,7 @@ public class CoreService extends Service {
 
             }
         });
+        notifyChannelMarkerListChangedListeners(channel_id);
     }
 
     private final HashMap<String, Boolean> mChannelMessageSync = new HashMap<>();

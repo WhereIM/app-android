@@ -90,7 +90,7 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
                         getChannel(new ChannelActivity.GetChannelCallback() {
                             @Override
                             public void onGetChannel(Models.Channel channel) {
-                                binder.createMarker(mEditingMarker.name, channel.id, mEditingMarker.isPublic, mEditingLatitude, mEditingLongitude);
+                                binder.createMarker(mEditingMarker.name, channel.id, mEditingMarker.isPublic, mEditingLatitude, mEditingLongitude, true);
                                 mEditingType = 0;
                                 refreshEditing();
                             }

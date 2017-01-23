@@ -6,6 +6,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -119,6 +120,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        Log.e("lala", "attach");
         mMarkerView = LayoutInflater.from(context).inflate(R.layout.map_mate, null);
         mMarkerViewTitle = (TextView) mMarkerView.findViewById(R.id.title);
         postBinderTask(new Models.BinderTask() {
@@ -138,6 +140,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     @Override
     public void onDetach() {
         super.onDetach();
+        Log.e("lala", "detach");
         postBinderTask(new Models.BinderTask() {
             @Override
             public void onBinderReady(CoreService.CoreBinder binder) {
@@ -150,12 +153,14 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     @Override
     public void onResume() {
         super.onResume();
+        Log.e("lala", "resume");
         if(mMapView!=null)
             mMapView.onResume();
     }
 
     @Override
     public void onPause() {
+        Log.e("lala", "pause");
         if(mMapView!=null)
             mMapView.onPause();
         super.onPause();
@@ -238,6 +243,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
 
     @Override
     public void onMateData(final Models.Mate mate){
+        Log.e("lala", "onmatedata "+mate.getDisplayName()+" "+mate.latitude);
         if(mate.latitude==null){
             return;
         }
@@ -300,12 +306,14 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                         circle.remove();
                     }
                 }
-                Circle circle = googleMap.addCircle(new CircleOptions()
-                        .center(new LatLng(enchantment.latitude, enchantment.longitude))
-                        .radius(enchantment.radius)
-                        .strokeColor(enchantment.enable?Color.RED:Color.YELLOW));
-                synchronized (mEnchantmentCircle) {
-                    mEnchantmentCircle.put(enchantment.id, circle);
+                if(enchantment.enable==null || enchantment.enable){
+                    Circle circle = googleMap.addCircle(new CircleOptions()
+                            .center(new LatLng(enchantment.latitude, enchantment.longitude))
+                            .radius(enchantment.radius)
+                            .strokeColor(enchantment.isPublic?Color.RED:Color.YELLOW));
+                    synchronized (mEnchantmentCircle) {
+                        mEnchantmentCircle.put(enchantment.id, circle);
+                    }
                 }
             }
         });
@@ -325,13 +333,16 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                         m.remove();
                     }
                 }
-                m = googleMap.addMarker(
-                        new MarkerOptions()
-                                .position(new LatLng(marker.latitude, marker.longitude))
-                );
+                if(marker.enable==null || marker.enable){
+                    m = googleMap.addMarker(
+                            new MarkerOptions()
+                                    .position(new LatLng(marker.latitude, marker.longitude))
+                    );
 
-                synchronized (mMarkerMarker){
-                    mMarkerMarker.put(marker.id, m);
+                    synchronized (mMarkerMarker){
+                        mMarkerMarker.put(marker.id, m);
+                    }
+
                 }
             }
         });

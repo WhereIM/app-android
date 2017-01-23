@@ -140,6 +140,7 @@ public class ChannelListActivity extends BaseActivity {
             try {
                 URI uri = new URI(intent.getDataString());
                 String action = uri.getHost()+uri.getPath();
+                Log.e("lala", "intent="+action);
                 Matcher m = mPatternChannelJoin.matcher(action);
                 if(m.matches()){
                     channelJoin(m.group(1));

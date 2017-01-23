@@ -31,4 +31,16 @@ public class Util {
             return fallback;
         }
     }
+
+    static public Boolean JsonOptBoolean(JSONObject jsObj, String key, Boolean fallback){
+        try {
+            if (!jsObj.has(key)) {
+                return fallback;
+            } else {
+                return jsObj.getBoolean(key);
+            }
+        }catch (Exception e){
+            return fallback;
+        }
+    }
 }

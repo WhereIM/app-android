@@ -101,6 +101,7 @@ public class ChannelActivity extends BaseActivity {
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+        mViewPager.setOffscreenPageLimit(mSectionsPagerAdapter.getCount());
 
         mTabLayout = (TabLayout) findViewById(R.id.tabs);
 
@@ -154,6 +155,8 @@ public class ChannelActivity extends BaseActivity {
 
     private ChannelMapFragment mChannelMapFragment;
     private ChannelMessengerFragment mChannelMessengerFragment;
+    private ChannelMarkerFragment mChannelMarkerFragment;
+    private ChannelEnchantmentFragment mChannelEnchantmentFragment;
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         public SectionsPagerAdapter(FragmentManager fm) {
@@ -173,13 +176,21 @@ public class ChannelActivity extends BaseActivity {
                     if(mChannelMessengerFragment ==null)
                         mChannelMessengerFragment = new ChannelMessengerFragment();
                     return mChannelMessengerFragment;
+                case 2:
+                    if(mChannelMarkerFragment ==null)
+                        mChannelMarkerFragment = new ChannelMarkerFragment();
+                    return mChannelMarkerFragment;
+                case 3:
+                    if(mChannelEnchantmentFragment ==null)
+                        mChannelEnchantmentFragment = new ChannelEnchantmentFragment();
+                    return mChannelEnchantmentFragment;
             }
             return null;
         }
 
         @Override
         public int getCount() {
-            return 2;
+            return 4;
         }
 
         @Override
