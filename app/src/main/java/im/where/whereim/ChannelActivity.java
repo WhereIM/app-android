@@ -185,10 +185,14 @@ public class ChannelActivity extends BaseActivity {
         @Override
         public CharSequence getPageTitle(int position) {
             switch (position) {
-                case 0:
-                    return "Map";
-                case 1:
-                    return "Messenger";
+                case 0: // map
+                    return "\uD83C\uDF0F️";
+                case 1: // messenger
+                    return "\uD83D\uDCAC";
+                case 2: // marker
+                    return "\uD83D\uDCCD";
+                case 3: // enchantment
+                    return "⭕";
             }
             return null;
         }

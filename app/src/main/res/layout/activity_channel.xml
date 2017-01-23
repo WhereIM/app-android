@@ -64,6 +64,7 @@
         android:layout_height="wrap_content"
         app:tabTextColor="@color/colorText"
         app:tabSelectedTextColor="@color/colorTextHighlight"
+        style="@style/CustomTabLayout"
         android:background="@color/colorPrimary" />
 
     <android.support.v4.view.ViewPager
