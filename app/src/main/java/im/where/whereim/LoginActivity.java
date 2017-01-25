@@ -75,6 +75,7 @@ public class LoginActivity extends BaseActivity {
         fbLoginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(final LoginResult loginResult) {
+                mTrial = true;
                 mLogin.setVisibility(View.GONE);
                 mProvider = "facebook";
                 startLoading();
@@ -126,7 +127,7 @@ public class LoginActivity extends BaseActivity {
         });
     }
 
-    boolean mAutoTry = false;
+    boolean mTrial = false;
     private void checkLogin(){
         if(getBinder().getClientId()==null){
             stopLoading();
@@ -138,8 +139,8 @@ public class LoginActivity extends BaseActivity {
                 mLogin.setVisibility(View.VISIBLE);
             }else{
                 mLogin.setVisibility(View.GONE);
-                if(!mAutoTry){
-                    mAutoTry = true;
+                if(!mTrial){
+                    mTrial = true;
                     postBinderTask(mTask);
                 }else{
                     mRetry.setVisibility(View.VISIBLE);
