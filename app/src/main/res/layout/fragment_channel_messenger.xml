@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="#55aabbff"
     tools:context="im.where.whereim.ChannelActivity">
 
     <ListView
@@ -11,6 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:divider="@null"
+        android:dividerHeight="0dp"
         android:transcriptMode="alwaysScroll"
         android:stackFromBottom="true" />
 
@@ -26,12 +29,12 @@
             android:layout_weight="1"
             android:layout_gravity="center_vertical" />
 
-        <Button
+        <ImageButton
             android:id="@+id/send"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:text="Send" />
+            android:src="@android:drawable/ic_menu_send" />
 
     </LinearLayout>
 
