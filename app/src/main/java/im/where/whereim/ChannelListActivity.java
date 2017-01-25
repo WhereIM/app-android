@@ -5,7 +5,6 @@ import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
@@ -25,11 +24,14 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+import org.json.JSONObject;
+
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import io.branch.referral.Branch;
+import io.branch.referral.BranchError;
 
 public class ChannelListActivity extends BaseActivity {
     private List<Models.Channel> mChannelList;
@@ -131,25 +133,9 @@ public class ChannelListActivity extends BaseActivity {
         }
     };
 
-    Pattern mPatternChannelJoin = Pattern.compile("^channel/([A-Fa-f0-9]{32})$");
     @Override
     protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        Uri data = intent.getData();
-        if (data != null && data.isHierarchical()) {
-            try {
-                URI uri = new URI(intent.getDataString());
-                String action = uri.getHost()+uri.getPath();
-                Log.e("lala", "intent="+action);
-                Matcher m = mPatternChannelJoin.matcher(action);
-                if(m.matches()){
-                    channelJoin(m.group(1));
-                    return;
-                }
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
-            }
-        }
+        this.setIntent(intent);
     }
 
     private void channelJoin(final String channel_id){
@@ -206,8 +192,6 @@ public class ChannelListActivity extends BaseActivity {
                         0);
             }
         }
-
-        onNewIntent(this.getIntent());
 
         setContentView(R.layout.activity_channel_list);
 
@@ -296,6 +280,26 @@ public class ChannelListActivity extends BaseActivity {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
             finish();
+        }else{
+            Branch branch = Branch.getInstance();
+            branch.initSession(new Branch.BranchReferralInitListener(){
+                @Override
+                public void onInitFinished(JSONObject referringParams, BranchError error) {
+                    if (error == null) {
+                        String uri = Util.JsonOptNullableString(referringParams, "$deeplink_path", null);
+                        if(uri!=null){
+                            Pattern mPatternChannelJoin = Pattern.compile("^channel/([A-Fa-f0-9]{32})$");
+                            Matcher m = mPatternChannelJoin.matcher(uri);
+                            if(m.matches()){
+                                channelJoin(m.group(1));
+                                return;
+                            }
+                        }
+                    } else {
+                        Log.i("WhereIM", error.getMessage());
+                    }
+                }
+            }, this.getIntent().getData(), this);
         }
         mBinder.addChannelListChangedListener(mChannelListChangedListener);
     }

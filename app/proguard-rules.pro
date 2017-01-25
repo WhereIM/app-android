@@ -15,3 +15,8 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+-keep class com.google.android.gms.ads.identifier.** { *; }
+-keep class com.facebook.applinks.** { *; }
+-keepclassmembers class com.facebook.applinks.** { *; }
+-keep class com.facebook.FacebookSdk { *; }

@@ -77,6 +77,7 @@ public class CoreService extends Service {
                         SharedPreferences.Editor editor = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
                         editor.putString(Models.KEY_NAME, name);
                         editor.apply();
+                        mUserName = name;
 
                         JSONObject payload = new JSONObject();
                         payload.put("auth_provider", provider);
