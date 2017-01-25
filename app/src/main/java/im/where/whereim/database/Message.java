@@ -76,24 +76,29 @@ public class Message extends ORM {
     }
 
     public String getText(Context context, CoreService.CoreBinder binder){
-        switch(this.type){
-            case "text":
-                return this.message;
+        if("text".equals(this.type)){
+            return this.message;
+        }
+        try {
+            JSONObject json = new JSONObject(this.message);
+            switch (this.type) {
+                case "enchantment_create":
+                    return context.getResources().getString(R.string.message_enchantment_create, json.optString("name", ""));
 
-            case "enchantment_create":
-                return context.getResources().getString(R.string.message_enchantment_create, this.message);
+                case "enchantment_emerge":
+                    return context.getResources().getString(R.string.message_enchantment_emerge, json.optString("name", ""));
 
-            case "enchantment_emerge":
-                return context.getResources().getString(R.string.message_enchantment_emerge, this.message);
+                case "enchantment_in":
+                    return context.getResources().getString(R.string.message_enchantment_in, json.optString("name", ""));
 
-            case "enchantment_in":
-                return context.getResources().getString(R.string.message_enchantment_in, this.message);
+                case "enchantment_out":
+                    return context.getResources().getString(R.string.message_enchantment_out, json.optString("name", ""));
 
-            case "enchantment_out":
-                return context.getResources().getString(R.string.message_enchantment_out, this.message);
-
-            case "marker_create":
-                return context.getResources().getString(R.string.message_marker_create, this.message);
+                case "marker_create":
+                    return context.getResources().getString(R.string.message_marker_create, json.optString("name", ""));
+            }
+        }catch(JSONException e){
+            e.printStackTrace();
         }
         return null;
     }
