@@ -22,7 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@android:drawable/ic_dialog_info"
+        app:srcCompat="@android:drawable/ic_input_add"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true" />
 </RelativeLayout>
