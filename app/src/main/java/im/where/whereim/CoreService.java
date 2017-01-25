@@ -1090,7 +1090,7 @@ public class CoreService extends Service {
         }
 //        if(count==0){
         Log.e("lala","count="+count);
-            if(!"text".equals(message.type)){
+            if(message.notify){
                 NotificationCompat.Builder mBuilder =
                         new NotificationCompat.Builder(this)
                                 .setSmallIcon(R.drawable.ic_stat_logo)

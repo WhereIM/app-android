@@ -40,6 +40,7 @@ public class Message extends ORM {
     public String type;
     public String message;
     public long time;
+    public boolean notify;
 
     public static Message parse(JSONObject json){
         try {
@@ -50,6 +51,11 @@ public class Message extends ORM {
             m.type = json.getString("type");
             m.message = json.getString("message");
             m.time = json.getLong("time");
+            if(json.has("notify") && json.getBoolean("notify")){
+                m.notify = true;
+            }else{
+                m.notify = false;
+            }
             return m;
         } catch (JSONException e) {
             e.printStackTrace();
@@ -65,6 +71,7 @@ public class Message extends ORM {
         m.type = cursor.getString(cursor.getColumnIndexOrThrow(COL_TYPE));
         m.message = cursor.getString(cursor.getColumnIndexOrThrow(COL_MESSAGE));
         m.time = cursor.getLong(cursor.getColumnIndexOrThrow(COL_TIME));
+        m.notify = false;
         return m;
     }
 
