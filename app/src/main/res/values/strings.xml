@@ -12,8 +12,8 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="join_channel">Join Channel</string>
-    <string name="create_enchantment">New Enchantment</string>
-    <string name="create_marker">New Marker</string>
+    <string name="create_enchantment">New Enchantment ⭕</string>
+    <string name="create_marker">New Marker 📍</string>
     <string name="name">Name</string>
     <string name="mock">Mock</string>
 

@@ -1,19 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout
+        android:id="@+id/mocking_controller"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="16dp"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ToggleButton
+            android:id="@+id/mock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal" />
+
+        <im.where.whereim.view.Joystick
+            android:id="@+id/joystick"
+            android:layout_width="100dp"
+            android:layout_height="100dp" />
+
+    </LinearLayout>
+
     <LinearLayout
         android:id="@+id/enchantment_controller"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="16dp"
+        android:background="#77ffffff"
+        android:orientation="horizontal"
         android:visibility="gone"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true">
-
-        <Button
-            android:id="@+id/enchantment_enlarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="+" />
+        android:padding="25dp">
 
         <Button
             android:id="@+id/enchantment_reduce"
@@ -22,10 +44,22 @@
             android:text="-" />
 
         <Button
+            android:id="@+id/enchantment_enlarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="+" />
+
+        <Button
+            android:id="@+id/enchantment_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="✗" />
+
+        <Button
             android:id="@+id/enchantment_ok"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="OK" />
+            android:text="✓" />
 
     </LinearLayout>
 
@@ -33,47 +67,25 @@
         android:id="@+id/marker_controller"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
         android:layout_marginBottom="16dp"
+        android:background="#77ffffff"
         android:orientation="horizontal"
         android:visibility="gone"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true">
+        android:padding="25dp">
 
         <Button
             android:id="@+id/marker_cancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/cancel"/>
+            android:text="✗" />
 
         <Button
             android:id="@+id/marker_ok"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/ok"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/mocking_controller"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_marginBottom="16dp"
-        android:layout_marginLeft="16dp"
-        android:visibility="gone">
-
-        <ToggleButton
-            android:id="@+id/mock"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"/>
-
-        <im.where.whereim.view.Joystick
-            android:id="@+id/joystick"
-            android:layout_width="100dp"
-            android:layout_height="100dp" />
+            android:text="✓" />
 
     </LinearLayout>
 

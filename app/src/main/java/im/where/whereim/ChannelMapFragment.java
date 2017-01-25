@@ -61,6 +61,13 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
                 }
             }
         });
+        view.findViewById(R.id.enchantment_cancel).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mEditingType = 0;
+                refreshEditing();
+            }
+        });
         view.findViewById(R.id.enchantment_ok).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -12,8 +12,8 @@
     <string name="ok">好</string>
     <string name="cancel">取消</string>
     <string name="join_channel">加入群組</string>
-    <string name="create_enchantment">設立結界</string>
-    <string name="create_marker">放置圖釘</string>
+    <string name="create_enchantment">設立結界 ⭕</string>
+    <string name="create_marker">放置圖釘 📍</string>
     <string name="name">名稱</string>
     <string name="mock">假資料</string>
 

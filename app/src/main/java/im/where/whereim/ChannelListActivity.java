@@ -97,7 +97,7 @@ public class ChannelListActivity extends BaseActivity {
 
             public void setItem(Models.Channel channel){
                 mChannel = channel;
-                if(channel.user_channel_name !=null){
+                if(channel.user_channel_name !=null && !channel.user_channel_name.isEmpty()){
                     mSubtitle.setVisibility(View.VISIBLE);
                     mTitle.setText(channel.user_channel_name);
                     mSubtitle.setText(channel.channel_name);
@@ -120,7 +120,7 @@ public class ChannelListActivity extends BaseActivity {
         public View getView(int position, View view, ViewGroup parent) {
             ViewHolder vh;
             if(view==null){
-                view = LayoutInflater.from(ChannelListActivity.this).inflate(R.layout.channel_list_item, null);
+                view = LayoutInflater.from(ChannelListActivity.this).inflate(R.layout.channel_item, null);
                 vh = new ViewHolder(view);
                 view.setTag(vh);
             }else{

@@ -217,7 +217,7 @@ public class ChannelActivity extends BaseActivity {
                 mEnableLoading.setVisibility(View.GONE);
                 return;
             }
-            if(mChannel.user_channel_name==null){
+            if(mChannel.user_channel_name==null || mChannel.user_channel_name.isEmpty()){
                 mChannelTitle.setText(mChannel.channel_name);
                 mChannelSubtitle.setVisibility(View.GONE);
             }else{
