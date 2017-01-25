@@ -4,6 +4,8 @@
     <string name="action_invite">Invite</string>
     <string name="action_quit">Quit</string>
 
+    <string name="retry">Retry</string>
+
     <string name="channel_name">Channel Name</string>
     <string name="display_name">Display Name</string>
     <string name="create_channel">Create Channel</string>
@@ -17,6 +19,8 @@
 
     <string name="is_public">Public</string>
     <string name="is_private">Private</string>
+
+    <string name="error_exhausted">Client capacity is exhausted, please try later.</string>
 
     <string name="message_enchantment_create">Enchantment %1$s is created.</string>
     <string name="message_enchantment_emerge">Emerged in enchantment %1$s.</string>

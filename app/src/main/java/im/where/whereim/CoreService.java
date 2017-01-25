@@ -74,9 +74,6 @@ public class CoreService extends Service {
                 @Override
                 public void run() {
                     try {
-                        SharedPreferences.Editor editor = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
-                        editor.putString(Models.KEY_NAME, name);
-                        editor.apply();
                         mUserName = name;
 
                         JSONObject payload = new JSONObject();
@@ -107,38 +104,52 @@ public class CoreService extends Service {
                         Log.e(TAG, "register_client <- "+json);
                         JSONObject res = new JSONObject(json);
 
-                        URL key_url = new URL(res.getString("key"));
-                        conn = (HttpsURLConnection) key_url.openConnection();
-                        is = conn.getInputStream();
-                        String key_str = IOUtils.toString(is);
-                        is.close();
-                        conn.disconnect();
-
-                        URL crt_url = new URL(res.getString("crt"));
-                        conn = (HttpsURLConnection) crt_url.openConnection();
-                        is = conn.getInputStream();
-                        String crt_str = IOUtils.toString(is);
-                        is.close();
-                        conn.disconnect();
-
-                        File keyStoreFile = new File(keyStorePath, Config.KEY_STORE_NAME);
-                        if(keyStoreFile.exists()){
-                            keyStoreFile.delete();
+                        String status = res.getString("status");
+                        if("exhausted".equals(status)){
+                            mHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(CoreService.this, R.string.error_exhausted, Toast.LENGTH_LONG).show();
+                                }
+                            });
+                            mHandler.post(callback);
+                            return;
                         }
-                        AWSIotKeystoreHelper.saveCertificateAndPrivateKey(Config.CERT_ID, crt_str, key_str, keyStorePath, Config.KEY_STORE_NAME, Config.KEY_STORE_PASSWORD);
 
-                        mClientId = res.getString(Models.KEY_ID);
+                        if("ok".equals(status)) {
+                            URL key_url = new URL(res.getString("key"));
+                            conn = (HttpsURLConnection) key_url.openConnection();
+                            is = conn.getInputStream();
+                            String key_str = IOUtils.toString(is);
+                            is.close();
+                            conn.disconnect();
 
-                        mHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                SharedPreferences.Editor editor = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
-                                editor.putString(Models.KEY_CLIENT_ID, mClientId);
-                                editor.commit();
-                                onAuthed();
-                                callback.run();
+                            URL crt_url = new URL(res.getString("crt"));
+                            conn = (HttpsURLConnection) crt_url.openConnection();
+                            is = conn.getInputStream();
+                            String crt_str = IOUtils.toString(is);
+                            is.close();
+                            conn.disconnect();
+
+                            File keyStoreFile = new File(keyStorePath, Config.KEY_STORE_NAME);
+                            if (keyStoreFile.exists()) {
+                                keyStoreFile.delete();
                             }
-                        });
+                            AWSIotKeystoreHelper.saveCertificateAndPrivateKey(Config.CERT_ID, crt_str, key_str, keyStorePath, Config.KEY_STORE_NAME, Config.KEY_STORE_PASSWORD);
+
+                            mClientId = res.getString(Models.KEY_ID);
+
+                            mHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    SharedPreferences.Editor editor = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
+                                    editor.putString(Models.KEY_CLIENT_ID, mClientId);
+                                    editor.commit();
+                                    onAuthed();
+                                    callback.run();
+                                }
+                            });
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

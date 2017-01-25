@@ -4,6 +4,8 @@
     <string name="action_invite">邀請</string>
     <string name="action_quit">關閉程式</string>
 
+    <string name="retry">再試一次</string>
+
     <string name="channel_name">群組名稱</string>
     <string name="display_name">個人暱稱</string>
     <string name="create_channel">建立群組</string>
@@ -17,6 +19,8 @@
 
     <string name="is_public">公用</string>
     <string name="is_private">自用</string>
+
+    <string name="error_exhausted">可註冊數量已滿，請稍後再試。</string>
 
     <string name="message_enchantment_create">%1$s 結界已設立.</string>
     <string name="message_enchantment_emerge">出現在 %1$s 結界</string>
