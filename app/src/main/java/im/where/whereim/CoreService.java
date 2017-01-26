@@ -60,6 +60,12 @@ public class CoreService extends Service {
         void onMarkerData(Models.Marker marker);
     };
 
+    public interface RegisterClientCallback {
+        void onCaptchaRequired();
+        void onExhausted();
+        void onDone();
+    }
+
     public class CoreBinder extends Binder{
         public String getClientId(){
             return mClientId;
@@ -69,7 +75,15 @@ public class CoreService extends Service {
             return mUserName;
         }
 
-        public void register_client(final String provider, final String auth_id, final String name, final Runnable callback){
+        public void setOTP(String otp){
+            mOTP = otp;
+        }
+
+        public void register_client(final String provider, final String auth_id, final String name, final RegisterClientCallback callback){
+            if(mOTP==null || mOTP.isEmpty()){
+                callback.onCaptchaRequired();
+                return;
+            }
             new Thread(){
                 @Override
                 public void run() {
@@ -79,6 +93,7 @@ public class CoreService extends Service {
                         JSONObject payload = new JSONObject();
                         payload.put("auth_provider", provider);
                         payload.put("auth_id", auth_id);
+                        payload.put("otp", mOTP);
 
                         HttpsURLConnection conn;
                         InputStream is;
@@ -109,10 +124,18 @@ public class CoreService extends Service {
                             mHandler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(CoreService.this, R.string.error_exhausted, Toast.LENGTH_LONG).show();
+                                    callback.onExhausted();
                                 }
                             });
-                            mHandler.post(callback);
+                            return;
+                        }
+                        if("otp".equals(status)){
+                            mHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                   callback.onCaptchaRequired();
+                                }
+                            });
                             return;
                         }
 
@@ -146,7 +169,7 @@ public class CoreService extends Service {
                                     editor.putString(Models.KEY_CLIENT_ID, mClientId);
                                     editor.commit();
                                     onAuthed();
-                                    callback.run();
+                                    callback.onDone();
                                 }
                             });
                         }
@@ -690,6 +713,7 @@ public class CoreService extends Service {
     private KeyStore keyStore;
     private String keyStorePath;
 
+    private String mOTP;
     private String mClientId;
     private String mUserName;
 

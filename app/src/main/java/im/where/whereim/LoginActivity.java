@@ -1,14 +1,13 @@
 package im.where.whereim;
 
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -30,18 +29,30 @@ public class LoginActivity extends BaseActivity {
     private Models.BinderTask mTask = new Models.BinderTask(){
 
         @Override
-        public void onBinderReady(CoreService.CoreBinder binder) {
+        public void onBinderReady(final CoreService.CoreBinder binder) {
             startLoading();
-            binder.register_client(mProvider, mAuthId, mName, new Runnable(){
+
+            binder.register_client(mProvider, mAuthId, mName, new CoreService.RegisterClientCallback() {
+                @Override
+                public void onCaptchaRequired() {
+                    Intent intent = new Intent(LoginActivity.this, CaptchaActivity.class);
+                    startActivityForResult(intent, 0);
+                }
 
                 @Override
-                public void run() {
+                public void onExhausted() {
                     mHandler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
+                            Toast.makeText(LoginActivity.this, R.string.error_exhausted, Toast.LENGTH_LONG).show();
                             checkLogin();
                         }
                     }, 1500);
+                }
+
+                @Override
+                public void onDone() {
+                    checkLogin();
                 }
             });
         }
@@ -125,6 +136,13 @@ public class LoginActivity extends BaseActivity {
                 // App code
             }
         });
+
+        postBinderTask(new Models.BinderTask() {
+            @Override
+            public void onBinderReady(CoreService.CoreBinder binder) {
+                checkLogin();
+            }
+        });
     }
 
     boolean mTrial = false;
@@ -165,14 +183,13 @@ public class LoginActivity extends BaseActivity {
     }
 
     @Override
-    public void onServiceConnected(ComponentName name, IBinder service) {
-        super.onServiceConnected(name, service);
-        checkLogin();
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode==0){
+            postBinderTask(mTask);
+            return;
+        }
 
         if(FacebookSdk.isFacebookRequestCode(requestCode)) {
             mCallbackManager.onActivityResult(requestCode, resultCode, data);
