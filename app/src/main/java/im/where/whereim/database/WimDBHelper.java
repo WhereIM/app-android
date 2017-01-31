@@ -21,7 +21,7 @@ public class WimDBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(Message.CREATE_TABLE);
+        Message.createTable(db);
     }
 
     @Override
@@ -34,6 +34,6 @@ public class WimDBHelper extends SQLiteOpenHelper {
     }
 
     public void insert(ORM orm){
-        mDatabase.insert(orm.getTableName(), null, orm.buildInsert());
+        mDatabase.insertOrThrow(orm.getTableName(), null, orm.buildInsert());
     }
 }

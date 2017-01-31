@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -510,6 +509,22 @@ public class CoreService extends Service {
             }
         }
 
+        public void requestMessage(Models.Channel channel, Long before, Long after){
+            try {
+                JSONObject req = new JSONObject();
+                req.put(Models.KEY_CHANNEL, channel.id);
+                if(before!=null){
+                    req.put("before", (long)before);
+                }
+                if(after!=null){
+                    req.put("after", (long)after);
+                }
+                publish(String.format("client/%s/message/sync", mClientId), req);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
         public void addMessageListener(Models.Channel channel, Runnable r){
             List<Runnable> list;
             synchronized (mMessageListener){
@@ -544,7 +559,7 @@ public class CoreService extends Service {
             }
         }
 
-        public Cursor getMessageCursor(Models.Channel channel){
+        public Message.BundledCursor getMessageCursor(Models.Channel channel){
             return Message.getCursor(mWimDBHelper.getDatabase(), channel);
         }
 
@@ -1025,23 +1040,23 @@ public class CoreService extends Service {
 
             notifyChannelListChangedListeners();
 
-            boolean needSync = true;
+            boolean doSync = true;
             synchronized (mChannelMessageSync) {
                 if(mChannelMessageSync.containsKey(channel_id)) {
-                    needSync = false;
+                    doSync = false;
                 }
                 mChannelMessageSync.put(channel_id, true);
             }
-            if(needSync){
+            if(doSync){
                 new Thread(){
                     @Override
                     public void run() {
-                        JSONObject data = Message.getSyncData(mWimDBHelper.getDatabase(), channel);
-                        if(data==null){
-                            return;
-                        }
+                        Message.BundledCursor bc = Message.getCursor(mWimDBHelper.getDatabase(), channel);
+                        bc.cursor.close();
+                        JSONObject data = new JSONObject();
                         try {
                             data.put(Models.KEY_CHANNEL, channel.id);
+                            data.put("after", bc.lastId);
                         } catch (JSONException e) {
                             e.printStackTrace();
                             return;
