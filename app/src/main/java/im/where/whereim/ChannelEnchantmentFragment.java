@@ -11,6 +11,9 @@ import android.widget.ExpandableListView;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import im.where.whereim.database.Channel;
+import im.where.whereim.database.Enchantment;
+
 public class ChannelEnchantmentFragment extends BaseFragment {
     public ChannelEnchantmentFragment() {
         // Required empty public constructor
@@ -23,8 +26,8 @@ public class ChannelEnchantmentFragment extends BaseFragment {
         super.onCreate(savedInstanceState);
     }
 
-    private Models.Channel mChannel;
-    private Models.EnchantmentList mEnchantmentList;
+    private Channel mChannel;
+    private Enchantment.List mEnchantmentList;
     private EnchantmentAdapter mAdapter;
     private class EnchantmentAdapter extends BaseExpandableListAdapter {
 
@@ -117,7 +120,7 @@ public class ChannelEnchantmentFragment extends BaseFragment {
         }
 
         private class ChildViewHolder {
-            private Models.Enchantment enchantment;
+            private Enchantment enchantment;
             TextView name;
             Switch enable;
             View loading;
@@ -129,7 +132,7 @@ public class ChannelEnchantmentFragment extends BaseFragment {
                 this.enable.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        postBinderTask(new Models.BinderTask() {
+                        postBinderTask(new CoreService.BinderTask() {
                             @Override
                             public void onBinderReady(CoreService.CoreBinder binder) {
                                 binder.toggleEnchantmentEnabled(enchantment);
@@ -139,7 +142,7 @@ public class ChannelEnchantmentFragment extends BaseFragment {
                 });
             }
 
-            public void setItem(Models.Enchantment e){
+            public void setItem(Enchantment e){
                 enchantment = e;
                 this.name.setText(e.name);
                 if(e.enable==null){
@@ -162,7 +165,7 @@ public class ChannelEnchantmentFragment extends BaseFragment {
             }else{
                 vh = (ChildViewHolder) view.getTag();
             }
-            Models.Enchantment e = (Models.Enchantment) getChild(groupPosition, childPosition);
+            Enchantment e = (Enchantment) getChild(groupPosition, childPosition);
             vh.setItem(e);
             return view;
         }
@@ -182,10 +185,10 @@ public class ChannelEnchantmentFragment extends BaseFragment {
 
         getChannel(new ChannelActivity.GetChannelCallback() {
             @Override
-            public void onGetChannel(final Models.Channel channel) {
+            public void onGetChannel(final Channel channel) {
                 mChannel = channel;
 
-                postBinderTask(new Models.BinderTask() {
+                postBinderTask(new CoreService.BinderTask() {
                     @Override
                     public void onBinderReady(CoreService.CoreBinder binder) {
                         mAdapter = new EnchantmentAdapter();
@@ -205,7 +208,7 @@ public class ChannelEnchantmentFragment extends BaseFragment {
     private Runnable mEnchantmentListener = new Runnable() {
         @Override
         public void run() {
-            postBinderTask(new Models.BinderTask() {
+            postBinderTask(new CoreService.BinderTask() {
                 @Override
                 public void onBinderReady(final CoreService.CoreBinder binder) {
                     mHandler.post(new Runnable() {
@@ -222,7 +225,7 @@ public class ChannelEnchantmentFragment extends BaseFragment {
 
     @Override
     public void onDestroyView() {
-        postBinderTask(new Models.BinderTask() {
+        postBinderTask(new CoreService.BinderTask() {
             @Override
             public void onBinderReady(CoreService.CoreBinder binder) {
                 binder.removeEnchantmentListener(mChannel, mEnchantmentListener);

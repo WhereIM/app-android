@@ -11,6 +11,9 @@ import android.widget.ExpandableListView;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import im.where.whereim.database.Channel;
+import im.where.whereim.database.Marker;
+
 public class ChannelMarkerFragment extends BaseFragment {
     public ChannelMarkerFragment() {
         // Required empty public constructor
@@ -23,8 +26,8 @@ public class ChannelMarkerFragment extends BaseFragment {
         super.onCreate(savedInstanceState);
     }
 
-    private Models.Channel mChannel;
-    private Models.MarkerList mMarkerList;
+    private Channel mChannel;
+    private Marker.List mMarkerList;
     private MarkerAdapter mAdapter;
     private class MarkerAdapter extends BaseExpandableListAdapter {
 
@@ -117,7 +120,7 @@ public class ChannelMarkerFragment extends BaseFragment {
         }
 
         private class ChildViewHolder {
-            private Models.Marker marker;
+            private Marker marker;
             TextView name;
             Switch enable;
             View loading;
@@ -129,7 +132,7 @@ public class ChannelMarkerFragment extends BaseFragment {
                 this.enable.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        postBinderTask(new Models.BinderTask() {
+                        postBinderTask(new CoreService.BinderTask() {
                             @Override
                             public void onBinderReady(CoreService.CoreBinder binder) {
                                 binder.toggleMarkerEnabled(marker);
@@ -139,7 +142,7 @@ public class ChannelMarkerFragment extends BaseFragment {
                 });
             }
 
-            public void setItem(Models.Marker m){
+            public void setItem(Marker m){
                 marker = m;
                 this.name.setText(m.name);
                 if(m.enable==null){
@@ -162,7 +165,7 @@ public class ChannelMarkerFragment extends BaseFragment {
             }else{
                 vh = (ChildViewHolder) view.getTag();
             }
-            Models.Marker m = (Models.Marker) getChild(groupPosition, childPosition);
+            Marker m = (Marker) getChild(groupPosition, childPosition);
             vh.setItem(m);
             return view;
         }
@@ -182,10 +185,10 @@ public class ChannelMarkerFragment extends BaseFragment {
 
         getChannel(new ChannelActivity.GetChannelCallback() {
             @Override
-            public void onGetChannel(final Models.Channel channel) {
+            public void onGetChannel(final Channel channel) {
                 mChannel = channel;
 
-                postBinderTask(new Models.BinderTask() {
+                postBinderTask(new CoreService.BinderTask() {
                     @Override
                     public void onBinderReady(CoreService.CoreBinder binder) {
                         mAdapter = new MarkerAdapter();
@@ -205,7 +208,7 @@ public class ChannelMarkerFragment extends BaseFragment {
     private Runnable mMarkerListener = new Runnable() {
         @Override
         public void run() {
-            postBinderTask(new Models.BinderTask() {
+            postBinderTask(new CoreService.BinderTask() {
                 @Override
                 public void onBinderReady(final CoreService.CoreBinder binder) {
                     mHandler.post(new Runnable() {
@@ -222,7 +225,7 @@ public class ChannelMarkerFragment extends BaseFragment {
 
     @Override
     public void onDestroyView() {
-        postBinderTask(new Models.BinderTask() {
+        postBinderTask(new CoreService.BinderTask() {
             @Override
             public void onBinderReady(CoreService.CoreBinder binder) {
                 binder.removeMarkerListener(mChannel, mMarkerListener);

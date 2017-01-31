@@ -28,6 +28,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import im.where.whereim.database.Channel;
+import im.where.whereim.database.Enchantment;
+import im.where.whereim.database.Mate;
+
 public class ChannelGoogleMapFragment extends ChannelMapFragment implements GoogleMap.OnMapLongClickListener {
     public ChannelGoogleMapFragment() {
         // Required empty public constructor
@@ -115,7 +119,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         return view;
     }
 
-    private Models.Channel mChannel;
+    private Channel mChannel;
 
     @Override
     public void onAttach(Context context) {
@@ -123,12 +127,12 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         Log.e("lala", "attach");
         mMarkerView = LayoutInflater.from(context).inflate(R.layout.map_mate, null);
         mMarkerViewTitle = (TextView) mMarkerView.findViewById(R.id.title);
-        postBinderTask(new Models.BinderTask() {
+        postBinderTask(new CoreService.BinderTask() {
             @Override
             public void onBinderReady(final CoreService.CoreBinder binder) {
                 getChannel(new ChannelActivity.GetChannelCallback() {
                     @Override
-                    public void onGetChannel(Models.Channel channel) {
+                    public void onGetChannel(Channel channel) {
                         mChannel = channel;
                         binder.openMap(channel, ChannelGoogleMapFragment.this);
                     }
@@ -141,7 +145,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     public void onDetach() {
         super.onDetach();
         Log.e("lala", "detach");
-        postBinderTask(new Models.BinderTask() {
+        postBinderTask(new CoreService.BinderTask() {
             @Override
             public void onBinderReady(CoreService.CoreBinder binder) {
                 binder.closeMap(mChannel, ChannelGoogleMapFragment.this);
@@ -203,7 +207,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     private HashMap<String, Marker> mMateMarker = new HashMap<>();
 
     @Override
-    public void onMockData(final Models.Mate mock) {
+    public void onMockData(final Mate mock) {
         postMapTask(new OnMapReadyCallback() {
             @Override
             public void onMapReady(final GoogleMap googleMap) {
@@ -213,13 +217,13 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                 if(mock==null){
                     return;
                 }
-                postBinderTask(new Models.BinderTask() {
+                postBinderTask(new CoreService.BinderTask() {
                     @Override
                     public void onBinderReady(CoreService.CoreBinder binder) {
                         if(mChannel==null){
                             mMarkerViewTitle.setText(null);
                         }else{
-                            Models.Mate m = binder.getChannelMate(mChannel.id, mChannel.mate_id);
+                            Mate m = binder.getChannelMate(mChannel.id, mChannel.mate_id);
                             mMarkerViewTitle.setText(m.getDisplayName());
                         }
                         mMarkerView.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
@@ -242,7 +246,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     }
 
     @Override
-    public void onMateData(final Models.Mate mate){
+    public void onMateData(final Mate mate){
         Log.e("lala", "onmatedata "+mate.getDisplayName()+" "+mate.latitude);
         if(mate.latitude==null){
             return;
@@ -296,7 +300,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     final private HashMap<String, Circle> mEnchantmentCircle = new HashMap<>();
 
     @Override
-    public void onEnchantmentData(final Models.Enchantment enchantment){
+    public void onEnchantmentData(final Enchantment enchantment){
         postMapTask(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
@@ -322,7 +326,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     final private HashMap<String, Marker> mMarkerMarker = new HashMap<>();
 
     @Override
-    public void onMarkerData(final Models.Marker marker) {
+    public void onMarkerData(final im.where.whereim.database.Marker marker) {
         postMapTask(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {

@@ -10,14 +10,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import im.where.whereim.CoreService;
-import im.where.whereim.Models;
 import im.where.whereim.R;
 
 /**
  * Created by buganini on 17/01/17.
  */
 
-public class Message extends ORM {
+public class Message extends BaseModel {
     public static final String TABLE_NAME = "message";
 
     private final static String COL_ID = "_id";
@@ -122,7 +121,7 @@ public class Message extends ORM {
     }
 
     @Override
-    public ContentValues buildInsert() {
+    public ContentValues buildContentValues() {
         ContentValues cv = new ContentValues();
         cv.put(COL_ID, id);
         cv.put(COL_SN, sn);
@@ -145,7 +144,7 @@ public class Message extends ORM {
         public boolean loadMoreUserData;
     }
 
-    public static BundledCursor getCursor(SQLiteDatabase db, Models.Channel channel){
+    public static BundledCursor getCursor(SQLiteDatabase db, Channel channel){
         BundledCursor bc = new BundledCursor();
         bc.loadMoreChannelData = false;
         bc.loadMoreUserData = false;

@@ -18,6 +18,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import im.where.whereim.database.Channel;
+
 public class ChannelActivity extends BaseActivity {
 
     /**
@@ -36,12 +38,12 @@ public class ChannelActivity extends BaseActivity {
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
 
-    private Models.Channel mChannel;
+    private Channel mChannel;
 
     private Handler mHandler = new Handler();
 
     interface GetChannelCallback{
-        public void onGetChannel(Models.Channel channel);
+        public void onGetChannel(Channel channel);
     }
 
     private final List<GetChannelCallback> mGetChannelCallback = new ArrayList<>();
@@ -82,7 +84,7 @@ public class ChannelActivity extends BaseActivity {
         mEnable.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                postBinderTask(new Models.BinderTask() {
+                postBinderTask(new CoreService.BinderTask() {
                     @Override
                     public void onBinderReady(CoreService.CoreBinder binder) {
                         binder.toggleChannelEnabled(mChannel);
@@ -105,7 +107,7 @@ public class ChannelActivity extends BaseActivity {
 
         mTabLayout = (TabLayout) findViewById(R.id.tabs);
 
-        postBinderTask(new Models.BinderTask() {
+        postBinderTask(new CoreService.BinderTask() {
             @Override
             public void onBinderReady(CoreService.CoreBinder binder) {
                 String channel_id = getIntent().getStringExtra("channel");

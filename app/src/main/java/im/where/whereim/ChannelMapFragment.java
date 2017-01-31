@@ -13,6 +13,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import im.where.whereim.database.Channel;
+import im.where.whereim.database.Enchantment;
+import im.where.whereim.database.Marker;
 import im.where.whereim.view.Joystick;
 
 /**
@@ -31,8 +34,8 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
     protected double mEditingLatitude;
     protected double mEditingLongitude;
 
-    protected Models.Marker mEditingMarker = new Models.Marker();
-    protected Models.Enchantment mEditingEnchantment = new Models.Enchantment();
+    protected Marker mEditingMarker = new Marker();
+    protected Enchantment mEditingEnchantment = new Enchantment();
     protected int mEditingType = 0;
     protected int mEditingEnchantmentRadiusIndex = Config.DEFAULT_ENCHANTMENT_RADIUS_INDEX;
 
@@ -71,12 +74,12 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
         view.findViewById(R.id.enchantment_ok).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                postBinderTask(new Models.BinderTask() {
+                postBinderTask(new CoreService.BinderTask() {
                     @Override
                     public void onBinderReady(final CoreService.CoreBinder binder) {
                         getChannel(new ChannelActivity.GetChannelCallback() {
                             @Override
-                            public void onGetChannel(Models.Channel channel) {
+                            public void onGetChannel(Channel channel) {
                                 binder.createEnchantment(mEditingEnchantment.name, channel.id, mEditingEnchantment.isPublic, mEditingLatitude, mEditingLongitude, Config.ENCHANTMENT_RADIUS[mEditingEnchantmentRadiusIndex], true);
                                 mEditingType = 0;
                                 refreshEditing();
@@ -91,12 +94,12 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
         view.findViewById(R.id.marker_ok).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                postBinderTask(new Models.BinderTask() {
+                postBinderTask(new CoreService.BinderTask() {
                     @Override
                     public void onBinderReady(final CoreService.CoreBinder binder) {
                         getChannel(new ChannelActivity.GetChannelCallback() {
                             @Override
-                            public void onGetChannel(Models.Channel channel) {
+                            public void onGetChannel(Channel channel) {
                                 binder.createMarker(mEditingMarker.name, channel.id, mEditingMarker.isPublic, mEditingLatitude, mEditingLongitude, true);
                                 mEditingType = 0;
                                 refreshEditing();
@@ -120,7 +123,7 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked){
-                    postBinderTask(new Models.BinderTask() {
+                    postBinderTask(new CoreService.BinderTask() {
                         @Override
                         public void onBinderReady(CoreService.CoreBinder binder) {
                             binder.startMocking();
@@ -133,7 +136,7 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
                             .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    postBinderTask(new Models.BinderTask() {
+                                    postBinderTask(new CoreService.BinderTask() {
                                         @Override
                                         public void onBinderReady(CoreService.CoreBinder binder) {
                                             binder.stopMocking();
@@ -150,7 +153,7 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
                 }
             }
         });
-        postBinderTask(new Models.BinderTask() {
+        postBinderTask(new CoreService.BinderTask() {
             @Override
             public void onBinderReady(CoreService.CoreBinder binder) {
                 mock.setChecked(binder.isMocking());
@@ -172,7 +175,7 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
 
         @Override
         public void callback(final float x, final float y) {
-            postBinderTask(new Models.BinderTask() {
+            postBinderTask(new CoreService.BinderTask() {
                 @Override
                 public void onBinderReady(CoreService.CoreBinder binder) {
                     binder.moveMocking(x, y);

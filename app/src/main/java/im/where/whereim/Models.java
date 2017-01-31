@@ -1,104 +1,28 @@
 package im.where.whereim;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Created by buganini on 04/01/17.
  */
 
 public class Models {
-    public static class Channel {
-        public String id;
-        public String channel_name;
-        public String user_channel_name;
-        public String mate_id;
-        public Boolean enable;
-    }
-
-    public static class Mate {
-        public String id;
-        public String mate_name;
-        public String user_mate_name;
-
-        public Double latitude;
-        public Double longitude;
-        public Double accuracy;
-        public Double altitude; //m
-        public Double bearing;
-        public Double speed; //m
-        public Long time;
-
-        public String getDisplayName(){
-            if(this.user_mate_name!=null){
-                return this.user_mate_name;
-            }
-            return this.mate_name;
-        }
-    }
-
-    public static class Marker {
-        public String id;
-        public String channel_id;
-        public String name;
-        public double latitude;
-        public double longitude;
-        public boolean isPublic;
-        public Boolean enable;
-    }
-
-    public static class MarkerList {
-        public List<Marker> public_list;
-        public List<Marker> private_list;
-
-        public MarkerList() {
-            public_list = new ArrayList<>();
-            private_list = new ArrayList<>();
-        }
-    }
-
-    public static class Enchantment {
-        public String id;
-        public String channel_id;
-        public String name;
-        public double latitude;
-        public double longitude;
-        public double radius;
-        public boolean isPublic;
-        public Boolean enable;
-    }
-
-    public static class EnchantmentList {
-        public List<Enchantment> public_list;
-        public List<Enchantment> private_list;
-
-        public EnchantmentList() {
-            public_list = new ArrayList<>();
-            private_list = new ArrayList<>();
-        }
-    }
-
-    interface BinderTask{
-        void onBinderReady(CoreService.CoreBinder binder);
-    };
-
-    final static String KEY_LATITUDE = "lat";
-    final static String KEY_LONGITUDE = "lng";
-    final static String KEY_ACCURACY = "acc";
-    final static String KEY_ALTITUDE = "alt";
-    final static String KEY_BEARING = "bear";
-    final static String KEY_SPEED = "spd";
-    final static String KEY_TIME = "time";
-    final static String KEY_PROVIDER = "pvdr";
-    final static String KEY_RADIUS = "r";
-    final static String KEY_PUBLIC = "public";
-    final static String KEY_ENABLE = "enable";
-    final static String KEY_ID = "id";
-    final static String KEY_NAME = "name";
-    final static String KEY_CHANNEL = "channel";
-    final static String KEY_MATE_NAME = "mate_name";
-    final static String KEY_USER_MATE_NAME = "user_mate_name";
-    final static String KEY_MATE = "mate";
-    final static String KEY_CLIENT_ID = "client_id";
-    final static String KEY_MESSAGE = "msg";
+    public final static String KEY_LATITUDE = "lat";
+    public final static String KEY_LONGITUDE = "lng";
+    public final static String KEY_ACCURACY = "acc";
+    public final static String KEY_ALTITUDE = "alt";
+    public final static String KEY_BEARING = "bear";
+    public final static String KEY_SPEED = "spd";
+    public final static String KEY_TIME = "time";
+    public final static String KEY_PROVIDER = "pvdr";
+    public final static String KEY_RADIUS = "r";
+    public final static String KEY_PUBLIC = "public";
+    public final static String KEY_ENABLE = "enable";
+    public final static String KEY_ID = "id";
+    public final static String KEY_NAME = "name";
+    public final static String KEY_CHANNEL = "channel";
+    public final static String KEY_MATE_NAME = "mate_name";
+    public final static String KEY_USER_MATE_NAME = "user_mate_name";
+    public final static String KEY_MATE = "mate";
+    public final static String KEY_CLIENT_ID = "client_id";
+    public final static String KEY_MESSAGE = "msg";
+    public final static String KEY_TS = "ts";
 }

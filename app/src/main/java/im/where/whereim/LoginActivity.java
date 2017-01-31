@@ -26,7 +26,7 @@ public class LoginActivity extends BaseActivity {
     private View mRetry;
     private View mLoading;
 
-    private Models.BinderTask mTask = new Models.BinderTask(){
+    private CoreService.BinderTask mTask = new CoreService.BinderTask(){
 
         @Override
         public void onBinderReady(final CoreService.CoreBinder binder) {
@@ -137,7 +137,7 @@ public class LoginActivity extends BaseActivity {
             }
         });
 
-        postBinderTask(new Models.BinderTask() {
+        postBinderTask(new CoreService.BinderTask() {
             @Override
             public void onBinderReady(CoreService.CoreBinder binder) {
                 checkLogin();

@@ -21,7 +21,11 @@ public class WimDBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        Channel.createTable(db);
         Message.createTable(db);
+        Mate.createTable(db);
+        Marker.createTable(db);
+        Enchantment.createTable(db);
     }
 
     @Override
@@ -33,7 +37,11 @@ public class WimDBHelper extends SQLiteOpenHelper {
         return mDatabase;
     }
 
-    public void insert(ORM orm){
-        mDatabase.insertOrThrow(orm.getTableName(), null, orm.buildInsert());
+    public void insert(BaseModel model){
+        mDatabase.insertOrThrow(model.getTableName(), null, model.buildContentValues());
+    }
+
+    public void replace(BaseModel model){
+        mDatabase.replaceOrThrow(model.getTableName(), null, model.buildContentValues());
     }
 }

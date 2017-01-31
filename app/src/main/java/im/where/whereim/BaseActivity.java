@@ -4,7 +4,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.Handler;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 
@@ -17,9 +16,9 @@ import java.util.List;
 
 public class BaseActivity extends AppCompatActivity implements ServiceConnection {
 
-    private List<Models.BinderTask> mPendingTask = new ArrayList<>();
+    private List<CoreService.BinderTask> mPendingTask = new ArrayList<>();
 
-    protected void postBinderTask(Models.BinderTask task){
+    protected void postBinderTask(CoreService.BinderTask task){
         synchronized (mPendingTask) {
             mPendingTask.add(task);
         }
@@ -32,7 +31,7 @@ public class BaseActivity extends AppCompatActivity implements ServiceConnection
             return;
         }
         while(true){
-            Models.BinderTask task = null;
+            CoreService.BinderTask task = null;
             synchronized (mPendingTask){
                 if(mPendingTask.size()>0){
                     task = mPendingTask.remove(0);

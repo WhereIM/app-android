@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -46,17 +47,25 @@ import java.util.regex.Pattern;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import im.where.whereim.database.Channel;
+import im.where.whereim.database.Enchantment;
+import im.where.whereim.database.Marker;
+import im.where.whereim.database.Mate;
 import im.where.whereim.database.Message;
 import im.where.whereim.database.WimDBHelper;
 
 public class CoreService extends Service {
     private final static String TAG = "CoreService";
 
+    public interface BinderTask{
+        void onBinderReady(CoreService.CoreBinder binder);
+    };
+
     public interface MapDataReceiver {
-        void onMockData(Models.Mate mock);
-        void onMateData(Models.Mate mate);
-        void onEnchantmentData(Models.Enchantment enchantment);
-        void onMarkerData(Models.Marker marker);
+        void onMockData(Mate mock);
+        void onMateData(Mate mate);
+        void onEnchantmentData(Enchantment enchantment);
+        void onMarkerData(Marker marker);
     };
 
     public interface RegisterClientCallback {
@@ -196,15 +205,15 @@ public class CoreService extends Service {
             }
         }
 
-        public List<Models.Channel> getChannelList(){
+        public List<Channel> getChannelList(){
             synchronized (mChannelList) {
                 return Collections.unmodifiableList(mChannelList);
             }
         }
 
-        public Models.Channel getChannelById(String id){
+        public Channel getChannelById(String id){
             synchronized (mChannelList){
-                for (Models.Channel channel : mChannelList) {
+                for (Channel channel : mChannelList) {
                     if(channel.id.equals(id))
                         return channel;
                 }
@@ -212,7 +221,7 @@ public class CoreService extends Service {
             return null;
         }
 
-        public void toggleChannelEnabled(Models.Channel channel){
+        public void toggleChannelEnabled(Channel channel){
             if(channel==null){
                 return;
             }
@@ -256,7 +265,7 @@ public class CoreService extends Service {
             }
         }
 
-        public boolean openMap(Models.Channel channel, MapDataReceiver receiver){
+        public boolean openMap(Channel channel, MapDataReceiver receiver){
             if(channel==null)
                 return false;
             if(!mMqttConnected)
@@ -271,17 +280,17 @@ public class CoreService extends Service {
                 mOpenedChannel.add(channel.id);
             }
             synchronized (mChannelEnchantment) {
-                HashMap<String, Models.Enchantment> list = mChannelEnchantment.get(channel.id);
+                HashMap<String, Enchantment> list = mChannelEnchantment.get(channel.id);
                 if(list!=null){
-                    for (Models.Enchantment enchantment : list.values()) {
+                    for (Enchantment enchantment : list.values()) {
                         receiver.onEnchantmentData(enchantment);
                     }
                 }
             }
             synchronized (mChannelMarker) {
-                HashMap<String, Models.Marker> list = mChannelMarker.get(channel.id);
+                HashMap<String, Marker> list = mChannelMarker.get(channel.id);
                 if(list!=null){
-                    for (Models.Marker marker : list.values()) {
+                    for (Marker marker : list.values()) {
                         receiver.onMarkerData(marker);
                     }
                 }
@@ -293,7 +302,7 @@ public class CoreService extends Service {
             return true;
         }
 
-        public void closeMap(Models.Channel channel, MapDataReceiver receiver){
+        public void closeMap(Channel channel, MapDataReceiver receiver){
             if(channel==null)
                 return;
             synchronized (mMapDataReceiver){
@@ -308,7 +317,7 @@ public class CoreService extends Service {
             _checkLocationService();
         }
 
-        public Models.Mate getChannelMate(String channel_id, String mate_id){
+        public Mate getChannelMate(String channel_id, String mate_id){
             return CoreService.this.getChannelMate(channel_id, mate_id);
         }
 
@@ -333,7 +342,7 @@ public class CoreService extends Service {
             }
         }
 
-        public void toggleEnchantmentEnabled(Models.Enchantment enchantment){
+        public void toggleEnchantmentEnabled(Enchantment enchantment){
             if(enchantment==null){
                 return;
             }
@@ -378,7 +387,7 @@ public class CoreService extends Service {
             }
         }
 
-        public void toggleMarkerEnabled(Models.Marker marker){
+        public void toggleMarkerEnabled(Marker marker){
             if(marker==null){
                 return;
             }
@@ -403,9 +412,9 @@ public class CoreService extends Service {
             }
         }
 
-        public Models.Enchantment getChannelEnchantment(String channel_id, String enchantment_id){
+        public Enchantment getChannelEnchantment(String channel_id, String enchantment_id){
             synchronized (mChannelEnchantment) {
-                HashMap<String, Models.Enchantment> list;
+                HashMap<String, Enchantment> list;
                 list = mChannelEnchantment.get(channel_id);
                 if(list==null){
                     return null;
@@ -414,15 +423,15 @@ public class CoreService extends Service {
             }
         }
 
-        public Models.EnchantmentList getChannelEnchantment(String channel_id){
-            Models.EnchantmentList ret = new Models.EnchantmentList();
+        public Enchantment.List getChannelEnchantment(String channel_id){
+            Enchantment.List ret = new Enchantment.List();
             synchronized (mChannelEnchantment) {
-                HashMap<String, Models.Enchantment> list;
+                HashMap<String, Enchantment> list;
                 list = mChannelEnchantment.get(channel_id);
                 if(list==null){
                     return ret;
                 }
-                for (Models.Enchantment enchantment : list.values()) {
+                for (Enchantment enchantment : list.values()) {
                     if(enchantment.isPublic){
                         ret.public_list.add(enchantment);
                     }else{
@@ -433,7 +442,7 @@ public class CoreService extends Service {
             return ret;
         }
 
-        public void addEnchantmentListener(Models.Channel channel, Runnable r){
+        public void addEnchantmentListener(Channel channel, Runnable r){
             List<Runnable> list;
             synchronized (mEnchantmentListener){
                 list = mEnchantmentListener.get(channel.id);
@@ -446,7 +455,7 @@ public class CoreService extends Service {
             mHandler.post(r);
         }
 
-        public void removeEnchantmentListener(Models.Channel channel, Runnable r){
+        public void removeEnchantmentListener(Channel channel, Runnable r){
             List<Runnable> list;
             synchronized (mEnchantmentListener){
                 list = mEnchantmentListener.get(channel.id);
@@ -456,9 +465,9 @@ public class CoreService extends Service {
             }
         }
 
-        public Models.Marker getChannelMarker(String channel_id, String marker_id){
+        public Marker getChannelMarker(String channel_id, String marker_id){
             synchronized (mChannelMarker) {
-                HashMap<String, Models.Marker> list;
+                HashMap<String, Marker> list;
                 list = mChannelMarker.get(channel_id);
                 if(list==null){
                     return null;
@@ -467,15 +476,15 @@ public class CoreService extends Service {
             }
         }
 
-        public Models.MarkerList getChannelMarker(String channel_id){
-            Models.MarkerList ret = new Models.MarkerList();
+        public Marker.List getChannelMarker(String channel_id){
+            Marker.List ret = new Marker.List();
             synchronized (mChannelMarker) {
-                HashMap<String, Models.Marker> list;
+                HashMap<String, Marker> list;
                 list = mChannelMarker.get(channel_id);
                 if(list==null){
                     return ret;
                 }
-                for (Models.Marker marker : list.values()) {
+                for (Marker marker : list.values()) {
                     if(marker.isPublic){
                         ret.public_list.add(marker);
                     }else{
@@ -486,7 +495,7 @@ public class CoreService extends Service {
             return ret;
         }
 
-        public void addMarkerListener(Models.Channel channel, Runnable r){
+        public void addMarkerListener(Channel channel, Runnable r){
             List<Runnable> list;
             synchronized (mMarkerListener){
                 list = mMarkerListener.get(channel.id);
@@ -499,7 +508,7 @@ public class CoreService extends Service {
             mHandler.post(r);
         }
 
-        public void removeMarkerListener(Models.Channel channel, Runnable r){
+        public void removeMarkerListener(Channel channel, Runnable r){
             List<Runnable> list;
             synchronized (mMarkerListener){
                 list = mMarkerListener.get(channel.id);
@@ -509,7 +518,7 @@ public class CoreService extends Service {
             }
         }
 
-        public void requestMessage(Models.Channel channel, Long before, Long after){
+        public void requestMessage(Channel channel, Long before, Long after){
             try {
                 JSONObject req = new JSONObject();
                 req.put(Models.KEY_CHANNEL, channel.id);
@@ -525,7 +534,7 @@ public class CoreService extends Service {
             }
         }
 
-        public void addMessageListener(Models.Channel channel, Runnable r){
+        public void addMessageListener(Channel channel, Runnable r){
             List<Runnable> list;
             synchronized (mMessageListener){
                 list = mMessageListener.get(channel.id);
@@ -537,7 +546,7 @@ public class CoreService extends Service {
             list.add(r);
         }
 
-        public void removeMessageListener(Models.Channel channel, Runnable r){
+        public void removeMessageListener(Channel channel, Runnable r){
             List<Runnable> list;
             synchronized (mMessageListener){
                 list = mMessageListener.get(channel.id);
@@ -548,7 +557,7 @@ public class CoreService extends Service {
         }
 
 
-        public void sendMessage(Models.Channel channel, String s) {
+        public void sendMessage(Channel channel, String s) {
             try {
                 JSONObject payload = new JSONObject();
                 payload.put(Models.KEY_MESSAGE, s);
@@ -559,7 +568,7 @@ public class CoreService extends Service {
             }
         }
 
-        public Message.BundledCursor getMessageCursor(Models.Channel channel){
+        public Message.BundledCursor getMessageCursor(Channel channel){
             return Message.getCursor(mWimDBHelper.getDatabase(), channel);
         }
 
@@ -597,9 +606,9 @@ public class CoreService extends Service {
         }
     };
 
-    private Models.Mate mMockMate = new Models.Mate();
+    private Mate mMockMate = new Mate();
     private void notifyMocking(Location loc){
-        Models.Mate mate = null;
+        Mate mate = null;
         if(loc!=null){
             mMockMate.latitude = loc.getLatitude();
             mMockMate.longitude = loc.getLongitude();
@@ -682,26 +691,21 @@ public class CoreService extends Service {
         if(mqttManager!=null)
             return;
         Log.e(TAG, "ClientId: "+mClientId);
+
+        mTS = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).getLong(Models.KEY_TS, 0);
+        mOrigTS = mTS;
+
         mqttManager = new AWSIotMqttManager(mClientId, Region.getRegion(Config.AWS_REGION_ID), Config.AWS_IOT_MQTT_ENDPOINT);
         mqttManager.setAutoReconnect(true);
         Log.e(TAG, "Service Started");
         keyStore = AWSIotKeystoreHelper.getIotKeystore(Config.CERT_ID, keyStorePath, Config.KEY_STORE_NAME, Config.KEY_STORE_PASSWORD);
+
         mqttManager.connect(keyStore, new AWSIotMqttClientStatusCallback() {
             @Override
             public void onStatusChanged(AWSIotMqttClientStatus status, Throwable throwable) {
                 Log.d(TAG, "AWSIotMqttClientStatus changed: "+status);
                 switch (status){
                     case Connected:
-                        synchronized (mChannelMate) {
-                            mChannelMate.clear();
-                        }
-                        synchronized (mChannelList) {
-                            mChannelList.clear();
-                        }
-                        synchronized (mChannelMap) {
-                            mChannelMap.clear();
-                        }
-
                         Log.e(TAG, "MQTT Connected");
                         mqttOnConnected();
                         mMqttConnected = true;
@@ -714,6 +718,9 @@ public class CoreService extends Service {
                         synchronized (mChannelMessageSync) {
                             mChannelMessageSync.clear();
                         }
+                        synchronized (mChannelDataSync) {
+                            mChannelDataSync.clear();
+                        }
                         mMqttConnected = false;
                         break;
                 }
@@ -721,8 +728,8 @@ public class CoreService extends Service {
         });
     }
 
-    private List<Models.Channel> mChannelList = new ArrayList<>();
-    private HashMap<String, Models.Channel> mChannelMap = new HashMap<>();
+    private List<Channel> mChannelList = new ArrayList<>();
+    private HashMap<String, Channel> mChannelMap = new HashMap<>();
 
 
     private KeyStore keyStore;
@@ -736,6 +743,37 @@ public class CoreService extends Service {
 
     private boolean mMqttConnected = false;
     private boolean mIsForeground = false;
+
+    private long mTS = 0;
+    private long mOrigTS = 0;
+    private HashMap<String, Long> mChannelTS = new HashMap<>();
+
+    private void setTS(long ts){
+        if(ts>mTS){
+            SharedPreferences.Editor editor = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
+            editor.putLong(Models.KEY_TS, ts);
+            editor.apply();
+            mTS = ts;
+        }
+    }
+
+    private long getTS(){
+        return mTS;
+    }
+
+    private void setTS(String channel_id, long ts){
+        if(!mChannelTS.containsKey(channel_id) || ts > mChannelTS.get(channel_id)){
+            setTS(ts);
+            mChannelTS.put(channel_id, ts);
+        }
+    }
+
+    private long getTS(String channel_id){
+        if(mChannelTS.containsKey(channel_id)){
+            return mChannelTS.get(channel_id);
+        }
+        return mOrigTS;
+    }
 
     private void notifyChannelListChangedListeners(){
         synchronized (mChannelListChangedListener){
@@ -781,7 +819,7 @@ public class CoreService extends Service {
         boolean pending = false;
         int enableCount = 0;
         synchronized (mChannelList){
-            for (Models.Channel channel : mChannelList) {
+            for (Channel channel : mChannelList) {
                 if(channel.enable==null){
                     pending = true;
                     break;
@@ -814,6 +852,7 @@ public class CoreService extends Service {
 
     private Pattern mClientGetPattern = Pattern.compile("^client/[A-Fa-f0-9]{32}/([^/]+)/get$");
 
+    private boolean mCheckedOut = false;
     private void mqttOnConnected(){
         subscribe(String.format("client/%s/+/get", mClientId), new AWSIotMqttNewMessageCallback() {
             @Override
@@ -846,6 +885,22 @@ public class CoreService extends Service {
                 }
             }
         });
+
+        if(!mCheckedOut) {
+            mCheckedOut = true;
+            Cursor cursor = Channel.getCursor(mWimDBHelper.getDatabase());
+            while (cursor.moveToNext()) {
+                mqttClientChannelHandler(Channel.parseToJson(cursor));
+            }
+        }
+
+        try {
+            JSONObject sync = new JSONObject();
+            sync.put(Models.KEY_TS, getTS());
+            publish(String.format("client/%s/channel/sync", mClientId), sync);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         _subscribeOpenedChannel();
     }
 
@@ -880,20 +935,20 @@ public class CoreService extends Service {
         }
     }
 
-    private final HashMap<String, HashMap<String, Models.Enchantment>> mChannelEnchantment = new HashMap<>();
-    private void mqttEnchantmentHandler(JSONObject msg){
+    private final HashMap<String, HashMap<String, Enchantment>> mChannelEnchantment = new HashMap<>();
+    private void mqttEnchantmentHandler(JSONObject data){
         final String enchantment_id;
         final String channel_id;
-        Models.Enchantment enchantment;
+        Enchantment enchantment;
         try {
-            enchantment_id = msg.getString(Models.KEY_ID);
-            channel_id = msg.getString(Models.KEY_CHANNEL);
+            enchantment_id = data.getString(Models.KEY_ID);
+            channel_id = data.getString(Models.KEY_CHANNEL);
         } catch (JSONException e) {
             e.printStackTrace();
             return;
         }
         synchronized (mChannelEnchantment) {
-            HashMap<String, Models.Enchantment> list = mChannelEnchantment.get(channel_id);
+            HashMap<String, Enchantment> list = mChannelEnchantment.get(channel_id);
             if(list==null){
                 list = new HashMap<>();
                 mChannelEnchantment.put(channel_id, list);
@@ -901,20 +956,29 @@ public class CoreService extends Service {
 
             enchantment = list.get(enchantment_id);
             if(enchantment==null){
-                enchantment = new Models.Enchantment();
+                enchantment = new Enchantment();
                 list.put(enchantment_id, enchantment);
             }
             enchantment.id = enchantment_id;
             enchantment.channel_id = channel_id;
-            enchantment.name = Util.JsonOptNullableString(msg, Models.KEY_NAME, enchantment.name);
-            enchantment.latitude = msg.optDouble(Models.KEY_LATITUDE, enchantment.latitude);
-            enchantment.longitude = msg.optDouble(Models.KEY_LONGITUDE, enchantment.longitude);
-            enchantment.radius = msg.optDouble(Models.KEY_RADIUS, enchantment.radius);
-            enchantment.isPublic = msg.optBoolean(Models.KEY_PUBLIC, enchantment.isPublic);
-            enchantment.enable = Util.JsonOptBoolean(msg, Models.KEY_ENABLE, enchantment.enable);
+            enchantment.name = Util.JsonOptNullableString(data, Models.KEY_NAME, enchantment.name);
+            enchantment.latitude = data.optDouble(Models.KEY_LATITUDE, enchantment.latitude);
+            enchantment.longitude = data.optDouble(Models.KEY_LONGITUDE, enchantment.longitude);
+            enchantment.radius = data.optDouble(Models.KEY_RADIUS, enchantment.radius);
+            enchantment.isPublic = data.optBoolean(Models.KEY_PUBLIC, enchantment.isPublic);
+            enchantment.enable = Util.JsonOptBoolean(data, Models.KEY_ENABLE, enchantment.enable);
         }
 
-        final Models.Enchantment _e = enchantment;
+        try {
+            if(data.has(Models.KEY_TS)) {
+                mWimDBHelper.replace(enchantment);
+                setTS(channel_id, data.getLong(Models.KEY_TS));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        final Enchantment _e = enchantment;
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -931,7 +995,7 @@ public class CoreService extends Service {
         notifyChannelEnchantmentListChangedListeners(channel_id);
     }
 
-    private final HashMap<String, HashMap<String, Models.Marker>> mChannelMarker = new HashMap<>();
+    private final HashMap<String, HashMap<String, Marker>> mChannelMarker = new HashMap<>();
     private void mqttMarkerHandler(JSONObject data){
         final String marker_id;
         final String channel_id;
@@ -942,9 +1006,9 @@ public class CoreService extends Service {
             e.printStackTrace();
             return;
         }
-        Models.Marker marker;
+        Marker marker;
         synchronized (mChannelMarker) {
-            HashMap<String, Models.Marker> list = mChannelMarker.get(channel_id);
+            HashMap<String, Marker> list = mChannelMarker.get(channel_id);
             if(list==null){
                 list = new HashMap<>();
                 mChannelMarker.put(channel_id, list);
@@ -952,9 +1016,10 @@ public class CoreService extends Service {
 
             marker = list.get(marker_id);
             if(marker==null){
-                marker = new Models.Marker();
+                marker = new Marker();
                 list.put(marker_id, marker);
             }
+
             marker.id = marker_id;
             marker.channel_id = channel_id;
             marker.name = Util.JsonOptNullableString(data, Models.KEY_NAME, marker.name);
@@ -964,7 +1029,16 @@ public class CoreService extends Service {
             marker.enable = Util.JsonOptBoolean(data, Models.KEY_ENABLE, marker.enable);
         }
 
-        final Models.Marker _m = marker;
+        try {
+            if(data.has(Models.KEY_TS)) {
+                mWimDBHelper.replace(marker);
+                setTS(channel_id, data.getLong(Models.KEY_TS));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        final Marker _m = marker;
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -981,15 +1055,17 @@ public class CoreService extends Service {
         notifyChannelMarkerListChangedListeners(channel_id);
     }
 
+    private final HashMap<String, Boolean> mChannelDataCheckedOut = new HashMap<>();
+    private final HashMap<String, Boolean> mChannelDataSync = new HashMap<>();
     private final HashMap<String, Boolean> mChannelMessageSync = new HashMap<>();
     private void mqttClientChannelHandler(JSONObject msg){
         try {
-            final Models.Channel channel;
+            final Channel channel;
             final String channel_id = msg.getString(Models.KEY_CHANNEL);
             if(mChannelMap.containsKey(channel_id)){
                 channel = mChannelMap.get(channel_id);
             }else{
-                channel = new Models.Channel();
+                channel = new Channel();
                 mChannelMap.put(channel_id, channel);
             }
             synchronized (mChannelList) {
@@ -1004,6 +1080,35 @@ public class CoreService extends Service {
             if(msg.has("enable")){
                 channel.enable = msg.getBoolean("enable");
             }
+
+            if(msg.has(Models.KEY_TS)) {
+                mWimDBHelper.replace(channel);
+                setTS(msg.getLong(Models.KEY_TS));
+            }
+
+            if(!mChannelDataCheckedOut.containsKey(channel_id)) {
+                mChannelDataCheckedOut.put(channel_id, true);
+                Cursor cursor;
+
+                cursor = Mate.getCursor(mWimDBHelper.getDatabase());
+                while (cursor.moveToNext()) {
+                    JSONObject j = Mate.parseToJson(cursor);
+                    mqttChannelMateHandler(j.getString(Models.KEY_CHANNEL), j);
+                }
+
+                cursor = Marker.getCursor(mWimDBHelper.getDatabase());
+                while (cursor.moveToNext()) {
+                    JSONObject j = Marker.parseToJson(cursor);
+                    mqttMarkerHandler(j);
+                }
+
+                cursor = Enchantment.getCursor(mWimDBHelper.getDatabase());
+                while (cursor.moveToNext()) {
+                    JSONObject j = Enchantment.parseToJson(cursor);
+                    mqttEnchantmentHandler(j);
+                }
+            }
+
 
             subscribe(String.format("channel/%s/data/+/get", channel_id), new AWSIotMqttNewMessageCallback() {
                 @Override
@@ -1037,6 +1142,18 @@ public class CoreService extends Service {
                     }
                 }
             });
+
+            if(!mChannelDataSync.containsKey(channel_id)){
+                mChannelDataSync.put(channel_id, true);
+                try {
+                    JSONObject sync = new JSONObject();
+                    sync.put(Models.KEY_TS, getTS(channel_id));
+                    sync.put(Models.KEY_CHANNEL, channel_id);
+                    publish(String.format("client/%s/channel_data/sync", mClientId), sync);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
 
             notifyChannelListChangedListeners();
 
@@ -1081,14 +1198,24 @@ public class CoreService extends Service {
             e.printStackTrace();
             return;
         }
-        Models.Mate mate = getChannelMate(channel_id, mate_id);
+        Mate mate = getChannelMate(channel_id, mate_id);
+        mate.channel_id = channel_id;
         mate.mate_name = Util.JsonGetNullableString(data, Models.KEY_MATE_NAME);
         mate.user_mate_name = Util.JsonGetNullableString(data, Models.KEY_USER_MATE_NAME);
+
+        try {
+            if(data.has(Models.KEY_TS)) {
+                mWimDBHelper.replace(mate);
+                setTS(channel_id, data.getLong(Models.KEY_TS));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
-    private HashMap<String, HashMap<String, Models.Mate>> mChannelMate = new HashMap<>();
-    private Models.Mate getChannelMate(String channel_id, String mate_id){
-        HashMap<String, Models.Mate> mateMap;
+    private HashMap<String, HashMap<String, Mate>> mChannelMate = new HashMap<>();
+    private Mate getChannelMate(String channel_id, String mate_id){
+        HashMap<String, Mate> mateMap;
         synchronized (mChannelMate) {
             mateMap = mChannelMate.get(channel_id);
             if(mateMap==null){
@@ -1096,11 +1223,11 @@ public class CoreService extends Service {
                 mChannelMate.put(channel_id, mateMap);
             }
         }
-        Models.Mate mate;
+        Mate mate;
         synchronized (mateMap) {
             mate = mateMap.get(mate_id);
             if(mate==null){
-                mate = new Models.Mate();
+                mate = new Mate();
                 mate.id = mate_id;
                 mateMap.put(mate_id, mate);
             }
@@ -1159,7 +1286,7 @@ public class CoreService extends Service {
             e.printStackTrace();
             return;
         }
-        Models.Mate mate = getChannelMate(channel_id, mate_id);
+        Mate mate = getChannelMate(channel_id, mate_id);
         try {
             mate.latitude = data.getDouble(Models.KEY_LATITUDE);
             mate.longitude = data.getDouble(Models.KEY_LONGITUDE);
@@ -1172,7 +1299,7 @@ public class CoreService extends Service {
             e.printStackTrace();
         }
 
-        final Models.Mate _m = mate;
+        final Mate _m = mate;
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -1256,15 +1383,15 @@ public class CoreService extends Service {
     }
 
 
-    private boolean publish(String topic, JSONObject payload){
-        try {
-            String message = payload.toString();
-            Log.e(TAG, "Publish "+topic+" "+message);
-            mqttManager.publishString(message, topic, AWSIotMqttQos.QOS1);
-            return true;
-        }catch(Exception e){
-            return false;
-        }
+    private void publish(final String topic, final JSONObject payload){
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                String message = payload.toString();
+                Log.e(TAG, "Publish "+topic+" "+message);
+                mqttManager.publishString(message, topic, AWSIotMqttQos.QOS1);
+            }
+        });
     }
 
     // ================ Location Service ================

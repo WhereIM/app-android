@@ -30,16 +30,17 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import im.where.whereim.database.Channel;
 import io.branch.referral.Branch;
 import io.branch.referral.BranchError;
 
 public class ChannelListActivity extends BaseActivity {
-    private List<Models.Channel> mChannelList;
+    private List<Channel> mChannelList;
     private ListView mListView;
     private Runnable mChannelListChangedListener = new Runnable() {
         @Override
         public void run() {
-            postBinderTask(new Models.BinderTask() {
+            postBinderTask(new CoreService.BinderTask() {
                 @Override
                 public void onBinderReady(CoreService.CoreBinder binder) {
                     mChannelList = binder.getChannelList();
@@ -68,7 +69,7 @@ public class ChannelListActivity extends BaseActivity {
         }
 
         class ViewHolder{
-            Models.Channel mChannel;
+            Channel mChannel;
             TextView mTitle;
             TextView mSubtitle;
             Switch mEnable;
@@ -95,7 +96,7 @@ public class ChannelListActivity extends BaseActivity {
                 });
             }
 
-            public void setItem(Models.Channel channel){
+            public void setItem(Channel channel){
                 mChannel = channel;
                 if(channel.user_channel_name !=null && !channel.user_channel_name.isEmpty()){
                     mSubtitle.setVisibility(View.VISIBLE);
@@ -127,7 +128,7 @@ public class ChannelListActivity extends BaseActivity {
                 vh = (ViewHolder) view.getTag();
             }
 
-            Models.Channel channel = (Models.Channel) getItem(position);
+            Channel channel = (Channel) getItem(position);
             vh.setItem(channel);
             return view;
         }
@@ -139,7 +140,7 @@ public class ChannelListActivity extends BaseActivity {
     }
 
     private void channelJoin(final String channel_id){
-        postBinderTask(new Models.BinderTask() {
+        postBinderTask(new CoreService.BinderTask() {
             @Override
             public void onBinderReady(CoreService.CoreBinder binder) {
                 final View dialog_view = LayoutInflater.from(ChannelListActivity.this).inflate(R.layout.dialog_channel_join,  null);
@@ -155,7 +156,7 @@ public class ChannelListActivity extends BaseActivity {
                             public void onClick(DialogInterface dialog, int which) {
 //                        final String channel_alias = et_channel_alias.getText().toString();
                                 final String mate_name = et_mate_name.getText().toString();
-                                postBinderTask(new Models.BinderTask() {
+                                postBinderTask(new CoreService.BinderTask() {
                                     @Override
                                     public void onBinderReady(CoreService.CoreBinder binder) {
                                         binder.joinChannel(channel_id, null /*channel_alias*/, mate_name);
@@ -260,7 +261,7 @@ public class ChannelListActivity extends BaseActivity {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                    postBinderTask(new Models.BinderTask() {
+                    postBinderTask(new CoreService.BinderTask() {
                         @Override
                         public void onBinderReady(CoreService.CoreBinder binder) {
                             binder.checkLocationService();

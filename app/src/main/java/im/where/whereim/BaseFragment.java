@@ -11,7 +11,7 @@ import java.util.List;
  */
 
 public class BaseFragment extends Fragment {
-    private List<Models.BinderTask> mPendingTask = new ArrayList<>();
+    private List<CoreService.BinderTask> mPendingTask = new ArrayList<>();
 
     protected CoreService.CoreBinder getBinder(){
         BaseActivity activity = (BaseActivity) getActivity();
@@ -21,7 +21,7 @@ public class BaseFragment extends Fragment {
         return activity.getBinder();
     }
 
-    protected void postBinderTask(Models.BinderTask task){
+    protected void postBinderTask(CoreService.BinderTask task){
         synchronized (mPendingTask) {
             mPendingTask.add(task);
         }
@@ -42,7 +42,7 @@ public class BaseFragment extends Fragment {
             return;
         }
         while(true){
-            Models.BinderTask task = null;
+            CoreService.BinderTask task = null;
             synchronized (mPendingTask){
                 if(mPendingTask.size()>0){
                     task = mPendingTask.remove(0);
@@ -57,7 +57,7 @@ public class BaseFragment extends Fragment {
     }
 
     protected void getChannel(final ChannelActivity.GetChannelCallback callback){
-        postBinderTask(new Models.BinderTask() {
+        postBinderTask(new CoreService.BinderTask() {
             @Override
             public void onBinderReady(CoreService.CoreBinder binder) {
                 ((ChannelActivity) getActivity()).getChannel(callback);

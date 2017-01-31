@@ -17,6 +17,7 @@ import android.widget.TextView;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 
+import im.where.whereim.database.Channel;
 import im.where.whereim.database.Message;
 
 public class ChannelMessengerFragment extends BaseFragment {
@@ -31,7 +32,7 @@ public class ChannelMessengerFragment extends BaseFragment {
         super.onCreate(savedInstanceState);
     }
 
-    private Models.Channel mChannel;
+    private Channel mChannel;
     private MessageCursorAdapter mAdapter;
     private class MessageCursorAdapter extends CursorAdapter {
         private Message.BundledCursor mBundledCursor;
@@ -100,12 +101,12 @@ public class ChannelMessengerFragment extends BaseFragment {
                     return;
                 }
                 input.setText(null);
-                postBinderTask(new Models.BinderTask() {
+                postBinderTask(new CoreService.BinderTask() {
                     @Override
                     public void onBinderReady(final CoreService.CoreBinder binder) {
                         getChannel(new ChannelActivity.GetChannelCallback() {
                             @Override
-                            public void onGetChannel(Models.Channel channel) {
+                            public void onGetChannel(Channel channel) {
                                 binder.sendMessage(channel, message);
                             }
                         });
@@ -128,7 +129,7 @@ public class ChannelMessengerFragment extends BaseFragment {
                     return;
                 }
                 if(firstVisibleItem==0){
-                    postBinderTask(new Models.BinderTask() {
+                    postBinderTask(new CoreService.BinderTask() {
                         @Override
                         public void onBinderReady(CoreService.CoreBinder binder) {
                             if(mCurrentCursor.loadMoreChannelData || mCurrentCursor.loadMoreUserData){
@@ -144,10 +145,10 @@ public class ChannelMessengerFragment extends BaseFragment {
 
         getChannel(new ChannelActivity.GetChannelCallback() {
             @Override
-            public void onGetChannel(final Models.Channel channel) {
+            public void onGetChannel(final Channel channel) {
                 mChannel = channel;
 
-                postBinderTask(new Models.BinderTask() {
+                postBinderTask(new CoreService.BinderTask() {
                     @Override
                     public void onBinderReady(CoreService.CoreBinder binder) {
                         mCurrentCursor = binder.getMessageCursor(mChannel);
@@ -165,7 +166,7 @@ public class ChannelMessengerFragment extends BaseFragment {
     private Runnable mMessageListener = new Runnable() {
         @Override
         public void run() {
-            postBinderTask(new Models.BinderTask() {
+            postBinderTask(new CoreService.BinderTask() {
                 @Override
                 public void onBinderReady(CoreService.CoreBinder binder) {
                     mCurrentCursor = binder.getMessageCursor(mChannel);
@@ -177,7 +178,7 @@ public class ChannelMessengerFragment extends BaseFragment {
 
     @Override
     public void onDestroyView() {
-        postBinderTask(new Models.BinderTask() {
+        postBinderTask(new CoreService.BinderTask() {
             @Override
             public void onBinderReady(CoreService.CoreBinder binder) {
                 binder.removeMessageListener(mChannel, mMessageListener);

@@ -22,7 +22,7 @@ public class CaptchaActivity extends BaseActivity {
                 String prefix = "whereim://";
                 if (url != null && url.startsWith(prefix)) {
                     final String otp = url.substring(prefix.length());
-                    postBinderTask(new Models.BinderTask() {
+                    postBinderTask(new CoreService.BinderTask() {
                         @Override
                         public void onBinderReady(CoreService.CoreBinder binder) {
                             binder.setOTP(otp);
