@@ -1,4 +1,4 @@
-package im.where.whereim.database;
+package im.where.whereim.models;
 
 import android.content.ContentValues;
 import android.database.Cursor;

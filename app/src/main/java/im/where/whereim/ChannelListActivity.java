@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import im.where.whereim.database.Channel;
+import im.where.whereim.models.Channel;
 import io.branch.referral.Branch;
 import io.branch.referral.BranchError;
 

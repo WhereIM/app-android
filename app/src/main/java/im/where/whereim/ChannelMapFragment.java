@@ -13,9 +13,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import im.where.whereim.database.Channel;
-import im.where.whereim.database.Enchantment;
-import im.where.whereim.database.Marker;
+import im.where.whereim.models.Channel;
+import im.where.whereim.models.Enchantment;
+import im.where.whereim.models.Marker;
 import im.where.whereim.view.Joystick;
 
 /**

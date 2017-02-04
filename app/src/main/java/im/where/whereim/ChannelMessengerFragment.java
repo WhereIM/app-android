@@ -17,8 +17,8 @@ import android.widget.TextView;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 
-import im.where.whereim.database.Channel;
-import im.where.whereim.database.Message;
+import im.where.whereim.models.Channel;
+import im.where.whereim.models.Message;
 
 public class ChannelMessengerFragment extends BaseFragment {
     public ChannelMessengerFragment() {

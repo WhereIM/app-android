@@ -47,12 +47,12 @@ import java.util.regex.Pattern;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import im.where.whereim.database.Channel;
-import im.where.whereim.database.Enchantment;
-import im.where.whereim.database.Marker;
-import im.where.whereim.database.Mate;
-import im.where.whereim.database.Message;
-import im.where.whereim.database.WimDBHelper;
+import im.where.whereim.models.Channel;
+import im.where.whereim.models.Enchantment;
+import im.where.whereim.models.Marker;
+import im.where.whereim.models.Mate;
+import im.where.whereim.models.Message;
+import im.where.whereim.models.WimDBHelper;
 
 public class CoreService extends Service {
     private final static String TAG = "CoreService";

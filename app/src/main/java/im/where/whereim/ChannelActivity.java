@@ -18,7 +18,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import im.where.whereim.database.Channel;
+import im.where.whereim.models.Channel;
 
 public class ChannelActivity extends BaseActivity {
 

@@ -20,16 +20,20 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import im.where.whereim.database.Channel;
-import im.where.whereim.database.Enchantment;
-import im.where.whereim.database.Mate;
+import im.where.whereim.models.Channel;
+import im.where.whereim.models.Enchantment;
+import im.where.whereim.models.Mate;
+import im.where.whereim.geo.QuadTree;
 
 public class ChannelGoogleMapFragment extends ChannelMapFragment implements GoogleMap.OnMapLongClickListener {
     public ChannelGoogleMapFragment() {
@@ -351,7 +355,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     final private HashMap<String, Marker> mMarkerMarker = new HashMap<>();
 
     @Override
-    public void onMarkerData(final im.where.whereim.database.Marker marker) {
+    public void onMarkerData(final im.where.whereim.models.Marker marker) {
         postMapTask(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {

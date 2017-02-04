@@ -11,8 +11,8 @@ import android.widget.ExpandableListView;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import im.where.whereim.database.Channel;
-import im.where.whereim.database.Marker;
+import im.where.whereim.models.Channel;
+import im.where.whereim.models.Marker;
 
 public class ChannelMarkerFragment extends BaseFragment {
     public ChannelMarkerFragment() {

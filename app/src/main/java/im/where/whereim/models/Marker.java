@@ -1,4 +1,4 @@
-package im.where.whereim.database;
+package im.where.whereim.models;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -15,15 +15,14 @@ import im.where.whereim.Models;
  * Created by buganini on 31/01/17.
  */
 
-public class Enchantment extends BaseModel {
-    public static final String TABLE_NAME = "enchantment";
+public class Marker extends BaseModel {
+    public static final String TABLE_NAME = "marker";
 
     private final static String COL_ID = "_id";
     private final static String COL_CHANNEL_ID = "channel_id";
     private final static String COL_NAME = "name";
     private final static String COL_LATITUDE = "latitude";
     private final static String COL_LONGITUDE = "longitude";
-    private final static String COL_RADIUS = "radius";
     private final static String COL_PUBLIC = "public";
     private final static String COL_ENABLE = "enable";
 
@@ -35,7 +34,6 @@ public class Enchantment extends BaseModel {
                 COL_NAME + " TEXT, " +
                 COL_LATITUDE + " DOUBLE PRECISION, " +
                 COL_LONGITUDE + " DOUBLE PRECISION, " +
-                COL_RADIUS + " DOUBLE PRECISION, " +
                 COL_PUBLIC + " INTEGER, " +
                 COL_ENABLE + " INTEGER)";
         db.execSQL(sql);
@@ -44,8 +42,8 @@ public class Enchantment extends BaseModel {
 
 
     public static class List {
-        public ArrayList<Enchantment> public_list;
-        public ArrayList<Enchantment> private_list;
+        public ArrayList<Marker> public_list;
+        public ArrayList<Marker> private_list;
 
         public List() {
             public_list = new ArrayList<>();
@@ -58,7 +56,6 @@ public class Enchantment extends BaseModel {
     public String name;
     public double latitude;
     public double longitude;
-    public double radius;
     public boolean isPublic;
     public Boolean enable;
 
@@ -70,7 +67,6 @@ public class Enchantment extends BaseModel {
             j.put(Models.KEY_NAME, cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME)));
             j.put(Models.KEY_LATITUDE, cursor.getDouble(cursor.getColumnIndexOrThrow(COL_LATITUDE)));
             j.put(Models.KEY_LONGITUDE, cursor.getDouble(cursor.getColumnIndexOrThrow(COL_LONGITUDE)));
-            j.put(Models.KEY_RADIUS, cursor.getDouble(cursor.getColumnIndexOrThrow(COL_RADIUS)));
             j.put(Models.KEY_PUBLIC, cursor.getInt(cursor.getColumnIndexOrThrow(COL_PUBLIC))!=0);
             j.put(Models.KEY_ENABLE, cursor.getInt(cursor.getColumnIndexOrThrow(COL_ENABLE))!=0);
             return j;
@@ -93,7 +89,6 @@ public class Enchantment extends BaseModel {
         cv.put(COL_NAME, name);
         cv.put(COL_LATITUDE, latitude);
         cv.put(COL_LONGITUDE, longitude);
-        cv.put(COL_RADIUS, radius);
         cv.put(COL_PUBLIC, isPublic?1:0);
         cv.put(COL_ENABLE, enable?1:0);
         return cv;
