@@ -63,6 +63,9 @@ public class QuadTree {
         if(lng<0){
             lng += 360;
         }
+        if(lng>360){
+            lng -= 360;
+        }
         double x = lng / 360;
 
         StringBuilder r = new StringBuilder();
