@@ -23,6 +23,9 @@ public class QuadTreeTest {
 
         qt = QuadTree.fromLatLng(62.11228306230811, -312.2815094402622, 2);
         Assert.assertEquals("12", qt);
+
+        qt = QuadTree.fromLatLng(45, 180, 1);
+        Assert.assertEquals("1", qt);
     }
 
     @Test
