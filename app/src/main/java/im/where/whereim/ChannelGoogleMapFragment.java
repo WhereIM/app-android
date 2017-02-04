@@ -6,7 +6,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -119,12 +118,41 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         return view;
     }
 
+    final ArrayList<Polyline> lines = new ArrayList<>();
+    private void cameraMoved(GoogleMap googleMap){
+        float zoom = googleMap.getCameraPosition().zoom;
+        LatLngBounds bounds = googleMap.getProjection().getVisibleRegion().latLngBounds;
+        String nw = QuadTree.fromLatLng(bounds.northeast.latitude, bounds.southwest.longitude, zoom);
+        String se = QuadTree.fromLatLng(bounds.southwest.latitude, bounds.northeast.longitude, zoom);
+        final String[] enums = QuadTree.interpolate(nw, se);
+        postBinderTask(new CoreService.BinderTask() {
+            @Override
+            public void onBinderReady(CoreService.CoreBinder binder) {
+                binder.setVisibleTiles(enums);
+            }
+        });
+        synchronized (lines) {
+            for (Polyline line : lines) {
+                line.remove();
+            }
+        }
+        for (String t : enums) {
+            QuadTree.Bound b = QuadTree.toBound(t);
+            Polyline line = googleMap.addPolyline(new PolylineOptions()
+                    .add(new LatLng(b.north, b.west), new LatLng(b.north, b.east), new LatLng(b.south, b.east), new LatLng(b.south, b.west))
+                    .width(5)
+                    .color(Color.RED));
+            synchronized (lines) {
+                lines.add(line);
+            }
+        }
+    }
+
     private Channel mChannel;
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        Log.e("lala", "attach");
         mMarkerView = LayoutInflater.from(context).inflate(R.layout.map_mate, null);
         mMarkerViewTitle = (TextView) mMarkerView.findViewById(R.id.title);
         postBinderTask(new CoreService.BinderTask() {
@@ -144,27 +172,25 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     @Override
     public void onDetach() {
         super.onDetach();
-        Log.e("lala", "detach");
-        postBinderTask(new CoreService.BinderTask() {
-            @Override
-            public void onBinderReady(CoreService.CoreBinder binder) {
-                binder.closeMap(mChannel, ChannelGoogleMapFragment.this);
-            }
-        });
         mMarkerView = null;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        Log.e("lala", "resume");
         if(mMapView!=null)
             mMapView.onResume();
     }
 
     @Override
     public void onPause() {
-        Log.e("lala", "pause");
+        postBinderTask(new CoreService.BinderTask() {
+            @Override
+            public void onBinderReady(CoreService.CoreBinder binder) {
+                binder.closeMap(mChannel, ChannelGoogleMapFragment.this);
+            }
+        });
+
         if(mMapView!=null)
             mMapView.onPause();
         super.onPause();
@@ -247,7 +273,6 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
 
     @Override
     public void onMateData(final Mate mate){
-        Log.e("lala", "onmatedata "+mate.getDisplayName()+" "+mate.latitude);
         if(mate.latitude==null){
             return;
         }

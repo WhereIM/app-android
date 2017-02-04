@@ -60,10 +60,10 @@ public class BaseActivity extends AppCompatActivity implements ServiceConnection
 
     @Override
     protected void onPause() {
+        super.onPause();
+
         unbindService(this);
         mBinder = null;
-
-        super.onPause();
     }
 
     @Override
