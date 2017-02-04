@@ -157,9 +157,7 @@ public class QuadTree {
         int[] endY = yVec(end);
         int[] xv = startX;
         int[] yv = startY;
-        int i=0;
-        while(i<50){
-            i+=1;
+        while(true){
             String vec = xyVec(xv, yv);
             ret.add(vec);
             if(Arrays.equals(xv, endX)){
