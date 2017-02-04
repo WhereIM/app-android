@@ -59,7 +59,7 @@ public class QuadTree {
     public static String fromLatLng(double lat, double lng, double level){
         double sinLat = Math.sin(lat * Math.PI/180);
         double y = 0.5 - Math.log((1 + sinLat) / (1 - sinLat)) / (4 * Math.PI);
-        double x = (lng + 180) / 360;
+        double x = ((lng + 180 + 360) % 360) / 360;
 
         StringBuilder r = new StringBuilder();
         for(int i=0;i<level;i+=1){
