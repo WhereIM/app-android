@@ -9,8 +9,8 @@ import java.util.Arrays;
 
 public class QuadTree {
     public static class LatLng{
-        double latitude;
-        double longitude;
+        public double latitude;
+        public double longitude;
 
         public LatLng(double latitude, double longitude) {
             this.latitude = latitude;
@@ -31,10 +31,10 @@ public class QuadTree {
     }
 
     public static class Bound{
-        double north;
-        double south;
-        double east;
-        double west;
+        public double north;
+        public double south;
+        public double east;
+        public double west;
 
         public Bound(double north, double south, double east, double west) {
             this.north = north;

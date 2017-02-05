@@ -18,11 +18,14 @@ public class Models {
     public final static String KEY_ENABLE = "enable";
     public final static String KEY_ID = "id";
     public final static String KEY_NAME = "name";
+    public final static String KEY_DESC = "desc";
+    public final static String KEY_LEVEL = "lvl";
     public final static String KEY_CHANNEL = "channel";
     public final static String KEY_MATE_NAME = "mate_name";
     public final static String KEY_USER_MATE_NAME = "user_mate_name";
     public final static String KEY_MATE = "mate";
     public final static String KEY_CLIENT_ID = "client_id";
     public final static String KEY_MESSAGE = "msg";
+    public final static String KEY_LANG = "lang";
     public final static String KEY_TS = "ts";
 }

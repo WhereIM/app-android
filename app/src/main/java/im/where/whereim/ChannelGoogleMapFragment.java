@@ -30,10 +30,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import im.where.whereim.geo.QuadTree;
+import im.where.whereim.models.Ad;
 import im.where.whereim.models.Channel;
 import im.where.whereim.models.Enchantment;
 import im.where.whereim.models.Mate;
-import im.where.whereim.geo.QuadTree;
 
 public class ChannelGoogleMapFragment extends ChannelMapFragment implements GoogleMap.OnMapLongClickListener {
     public ChannelGoogleMapFragment() {
@@ -111,10 +112,15 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
 
         mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
-            public void onMapReady(GoogleMap googleMap) {
+            public void onMapReady(final GoogleMap googleMap) {
                 googleMap.setMyLocationEnabled(true);
+                googleMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
+                    @Override
+                    public void onCameraIdle() {
+                        cameraMoved(googleMap);
+                    }
+                });
                 googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(defaultLat, defaultLng), 15));
-
                 googleMap.setOnMapLongClickListener(ChannelGoogleMapFragment.this);
             }
         });
@@ -124,7 +130,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
 
     final ArrayList<Polyline> lines = new ArrayList<>();
     private void cameraMoved(GoogleMap googleMap){
-        float zoom = googleMap.getCameraPosition().zoom;
+        float zoom = googleMap.getCameraPosition().zoom-1;
         LatLngBounds bounds = googleMap.getProjection().getVisibleRegion().latLngBounds;
         String nw = QuadTree.fromLatLng(bounds.northeast.latitude, bounds.southwest.longitude, zoom);
         String se = QuadTree.fromLatLng(bounds.southwest.latitude, bounds.northeast.longitude, zoom);
@@ -135,19 +141,21 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                 binder.setVisibleTiles(enums);
             }
         });
-        synchronized (lines) {
-            for (Polyline line : lines) {
-                line.remove();
-            }
-        }
-        for (String t : enums) {
-            QuadTree.Bound b = QuadTree.toBound(t);
-            Polyline line = googleMap.addPolyline(new PolylineOptions()
-                    .add(new LatLng(b.north, b.west), new LatLng(b.north, b.east), new LatLng(b.south, b.east), new LatLng(b.south, b.west))
-                    .width(5)
-                    .color(Color.RED));
+        if(Config.DEBUG_QUADTREE) {
             synchronized (lines) {
-                lines.add(line);
+                for (Polyline line : lines) {
+                    line.remove();
+                }
+            }
+            for (String t : enums) {
+                QuadTree.Bound b = QuadTree.toBound(t);
+                Polyline line = googleMap.addPolyline(new PolylineOptions()
+                        .add(new LatLng(b.north, b.west), new LatLng(b.north, b.east), new LatLng(b.south, b.east), new LatLng(b.south, b.west))
+                        .width(5)
+                        .color(Color.RED));
+                synchronized (lines) {
+                    lines.add(line);
+                }
             }
         }
     }
@@ -369,6 +377,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                 if(marker.enable==null || marker.enable){
                     m = googleMap.addMarker(
                             new MarkerOptions()
+                                    .title(marker.name)
                                     .position(new LatLng(marker.latitude, marker.longitude))
                     );
 
@@ -376,6 +385,47 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                         mMarkerMarker.put(marker.id, m);
                     }
 
+                }
+            }
+        });
+    }
+
+    private final HashMap<String, Marker> mAdMarkers = new HashMap<>();
+    @Override
+    public void onMapAd(final HashMap<String, Ad> ads) {
+        postMapTask(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                float zoom = googleMap.getCameraPosition().zoom;
+                ArrayList<String> ids = new ArrayList<>();
+                synchronized (ads) {
+                    for (Ad ad : ads.values()) {
+                        if(ad.level <= zoom){
+                            ids.add(ad.id);
+                            synchronized (mAdMarkers) {
+                                if (!mAdMarkers.containsKey(ad.id)) {
+                                    Marker marker = googleMap.addMarker(
+                                            new MarkerOptions()
+                                                    .title(ad.name)
+                                                    .snippet(ad.desc)
+                                                    .position(new LatLng(ad.latitude, ad.longitude))
+                                    );
+                                    mAdMarkers.put(ad.id, marker);
+                                }
+                            }
+                        }
+                    }
+                }
+                synchronized (mAdMarkers) {
+                    ArrayList<String> out = new ArrayList<>();
+                    for (String id : mAdMarkers.keySet()) {
+                        if(!ids.contains(id)){
+                            out.add(id);
+                        }
+                    }
+                    for (String id : out) {
+                        mAdMarkers.remove(id);
+                    }
                 }
             }
         });

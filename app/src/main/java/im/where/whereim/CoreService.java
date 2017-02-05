@@ -39,6 +39,7 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.security.KeyStore;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -47,6 +48,7 @@ import java.util.regex.Pattern;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import im.where.whereim.models.Ad;
 import im.where.whereim.models.Channel;
 import im.where.whereim.models.Enchantment;
 import im.where.whereim.models.Marker;
@@ -66,6 +68,7 @@ public class CoreService extends Service {
         void onMateData(Mate mate);
         void onEnchantmentData(Enchantment enchantment);
         void onMarkerData(Marker marker);
+        void onMapAd(HashMap<String, Ad> ads);
     };
 
     public interface RegisterClientCallback {
@@ -295,6 +298,7 @@ public class CoreService extends Service {
                     }
                 }
             }
+            receiver.onMapAd(mapAds);
             if(mMocking) {
                 receiver.onMockData(mMockMate);
             }
@@ -303,6 +307,7 @@ public class CoreService extends Service {
         }
 
         public void closeMap(Channel channel, MapDataReceiver receiver){
+            setVisibleTiles(new String[]{});
             if(channel==null)
                 return;
             synchronized (mMapDataReceiver){
@@ -311,6 +316,10 @@ public class CoreService extends Service {
                 }
             }
             unsubscribeChannelLocation(channel.id);
+        }
+
+        public void setVisibleTiles(String[] tiles){
+            CoreService.this.setVisibleTiles(tiles);
         }
 
         public void checkLocationService(){
@@ -632,7 +641,7 @@ public class CoreService extends Service {
     private final CoreBinder mBinder = new CoreBinder();
 
     private List<String> mOpenedChannel = new ArrayList<>();
-    private HashMap<String, List<MapDataReceiver>> mMapDataReceiver = new HashMap<>();
+    final private HashMap<String, List<MapDataReceiver>> mMapDataReceiver = new HashMap<>();
 
     public CoreService() {
 
@@ -906,6 +915,7 @@ public class CoreService extends Service {
 
     private Pattern mChannelDataPattern = Pattern.compile("^channel/([a-f0-9]{32})/data/([^/]+)/get$");
     private Pattern mChannelLocationPattern = Pattern.compile("^channel/([a-f0-9]{32})/location/([^/]+)/get$");
+    private Pattern mMapAdPattern = Pattern.compile("^system/map_ad/get/([0-3]*)$");
     private void mqttClientUnicastHandler(String topic, JSONObject msg){
         Matcher m;
         m = mChannelLocationPattern.matcher(topic);
@@ -932,6 +942,10 @@ public class CoreService extends Service {
                     break;
             }
             return;
+        }
+        m = mMapAdPattern.matcher(topic);
+        if(m.matches()){
+            mqttSystemMapAdHandler(msg);
         }
     }
 
@@ -1315,8 +1329,66 @@ public class CoreService extends Service {
         });
     }
 
-    // ================ Util Functions ================
+    private final HashMap<String, Long> mapAdTileHistory = new HashMap();
+    private final ArrayList<String> subscribedTiles = new ArrayList<>();
+    public void setVisibleTiles(String[] tiles){
+        List<String> tilesArray = Arrays.asList(tiles);
+        ArrayList<String> out = new ArrayList<>();
+        JSONObject payload = new JSONObject();
+        try {
+            payload.put(Models.KEY_LANG, getString(R.string.lang));
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+        synchronized (subscribedTiles) {
+            for (String tile : subscribedTiles) {
+                if(!tilesArray.contains(tile)){
+                    out.add(tile);
+                }
+            }
+            for (String tile : out) {
+                subscribedTiles.remove(tile);
+            }
+            long now = System.currentTimeMillis();
+            for (String tile : tiles) {
+                Long ttl = mapAdTileHistory.get(tile);
+                if(ttl!=null && now<ttl){
+                    continue;
+                }
+                mapAdTileHistory.put(tile, now+Config.MAP_AD_TTL);
+                publish(String.format("system/map_ad/get/%s", tile), payload);
+                subscribedTiles.add(tile);
+            }
+        }
+    }
 
+    private final HashMap<String, Ad> mapAds = new HashMap<>();
+    private void mqttSystemMapAdHandler(JSONObject data){
+        Ad ad = Ad.parse(data);
+        synchronized (mapAds) {
+            mapAds.put(ad.id, ad);
+        }
+        notifyMapAd();
+    }
+
+    private void notifyMapAd(){
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (mMapDataReceiver){
+                    for (List<MapDataReceiver> mapDataReceiverList : mMapDataReceiver.values()) {
+                        for (MapDataReceiver mapDataReceiver : mapDataReceiverList) {
+                            mapDataReceiver.onMapAd(mapAds);
+                        }
+                    }
+                }
+
+            }
+        });
+    }
+
+    // ================ Util Functions ================
     private void _subscribeOpenedChannel(){
         synchronized (mOpenedChannel) {
             for (String c : mOpenedChannel) {
@@ -1389,7 +1461,11 @@ public class CoreService extends Service {
             public void run() {
                 String message = payload.toString();
                 Log.e(TAG, "Publish "+topic+" "+message);
-                mqttManager.publishString(message, topic, AWSIotMqttQos.QOS1);
+                try {
+                    mqttManager.publishString(message, topic, AWSIotMqttQos.QOS1);
+                }catch(com.amazonaws.AmazonClientException e){
+                    e.printStackTrace();
+                }
             }
         });
     }

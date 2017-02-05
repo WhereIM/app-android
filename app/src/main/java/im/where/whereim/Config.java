@@ -7,6 +7,8 @@ import com.amazonaws.regions.Regions;
  */
 
 public class Config {
+    public final static boolean DEBUG_QUADTREE = false;
+
     public final static String APP_SHARED_PREFERENCES_NAME = "where.im";
 
     public final static String CERT_ID = "whereim";
@@ -21,4 +23,6 @@ public class Config {
 
     public final static int[] ENCHANTMENT_RADIUS = new int[]{15, 30, 50, 75, 100, 150, 200, 250, 300, 400, 500, 1000, 1500, 2000, 3000};
     public final static int DEFAULT_ENCHANTMENT_RADIUS_INDEX = 2;
+
+    public final static int MAP_AD_TTL = 5 * 60 * 1000; //ms
 }
