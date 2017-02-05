@@ -424,6 +424,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                         }
                     }
                     for (String id : out) {
+                        mAdMarkers.get(id).remove();
                         mAdMarkers.remove(id);
                     }
                 }
