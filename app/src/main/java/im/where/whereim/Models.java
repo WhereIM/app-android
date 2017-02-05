@@ -26,6 +26,7 @@ public class Models {
     public final static String KEY_MATE = "mate";
     public final static String KEY_CLIENT_ID = "client_id";
     public final static String KEY_MESSAGE = "msg";
+    public final static String KEY_TILE = "tile";
     public final static String KEY_LANG = "lang";
     public final static String KEY_TS = "ts";
 }

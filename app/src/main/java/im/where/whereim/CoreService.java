@@ -1334,13 +1334,6 @@ public class CoreService extends Service {
     public void setVisibleTiles(String[] tiles){
         List<String> tilesArray = Arrays.asList(tiles);
         ArrayList<String> out = new ArrayList<>();
-        JSONObject payload = new JSONObject();
-        try {
-            payload.put(Models.KEY_LANG, getString(R.string.lang));
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return;
-        }
         synchronized (subscribedTiles) {
             for (String tile : subscribedTiles) {
                 if(!tilesArray.contains(tile)){
@@ -1357,7 +1350,14 @@ public class CoreService extends Service {
                     continue;
                 }
                 mapAdTileHistory.put(tile, now+Config.MAP_AD_TTL);
-                publish(String.format("system/map_ad/get/%s", tile), payload);
+                JSONObject payload = new JSONObject();
+                try {
+                    payload.put(Models.KEY_LANG, getString(R.string.lang));
+                    payload.put(Models.KEY_TILE, tile);
+                    publish("system/map_ad/get", payload);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 subscribedTiles.add(tile);
             }
         }
