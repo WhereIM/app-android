@@ -10,6 +10,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import im.where.whereim.CoreService;
+import im.where.whereim.Models;
 import im.where.whereim.R;
 
 /**
@@ -22,7 +23,7 @@ public class Message extends BaseModel {
     private final static String COL_ID = "_id";
     private final static String COL_SN = "sn";
     private final static String COL_CHANNEL = "channel";
-    private final static String COL_USER = "user";
+    private final static String COL_PUBLIC = "public";
     private final static String COL_MATE = "mate";
     private final static String COL_TYPE = "type";
     private final static String COL_MESSAGE = "message";
@@ -33,8 +34,8 @@ public class Message extends BaseModel {
         sql = "CREATE TABLE " + TABLE_NAME + " (" +
                 COL_ID + " INTEGER PRIMARY KEY, " +
                 COL_SN + " INTEGER, " +
-                COL_CHANNEL + " TEXT, " +
-                COL_USER + " INTEGER, " +
+                COL_CHANNEL + " TEXT NULL, " +
+                COL_PUBLIC + " INTEGER, " +
                 COL_MATE + " TEXT, " +
                 COL_TYPE + " TEXT, " +
                 COL_MESSAGE + " TEXT, " +
@@ -50,22 +51,29 @@ public class Message extends BaseModel {
     public String type;
     public String message;
     public long time;
-    public boolean notify;
+    public int notify;
+    public boolean isPublic;
 
     public static Message parse(JSONObject json){
         try {
             Message m = new Message();
-            m.id = json.getLong("id");
-            m.sn = json.getLong("sn");
-            m.channel_id = json.getString("channel");
-            m.mate_id = json.getString("mate");
+            if(json.has(Models.KEY_ID)) {
+                m.id = json.getLong(Models.KEY_ID);
+            }
+            if(json.has(Models.KEY_SN)) {
+                m.sn = json.getLong(Models.KEY_SN);
+            }
+            if(json.has(Models.KEY_CHANNEL)){
+                m.channel_id = json.getString("channel");
+            }
+            if(json.has(Models.KEY_MATE)) {
+                m.mate_id = json.getString(Models.KEY_MATE);
+            }
             m.type = json.getString("type");
             m.message = json.getString("message");
             m.time = json.getLong("time");
-            if(json.has("notify") && json.getBoolean("notify")){
-                m.notify = true;
-            }else{
-                m.notify = false;
+            if(json.has("notify")){
+                m.notify = json.getInt("notify");
             }
             return m;
         } catch (JSONException e) {
@@ -83,7 +91,8 @@ public class Message extends BaseModel {
         m.type = cursor.getString(cursor.getColumnIndexOrThrow(COL_TYPE));
         m.message = cursor.getString(cursor.getColumnIndexOrThrow(COL_MESSAGE));
         m.time = cursor.getLong(cursor.getColumnIndexOrThrow(COL_TIME));
-        m.notify = false;
+        m.notify = 0;
+        m.isPublic = 0 != cursor.getInt(cursor.getColumnIndexOrThrow(COL_PUBLIC));
         return m;
     }
 
@@ -121,8 +130,17 @@ public class Message extends BaseModel {
     }
 
     @Override
-    public ContentValues buildContentValues() {
+    public ContentValues buildContentValues(SQLiteDatabase db) {
         ContentValues cv = new ContentValues();
+        if(id==0){
+            Cursor cursor = db.rawQuery("SELECT "+COL_ID+" FROM "+TABLE_NAME+" WHERE "+COL_CHANNEL+" IS NULL AND "+COL_ID+" < 0 ORDER BY "+COL_ID, new String[]{});
+            if(cursor.moveToFirst()){
+                id = cursor.getLong(0) - 1;
+            }else{
+                id = -1L;
+            }
+            cursor.close();
+        }
         cv.put(COL_ID, id);
         cv.put(COL_SN, sn);
         cv.put(COL_CHANNEL, channel_id);
@@ -130,6 +148,7 @@ public class Message extends BaseModel {
         cv.put(COL_TYPE, type);
         cv.put(COL_MESSAGE, message);
         cv.put(COL_TIME, time);
+        cv.put(COL_PUBLIC, isPublic?1:0);
         return cv;
     }
 
@@ -155,15 +174,19 @@ public class Message extends BaseModel {
         long userDataSn = 0;
         long userDataId = 0;
 
-        bc.cursor = db.rawQuery("SELECT "+COL_ID+","+COL_SN+","+COL_USER+","+COL_CHANNEL+","+COL_MATE+","+COL_TYPE+","+COL_MESSAGE+","+COL_TIME+" FROM "+TABLE_NAME+" WHERE "+COL_CHANNEL+"=? ORDER BY "+COL_ID+" ASC", new String[]{channel.id});
+        bc.cursor = db.rawQuery("SELECT "+COL_ID+","+COL_SN+","+COL_PUBLIC+","+COL_CHANNEL+","+COL_MATE+","+COL_TYPE+","+COL_MESSAGE+","+COL_TIME+" FROM "+TABLE_NAME+" WHERE "+COL_CHANNEL+"=? OR "+COL_CHANNEL+" IS NULL ORDER BY "+COL_TIME+" ASC,"+COL_ID+" ASC", new String[]{channel.id});
         bc.count = 0;
         if(bc.cursor.moveToLast()) {
             do {
                 bc.count += 1;
                 long id = bc.cursor.getLong(0);
                 long sn = bc.cursor.getLong(1);
-                int user = bc.cursor.getInt(2);
-                if (user == 0) {
+                boolean isPublic = 0 != bc.cursor.getInt(2);
+                String channel_id = bc.cursor.getString(3);
+                if(channel_id==null){
+                    continue;
+                }
+                if (isPublic) {
                     if (!hasChannelData) {
                         hasChannelData = true;
                         channelDataSn = sn;

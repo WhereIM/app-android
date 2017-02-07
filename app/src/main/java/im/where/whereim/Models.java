@@ -17,6 +17,7 @@ public class Models {
     public final static String KEY_PUBLIC = "public";
     public final static String KEY_ENABLE = "enable";
     public final static String KEY_ID = "id";
+    public final static String KEY_SN = "sn";
     public final static String KEY_NAME = "name";
     public final static String KEY_DESC = "desc";
     public final static String KEY_LEVEL = "lvl";

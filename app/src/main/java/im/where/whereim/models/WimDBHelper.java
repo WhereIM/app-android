@@ -38,10 +38,14 @@ public class WimDBHelper extends SQLiteOpenHelper {
     }
 
     public void insert(BaseModel model){
-        mDatabase.insertOrThrow(model.getTableName(), null, model.buildContentValues());
+        synchronized (this) {
+            mDatabase.insertOrThrow(model.getTableName(), null, model.buildContentValues(mDatabase));
+        }
     }
 
     public void replace(BaseModel model){
-        mDatabase.replaceOrThrow(model.getTableName(), null, model.buildContentValues());
+        synchronized (this) {
+            mDatabase.replaceOrThrow(model.getTableName(), null, model.buildContentValues(mDatabase));
+        }
     }
 }

@@ -86,7 +86,7 @@ public class Enchantment extends BaseModel {
     }
 
     @Override
-    public ContentValues buildContentValues() {
+    public ContentValues buildContentValues(SQLiteDatabase db) {
         ContentValues cv = new ContentValues();
         cv.put(COL_ID, id);
         cv.put(COL_CHANNEL_ID, channel_id);

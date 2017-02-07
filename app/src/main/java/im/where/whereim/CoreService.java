@@ -916,6 +916,7 @@ public class CoreService extends Service {
     private Pattern mChannelDataPattern = Pattern.compile("^channel/([a-f0-9]{32})/data/([^/]+)/get$");
     private Pattern mChannelLocationPattern = Pattern.compile("^channel/([a-f0-9]{32})/location/([^/]+)/get$");
     private Pattern mMapAdPattern = Pattern.compile("^system/map_ad/get/([0-3]*)$");
+    private Pattern mSystemMessagePattern = Pattern.compile("^system/message/get$");
     private void mqttClientUnicastHandler(String topic, JSONObject msg){
         Matcher m;
         m = mChannelLocationPattern.matcher(topic);
@@ -938,7 +939,7 @@ public class CoreService extends Service {
                     mqttMarkerHandler(msg);
                     break;
                 case "message":
-                    mqttChannelMessageHandler(channel_id, msg);
+                    mqttChannelMessageHandler(channel_id, msg, false);
                     break;
             }
             return;
@@ -946,6 +947,12 @@ public class CoreService extends Service {
         m = mMapAdPattern.matcher(topic);
         if(m.matches()){
             mqttSystemMapAdHandler(msg);
+            return;
+        }
+        m = mSystemMessagePattern.matcher(topic);
+        if(m.matches()){
+            mqttSystemMessageHandler(msg, false);
+            return;
         }
     }
 
@@ -1142,7 +1149,7 @@ public class CoreService extends Service {
                                 mqttChannelMateHandler(channel_id, payload);
                                 break;
                             case "message":
-                                mqttChannelMessageHandler(channel_id, payload);
+                                mqttChannelMessageHandler(channel_id, payload, true);
                                 break;
                             case "enchantment":
                                 mqttEnchantmentHandler(payload);
@@ -1251,26 +1258,38 @@ public class CoreService extends Service {
 
     // ================ Channel Data - Message ================
 
-    private void mqttChannelMessageHandler(String channel_id, JSONObject payload){
+    private void mqttChannelMessageHandler(String channel_id, JSONObject payload, boolean isPublic){
         Message message = Message.parse(payload);
+        message.isPublic = isPublic;
         mWimDBHelper.insert(message);
         notifyMessageListener(channel_id, message);
     }
 
     private void notifyMessageListener(String channel_id, Message message){
         int count = 0;
-        synchronized (mMessageListener) {
-            List<Runnable> list = mMessageListener.get(channel_id);
-            if(list!=null){
-                for (Runnable runnable : list) {
-                    mHandler.post(runnable);
-                    count += 1;
+        if(channel_id==null){
+            synchronized (mMessageListener) {
+                for (List<Runnable> runnables : mMessageListener.values()) {
+                    for (Runnable runnable : runnables) {
+                        mHandler.post(runnable);
+                        count += 1;
+                    }
+                }
+            }
+        }else{
+            synchronized (mMessageListener) {
+                List<Runnable> list = mMessageListener.get(channel_id);
+                if(list!=null){
+                    for (Runnable runnable : list) {
+                        mHandler.post(runnable);
+                        count += 1;
+                    }
                 }
             }
         }
 //        if(count==0){
         Log.e("lala","count="+count);
-            if(message.notify){
+            if(message.notify>0){
                 NotificationCompat.Builder mBuilder =
                         new NotificationCompat.Builder(this)
                                 .setSmallIcon(R.drawable.ic_stat_logo)
@@ -1386,6 +1405,13 @@ public class CoreService extends Service {
 
             }
         });
+    }
+
+    private void mqttSystemMessageHandler(JSONObject msg, boolean isPublic){
+        Message message = Message.parse(msg);
+        message.isPublic = isPublic;
+        mWimDBHelper.insert(message);
+        notifyMessageListener(null, message);
     }
 
     // ================ Util Functions ================
