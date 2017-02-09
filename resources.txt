@@ -1,2 +1,5 @@
 #User icon on map
 https://www.iconfinder.com/icons/1396824/human_men_restroom_toilet_icon#size=128
+
+#Marker icon on map
+https://www.iconfinder.com/icons/299087/map_marker_icon#size=128

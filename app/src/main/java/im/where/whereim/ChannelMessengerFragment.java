@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.text.SpannableString;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -80,7 +81,7 @@ public class ChannelMessengerFragment extends BaseFragment {
                 return;
             }
             vh.sender.setText(binder.getChannelMate(mChannel.id, m.mate_id).getDisplayName());
-            String text = m.getText(getActivity(), binder);
+            SpannableString text = m.getText(getActivity(), binder);
             vh.message.setText(text);
             vh.time.setText(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Timestamp(m.time*1000)));
         }

@@ -4,10 +4,18 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.res.ResourcesCompat;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ImageSpan;
 import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import im.where.whereim.CoreService;
 import im.where.whereim.Models;
@@ -96,27 +104,45 @@ public class Message extends BaseModel {
         return m;
     }
 
-    public String getText(Context context, CoreService.CoreBinder binder){
+    Pattern iconPattern = Pattern.compile("\\{icon\\}");
+    public SpannableString getText(Context context, CoreService.CoreBinder binder){
         if("text".equals(this.type)){
-            return this.message;
+            return new SpannableString(this.message);
         }
         try {
+            SpannableString ret;
             JSONObject json = new JSONObject(this.message);
+            JSONObject j;
+            Drawable d;
+            ImageSpan span;
             switch (this.type) {
                 case "enchantment_create":
-                    return context.getResources().getString(R.string.message_enchantment_create, json.optString("name", ""));
+                    return new SpannableString(context.getResources().getString(R.string.message_enchantment_create, json.optString("name", "")));
 
                 case "enchantment_emerge":
-                    return context.getResources().getString(R.string.message_enchantment_emerge, json.optString("name", ""));
+                    return new SpannableString(context.getResources().getString(R.string.message_enchantment_emerge, json.optString("name", "")));
 
                 case "enchantment_in":
-                    return context.getResources().getString(R.string.message_enchantment_in, json.optString("name", ""));
+                    return new SpannableString(context.getResources().getString(R.string.message_enchantment_in, json.optString("name", "")));
 
                 case "enchantment_out":
-                    return context.getResources().getString(R.string.message_enchantment_out, json.optString("name", ""));
+                    return new SpannableString(context.getResources().getString(R.string.message_enchantment_out, json.optString("name", "")));
 
                 case "marker_create":
-                    return context.getResources().getString(R.string.message_marker_create, json.optString("name", ""));
+                    ret = new SpannableString(context.getResources().getString(R.string.message_marker_create, json.optString("name", "")));
+                    if(json.has(Models.KEY_ATTR)) {
+                        j = json.getJSONObject(Models.KEY_ATTR);
+                        if(j.has(Models.KEY_COLOR)){
+                            d = ResourcesCompat.getDrawable(context.getResources(), Marker.getIconResource(j.getString(Models.KEY_COLOR)), null);
+                            d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
+                            Matcher m = iconPattern.matcher(ret);
+                            if(m.find()) {
+                                span = new ImageSpan(d, ImageSpan.ALIGN_BASELINE);
+                                ret.setSpan(span, m.start(), m.end(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+                            }
+                        }
+                    }
+                    return ret;
             }
         }catch(JSONException e){
             e.printStackTrace();

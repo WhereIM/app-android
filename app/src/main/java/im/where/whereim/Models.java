@@ -14,8 +14,10 @@ public class Models {
     public final static String KEY_TIME = "time";
     public final static String KEY_PROVIDER = "pvdr";
     public final static String KEY_RADIUS = "r";
+    public final static String KEY_ATTR = "attr";
     public final static String KEY_PUBLIC = "public";
     public final static String KEY_ENABLE = "enable";
+    public final static String KEY_COLOR = "color";
     public final static String KEY_ID = "id";
     public final static String KEY_SN = "sn";
     public final static String KEY_NAME = "name";

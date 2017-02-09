@@ -376,13 +376,14 @@ public class CoreService extends Service {
             }
         }
 
-        public void createMarker(String name, String channel_id, boolean ispublic, double latitude, double longitude, boolean enable) {
+        public void createMarker(String name, String channel_id, boolean ispublic, double latitude, double longitude, JSONObject attr, boolean enable) {
             try {
                 JSONObject payload = new JSONObject();
                 payload.put(Models.KEY_NAME, name);
                 payload.put(Models.KEY_CHANNEL, channel_id);
                 payload.put(Models.KEY_LATITUDE, latitude);
                 payload.put(Models.KEY_LONGITUDE, longitude);
+                payload.put(Models.KEY_ATTR, attr);
                 payload.put(Models.KEY_ENABLE, enable);
                 String topic;
                 if(ispublic){
@@ -1038,16 +1039,24 @@ public class CoreService extends Service {
             marker = list.get(marker_id);
             if(marker==null){
                 marker = new Marker();
+                Log.e("lala", "new marker");
                 list.put(marker_id, marker);
             }
 
             marker.id = marker_id;
             marker.channel_id = channel_id;
-            marker.name = Util.JsonOptNullableString(data, Models.KEY_NAME, marker.name);
-            marker.latitude = data.optDouble(Models.KEY_LATITUDE, marker.latitude);
-            marker.longitude = data.optDouble(Models.KEY_LONGITUDE, marker.longitude);
-            marker.isPublic = data.optBoolean(Models.KEY_PUBLIC, marker.isPublic);
-            marker.enable = Util.JsonOptBoolean(data, Models.KEY_ENABLE, marker.enable);
+            try {
+                marker.name = Util.JsonOptNullableString(data, Models.KEY_NAME, marker.name);
+                marker.latitude = data.optDouble(Models.KEY_LATITUDE, marker.latitude);
+                marker.longitude = data.optDouble(Models.KEY_LONGITUDE, marker.longitude);
+                if(data.has(Models.KEY_ATTR)) {
+                    marker.attr = new JSONObject(data.getString(Models.KEY_ATTR));
+                }
+                marker.isPublic = data.optBoolean(Models.KEY_PUBLIC, marker.isPublic);
+                marker.enable = Util.JsonOptBoolean(data, Models.KEY_ENABLE, marker.enable);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
 
         try {

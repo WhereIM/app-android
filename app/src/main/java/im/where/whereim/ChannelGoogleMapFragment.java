@@ -379,6 +379,8 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                             new MarkerOptions()
                                     .title(marker.name)
                                     .position(new LatLng(marker.latitude, marker.longitude))
+                                    .icon(marker.getIconBitmapDescriptor())
+                                    .anchor(0.5f, 1)
                     );
 
                     synchronized (mMarkerMarker){
@@ -433,7 +435,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     }
 
     private Circle mEditingEnchantmentCircle = null;
-    private Marker mEditingMarker = null;
+    private Marker mEditingMarkerMarker = null;
     @Override
     public void onMapLongClick(final LatLng latLng) {
         mEditingLatitude = latLng.latitude;
@@ -469,20 +471,22 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
             mMapView.getMapAsync(new OnMapReadyCallback() {
                 @Override
                 public void onMapReady(GoogleMap googleMap) {
-                    if(mEditingMarker !=null){
-                        mEditingMarker.remove();
+                    if(mEditingMarkerMarker !=null){
+                        mEditingMarkerMarker.remove();
                     }
-                    mEditingMarker = googleMap.addMarker(
+                    mEditingMarkerMarker = googleMap.addMarker(
                             new MarkerOptions()
                                     .position(new LatLng(mEditingLatitude, mEditingLongitude))
+                                    .icon(mEditingMarker.getIconBitmapDescriptor())
+                                    .anchor(0.5f, 1f)
                     );
                 }
             });
 
         }else{
             mMarkerController.setVisibility(View.GONE);
-            if(mEditingMarker!=null){
-                mEditingMarker.remove();
+            if(mEditingMarkerMarker !=null){
+                mEditingMarkerMarker.remove();
             }
         }
     }
