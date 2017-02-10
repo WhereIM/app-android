@@ -297,7 +297,7 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
                                 mEditingMarker.isPublic = isPublic.isChecked();
                                 mEditingMarker.attr = new JSONObject();
                                 try {
-                                    mEditingMarker.attr.put(Models.KEY_COLOR, icon.getSelectedItem());
+                                    mEditingMarker.attr.put(Key.COLOR, icon.getSelectedItem());
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }

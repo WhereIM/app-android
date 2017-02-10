@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import im.where.whereim.Models;
+import im.where.whereim.Key;
 
 /**
  * Created by buganini on 31/01/17.
@@ -54,10 +54,10 @@ public class Mate extends BaseModel {
     public static JSONObject parseToJson(Cursor cursor){
         try {
             JSONObject j = new JSONObject();
-            j.put(Models.KEY_ID, cursor.getString(cursor.getColumnIndexOrThrow(COL_ID)));
-            j.put(Models.KEY_CHANNEL, cursor.getString(cursor.getColumnIndexOrThrow(COL_CHANNEL_ID)));
-            j.put(Models.KEY_MATE_NAME, cursor.getString(cursor.getColumnIndexOrThrow(COL_MATE_NAME)));
-            j.put(Models.KEY_USER_MATE_NAME, cursor.getString(cursor.getColumnIndexOrThrow(COL_USER_MATE_NAME)));
+            j.put(Key.ID, cursor.getString(cursor.getColumnIndexOrThrow(COL_ID)));
+            j.put(Key.CHANNEL, cursor.getString(cursor.getColumnIndexOrThrow(COL_CHANNEL_ID)));
+            j.put(Key.MATE_NAME, cursor.getString(cursor.getColumnIndexOrThrow(COL_MATE_NAME)));
+            j.put(Key.USER_MATE_NAME, cursor.getString(cursor.getColumnIndexOrThrow(COL_USER_MATE_NAME)));
             return j;
         } catch (JSONException e) {
             e.printStackTrace();

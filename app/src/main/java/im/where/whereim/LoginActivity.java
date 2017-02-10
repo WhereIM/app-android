@@ -104,9 +104,9 @@ public class LoginActivity extends BaseActivity {
                             mName = name;
 
                             SharedPreferences.Editor editor = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
-                            editor.putString(Models.KEY_PROVIDER, mProvider);
-                            editor.putString(Models.KEY_ID, mAuthId);
-                            editor.putString(Models.KEY_NAME, mName);
+                            editor.putString(Key.PROVIDER, mProvider);
+                            editor.putString(Key.ID, mAuthId);
+                            editor.putString(Key.NAME, mName);
                             editor.apply();
 
                             postBinderTask(mTask);
@@ -117,9 +117,9 @@ public class LoginActivity extends BaseActivity {
                     mName = profile.getName();
 
                     SharedPreferences.Editor editor = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
-                    editor.putString(Models.KEY_PROVIDER, mProvider);
-                    editor.putString(Models.KEY_ID, mAuthId);
-                    editor.putString(Models.KEY_NAME, mName);
+                    editor.putString(Key.PROVIDER, mProvider);
+                    editor.putString(Key.ID, mAuthId);
+                    editor.putString(Key.NAME, mName);
                     editor.apply();
 
                     postBinderTask(mTask);
@@ -150,9 +150,9 @@ public class LoginActivity extends BaseActivity {
         if(getBinder().getClientId()==null){
             stopLoading();
             SharedPreferences sp = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
-            mAuthId = sp.getString(Models.KEY_ID, null);
-            mName = sp.getString(Models.KEY_NAME, null);
-            mProvider = sp.getString(Models.KEY_PROVIDER, null);
+            mAuthId = sp.getString(Key.ID, null);
+            mName = sp.getString(Key.NAME, null);
+            mProvider = sp.getString(Key.PROVIDER, null);
             if(mAuthId==null){
                 mLogin.setVisibility(View.VISIBLE);
             }else{

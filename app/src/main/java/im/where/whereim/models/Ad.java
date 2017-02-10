@@ -4,7 +4,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import im.where.whereim.Config;
-import im.where.whereim.Models;
+import im.where.whereim.Key;
 
 /**
  * Created by buganini on 05/02/17.
@@ -23,12 +23,12 @@ public class Ad {
     public static Ad parse(JSONObject data){
         try {
             Ad ad = new Ad();
-            ad.id = data.getString(Models.KEY_ID);
-            ad.latitude = data.getDouble(Models.KEY_LATITUDE);
-            ad.longitude = data.getDouble(Models.KEY_LONGITUDE);
-            ad.name = data.getString(Models.KEY_NAME);
-            ad.desc = data.getString(Models.KEY_DESC);
-            ad.level = data.getInt(Models.KEY_LEVEL);
+            ad.id = data.getString(Key.ID);
+            ad.latitude = data.getDouble(Key.LATITUDE);
+            ad.longitude = data.getDouble(Key.LONGITUDE);
+            ad.name = data.getString(Key.NAME);
+            ad.desc = data.getString(Key.DESC);
+            ad.level = data.getInt(Key.LEVEL);
             ad.ttl = System.currentTimeMillis() + Config.MAP_AD_TTL;
             return ad;
         } catch (JSONException e) {

@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import im.where.whereim.Models;
+import im.where.whereim.Key;
 
 /**
  * Created by buganini on 31/01/17.
@@ -43,10 +43,10 @@ public class Channel extends BaseModel {
     public static JSONObject parseToJson(Cursor cursor){
         try {
             JSONObject j = new JSONObject();
-            j.put(Models.KEY_CHANNEL, cursor.getString(cursor.getColumnIndexOrThrow(COL_ID)));
+            j.put(Key.CHANNEL, cursor.getString(cursor.getColumnIndexOrThrow(COL_ID)));
             j.put("channel_name", cursor.getString(cursor.getColumnIndexOrThrow(COL_CHANNEL_NAME)));
             j.put("user_channel_name", cursor.getString(cursor.getColumnIndexOrThrow(COL_USER_CHANNEL_NAME)));
-            j.put(Models.KEY_MATE, cursor.getString(cursor.getColumnIndexOrThrow(COL_MATE)));
+            j.put(Key.MATE, cursor.getString(cursor.getColumnIndexOrThrow(COL_MATE)));
             j.put("enable", cursor.getInt(cursor.getColumnIndexOrThrow(COL_ENABLE))!=0);
             return j;
         } catch (JSONException e) {

@@ -171,13 +171,13 @@ public class CoreService extends Service {
                             }
                             AWSIotKeystoreHelper.saveCertificateAndPrivateKey(Config.CERT_ID, crt_str, key_str, keyStorePath, Config.KEY_STORE_NAME, Config.KEY_STORE_PASSWORD);
 
-                            mClientId = res.getString(Models.KEY_ID);
+                            mClientId = res.getString(Key.ID);
 
                             mHandler.post(new Runnable() {
                                 @Override
                                 public void run() {
                                     SharedPreferences.Editor editor = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
-                                    editor.putString(Models.KEY_CLIENT_ID, mClientId);
+                                    editor.putString(Key.CLIENT_ID, mClientId);
                                     editor.commit();
                                     onAuthed();
                                     callback.onDone();
@@ -233,8 +233,8 @@ public class CoreService extends Service {
             }
             try {
                 JSONObject payload = new JSONObject();
-                payload.put(Models.KEY_CHANNEL, channel.id);
-                payload.put(Models.KEY_ENABLE, !channel.enable);
+                payload.put(Key.CHANNEL, channel.id);
+                payload.put(Key.ENABLE, !channel.enable);
                 channel.enable = null;
                 String topic = String.format("client/%s/channel/put", mClientId);
                 publish(topic, payload);
@@ -333,12 +333,12 @@ public class CoreService extends Service {
         public void createEnchantment(String name, String channel_id, boolean ispublic, double latitude, double longitude, int radius, boolean enable) {
             try {
                 JSONObject payload = new JSONObject();
-                payload.put(Models.KEY_NAME, name);
-                payload.put(Models.KEY_CHANNEL, channel_id);
-                payload.put(Models.KEY_LATITUDE, latitude);
-                payload.put(Models.KEY_LONGITUDE, longitude);
-                payload.put(Models.KEY_RADIUS, radius);
-                payload.put(Models.KEY_ENABLE, enable);
+                payload.put(Key.NAME, name);
+                payload.put(Key.CHANNEL, channel_id);
+                payload.put(Key.LATITUDE, latitude);
+                payload.put(Key.LONGITUDE, longitude);
+                payload.put(Key.RADIUS, radius);
+                payload.put(Key.ENABLE, enable);
                 String topic;
                 if(ispublic){
                     topic = String.format("channel/%s/data/enchantment/put", channel_id);
@@ -360,8 +360,8 @@ public class CoreService extends Service {
             }
             try {
                 JSONObject payload = new JSONObject();
-                payload.put(Models.KEY_ID, enchantment.id);
-                payload.put(Models.KEY_ENABLE, !enchantment.enable);
+                payload.put(Key.ID, enchantment.id);
+                payload.put(Key.ENABLE, !enchantment.enable);
                 enchantment.enable = null;
                 String topic;
                 if(enchantment.isPublic){
@@ -379,12 +379,12 @@ public class CoreService extends Service {
         public void createMarker(String name, String channel_id, boolean ispublic, double latitude, double longitude, JSONObject attr, boolean enable) {
             try {
                 JSONObject payload = new JSONObject();
-                payload.put(Models.KEY_NAME, name);
-                payload.put(Models.KEY_CHANNEL, channel_id);
-                payload.put(Models.KEY_LATITUDE, latitude);
-                payload.put(Models.KEY_LONGITUDE, longitude);
-                payload.put(Models.KEY_ATTR, attr);
-                payload.put(Models.KEY_ENABLE, enable);
+                payload.put(Key.NAME, name);
+                payload.put(Key.CHANNEL, channel_id);
+                payload.put(Key.LATITUDE, latitude);
+                payload.put(Key.LONGITUDE, longitude);
+                payload.put(Key.ATTR, attr);
+                payload.put(Key.ENABLE, enable);
                 String topic;
                 if(ispublic){
                     topic = String.format("channel/%s/data/marker/put", channel_id);
@@ -406,8 +406,8 @@ public class CoreService extends Service {
             }
             try {
                 JSONObject payload = new JSONObject();
-                payload.put(Models.KEY_ID, marker.id);
-                payload.put(Models.KEY_ENABLE, !marker.enable);
+                payload.put(Key.ID, marker.id);
+                payload.put(Key.ENABLE, !marker.enable);
                 marker.enable = null;
                 String topic;
                 if(marker.isPublic){
@@ -531,7 +531,7 @@ public class CoreService extends Service {
         public void requestMessage(Channel channel, Long before, Long after){
             try {
                 JSONObject req = new JSONObject();
-                req.put(Models.KEY_CHANNEL, channel.id);
+                req.put(Key.CHANNEL, channel.id);
                 if(before!=null){
                     req.put("before", (long)before);
                 }
@@ -570,7 +570,7 @@ public class CoreService extends Service {
         public void sendMessage(Channel channel, String s) {
             try {
                 JSONObject payload = new JSONObject();
-                payload.put(Models.KEY_MESSAGE, s);
+                payload.put(Key.MESSAGE, s);
                 String topic = String.format("channel/%s/data/message/put", channel.id);
                 publish(topic, payload);
             } catch (JSONException e) {
@@ -681,8 +681,8 @@ public class CoreService extends Service {
                 keyStorePath = getFilesDir().getAbsolutePath();
 
                 SharedPreferences settings = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
-                mClientId = settings.getString(Models.KEY_CLIENT_ID, null);
-                mUserName = settings.getString(Models.KEY_NAME, null);
+                mClientId = settings.getString(Key.CLIENT_ID, null);
+                mUserName = settings.getString(Key.NAME, null);
                 if (mClientId != null) {
                     onAuthed();
                 }
@@ -702,7 +702,7 @@ public class CoreService extends Service {
             return;
         Log.e(TAG, "ClientId: "+mClientId);
 
-        mTS = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).getLong(Models.KEY_TS, 0);
+        mTS = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).getLong(Key.TS, 0);
         mOrigTS = mTS;
 
         mqttManager = new AWSIotMqttManager(mClientId, Region.getRegion(Config.AWS_REGION_ID), Config.AWS_IOT_MQTT_ENDPOINT);
@@ -761,7 +761,7 @@ public class CoreService extends Service {
     private void setTS(long ts){
         if(ts>mTS){
             SharedPreferences.Editor editor = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
-            editor.putLong(Models.KEY_TS, ts);
+            editor.putLong(Key.TS, ts);
             editor.apply();
             mTS = ts;
         }
@@ -906,7 +906,7 @@ public class CoreService extends Service {
 
         try {
             JSONObject sync = new JSONObject();
-            sync.put(Models.KEY_TS, getTS());
+            sync.put(Key.TS, getTS());
             publish(String.format("client/%s/channel/sync", mClientId), sync);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -963,8 +963,8 @@ public class CoreService extends Service {
         final String channel_id;
         Enchantment enchantment;
         try {
-            enchantment_id = data.getString(Models.KEY_ID);
-            channel_id = data.getString(Models.KEY_CHANNEL);
+            enchantment_id = data.getString(Key.ID);
+            channel_id = data.getString(Key.CHANNEL);
         } catch (JSONException e) {
             e.printStackTrace();
             return;
@@ -983,18 +983,18 @@ public class CoreService extends Service {
             }
             enchantment.id = enchantment_id;
             enchantment.channel_id = channel_id;
-            enchantment.name = Util.JsonOptNullableString(data, Models.KEY_NAME, enchantment.name);
-            enchantment.latitude = data.optDouble(Models.KEY_LATITUDE, enchantment.latitude);
-            enchantment.longitude = data.optDouble(Models.KEY_LONGITUDE, enchantment.longitude);
-            enchantment.radius = data.optDouble(Models.KEY_RADIUS, enchantment.radius);
-            enchantment.isPublic = data.optBoolean(Models.KEY_PUBLIC, enchantment.isPublic);
-            enchantment.enable = Util.JsonOptBoolean(data, Models.KEY_ENABLE, enchantment.enable);
+            enchantment.name = Util.JsonOptNullableString(data, Key.NAME, enchantment.name);
+            enchantment.latitude = data.optDouble(Key.LATITUDE, enchantment.latitude);
+            enchantment.longitude = data.optDouble(Key.LONGITUDE, enchantment.longitude);
+            enchantment.radius = data.optDouble(Key.RADIUS, enchantment.radius);
+            enchantment.isPublic = data.optBoolean(Key.PUBLIC, enchantment.isPublic);
+            enchantment.enable = Util.JsonOptBoolean(data, Key.ENABLE, enchantment.enable);
         }
 
         try {
-            if(data.has(Models.KEY_TS)) {
+            if(data.has(Key.TS)) {
                 mWimDBHelper.replace(enchantment);
-                setTS(channel_id, data.getLong(Models.KEY_TS));
+                setTS(channel_id, data.getLong(Key.TS));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -1022,8 +1022,8 @@ public class CoreService extends Service {
         final String marker_id;
         final String channel_id;
         try {
-            marker_id = data.getString(Models.KEY_ID);
-            channel_id = data.getString(Models.KEY_CHANNEL);
+            marker_id = data.getString(Key.ID);
+            channel_id = data.getString(Key.CHANNEL);
         } catch (JSONException e) {
             e.printStackTrace();
             return;
@@ -1046,23 +1046,23 @@ public class CoreService extends Service {
             marker.id = marker_id;
             marker.channel_id = channel_id;
             try {
-                marker.name = Util.JsonOptNullableString(data, Models.KEY_NAME, marker.name);
-                marker.latitude = data.optDouble(Models.KEY_LATITUDE, marker.latitude);
-                marker.longitude = data.optDouble(Models.KEY_LONGITUDE, marker.longitude);
-                if(data.has(Models.KEY_ATTR)) {
-                    marker.attr = new JSONObject(data.getString(Models.KEY_ATTR));
+                marker.name = Util.JsonOptNullableString(data, Key.NAME, marker.name);
+                marker.latitude = data.optDouble(Key.LATITUDE, marker.latitude);
+                marker.longitude = data.optDouble(Key.LONGITUDE, marker.longitude);
+                if(data.has(Key.ATTR)) {
+                    marker.attr = new JSONObject(data.getString(Key.ATTR));
                 }
-                marker.isPublic = data.optBoolean(Models.KEY_PUBLIC, marker.isPublic);
-                marker.enable = Util.JsonOptBoolean(data, Models.KEY_ENABLE, marker.enable);
+                marker.isPublic = data.optBoolean(Key.PUBLIC, marker.isPublic);
+                marker.enable = Util.JsonOptBoolean(data, Key.ENABLE, marker.enable);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
 
         try {
-            if(data.has(Models.KEY_TS)) {
+            if(data.has(Key.TS)) {
                 mWimDBHelper.replace(marker);
-                setTS(channel_id, data.getLong(Models.KEY_TS));
+                setTS(channel_id, data.getLong(Key.TS));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -1091,7 +1091,7 @@ public class CoreService extends Service {
     private void mqttClientChannelHandler(JSONObject msg){
         try {
             final Channel channel;
-            final String channel_id = msg.getString(Models.KEY_CHANNEL);
+            final String channel_id = msg.getString(Key.CHANNEL);
             if(mChannelMap.containsKey(channel_id)){
                 channel = mChannelMap.get(channel_id);
             }else{
@@ -1106,14 +1106,14 @@ public class CoreService extends Service {
             channel.id = channel_id;
             channel.channel_name  = msg.optString("channel_name", channel.channel_name);
             channel.user_channel_name = Util.JsonOptNullableString(msg, "user_channel_name", channel.user_channel_name);
-            channel.mate_id = Util.JsonOptNullableString(msg, Models.KEY_MATE, channel.mate_id);
+            channel.mate_id = Util.JsonOptNullableString(msg, Key.MATE, channel.mate_id);
             if(msg.has("enable")){
                 channel.enable = msg.getBoolean("enable");
             }
 
-            if(msg.has(Models.KEY_TS)) {
+            if(msg.has(Key.TS)) {
                 mWimDBHelper.replace(channel);
-                setTS(msg.getLong(Models.KEY_TS));
+                setTS(msg.getLong(Key.TS));
             }
 
             if(!mChannelDataCheckedOut.containsKey(channel_id)) {
@@ -1123,7 +1123,7 @@ public class CoreService extends Service {
                 cursor = Mate.getCursor(mWimDBHelper.getDatabase());
                 while (cursor.moveToNext()) {
                     JSONObject j = Mate.parseToJson(cursor);
-                    mqttChannelMateHandler(j.getString(Models.KEY_CHANNEL), j);
+                    mqttChannelMateHandler(j.getString(Key.CHANNEL), j);
                 }
 
                 cursor = Marker.getCursor(mWimDBHelper.getDatabase());
@@ -1177,8 +1177,8 @@ public class CoreService extends Service {
                 mChannelDataSync.put(channel_id, true);
                 try {
                     JSONObject sync = new JSONObject();
-                    sync.put(Models.KEY_TS, getTS(channel_id));
-                    sync.put(Models.KEY_CHANNEL, channel_id);
+                    sync.put(Key.TS, getTS(channel_id));
+                    sync.put(Key.CHANNEL, channel_id);
                     publish(String.format("client/%s/channel_data/sync", mClientId), sync);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -1202,7 +1202,7 @@ public class CoreService extends Service {
                         bc.cursor.close();
                         JSONObject data = new JSONObject();
                         try {
-                            data.put(Models.KEY_CHANNEL, channel.id);
+                            data.put(Key.CHANNEL, channel.id);
                             data.put("after", bc.lastId);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -1223,20 +1223,20 @@ public class CoreService extends Service {
     private void mqttChannelMateHandler(String channel_id, JSONObject data){
         String mate_id;
         try {
-            mate_id = data.getString(Models.KEY_ID);
+            mate_id = data.getString(Key.ID);
         } catch (JSONException e) {
             e.printStackTrace();
             return;
         }
         Mate mate = getChannelMate(channel_id, mate_id);
         mate.channel_id = channel_id;
-        mate.mate_name = Util.JsonGetNullableString(data, Models.KEY_MATE_NAME);
-        mate.user_mate_name = Util.JsonGetNullableString(data, Models.KEY_USER_MATE_NAME);
+        mate.mate_name = Util.JsonGetNullableString(data, Key.MATE_NAME);
+        mate.user_mate_name = Util.JsonGetNullableString(data, Key.USER_MATE_NAME);
 
         try {
-            if(data.has(Models.KEY_TS)) {
+            if(data.has(Key.TS)) {
                 mWimDBHelper.replace(mate);
-                setTS(channel_id, data.getLong(Models.KEY_TS));
+                setTS(channel_id, data.getLong(Key.TS));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -1323,20 +1323,20 @@ public class CoreService extends Service {
         String mate_id;
 
         try {
-            mate_id = data.getString(Models.KEY_MATE);
+            mate_id = data.getString(Key.MATE);
         } catch (JSONException e) {
             e.printStackTrace();
             return;
         }
         Mate mate = getChannelMate(channel_id, mate_id);
         try {
-            mate.latitude = data.getDouble(Models.KEY_LATITUDE);
-            mate.longitude = data.getDouble(Models.KEY_LONGITUDE);
+            mate.latitude = data.getDouble(Key.LATITUDE);
+            mate.longitude = data.getDouble(Key.LONGITUDE);
         } catch (JSONException e) {
             e.printStackTrace();
         }
         try {
-            mate.accuracy = data.getDouble(Models.KEY_ACCURACY);
+            mate.accuracy = data.getDouble(Key.ACCURACY);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -1380,8 +1380,8 @@ public class CoreService extends Service {
                 mapAdTileHistory.put(tile, now+Config.MAP_AD_TTL);
                 JSONObject payload = new JSONObject();
                 try {
-                    payload.put(Models.KEY_LANG, getString(R.string.lang));
-                    payload.put(Models.KEY_TILE, tile);
+                    payload.put(Key.LANG, getString(R.string.lang));
+                    payload.put(Key.TILE, tile);
                     publish("system/map_ad/get", payload);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -1623,22 +1623,22 @@ public class CoreService extends Service {
         }
         try {
             JSONObject msg = new JSONObject();
-            msg.put(Models.KEY_LATITUDE, loc.getLatitude());
-            msg.put(Models.KEY_LONGITUDE, loc.getLongitude());
+            msg.put(Key.LATITUDE, loc.getLatitude());
+            msg.put(Key.LONGITUDE, loc.getLongitude());
             if(loc.hasAccuracy()){
-                msg.put(Models.KEY_ACCURACY, loc.getAccuracy());
+                msg.put(Key.ACCURACY, loc.getAccuracy());
             }
             if(loc.hasAltitude()){
-                msg.put(Models.KEY_ALTITUDE, loc.getAltitude());
+                msg.put(Key.ALTITUDE, loc.getAltitude());
             }
             if(loc.hasBearing()){
-                msg.put(Models.KEY_BEARING, loc.getBearing());
+                msg.put(Key.BEARING, loc.getBearing());
             }
             if(loc.hasSpeed()){
-                msg.put(Models.KEY_SPEED, loc.getSpeed());
+                msg.put(Key.SPEED, loc.getSpeed());
             }
-            msg.put(Models.KEY_TIME, System.currentTimeMillis());
-            msg.put(Models.KEY_PROVIDER, provider);
+            msg.put(Key.TIME, System.currentTimeMillis());
+            msg.put(Key.PROVIDER, provider);
             String topic = String.format("client/%s/location/put", mClientId);
             publish(topic, msg);
         } catch (JSONException e) {

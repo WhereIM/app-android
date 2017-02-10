@@ -13,7 +13,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import im.where.whereim.Models;
+import im.where.whereim.Key;
 import im.where.whereim.R;
 
 /**
@@ -84,7 +84,7 @@ public class Marker extends BaseModel {
     public Boolean enable;
 
     public static int getIconResource(JSONObject attr) {
-        String color = attr.optString(Models.KEY_COLOR, "red");
+        String color = attr.optString(Key.COLOR, "red");
         return getIconResource(color);
     }
 
@@ -121,14 +121,14 @@ public class Marker extends BaseModel {
     public static JSONObject parseToJson(Cursor cursor){
         try {
             JSONObject j = new JSONObject();
-            j.put(Models.KEY_ID, cursor.getString(cursor.getColumnIndexOrThrow(COL_ID)));
-            j.put(Models.KEY_CHANNEL, cursor.getString(cursor.getColumnIndexOrThrow(COL_CHANNEL_ID)));
-            j.put(Models.KEY_NAME, cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME)));
-            j.put(Models.KEY_LATITUDE, cursor.getDouble(cursor.getColumnIndexOrThrow(COL_LATITUDE)));
-            j.put(Models.KEY_LONGITUDE, cursor.getDouble(cursor.getColumnIndexOrThrow(COL_LONGITUDE)));
-            j.put(Models.KEY_ATTR, new JSONObject(cursor.getString(cursor.getColumnIndexOrThrow(COL_ATTR))));
-            j.put(Models.KEY_PUBLIC, cursor.getInt(cursor.getColumnIndexOrThrow(COL_PUBLIC))!=0);
-            j.put(Models.KEY_ENABLE, cursor.getInt(cursor.getColumnIndexOrThrow(COL_ENABLE))!=0);
+            j.put(Key.ID, cursor.getString(cursor.getColumnIndexOrThrow(COL_ID)));
+            j.put(Key.CHANNEL, cursor.getString(cursor.getColumnIndexOrThrow(COL_CHANNEL_ID)));
+            j.put(Key.NAME, cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME)));
+            j.put(Key.LATITUDE, cursor.getDouble(cursor.getColumnIndexOrThrow(COL_LATITUDE)));
+            j.put(Key.LONGITUDE, cursor.getDouble(cursor.getColumnIndexOrThrow(COL_LONGITUDE)));
+            j.put(Key.ATTR, new JSONObject(cursor.getString(cursor.getColumnIndexOrThrow(COL_ATTR))));
+            j.put(Key.PUBLIC, cursor.getInt(cursor.getColumnIndexOrThrow(COL_PUBLIC))!=0);
+            j.put(Key.ENABLE, cursor.getInt(cursor.getColumnIndexOrThrow(COL_ENABLE))!=0);
             return j;
         } catch (JSONException e) {
             e.printStackTrace();

@@ -18,7 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import im.where.whereim.CoreService;
-import im.where.whereim.Models;
+import im.where.whereim.Key;
 import im.where.whereim.R;
 
 /**
@@ -65,17 +65,17 @@ public class Message extends BaseModel {
     public static Message parse(JSONObject json){
         try {
             Message m = new Message();
-            if(json.has(Models.KEY_ID)) {
-                m.id = json.getLong(Models.KEY_ID);
+            if(json.has(Key.ID)) {
+                m.id = json.getLong(Key.ID);
             }
-            if(json.has(Models.KEY_SN)) {
-                m.sn = json.getLong(Models.KEY_SN);
+            if(json.has(Key.SN)) {
+                m.sn = json.getLong(Key.SN);
             }
-            if(json.has(Models.KEY_CHANNEL)){
+            if(json.has(Key.CHANNEL)){
                 m.channel_id = json.getString("channel");
             }
-            if(json.has(Models.KEY_MATE)) {
-                m.mate_id = json.getString(Models.KEY_MATE);
+            if(json.has(Key.MATE)) {
+                m.mate_id = json.getString(Key.MATE);
             }
             m.type = json.getString("type");
             m.message = json.getString("message");
@@ -130,10 +130,10 @@ public class Message extends BaseModel {
 
                 case "marker_create":
                     ret = new SpannableString(context.getResources().getString(R.string.message_marker_create, json.optString("name", "")));
-                    if(json.has(Models.KEY_ATTR)) {
-                        j = json.getJSONObject(Models.KEY_ATTR);
-                        if(j.has(Models.KEY_COLOR)){
-                            d = ResourcesCompat.getDrawable(context.getResources(), Marker.getIconResource(j.getString(Models.KEY_COLOR)), null);
+                    if(json.has(Key.ATTR)) {
+                        j = json.getJSONObject(Key.ATTR);
+                        if(j.has(Key.COLOR)){
+                            d = ResourcesCompat.getDrawable(context.getResources(), Marker.getIconResource(j.getString(Key.COLOR)), null);
                             d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
                             Matcher m = iconPattern.matcher(ret);
                             if(m.find()) {
