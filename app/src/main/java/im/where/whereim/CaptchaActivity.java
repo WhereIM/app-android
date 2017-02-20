@@ -19,9 +19,8 @@ public class CaptchaActivity extends BaseActivity {
         WebViewClient webViewClient = new WebViewClient(){
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                String prefix = "whereim://";
-                if (url != null && url.startsWith(prefix)) {
-                    final String otp = url.substring(prefix.length());
+                if (url != null && url.startsWith(Config.CAPTCHA_PREFIX)) {
+                    final String otp = url.substring(Config.CAPTCHA_PREFIX.length());
                     postBinderTask(new CoreService.BinderTask() {
                         @Override
                         public void onBinderReady(CoreService.CoreBinder binder) {
@@ -37,7 +36,7 @@ public class CaptchaActivity extends BaseActivity {
             }
         };
         webView.setWebViewClient(webViewClient);
-        webView.loadUrl("https://where.im/captcha.html");
+        webView.loadUrl(Config.CAPTCHA_URL);
     }
 
     @Override

@@ -88,7 +88,7 @@ public class LoginActivity extends BaseActivity {
             public void onSuccess(final LoginResult loginResult) {
                 mTrial = true;
                 mLogin.setVisibility(View.GONE);
-                mProvider = "facebook";
+                mProvider = Key.FACEBOOK;
                 startLoading();
                 Profile profile = Profile.getCurrentProfile();
                 if(profile==null){

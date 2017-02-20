@@ -922,7 +922,7 @@ public class CoreService extends Service {
         Matcher m;
         m = mChannelLocationPattern.matcher(topic);
         if(m.matches()){
-            mqttChannelLocationHandler(topic, msg);
+            mqttChannelLocationHandler(m.group(1), msg);
             return;
         }
 
@@ -1314,12 +1314,7 @@ public class CoreService extends Service {
 
     // ================ Channel Location ================
 
-    private void mqttChannelLocationHandler(String topic, final JSONObject data){
-        Log.e(TAG, "Receive "+topic+" "+data.toString());
-        Matcher m = mChannelLocationPattern.matcher(topic);
-        m.find();
-        final String channel_id = m.group(1);
-
+    private void mqttChannelLocationHandler(final String channel_id, final JSONObject data){
         String mate_id;
 
         try {
@@ -1438,7 +1433,9 @@ public class CoreService extends Service {
             @Override
             public void onMessageArrived(String topic, byte[] data) {
                 try {
-                    mqttChannelLocationHandler(topic, new JSONObject(new String(data, "UTF-8")));
+                    Matcher m = mChannelLocationPattern.matcher(topic);
+                    m.find();
+                    mqttChannelLocationHandler(m.group(1), new JSONObject(new String(data, "UTF-8")));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

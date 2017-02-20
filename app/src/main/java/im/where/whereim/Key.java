@@ -19,6 +19,8 @@ public class Key {
 
     public final static String ENABLE = "enable";
 
+    public final static String FACEBOOK = "facebook";
+
     public final static String ID = "id";
 
     public final static String LANG = "lang";
