@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -76,14 +77,6 @@ public class ChannelListActivity extends BaseActivity {
             View mLoading;
 
             public ViewHolder(View view) {
-                view.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(ChannelListActivity.this, ChannelActivity.class);
-                        intent.putExtra("channel", mChannel.id);
-                        startActivity(intent);
-                    }
-                });
                 mTitle = (TextView) view.findViewById(R.id.title);
                 mSubtitle = (TextView) view.findViewById(R.id.subtitle);
                 mEnable = (Switch) view.findViewById(R.id.enable);
@@ -198,6 +191,15 @@ public class ChannelListActivity extends BaseActivity {
 
         mListView = (ListView) findViewById(R.id.channel_list);
         mListView.setAdapter(mAdapter);
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Channel channel = (Channel) mAdapter.getItem(position);
+                Intent intent = new Intent(ChannelListActivity.this, ChannelActivity.class);
+                intent.putExtra("channel", channel.id);
+                startActivity(intent);
+            }
+        });
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
