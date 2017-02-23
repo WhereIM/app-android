@@ -1039,7 +1039,6 @@ public class CoreService extends Service {
             marker = list.get(marker_id);
             if(marker==null){
                 marker = new Marker();
-                Log.e("lala", "new marker");
                 list.put(marker_id, marker);
             }
 
@@ -1050,7 +1049,7 @@ public class CoreService extends Service {
                 marker.latitude = data.optDouble(Key.LATITUDE, marker.latitude);
                 marker.longitude = data.optDouble(Key.LONGITUDE, marker.longitude);
                 if(data.has(Key.ATTR)) {
-                    marker.attr = new JSONObject(data.getString(Key.ATTR));
+                    marker.attr = data.getJSONObject(Key.ATTR);
                 }
                 marker.isPublic = data.optBoolean(Key.PUBLIC, marker.isPublic);
                 marker.enable = Util.JsonOptBoolean(data, Key.ENABLE, marker.enable);
@@ -1138,7 +1137,6 @@ public class CoreService extends Service {
                     mqttEnchantmentHandler(j);
                 }
             }
-
 
             subscribe(String.format("channel/%s/data/+/get", channel_id), new AWSIotMqttNewMessageCallback() {
                 @Override
@@ -1229,7 +1227,6 @@ public class CoreService extends Service {
             return;
         }
         Mate mate = getChannelMate(channel_id, mate_id);
-        mate.channel_id = channel_id;
         mate.mate_name = Util.JsonGetNullableString(data, Key.MATE_NAME);
         mate.user_mate_name = Util.JsonGetNullableString(data, Key.USER_MATE_NAME);
 
@@ -1259,6 +1256,7 @@ public class CoreService extends Service {
             if(mate==null){
                 mate = new Mate();
                 mate.id = mate_id;
+                mate.channel_id = channel_id;
                 mateMap.put(mate_id, mate);
             }
         }
