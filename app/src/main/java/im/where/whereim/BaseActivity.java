@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 
@@ -17,6 +18,11 @@ import java.util.List;
 public class BaseActivity extends AppCompatActivity implements ServiceConnection {
 
     private List<CoreService.BinderTask> mPendingTask = new ArrayList<>();
+
+    private Handler mHandler = new Handler();
+    protected void postUITask(Runnable r){
+        mHandler.post(r);
+    }
 
     protected void postBinderTask(CoreService.BinderTask task){
         synchronized (mPendingTask) {

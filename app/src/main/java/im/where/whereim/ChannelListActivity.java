@@ -43,9 +43,15 @@ public class ChannelListActivity extends BaseActivity {
         public void run() {
             postBinderTask(new CoreService.BinderTask() {
                 @Override
-                public void onBinderReady(CoreService.CoreBinder binder) {
-                    mChannelList = binder.getChannelList();
-                    mAdapter.notifyDataSetChanged();
+                public void onBinderReady(final CoreService.CoreBinder binder) {
+                    postUITask(new Runnable(){
+
+                        @Override
+                        public void run() {
+                            mChannelList = binder.getChannelList();
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    });
                 }
             });
         }
