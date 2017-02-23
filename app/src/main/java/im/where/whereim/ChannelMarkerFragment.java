@@ -197,6 +197,14 @@ public class ChannelMarkerFragment extends BaseFragment {
                             mListView.expandGroup(i);
                         }
 
+                        // disable click-to-collapse
+                        mListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+                            @Override
+                            public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
+                                return true;
+                            }
+                        });
+
                         binder.addMarkerListener(channel, mMarkerListener);
                     }
                 });
