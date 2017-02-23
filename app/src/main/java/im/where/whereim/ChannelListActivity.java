@@ -11,6 +11,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -35,7 +36,7 @@ import im.where.whereim.models.Channel;
 import io.branch.referral.Branch;
 import io.branch.referral.BranchError;
 
-public class ChannelListActivity extends BaseActivity {
+public class ChannelListActivity extends BaseActivity implements CoreService.ConnectionStatusCallback {
     private List<Channel> mChannelList;
     private ListView mListView;
     private Runnable mChannelListChangedListener = new Runnable() {
@@ -173,6 +174,7 @@ public class ChannelListActivity extends BaseActivity {
         });
     }
 
+    private View mConnectionStatus;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -194,6 +196,12 @@ public class ChannelListActivity extends BaseActivity {
         }
 
         setContentView(R.layout.activity_channel_list);
+
+        mConnectionStatus = findViewById(R.id.connection_status);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(null);
 
         mListView = (ListView) findViewById(R.id.channel_list);
         mListView.setAdapter(mAdapter);
@@ -311,13 +319,20 @@ public class ChannelListActivity extends BaseActivity {
             }, this.getIntent().getData(), this);
         }
         mBinder.addChannelListChangedListener(mChannelListChangedListener);
+        mBinder.addConnectionStatusChangedListener(this);
     }
 
     @Override
     protected void onPause() {
         if(mBinder!=null) {
             mBinder.removeChannelListChangedListener(mChannelListChangedListener);
+            mBinder.removeConnectionStatusChangedListener(this);
         }
         super.onPause();
+    }
+
+    @Override
+    public void onConnectionStatusChanged(boolean connected) {
+        mConnectionStatus.setVisibility(connected?View.GONE:View.VISIBLE);
     }
 }

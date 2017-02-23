@@ -77,6 +77,10 @@ public class CoreService extends Service {
         void onDone();
     }
 
+    public interface ConnectionStatusCallback {
+        void onConnectionStatusChanged(boolean connected);
+    }
+
     public class CoreBinder extends Binder{
         public String getClientId(){
             return mClientId;
@@ -189,6 +193,19 @@ public class CoreService extends Service {
                     }
                 }
             }.start();
+        }
+
+        public void addConnectionStatusChangedListener(ConnectionStatusCallback callback){
+            synchronized (mConnectionStatusChangedListener) {
+                mConnectionStatusChangedListener.add(callback);
+            }
+            callback.onConnectionStatusChanged(mMqttConnected);
+        }
+
+        public void removeConnectionStatusChangedListener(ConnectionStatusCallback callback){
+            synchronized (mConnectionStatusChangedListener) {
+                mConnectionStatusChangedListener.remove(callback);
+            }
         }
 
         public void clearChannelList(){
@@ -635,6 +652,7 @@ public class CoreService extends Service {
 
     private boolean mMocking = false;
     private Handler mHandler = new Handler();
+    private final List<ConnectionStatusCallback> mConnectionStatusChangedListener = new ArrayList<>();
     private final List<Runnable> mChannelListChangedListener = new ArrayList<>();
     private final HashMap<String, List<Runnable>> mEnchantmentListener = new HashMap<>();
     private final HashMap<String, List<Runnable>> mMarkerListener = new HashMap<>();
@@ -719,6 +737,16 @@ public class CoreService extends Service {
                         Log.e(TAG, "MQTT Connected");
                         mqttOnConnected();
                         mMqttConnected = true;
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                synchronized (mConnectionStatusChangedListener) {
+                                    for (ConnectionStatusCallback callback : mConnectionStatusChangedListener) {
+                                        callback.onConnectionStatusChanged(true);
+                                    }
+                                }
+                            }
+                        });
                         break;
                     default:
                         Log.e(TAG, "MQTT Disconnected");
@@ -732,6 +760,16 @@ public class CoreService extends Service {
                             mChannelDataSync.clear();
                         }
                         mMqttConnected = false;
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                synchronized (mConnectionStatusChangedListener) {
+                                    for (ConnectionStatusCallback callback : mConnectionStatusChangedListener) {
+                                        callback.onConnectionStatusChanged(false);
+                                    }
+                                }
+                            }
+                        });
                         break;
                 }
             }

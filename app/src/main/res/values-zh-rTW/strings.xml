@@ -1,7 +1,6 @@
 <resources>
     <string name="lang">zh-TW</string>
 
-    <string name="app_name">位爾.IM</string>
     <string name="permission_rationale">本程式需要定位功能才能運作喔</string>
     <string name="action_invite">邀請</string>
     <string name="action_quit">關閉程式</string>

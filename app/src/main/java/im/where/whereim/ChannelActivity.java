@@ -1,8 +1,10 @@
 package im.where.whereim;
 
+import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -20,7 +22,7 @@ import java.util.List;
 
 import im.where.whereim.models.Channel;
 
-public class ChannelActivity extends BaseActivity {
+public class ChannelActivity extends BaseActivity implements CoreService.ConnectionStatusCallback {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -41,6 +43,11 @@ public class ChannelActivity extends BaseActivity {
     private Channel mChannel;
 
     private Handler mHandler = new Handler();
+
+    @Override
+    public void onConnectionStatusChanged(boolean connected) {
+        mConnectionStatus.setVisibility(connected?View.GONE:View.VISIBLE);
+    }
 
     interface GetChannelCallback{
         public void onGetChannel(Channel channel);
@@ -66,6 +73,7 @@ public class ChannelActivity extends BaseActivity {
         }
     }
 
+    private View mConnectionStatus;
     private TextView mChannelTitle;
     private TextView mChannelSubtitle;
     private Switch mEnable;
@@ -75,6 +83,8 @@ public class ChannelActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_channel);
+
+        mConnectionStatus = findViewById(R.id.connection_status);
 
         mChannelTitle = (TextView) findViewById(R.id.channel_title);
         mChannelSubtitle = (TextView) findViewById(R.id.channel_subtitle);
@@ -114,7 +124,6 @@ public class ChannelActivity extends BaseActivity {
                 if(channel_id!=null){
                     mChannelId = channel_id;
                 }
-                mBinder.addChannelListChangedListener(mChannelListChangedListener);
 
                 mChannel = mBinder.getChannelById(mChannelId);
                 processGetChannelCallback();
@@ -242,9 +251,17 @@ public class ChannelActivity extends BaseActivity {
     String mChannelId;
 
     @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {
+        super.onServiceConnected(name, service);
+        mBinder.addChannelListChangedListener(mChannelListChangedListener);
+        mBinder.addConnectionStatusChangedListener(this);
+    }
+
+    @Override
     protected void onPause() {
         if(mBinder!=null) {
             mBinder.removeChannelListChangedListener(mChannelListChangedListener);
+            mBinder.removeConnectionStatusChangedListener(this);
         }
         super.onPause();
     }
