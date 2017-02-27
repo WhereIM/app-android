@@ -72,13 +72,14 @@ public class Message extends BaseModel {
                 m.sn = json.getLong(Key.SN);
             }
             if(json.has(Key.CHANNEL)){
-                m.channel_id = json.getString("channel");
+                m.channel_id = json.getString(Key.CHANNEL);
             }
             if(json.has(Key.MATE)) {
                 m.mate_id = json.getString(Key.MATE);
             }
             m.type = json.getString("type");
             m.message = json.getString("message");
+            m.isPublic = json.getBoolean(Key.PUBLIC);
             m.time = json.getLong("time");
             if(json.has("notify")){
                 m.notify = json.getInt("notify");

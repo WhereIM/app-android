@@ -984,7 +984,7 @@ public class CoreService extends Service {
                         mqttMarkerHandler(msg);
                         break;
                     case "message":
-                        mqttChannelMessageHandler(channel_id, msg, false);
+                        mqttChannelMessageHandler(channel_id, msg);
                         break;
                 }
                 return;
@@ -1281,9 +1281,8 @@ public class CoreService extends Service {
 
     // ================ Channel Data - Message ================
 
-    private void mqttChannelMessageHandler(String channel_id, JSONObject payload, boolean isPublic){
+    private void mqttChannelMessageHandler(String channel_id, JSONObject payload){
         Message message = Message.parse(payload);
-        message.isPublic = isPublic;
         mWimDBHelper.insert(message);
         notifyMessageListener(channel_id, message);
     }
