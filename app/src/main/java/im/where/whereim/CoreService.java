@@ -759,6 +759,10 @@ public class CoreService extends Service {
                         synchronized (mChannelDataSync) {
                             mChannelDataSync.clear();
                         }
+                        synchronized (mChannelDataCheckedOut) {
+                            mChannelDataCheckedOut.clear();
+                        }
+                        mClientChannelCheckedOut = false;
                         mMqttConnected = false;
                         mHandler.post(new Runnable() {
                             @Override
@@ -898,44 +902,12 @@ public class CoreService extends Service {
         }
     }
 
-    private Pattern mClientGetPattern = Pattern.compile("^client/[A-Fa-f0-9]{32}/([^/]+)/get$");
-
-    private boolean mCheckedOut = false;
+    private boolean mClientChannelCheckedOut = false;
     private void mqttOnConnected(){
-        subscribe(String.format("client/%s/+/get", mClientId), new AWSIotMqttNewMessageCallback() {
-            @Override
-            public void onMessageArrived(String topic, byte[] data) {
-                Matcher m;
-                m = mClientGetPattern.matcher(topic);
-                if(!m.matches()){
-                    return;
-                }
-                try {
-                    String message = new String(data, "UTF-8");
-                    Log.e(TAG, "Receive "+topic+" "+message);
-                    JSONObject payload = new JSONObject(message);
-                    switch(m.group(1)){
-                        case "unicast":
-                            mqttClientUnicastHandler(payload.getString("topic"), payload.getJSONObject("message"));
-                            break;
-                        case "channel":
-                            mqttClientChannelHandler(payload);
-                            break;
-                        case "enchantment":
-                            mqttEnchantmentHandler(payload);
-                            break;
-                        case "marker":
-                            mqttMarkerHandler(payload);
-                            break;
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+        subscribe(String.format("client/%s/+/get", mClientId));
 
-        if(!mCheckedOut) {
-            mCheckedOut = true;
+        if(!mClientChannelCheckedOut) {
+            mClientChannelCheckedOut = true;
             Cursor cursor = Channel.getCursor(mWimDBHelper.getDatabase());
             while (cursor.moveToNext()) {
                 mqttClientChannelHandler(Channel.parseToJson(cursor));
@@ -952,46 +924,83 @@ public class CoreService extends Service {
         _subscribeOpenedChannel();
     }
 
+    final AWSIotMqttNewMessageCallback mAwsIotMqttNewMessageCallback = new AWSIotMqttNewMessageCallback() {
+        @Override
+        public void onMessageArrived(String topic, byte[] data) {
+            try {
+                String message = new String(data, "UTF-8");
+                Log.e(TAG, "Receive "+topic+" "+message);
+                JSONObject payload = new JSONObject(message);
+                mqttMessageHandler(topic, payload);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    };
+
+    private Pattern mClientGetPattern = Pattern.compile("^client/[A-Fa-f0-9]{32}/([^/]+)/get$");
     private Pattern mChannelDataPattern = Pattern.compile("^channel/([a-f0-9]{32})/data/([^/]+)/get$");
     private Pattern mChannelLocationPattern = Pattern.compile("^channel/([a-f0-9]{32})/location/([^/]+)/get$");
     private Pattern mMapAdPattern = Pattern.compile("^system/map_ad/get/([0-3]*)$");
     private Pattern mSystemMessagePattern = Pattern.compile("^system/message/get$");
-    private void mqttClientUnicastHandler(String topic, JSONObject msg){
-        Matcher m;
-        m = mChannelLocationPattern.matcher(topic);
-        if(m.matches()){
-            mqttChannelLocationHandler(m.group(1), msg);
-            return;
-        }
-
-        m = mChannelDataPattern.matcher(topic);
-        if(m.matches()){
-            String channel_id = m.group(1);
-            switch (m.group(2)){
-                case "mate":
-                    mqttChannelMateHandler(channel_id, msg);
-                    break;
-                case "enchantment":
-                    mqttEnchantmentHandler(msg);
-                    break;
-                case "marker":
-                    mqttMarkerHandler(msg);
-                    break;
-                case "message":
-                    mqttChannelMessageHandler(channel_id, msg, false);
-                    break;
+    private void mqttMessageHandler(String topic, JSONObject msg){
+        try {
+            Matcher m;
+            m = mClientGetPattern.matcher(topic);
+            if (m.matches()) {
+                switch (m.group(1)) {
+                    case "unicast":
+                        mqttMessageHandler(msg.getString("topic"), msg.getJSONObject("message"));
+                        break;
+                    case "channel":
+                        mqttClientChannelHandler(msg);
+                        break;
+                    case "enchantment":
+                        mqttEnchantmentHandler(msg);
+                        break;
+                    case "marker":
+                        mqttMarkerHandler(msg);
+                        break;
+                }
+                return;
             }
-            return;
-        }
-        m = mMapAdPattern.matcher(topic);
-        if(m.matches()){
-            mqttSystemMapAdHandler(msg);
-            return;
-        }
-        m = mSystemMessagePattern.matcher(topic);
-        if(m.matches()){
-            mqttSystemMessageHandler(msg, false);
-            return;
+            m = mChannelLocationPattern.matcher(topic);
+            if(m.matches()){
+                mqttChannelLocationHandler(m.group(1), msg);
+                return;
+            }
+
+            m = mChannelDataPattern.matcher(topic);
+            if(m.matches()){
+                String channel_id = m.group(1);
+                switch (m.group(2)){
+                    case "mate":
+                        mqttChannelMateHandler(channel_id, msg);
+                        break;
+                    case "enchantment":
+                        mqttEnchantmentHandler(msg);
+                        break;
+                    case "marker":
+                        mqttMarkerHandler(msg);
+                        break;
+                    case "message":
+                        mqttChannelMessageHandler(channel_id, msg, false);
+                        break;
+                }
+                return;
+            }
+            m = mMapAdPattern.matcher(topic);
+            if(m.matches()){
+                mqttSystemMapAdHandler(msg);
+                return;
+            }
+            m = mSystemMessagePattern.matcher(topic);
+            if(m.matches()){
+                mqttSystemMessageHandler(msg, false);
+                return;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
@@ -1176,38 +1185,7 @@ public class CoreService extends Service {
                 }
             }
 
-            subscribe(String.format("channel/%s/data/+/get", channel_id), new AWSIotMqttNewMessageCallback() {
-                @Override
-                public void onMessageArrived(String topic, byte[] data) {
-                    Matcher m;
-                    m = mChannelDataPattern.matcher(topic);
-                    if(!m.matches()){
-                        return;
-                    }
-                    try {
-                        String channel_id = m.group(1);
-                        String message = new String(data, "UTF-8");
-                        Log.e(TAG, "Receive "+topic+" "+message);
-                        JSONObject payload = new JSONObject(message);
-                        switch(m.group(2)){
-                            case "mate":
-                                mqttChannelMateHandler(channel_id, payload);
-                                break;
-                            case "message":
-                                mqttChannelMessageHandler(channel_id, payload, true);
-                                break;
-                            case "enchantment":
-                                mqttEnchantmentHandler(payload);
-                                break;
-                            case "marker":
-                                mqttMarkerHandler(payload);
-                                break;
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
+            subscribe(String.format("channel/%s/data/+/get", channel_id));
 
             if(!mChannelDataSync.containsKey(channel_id)){
                 mChannelDataSync.put(channel_id, true);
@@ -1465,18 +1443,7 @@ public class CoreService extends Service {
 
     private void subscribeChannelLocation(String channel_id){
         String topic = String.format("channel/%s/location/private/get", channel_id);
-        subscribe(topic, new AWSIotMqttNewMessageCallback() {
-            @Override
-            public void onMessageArrived(String topic, byte[] data) {
-                try {
-                    Matcher m = mChannelLocationPattern.matcher(topic);
-                    m.find();
-                    mqttChannelLocationHandler(m.group(1), new JSONObject(new String(data, "UTF-8")));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+        subscribe(topic);
     }
 
     private void unsubscribeChannelLocation(String channel_id){
@@ -1486,7 +1453,7 @@ public class CoreService extends Service {
 
     private final List<String> mSubscribedTopics = new ArrayList<>();
 
-    private void subscribe(final String topic, final AWSIotMqttNewMessageCallback callback){
+    private void subscribe(final String topic){
         mHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -1497,7 +1464,7 @@ public class CoreService extends Service {
                         mSubscribedTopics.add(topic);
                     }
                     Log.e(TAG, "Subscribe "+topic);
-                    mqttManager.subscribeToTopic(topic, AWSIotMqttQos.QOS1, callback);
+                    mqttManager.subscribeToTopic(topic, AWSIotMqttQos.QOS1, mAwsIotMqttNewMessageCallback);
                 }catch(Exception e){
                     e.printStackTrace();
                 }
