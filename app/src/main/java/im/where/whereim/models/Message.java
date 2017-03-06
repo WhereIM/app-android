@@ -105,7 +105,7 @@ public class Message extends BaseModel {
         return m;
     }
 
-    Pattern iconPattern = Pattern.compile("\\{icon\\}");
+    private final Pattern iconPattern = Pattern.compile("\\{icon\\}");
     public SpannableString getText(Context context, CoreService.CoreBinder binder){
         if("text".equals(this.type)){
             return new SpannableString(this.message);

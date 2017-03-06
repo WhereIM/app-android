@@ -264,8 +264,8 @@ public class CoreService extends Service {
         public void createChannel(String channel_name, String mate_name){
             try {
                 JSONObject payload = new JSONObject();
-                payload.put("channel_name", channel_name);
-                payload.put("mate_name", mate_name);
+                payload.put(Key.CHANNEL_NAME, channel_name);
+                payload.put(Key.MATE_NAME, mate_name);
                 String topic = String.format("channel/create");
                 publish(topic, payload);
             } catch (JSONException e) {
@@ -276,8 +276,8 @@ public class CoreService extends Service {
         public void joinChannel(String channel_id, String channel_alias, String mate_name){
             try {
                 JSONObject payload = new JSONObject();
-                payload.put("channel_name", channel_alias);
-                payload.put("mate_name", mate_name);
+                payload.put(Key.CHANNEL_NAME, channel_alias);
+                payload.put(Key.MATE_NAME, mate_name);
                 String topic = String.format("channel/%s/join", channel_id);
                 publish(topic, payload);
             } catch (JSONException e) {
@@ -1150,11 +1150,11 @@ public class CoreService extends Service {
                 }
             }
             channel.id = channel_id;
-            channel.channel_name  = msg.optString("channel_name", channel.channel_name);
-            channel.user_channel_name = Util.JsonOptNullableString(msg, "user_channel_name", channel.user_channel_name);
+            channel.channel_name  = msg.optString(Key.CHANNEL_NAME, channel.channel_name);
+            channel.user_channel_name = Util.JsonOptNullableString(msg, Key.USER_CHANNEL_NAME, channel.user_channel_name);
             channel.mate_id = Util.JsonOptNullableString(msg, Key.MATE, channel.mate_id);
-            if(msg.has("enable")){
-                channel.enable = msg.getBoolean("enable");
+            if(msg.has(Key.ENABLE)){
+                channel.enable = msg.getBoolean(Key.ENABLE);
             }
 
             if(msg.has(Key.TS)) {

@@ -12,6 +12,7 @@ public class Key {
     public final static String BEARING = "bear";
 
     public final static String CHANNEL = "channel";
+    public final static String CHANNEL_NAME = "channel_name";
     public final static String CLIENT_ID = "client_id";
     public final static String COLOR = "color";
 
@@ -46,5 +47,6 @@ public class Key {
     public final static String TIME = "time";
     public final static String TS = "ts";
 
+    public final static String USER_CHANNEL_NAME = "user_channel_name";
     public final static String USER_MATE_NAME = "user_mate_name";
 }
