@@ -31,7 +31,6 @@ public class Channel extends BaseModel {
                 COL_MATE + " TEXT, " +
                 COL_ENABLE + " INTEGER)";
         db.execSQL(sql);
-        //todo create index
     }
 
     public String id;

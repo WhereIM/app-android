@@ -29,7 +29,9 @@ public class Mate extends BaseModel {
                 COL_MATE_NAME + " TEXT, " +
                 COL_USER_MATE_NAME + " TEXT)";
         db.execSQL(sql);
-        //todo create index
+
+        sql = "CREATE INDEX mate_index ON "+TABLE_NAME+" ("+COL_CHANNEL_ID+")";
+        db.execSQL(sql);
     }
 
     public String id;

@@ -39,7 +39,9 @@ public class Enchantment extends BaseModel {
                 COL_PUBLIC + " INTEGER, " +
                 COL_ENABLE + " INTEGER)";
         db.execSQL(sql);
-        //todo create index
+
+        sql = "CREATE INDEX enchantment_index ON "+TABLE_NAME+" ("+COL_CHANNEL_ID+")";
+        db.execSQL(sql);
     }
 
 

@@ -49,7 +49,9 @@ public class Message extends BaseModel {
                 COL_MESSAGE + " TEXT, " +
                 COL_TIME + " INTEGER)";
         db.execSQL(sql);
-        //todo create index
+
+        sql = "CREATE INDEX message_index ON "+TABLE_NAME+" ("+COL_CHANNEL+")";
+        db.execSQL(sql);
     }
 
     public long id;
