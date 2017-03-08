@@ -43,7 +43,7 @@ public class Message extends BaseModel {
                 COL_ID + " INTEGER PRIMARY KEY, " +
                 COL_SN + " INTEGER, " +
                 COL_CHANNEL + " TEXT NULL, " +
-                COL_PUBLIC + " INTEGER, " +
+                COL_PUBLIC + " BOOLEAN, " +
                 COL_MATE + " TEXT, " +
                 COL_TYPE + " TEXT, " +
                 COL_MESSAGE + " TEXT, " +
@@ -239,13 +239,6 @@ public class Message extends BaseModel {
                 }
             } while (bc.cursor.moveToPrevious());
         }
-        Log.e("lala", "loadMoreBefore="+bc.loadMoreBefore);
-        Log.e("lala", "loadMoreAfter="+bc.loadMoreAfter);
-        Log.e("lala", "loadMoreUserData="+bc.loadMoreUserData);
-        Log.e("lala", "loadMoreChannelData="+bc.loadMoreChannelData);
-        Log.e("lala", "firstId="+bc.firstId);
-        Log.e("lala", "lastId="+bc.lastId);
-        Log.e("lala", "count="+bc.count);
         if(bc.cursor.moveToLast()){
             bc.lastId = bc.cursor.getLong(0);
         }else{
@@ -256,6 +249,15 @@ public class Message extends BaseModel {
         }else{
             bc.firstId = -1;
         }
+        Log.e("lala", "===========================");
+        Log.e("lala", "loadMoreBefore="+bc.loadMoreBefore);
+        Log.e("lala", "loadMoreAfter="+bc.loadMoreAfter);
+        Log.e("lala", "loadMoreUserData="+bc.loadMoreUserData);
+        Log.e("lala", "loadMoreChannelData="+bc.loadMoreChannelData);
+        Log.e("lala", "firstId="+bc.firstId);
+        Log.e("lala", "lastId="+bc.lastId);
+        Log.e("lala", "count="+bc.count);
+        Log.e("lala", "----------------------------");
         return bc;
     }
 }
