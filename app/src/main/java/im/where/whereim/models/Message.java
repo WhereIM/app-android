@@ -161,15 +161,6 @@ public class Message extends BaseModel {
     @Override
     public ContentValues buildContentValues(SQLiteDatabase db) {
         ContentValues cv = new ContentValues();
-        if(id==0){
-            Cursor cursor = db.rawQuery("SELECT "+COL_ID+" FROM "+TABLE_NAME+" WHERE "+COL_CHANNEL+" IS NULL AND "+COL_ID+" < 0 ORDER BY "+COL_ID, new String[]{});
-            if(cursor.moveToFirst()){
-                id = cursor.getLong(0) - 1;
-            }else{
-                id = -1L;
-            }
-            cursor.close();
-        }
         cv.put(COL_ID, id);
         cv.put(COL_SN, sn);
         cv.put(COL_CHANNEL, channel_id);

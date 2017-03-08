@@ -1425,10 +1425,10 @@ public class CoreService extends Service {
     }
 
     private void mqttSystemMessageHandler(JSONObject msg, boolean isPublic){
-        Message message = Message.parse(msg);
-        message.isPublic = isPublic;
-        mWimDBHelper.insert(message);
-        notifyMessageListener(null, message);
+//        Message message = Message.parse(msg);
+//        message.isPublic = isPublic;
+//        mWimDBHelper.insert(message);
+//        notifyMessageListener(null, message);
     }
 
     // ================ Util Functions ================
