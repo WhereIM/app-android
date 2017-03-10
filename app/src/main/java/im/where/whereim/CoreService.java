@@ -296,9 +296,6 @@ public class CoreService extends Service {
                 }
                 mMapDataReceiver.get(channel.id).add(receiver);
             }
-            synchronized (mOpenedChannel) {
-                mOpenedChannel.add(channel.id);
-            }
             synchronized (mChannelEnchantment) {
                 HashMap<String, Enchantment> list = mChannelEnchantment.get(channel.id);
                 if(list!=null){
@@ -583,7 +580,6 @@ public class CoreService extends Service {
             }
         }
 
-
         public void sendMessage(Channel channel, String s) {
             try {
                 JSONObject payload = new JSONObject();
@@ -659,7 +655,6 @@ public class CoreService extends Service {
     private final HashMap<String, List<Runnable>> mMessageListener = new HashMap<>();
     private final CoreBinder mBinder = new CoreBinder();
 
-    private List<String> mOpenedChannel = new ArrayList<>();
     final private HashMap<String, List<MapDataReceiver>> mMapDataReceiver = new HashMap<>();
 
     public CoreService() {
@@ -723,6 +718,37 @@ public class CoreService extends Service {
         mTS = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).getLong(Key.TS, 0);
         mOrigTS = mTS;
 
+        subscribe(String.format("client/%s/+/get", mClientId));
+
+        try {
+            Cursor cursor;
+
+            cursor = Channel.getCursor(mWimDBHelper.getDatabase());
+            while (cursor.moveToNext()) {
+                mqttClientChannelHandler(Channel.parseToJson(cursor));
+            }
+
+            cursor = Mate.getCursor(mWimDBHelper.getDatabase());
+            while (cursor.moveToNext()) {
+                JSONObject j = Mate.parseToJson(cursor);
+                mqttChannelMateHandler(j.getString(Key.CHANNEL), j);
+            }
+
+            cursor = Marker.getCursor(mWimDBHelper.getDatabase());
+            while (cursor.moveToNext()) {
+                JSONObject j = Marker.parseToJson(cursor);
+                mqttMarkerHandler(j);
+            }
+
+            cursor = Enchantment.getCursor(mWimDBHelper.getDatabase());
+            while (cursor.moveToNext()) {
+                JSONObject j = Enchantment.parseToJson(cursor);
+                mqttEnchantmentHandler(j);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         mqttManager = new AWSIotMqttManager(mClientId, Region.getRegion(Config.AWS_REGION_ID), Config.AWS_IOT_MQTT_ENDPOINT);
         mqttManager.setAutoReconnect(true);
         Log.e(TAG, "Service Started");
@@ -759,10 +785,6 @@ public class CoreService extends Service {
                         synchronized (mChannelDataSync) {
                             mChannelDataSync.clear();
                         }
-                        synchronized (mChannelDataCheckedOut) {
-                            mChannelDataCheckedOut.clear();
-                        }
-                        mClientChannelCheckedOut = false;
                         mMqttConnected = false;
                         mHandler.post(new Runnable() {
                             @Override
@@ -902,16 +924,16 @@ public class CoreService extends Service {
         }
     }
 
-    private boolean mClientChannelCheckedOut = false;
     private void mqttOnConnected(){
-        subscribe(String.format("client/%s/+/get", mClientId));
-
-        if(!mClientChannelCheckedOut) {
-            mClientChannelCheckedOut = true;
-            Cursor cursor = Channel.getCursor(mWimDBHelper.getDatabase());
-            while (cursor.moveToNext()) {
-                mqttClientChannelHandler(Channel.parseToJson(cursor));
+        try{
+            synchronized (mSubscribedTopics) {
+                for (String topic : mSubscribedTopics) {
+                    Log.e(TAG, "Re-Subscribe "+topic);
+                    mqttManager.subscribeToTopic(topic, AWSIotMqttQos.QOS1, mAwsIotMqttNewMessageCallback);
+                }
             }
+        }catch(Exception e){
+            e.printStackTrace();
         }
 
         try {
@@ -921,7 +943,13 @@ public class CoreService extends Service {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        _subscribeOpenedChannel();
+
+        synchronized (mChannelList) {
+            for (Channel channel : mChannelList) {
+                syncChannelData(channel);
+                syncChannelMessage(channel);
+            }
+        }
     }
 
     final AWSIotMqttNewMessageCallback mAwsIotMqttNewMessageCallback = new AWSIotMqttNewMessageCallback() {
@@ -1131,7 +1159,6 @@ public class CoreService extends Service {
         notifyChannelMarkerListChangedListeners(channel_id);
     }
 
-    private final HashMap<String, Boolean> mChannelDataCheckedOut = new HashMap<>();
     private final HashMap<String, Boolean> mChannelDataSync = new HashMap<>();
     private final HashMap<String, Boolean> mChannelMessageSync = new HashMap<>();
     private void mqttClientChannelHandler(JSONObject msg){
@@ -1162,76 +1189,60 @@ public class CoreService extends Service {
                 setTS(msg.getLong(Key.TS));
             }
 
-            if(!mChannelDataCheckedOut.containsKey(channel_id)) {
-                mChannelDataCheckedOut.put(channel_id, true);
-                Cursor cursor;
-
-                cursor = Mate.getCursor(mWimDBHelper.getDatabase());
-                while (cursor.moveToNext()) {
-                    JSONObject j = Mate.parseToJson(cursor);
-                    mqttChannelMateHandler(j.getString(Key.CHANNEL), j);
-                }
-
-                cursor = Marker.getCursor(mWimDBHelper.getDatabase());
-                while (cursor.moveToNext()) {
-                    JSONObject j = Marker.parseToJson(cursor);
-                    mqttMarkerHandler(j);
-                }
-
-                cursor = Enchantment.getCursor(mWimDBHelper.getDatabase());
-                while (cursor.moveToNext()) {
-                    JSONObject j = Enchantment.parseToJson(cursor);
-                    mqttEnchantmentHandler(j);
-                }
-            }
-
             subscribe(String.format("channel/%s/data/+/get", channel_id));
 
-            if(!mChannelDataSync.containsKey(channel_id)){
-                mChannelDataSync.put(channel_id, true);
-                try {
-                    JSONObject sync = new JSONObject();
-                    sync.put(Key.TS, getTS(channel_id));
-                    sync.put(Key.CHANNEL, channel_id);
-                    publish(String.format("client/%s/channel_data/sync", mClientId), sync);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
+            syncChannelData(channel);
 
             notifyChannelListChangedListeners();
 
-            boolean doSync = true;
-            synchronized (mChannelMessageSync) {
-                if(mChannelMessageSync.containsKey(channel_id)) {
-                    doSync = false;
-                }
-                mChannelMessageSync.put(channel_id, true);
-            }
-            if(doSync){
-                new Thread(){
-                    @Override
-                    public void run() {
-                        Message.BundledCursor bc = Message.getCursor(mWimDBHelper.getDatabase(), channel);
-                        bc.cursor.close();
-                        JSONObject data = new JSONObject();
-                        try {
-                            data.put(Key.CHANNEL, channel.id);
-                            data.put("after", bc.lastId);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            return;
-                        }
-                        publish(String.format("client/%s/message/sync", mClientId), data);
-                    }
-                }.start();
-            }
+            syncChannelMessage(channel);
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
     // ================ Channel Data ================
+    private void syncChannelData(final Channel channel){
+        if(!mChannelDataSync.containsKey(channel.id)){
+            mChannelDataSync.put(channel.id, true);
+            try {
+                JSONObject sync = new JSONObject();
+                sync.put(Key.TS, getTS(channel.id));
+                sync.put(Key.CHANNEL, channel.id);
+                publish(String.format("client/%s/channel_data/sync", mClientId), sync);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void syncChannelMessage(final Channel channel){
+        boolean doSync = true;
+        synchronized (mChannelMessageSync) {
+            if(mChannelMessageSync.containsKey(channel.id)) {
+                doSync = false;
+            }
+            mChannelMessageSync.put(channel.id, true);
+        }
+        if(doSync){
+            new Thread(){
+                @Override
+                public void run() {
+                    Message.BundledCursor bc = Message.getCursor(mWimDBHelper.getDatabase(), channel);
+                    bc.cursor.close();
+                    JSONObject data = new JSONObject();
+                    try {
+                        data.put(Key.CHANNEL, channel.id);
+                        data.put("after", bc.lastId);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        return;
+                    }
+                    publish(String.format("client/%s/message/sync", mClientId), data);
+                }
+            }.start();
+        }
+    }
 
     // ================ Channel Data - Mate ================
     private void mqttChannelMateHandler(String channel_id, JSONObject data){
@@ -1432,13 +1443,6 @@ public class CoreService extends Service {
     }
 
     // ================ Util Functions ================
-    private void _subscribeOpenedChannel(){
-        synchronized (mOpenedChannel) {
-            for (String c : mOpenedChannel) {
-                subscribeChannelLocation(c);
-            }
-        }
-    }
 
     private void subscribeChannelLocation(String channel_id){
         String topic = String.format("channel/%s/location/private/get", channel_id);
@@ -1456,7 +1460,7 @@ public class CoreService extends Service {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                try{
+                try {
                     synchronized (mSubscribedTopics) {
                         if(mSubscribedTopics.contains(topic))
                             return;
@@ -1464,8 +1468,8 @@ public class CoreService extends Service {
                     }
                     Log.e(TAG, "Subscribe "+topic);
                     mqttManager.subscribeToTopic(topic, AWSIotMqttQos.QOS1, mAwsIotMqttNewMessageCallback);
-                }catch(Exception e){
-                    e.printStackTrace();
+                } catch(Exception e) {
+                    // noop
                 }
             }
         });
@@ -1497,8 +1501,8 @@ public class CoreService extends Service {
                 Log.e(TAG, "Publish "+topic+" "+message);
                 try {
                     mqttManager.publishString(message, topic, AWSIotMqttQos.QOS1);
-                }catch(com.amazonaws.AmazonClientException e){
-                    e.printStackTrace();
+                } catch (com.amazonaws.AmazonClientException e){
+                    // noop
                 }
             }
         });
