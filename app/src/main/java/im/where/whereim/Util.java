@@ -8,14 +8,14 @@ import org.json.JSONObject;
 
 public class Util {
 
-    static public String JsonGetNullableString(JSONObject jsObj, String key){
+    static public String JsonGetNullableString(JSONObject jsObj, String key) {
         try {
             if (!jsObj.has(key) || jsObj.isNull(key)) {
                 return null;
             } else {
                 return jsObj.getString(key);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
     }
