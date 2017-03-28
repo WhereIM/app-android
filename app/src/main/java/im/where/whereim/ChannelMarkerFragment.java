@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
+import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -121,11 +122,13 @@ public class ChannelMarkerFragment extends BaseFragment {
 
         private class ChildViewHolder {
             private Marker marker;
+            ImageView icon;
             TextView name;
             Switch enable;
             View loading;
 
             public ChildViewHolder(View view) {
+                this.icon = (ImageView) view.findViewById(R.id.icon);
                 this.name = (TextView) view.findViewById(R.id.name);
                 this.enable = (Switch) view.findViewById(R.id.enable);
                 this.loading = view.findViewById(R.id.loading);
@@ -144,6 +147,7 @@ public class ChannelMarkerFragment extends BaseFragment {
 
             public void setItem(Marker m){
                 marker = m;
+                this.icon.setImageResource(m.getIconResId());
                 this.name.setText(m.name);
                 if(m.enable==null){
                     this.loading.setVisibility(View.VISIBLE);

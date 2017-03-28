@@ -107,9 +107,13 @@ public class Marker extends BaseModel {
         return R.drawable.icon_marker_red;
     }
 
+    public int getIconResId(){
+        return getIconResource(attr);
+    }
+
     private final static HashMap<Integer, BitmapDescriptor> mIconBitmapDescriptor = new HashMap<>();
     public BitmapDescriptor getIconBitmapDescriptor(){
-        int rid = getIconResource(attr);
+        int rid = getIconResId();
         BitmapDescriptor f;
         if(mIconBitmapDescriptor.containsKey(rid)) {
             f = mIconBitmapDescriptor.get(rid);
