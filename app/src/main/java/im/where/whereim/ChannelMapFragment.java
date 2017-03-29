@@ -178,7 +178,6 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
         super.onDestroyView();
     }
 
-
     private Joystick.Callback mJoystickCallback = new Joystick.Callback(){
 
         @Override

@@ -392,6 +392,20 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         });
     }
 
+    @Override
+    public void moveToMarker(final im.where.whereim.models.Marker marker) {
+        if(mMapView!=null){
+            mMapView.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(GoogleMap googleMap) {
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(marker.latitude, marker.longitude)));
+                    Marker m = mMarkerMarker.get(marker.id);
+                    m.showInfoWindow();
+                }
+            });
+        }
+    }
+
     private final HashMap<String, Marker> mAdMarkers = new HashMap<>();
     @Override
     public void onMapAd(final HashMap<String, Ad> ads) {

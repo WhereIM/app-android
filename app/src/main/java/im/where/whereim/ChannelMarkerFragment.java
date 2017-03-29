@@ -176,7 +176,7 @@ public class ChannelMarkerFragment extends BaseFragment {
 
         @Override
         public boolean isChildSelectable(int groupPosition, int childPosition) {
-            return false;
+            return true;
         }
     };
 
@@ -197,6 +197,15 @@ public class ChannelMarkerFragment extends BaseFragment {
                     public void onBinderReady(CoreService.CoreBinder binder) {
                         mAdapter = new MarkerAdapter();
                         mListView.setAdapter(mAdapter);
+                        mListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+                            @Override
+                            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+                                Marker marker = (Marker) mAdapter.getChild(groupPosition, childPosition);
+                                ChannelActivity activity = (ChannelActivity) getActivity();
+                                activity.moveToMaker(marker);
+                                return true;
+                            }
+                        });
                         for(int i=0;i<mAdapter.getGroupCount();i+=1){
                             mListView.expandGroup(i);
                         }

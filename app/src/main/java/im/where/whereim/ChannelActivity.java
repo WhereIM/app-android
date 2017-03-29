@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import im.where.whereim.models.Channel;
+import im.where.whereim.models.Marker;
 
 public class ChannelActivity extends BaseActivity implements CoreService.ConnectionStatusCallback {
 
@@ -162,6 +163,11 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
         i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.action_invite));
         i.putExtra(Intent.EXTRA_TEXT, "http://where.im/channel/"+mChannelId);
         startActivity(Intent.createChooser(i, getString(R.string.action_invite)));
+    }
+
+    public void moveToMaker(Marker marker){
+        mChannelMapFragment.moveToMarker(marker);
+        mTabLayout.getTabAt(0).select();
     }
 
     private ChannelMapFragment mChannelMapFragment;
