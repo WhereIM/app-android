@@ -41,6 +41,7 @@ import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -464,6 +465,18 @@ public class CoreService extends Service {
                     }
                 }
             }
+            Collections.sort(ret.public_list, new Comparator<Marker>() {
+                @Override
+                public int compare(Marker lhs, Marker rhs) {
+                    return lhs.name.compareToIgnoreCase(rhs.name);
+                }
+            });
+            Collections.sort(ret.private_list, new Comparator<Marker>() {
+                @Override
+                public int compare(Marker lhs, Marker rhs) {
+                    return lhs.name.compareToIgnoreCase(rhs.name);
+                }
+            });
             return ret;
         }
 
@@ -517,6 +530,18 @@ public class CoreService extends Service {
                     }
                 }
             }
+            Collections.sort(ret.public_list, new Comparator<Enchantment>() {
+                @Override
+                public int compare(Enchantment lhs, Enchantment rhs) {
+                    return lhs.name.compareToIgnoreCase(rhs.name);
+                }
+            });
+            Collections.sort(ret.private_list, new Comparator<Enchantment>() {
+                @Override
+                public int compare(Enchantment lhs, Enchantment rhs) {
+                    return lhs.name.compareToIgnoreCase(rhs.name);
+                }
+            });
             return ret;
         }
 
