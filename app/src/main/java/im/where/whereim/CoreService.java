@@ -716,9 +716,6 @@ public class CoreService extends Service {
             return;
         Log.e(TAG, "ClientId: "+mClientId);
 
-        mTS = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).getLong(Key.TS, 0);
-        mOrigTS = mTS;
-
         subscribe(String.format("client/%s/+/get", mClientId));
 
         try {
@@ -819,35 +816,32 @@ public class CoreService extends Service {
     private boolean mMqttConnected = false;
     private boolean mIsForeground = false;
 
-    private long mTS = 0;
-    private long mOrigTS = 0;
-    private HashMap<String, Long> mChannelTS = new HashMap<>();
-
     private void setTS(long ts){
-        if(ts>mTS){
+        long ots = getTS();
+        if(ts>ots){
             SharedPreferences.Editor editor = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
             editor.putLong(Key.TS, ts);
             editor.apply();
-            mTS = ts;
         }
     }
 
     private long getTS(){
-        return mTS;
+        return getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).getLong(Key.TS, 0);
     }
 
     private void setTS(String channel_id, long ts){
-        if(!mChannelTS.containsKey(channel_id) || ts > mChannelTS.get(channel_id)){
-            setTS(ts);
-            mChannelTS.put(channel_id, ts);
+        long ots = getTS(channel_id);
+        if(ts>ots){
+            String key = String.format("%s/%s", Key.TS, channel_id);
+            SharedPreferences.Editor editor = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
+            editor.putLong(key, ts);
+            editor.apply();
         }
     }
 
     private long getTS(String channel_id){
-        if(mChannelTS.containsKey(channel_id)){
-            return mChannelTS.get(channel_id);
-        }
-        return mOrigTS;
+        String key = String.format("%s/%s", Key.TS, channel_id);
+        return getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).getLong(key, 0);
     }
 
     private void notifyChannelListChangedListeners(){
