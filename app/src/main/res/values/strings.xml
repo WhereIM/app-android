@@ -20,6 +20,7 @@
     <string name="icon">Icon</string>
     <string name="mock">Mock</string>
 
+    <string name="mate">Mate</string>
     <string name="is_public">Public</string>
     <string name="is_private">Private</string>
 

@@ -67,6 +67,7 @@ public class CoreService extends Service {
     public interface MapDataReceiver {
         void onMockData(Mate mock);
         void onMateData(Mate mate);
+        void moveToMate(Mate mate);
         void onEnchantmentData(Enchantment enchantment);
         void onMarkerData(Marker marker);
         void moveToMarker(Marker marker);
@@ -342,6 +343,33 @@ public class CoreService extends Service {
             _checkLocationService();
         }
 
+        public void addMateListener(Channel channel, Runnable r){
+            List<Runnable> list;
+            synchronized (mMateListener){
+                list = mMateListener.get(channel.id);
+                if(list==null){
+                    list = new ArrayList<>();
+                    mMateListener.put(channel.id, list);
+                }
+            }
+            list.add(r);
+            mHandler.post(r);
+        }
+
+        public void removeMateListener(Channel channel, Runnable r){
+            List<Runnable> list;
+            synchronized (mMateListener){
+                list = mMateListener.get(channel.id);
+                if(list!=null){
+                    list.remove(r);
+                }
+            }
+        }
+
+        public ArrayList<Mate> getChannelMate(String channel_id){
+            return CoreService.this.getChannelMate(channel_id);
+        }
+
         public Mate getChannelMate(String channel_id, String mate_id){
             return CoreService.this.getChannelMate(channel_id, mate_id);
         }
@@ -465,15 +493,15 @@ public class CoreService extends Service {
                     }
                 }
             }
-            Collections.sort(ret.public_list, new Comparator<Marker>() {
+            Collections.sort(ret.public_list, new Comparator<Enchantment>() {
                 @Override
-                public int compare(Marker lhs, Marker rhs) {
+                public int compare(Enchantment lhs, Enchantment rhs) {
                     return lhs.name.compareToIgnoreCase(rhs.name);
                 }
             });
-            Collections.sort(ret.private_list, new Comparator<Marker>() {
+            Collections.sort(ret.private_list, new Comparator<Enchantment>() {
                 @Override
-                public int compare(Marker lhs, Marker rhs) {
+                public int compare(Enchantment lhs, Enchantment rhs) {
                     return lhs.name.compareToIgnoreCase(rhs.name);
                 }
             });
@@ -530,15 +558,15 @@ public class CoreService extends Service {
                     }
                 }
             }
-            Collections.sort(ret.public_list, new Comparator<Enchantment>() {
+            Collections.sort(ret.public_list, new Comparator<Marker>() {
                 @Override
-                public int compare(Enchantment lhs, Enchantment rhs) {
+                public int compare(Marker lhs, Marker rhs) {
                     return lhs.name.compareToIgnoreCase(rhs.name);
                 }
             });
-            Collections.sort(ret.private_list, new Comparator<Enchantment>() {
+            Collections.sort(ret.private_list, new Comparator<Marker>() {
                 @Override
-                public int compare(Enchantment lhs, Enchantment rhs) {
+                public int compare(Marker lhs, Marker rhs) {
                     return lhs.name.compareToIgnoreCase(rhs.name);
                 }
             });
@@ -676,6 +704,7 @@ public class CoreService extends Service {
     private Handler mHandler = new Handler();
     private final List<ConnectionStatusCallback> mConnectionStatusChangedListener = new ArrayList<>();
     private final List<Runnable> mChannelListChangedListener = new ArrayList<>();
+    private final HashMap<String, List<Runnable>> mMateListener = new HashMap<>();
     private final HashMap<String, List<Runnable>> mEnchantmentListener = new HashMap<>();
     private final HashMap<String, List<Runnable>> mMarkerListener = new HashMap<>();
     private final HashMap<String, List<Runnable>> mMessageListener = new HashMap<>();
@@ -1288,6 +1317,27 @@ public class CoreService extends Service {
     }
 
     private HashMap<String, HashMap<String, Mate>> mChannelMate = new HashMap<>();
+    private ArrayList<Mate> getChannelMate(String channel_id){
+        ArrayList<Mate> list = new ArrayList<>();
+
+        synchronized (mChannelMate) {
+            HashMap<String, Mate> mateMap = mChannelMate.get(channel_id);
+            if(mateMap!=null){
+                for (Mate mate : mateMap.values()) {
+                    list.add(mate);
+                }
+            }
+        }
+
+        Collections.sort(list, new Comparator<Mate>() {
+            @Override
+            public int compare(Mate lhs, Mate rhs) {
+                return lhs.getDisplayName().compareToIgnoreCase(rhs.getDisplayName());
+            }
+        });
+        return list;
+    }
+
     private Mate getChannelMate(String channel_id, String mate_id){
         HashMap<String, Mate> mateMap;
         synchronized (mChannelMate) {

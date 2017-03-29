@@ -19,6 +19,7 @@
     <string name="icon">圖示</string>
     <string name="mock">假資料</string>
 
+    <string name="mate">同伴</string>
     <string name="is_public">公用</string>
     <string name="is_private">自用</string>
 

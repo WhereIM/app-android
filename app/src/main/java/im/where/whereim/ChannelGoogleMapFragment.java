@@ -334,6 +334,21 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         });
     }
 
+    @Override
+    public void moveToMate(final Mate mate) {
+        if(mate.latitude==null){
+            return;
+        }
+        if(mMapView!=null){
+            mMapView.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(GoogleMap googleMap) {
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(mate.latitude, mate.longitude)));
+                }
+            });
+        }
+    }
+
     final private HashMap<String, Circle> mEnchantmentCircle = new HashMap<>();
 
     @Override

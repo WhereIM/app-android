@@ -22,6 +22,7 @@ import java.util.List;
 
 import im.where.whereim.models.Channel;
 import im.where.whereim.models.Marker;
+import im.where.whereim.models.Mate;
 
 public class ChannelActivity extends BaseActivity implements CoreService.ConnectionStatusCallback {
 
@@ -163,6 +164,14 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
         i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.action_invite));
         i.putExtra(Intent.EXTRA_TEXT, "http://where.im/channel/"+mChannelId);
         startActivity(Intent.createChooser(i, getString(R.string.action_invite)));
+    }
+
+    public void moveToMate(Mate mate){
+        if(mate.latitude==null){
+            return;
+        }
+        mChannelMapFragment.moveToMate(mate);
+        mTabLayout.getTabAt(0).select();
     }
 
     public void moveToMaker(Marker marker){

@@ -12,8 +12,11 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 import im.where.whereim.models.Channel;
 import im.where.whereim.models.Marker;
+import im.where.whereim.models.Mate;
 
 public class ChannelMarkerFragment extends BaseFragment {
     public ChannelMarkerFragment() {
@@ -28,34 +31,59 @@ public class ChannelMarkerFragment extends BaseFragment {
     }
 
     private Channel mChannel;
+    private ArrayList<Mate> mMateList;
     private Marker.List mMarkerList;
     private MarkerAdapter mAdapter;
     private class MarkerAdapter extends BaseExpandableListAdapter {
 
         @Override
         public int getGroupCount() {
-            return 2;
+            return 3;
         }
 
         @Override
         public int getChildrenCount(int groupPosition) {
-            if(mMarkerList ==null)
-                return 0;
             switch (groupPosition){
                 case 0:
-                    return mMarkerList.public_list.size();
+                    if(mMateList==null)
+                        return 0;
+                    return mMateList.size();
                 case 1:
+                    if(mMarkerList==null)
+                        return 0;
+                    return mMarkerList.public_list.size();
+                case 2:
+                    if(mMarkerList==null)
+                        return 0;
                     return mMarkerList.private_list.size();
             }
             return 0;
+        }
+
+        private int viewType[] = {R.layout.mate_item, R.layout.marker_item};
+
+        @Override
+        public int getChildType(int groupPosition, int childPosition) {
+            if(groupPosition==0){
+                return 0;
+            }else{
+                return 1;
+            }
+        }
+
+        @Override
+        public int getChildTypeCount() {
+            return 2;
         }
 
         @Override
         public Object getGroup(int groupPosition) {
             switch (groupPosition){
                 case 0:
-                    return R.string.is_public;
+                    return R.string.mate;
                 case 1:
+                    return R.string.is_public;
+                case 2:
                     return R.string.is_private;
             }
             return 0;
@@ -63,12 +91,18 @@ public class ChannelMarkerFragment extends BaseFragment {
 
         @Override
         public Object getChild(int groupPosition, int childPosition) {
-            if(mMarkerList ==null)
-                return null;
             switch (groupPosition){
                 case 0:
-                    return mMarkerList.public_list.get(childPosition);
+                    if(mMateList==null)
+                        return null;
+                    return mMateList.get(childPosition);
                 case 1:
+                    if(mMarkerList==null)
+                        return null;
+                    return mMarkerList.public_list.get(childPosition);
+                case 2:
+                    if(mMarkerList==null)
+                        return null;
                     return mMarkerList.private_list.get(childPosition);
             }
             return null;
@@ -120,14 +154,37 @@ public class ChannelMarkerFragment extends BaseFragment {
             return view;
         }
 
-        private class ChildViewHolder {
+        private class MateViewHolder {
+            private Mate mate;
+            TextView title;
+            TextView subtitle;
+
+            public MateViewHolder(View view) {
+                this.title = (TextView) view.findViewById(R.id.title);
+                this.subtitle = (TextView) view.findViewById(R.id.subtitle);
+            }
+
+            public void setItem(Mate m){
+                mate = m;
+                if(mate.user_mate_name !=null && !mate.user_mate_name.isEmpty()){
+                    subtitle.setVisibility(View.VISIBLE);
+                    title.setText(mate.user_mate_name);
+                    subtitle.setText(mate.mate_name);
+                }else{
+                    subtitle.setVisibility(View.GONE);
+                    title.setText(mate.mate_name);
+                }
+            }
+        }
+
+        private class MarkerViewHolder {
             private Marker marker;
             ImageView icon;
             TextView name;
             Switch enable;
             View loading;
 
-            public ChildViewHolder(View view) {
+            public MarkerViewHolder(View view) {
                 this.icon = (ImageView) view.findViewById(R.id.icon);
                 this.name = (TextView) view.findViewById(R.id.name);
                 this.enable = (Switch) view.findViewById(R.id.enable);
@@ -161,16 +218,29 @@ public class ChannelMarkerFragment extends BaseFragment {
         }
         @Override
         public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View view, ViewGroup parent) {
-            ChildViewHolder vh;
-            if(view==null){
-                view = LayoutInflater.from(getActivity()).inflate(R.layout.marker_item, parent, false);
-                vh = new ChildViewHolder(view);
-                view.setTag(vh);
+            if(groupPosition==0){
+                MateViewHolder vh;
+                if(view==null){
+                    view = LayoutInflater.from(getActivity()).inflate(viewType[getChildType(groupPosition, childPosition)], parent, false);
+                    vh = new MateViewHolder(view);
+                    view.setTag(vh);
+                }else{
+                    vh = (MateViewHolder) view.getTag();
+                }
+                Mate m = (Mate) getChild(groupPosition, childPosition);
+                vh.setItem(m);
             }else{
-                vh = (ChildViewHolder) view.getTag();
+                MarkerViewHolder vh;
+                if(view==null){
+                    view = LayoutInflater.from(getActivity()).inflate(viewType[getChildType(groupPosition, childPosition)], parent, false);
+                    vh = new MarkerViewHolder(view);
+                    view.setTag(vh);
+                }else{
+                    vh = (MarkerViewHolder) view.getTag();
+                }
+                Marker m = (Marker) getChild(groupPosition, childPosition);
+                vh.setItem(m);
             }
-            Marker m = (Marker) getChild(groupPosition, childPosition);
-            vh.setItem(m);
             return view;
         }
 
@@ -200,9 +270,14 @@ public class ChannelMarkerFragment extends BaseFragment {
                         mListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
                             @Override
                             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-                                Marker marker = (Marker) mAdapter.getChild(groupPosition, childPosition);
                                 ChannelActivity activity = (ChannelActivity) getActivity();
-                                activity.moveToMaker(marker);
+                                if(groupPosition==0){
+                                    Mate mate = (Mate) mAdapter.getChild(groupPosition, childPosition);
+                                    activity.moveToMate(mate);
+                                }else{
+                                    Marker marker = (Marker) mAdapter.getChild(groupPosition, childPosition);
+                                    activity.moveToMaker(marker);
+                                }
                                 return true;
                             }
                         });
@@ -218,6 +293,7 @@ public class ChannelMarkerFragment extends BaseFragment {
                             }
                         });
 
+                        binder.addMateListener(channel, mMateListener);
                         binder.addMarkerListener(channel, mMarkerListener);
                     }
                 });
@@ -225,6 +301,24 @@ public class ChannelMarkerFragment extends BaseFragment {
         });
         return view;
     }
+
+    private Runnable mMateListener = new Runnable() {
+        @Override
+        public void run() {
+            postBinderTask(new CoreService.BinderTask() {
+                @Override
+                public void onBinderReady(final CoreService.CoreBinder binder) {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mMateList = binder.getChannelMate(mChannel.id);
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    });
+                }
+            });
+        }
+    };
 
     private Runnable mMarkerListener = new Runnable() {
         @Override
@@ -249,6 +343,7 @@ public class ChannelMarkerFragment extends BaseFragment {
         postBinderTask(new CoreService.BinderTask() {
             @Override
             public void onBinderReady(CoreService.CoreBinder binder) {
+                binder.removeMateListener(mChannel, mMateListener);
                 binder.removeMarkerListener(mChannel, mMarkerListener);
             }
         });
