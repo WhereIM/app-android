@@ -400,7 +400,9 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                 public void onMapReady(GoogleMap googleMap) {
                     googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(marker.latitude, marker.longitude)));
                     Marker m = mMarkerMarker.get(marker.id);
-                    m.showInfoWindow();
+                    if(m!=null) {
+                        m.showInfoWindow();
+                    }
                 }
             });
         }
