@@ -218,7 +218,7 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
                 case 1: // messenger
                     return "\uD83D\uDCAC";
                 case 2: // marker
-                    return "\uD83D\uDCCD";
+                    return "\uD83D\uDEA9";
                 case 3: // enchantment
                     return "⭕";
             }
