@@ -86,7 +86,10 @@ public class Marker extends BaseModel {
     public Boolean enable;
 
     public static int getIconResource(JSONObject attr) {
-        String color = attr.optString(Key.COLOR, "red");
+        String color = "red";
+        if(attr!=null){
+            color = attr.optString(Key.COLOR, "red");
+        }
         return getIconResource(color);
     }
 
