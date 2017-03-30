@@ -16,6 +16,7 @@ public class Key {
     public final static String CLIENT_ID = "client_id";
     public final static String COLOR = "color";
 
+    public final static String DELETED = "deleted";
     public final static String DESC = "desc";
 
     public final static String ENABLE = "enable";

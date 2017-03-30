@@ -4,11 +4,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import im.where.whereim.Key;
-
 /**
  * Created by buganini on 31/01/17.
  */
@@ -38,20 +33,16 @@ public class Channel extends BaseModel {
     public String user_channel_name;
     public String mate_id;
     public Boolean enable;
+    public boolean deleted = false;
 
-    public static JSONObject parseToJson(Cursor cursor){
-        try {
-            JSONObject j = new JSONObject();
-            j.put(Key.CHANNEL, cursor.getString(cursor.getColumnIndexOrThrow(COL_ID)));
-            j.put("channel_name", cursor.getString(cursor.getColumnIndexOrThrow(COL_CHANNEL_NAME)));
-            j.put("user_channel_name", cursor.getString(cursor.getColumnIndexOrThrow(COL_USER_CHANNEL_NAME)));
-            j.put(Key.MATE, cursor.getString(cursor.getColumnIndexOrThrow(COL_MATE)));
-            j.put("enable", cursor.getInt(cursor.getColumnIndexOrThrow(COL_ENABLE))!=0);
-            return j;
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public static Channel parse(Cursor cursor){
+        Channel channel = new Channel();
+        channel.id = cursor.getString(cursor.getColumnIndexOrThrow(COL_ID));
+        channel.channel_name = cursor.getString(cursor.getColumnIndexOrThrow(COL_CHANNEL_NAME));
+        channel.user_channel_name = cursor.getString(cursor.getColumnIndexOrThrow(COL_USER_CHANNEL_NAME));
+        channel.mate_id = cursor.getString(cursor.getColumnIndexOrThrow(COL_MATE));
+        channel.enable = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ENABLE))!=0;
+        return channel;
     }
 
     @Override
@@ -68,6 +59,10 @@ public class Channel extends BaseModel {
         cv.put(COL_MATE, mate_id);
         cv.put(COL_ENABLE, enable?1:0);
         return cv;
+    }
+
+    public void delete(SQLiteDatabase db){
+        db.rawQuery("DELETE FROM "+TABLE_NAME+" WHERE "+COL_ID+"=?", new String[]{id});
     }
 
     public static Cursor getCursor(SQLiteDatabase db){

@@ -4,12 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
-
-import im.where.whereim.Key;
 
 /**
  * Created by buganini on 31/01/17.
@@ -63,23 +58,19 @@ public class Enchantment extends BaseModel {
     public double radius;
     public boolean isPublic;
     public Boolean enable;
+    public boolean deleted = false;
 
-    public static JSONObject parseToJson(Cursor cursor){
-        try {
-            JSONObject j = new JSONObject();
-            j.put(Key.ID, cursor.getString(cursor.getColumnIndexOrThrow(COL_ID)));
-            j.put(Key.CHANNEL, cursor.getString(cursor.getColumnIndexOrThrow(COL_CHANNEL_ID)));
-            j.put(Key.NAME, cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME)));
-            j.put(Key.LATITUDE, cursor.getDouble(cursor.getColumnIndexOrThrow(COL_LATITUDE)));
-            j.put(Key.LONGITUDE, cursor.getDouble(cursor.getColumnIndexOrThrow(COL_LONGITUDE)));
-            j.put(Key.RADIUS, cursor.getDouble(cursor.getColumnIndexOrThrow(COL_RADIUS)));
-            j.put(Key.PUBLIC, cursor.getInt(cursor.getColumnIndexOrThrow(COL_PUBLIC))!=0);
-            j.put(Key.ENABLE, cursor.getInt(cursor.getColumnIndexOrThrow(COL_ENABLE))!=0);
-            return j;
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public static Enchantment parse(Cursor cursor){
+        Enchantment enchantment = new Enchantment();
+        enchantment.id = cursor.getString(cursor.getColumnIndexOrThrow(COL_ID));
+        enchantment.channel_id = cursor.getString(cursor.getColumnIndexOrThrow(COL_CHANNEL_ID));
+        enchantment.name = cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME));
+        enchantment.latitude = cursor.getDouble(cursor.getColumnIndexOrThrow(COL_LATITUDE));
+        enchantment.longitude = cursor.getDouble(cursor.getColumnIndexOrThrow(COL_LONGITUDE));
+        enchantment.radius = cursor.getDouble(cursor.getColumnIndexOrThrow(COL_RADIUS));
+        enchantment.isPublic = cursor.getInt(cursor.getColumnIndexOrThrow(COL_PUBLIC))!=0;
+        enchantment.enable = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ENABLE))!=0;
+        return enchantment;
     }
 
     @Override
@@ -99,6 +90,10 @@ public class Enchantment extends BaseModel {
         cv.put(COL_PUBLIC, isPublic?1:0);
         cv.put(COL_ENABLE, enable?1:0);
         return cv;
+    }
+
+    public void delete(SQLiteDatabase db){
+        db.rawQuery("DELETE FROM "+TABLE_NAME+" WHERE "+COL_ID+"=?", new String[]{id});
     }
 
     public static Cursor getCursor(SQLiteDatabase db){

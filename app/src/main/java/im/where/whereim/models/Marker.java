@@ -84,6 +84,7 @@ public class Marker extends BaseModel {
     public JSONObject attr;
     public boolean isPublic;
     public Boolean enable;
+    public boolean deleted = false;
 
     public static int getIconResource(JSONObject attr) {
         String color = "red";
@@ -127,22 +128,21 @@ public class Marker extends BaseModel {
         return f;
     }
 
-    public static JSONObject parseToJson(Cursor cursor){
+    public static Marker parse(Cursor cursor){
+        Marker marker = new Marker();
+        marker.id = cursor.getString(cursor.getColumnIndexOrThrow(COL_ID));
+        marker.channel_id = cursor.getString(cursor.getColumnIndexOrThrow(COL_CHANNEL_ID));
+        marker.name = cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME));
+        marker.latitude = cursor.getDouble(cursor.getColumnIndexOrThrow(COL_LATITUDE));
+        marker.longitude = cursor.getDouble(cursor.getColumnIndexOrThrow(COL_LONGITUDE));
         try {
-            JSONObject j = new JSONObject();
-            j.put(Key.ID, cursor.getString(cursor.getColumnIndexOrThrow(COL_ID)));
-            j.put(Key.CHANNEL, cursor.getString(cursor.getColumnIndexOrThrow(COL_CHANNEL_ID)));
-            j.put(Key.NAME, cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME)));
-            j.put(Key.LATITUDE, cursor.getDouble(cursor.getColumnIndexOrThrow(COL_LATITUDE)));
-            j.put(Key.LONGITUDE, cursor.getDouble(cursor.getColumnIndexOrThrow(COL_LONGITUDE)));
-            j.put(Key.ATTR, new JSONObject(cursor.getString(cursor.getColumnIndexOrThrow(COL_ATTR))));
-            j.put(Key.PUBLIC, cursor.getInt(cursor.getColumnIndexOrThrow(COL_PUBLIC))!=0);
-            j.put(Key.ENABLE, cursor.getInt(cursor.getColumnIndexOrThrow(COL_ENABLE))!=0);
-            return j;
+            marker.attr = new JSONObject(cursor.getString(cursor.getColumnIndexOrThrow(COL_ATTR)));
         } catch (JSONException e) {
-            e.printStackTrace();
+            marker.attr = new JSONObject();
         }
-        return null;
+        marker.isPublic = cursor.getInt(cursor.getColumnIndexOrThrow(COL_PUBLIC))!=0;
+        marker.enable = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ENABLE))!=0;
+        return marker;
     }
 
     @Override
@@ -162,6 +162,10 @@ public class Marker extends BaseModel {
         cv.put(COL_PUBLIC, isPublic?1:0);
         cv.put(COL_ENABLE, enable?1:0);
         return cv;
+    }
+
+    public void delete(SQLiteDatabase db){
+        db.rawQuery("DELETE FROM "+TABLE_NAME+" WHERE "+COL_ID+"=?", new String[]{id});
     }
 
     public static Cursor getCursor(SQLiteDatabase db){

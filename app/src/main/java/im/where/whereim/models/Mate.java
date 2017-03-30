@@ -4,11 +4,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import im.where.whereim.Key;
-
 /**
  * Created by buganini on 31/01/17.
  */
@@ -46,25 +41,24 @@ public class Mate extends BaseModel {
     public Double bearing;
     public Double speed; //m
     public Long time;
+    public boolean deleted = false;
 
     public String getDisplayName(){
         if(this.user_mate_name!=null){
             return this.user_mate_name;
         }
-        return this.mate_name;
-    }
-    public static JSONObject parseToJson(Cursor cursor){
-        try {
-            JSONObject j = new JSONObject();
-            j.put(Key.ID, cursor.getString(cursor.getColumnIndexOrThrow(COL_ID)));
-            j.put(Key.CHANNEL, cursor.getString(cursor.getColumnIndexOrThrow(COL_CHANNEL_ID)));
-            j.put(Key.MATE_NAME, cursor.getString(cursor.getColumnIndexOrThrow(COL_MATE_NAME)));
-            j.put(Key.USER_MATE_NAME, cursor.getString(cursor.getColumnIndexOrThrow(COL_USER_MATE_NAME)));
-            return j;
-        } catch (JSONException e) {
-            e.printStackTrace();
+        if(this.mate_name!=null){
+            return this.mate_name;
         }
-        return null;
+        return "";
+    }
+    public static Mate parse(Cursor cursor){
+        Mate mate = new Mate();
+        mate.id = cursor.getString(cursor.getColumnIndexOrThrow(COL_ID));
+        mate.channel_id = cursor.getString(cursor.getColumnIndexOrThrow(COL_CHANNEL_ID));
+        mate.mate_name = cursor.getString(cursor.getColumnIndexOrThrow(COL_MATE_NAME));
+        mate.user_mate_name = cursor.getString(cursor.getColumnIndexOrThrow(COL_USER_MATE_NAME));
+        return mate;
     }
 
     @Override
@@ -80,6 +74,10 @@ public class Mate extends BaseModel {
         cv.put(COL_MATE_NAME, mate_name);
         cv.put(COL_USER_MATE_NAME, user_mate_name);
         return cv;
+    }
+
+    public void delete(SQLiteDatabase db){
+        db.rawQuery("DELETE FROM "+TABLE_NAME+" WHERE "+COL_ID+"=?", new String[]{id});
     }
 
     public static Cursor getCursor(SQLiteDatabase db){

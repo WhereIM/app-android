@@ -297,13 +297,6 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                         circle.remove();
                     }
                 }
-                Circle circle = googleMap.addCircle(new CircleOptions()
-                        .center(new LatLng(mate.latitude, mate.longitude))
-                        .radius(mate.accuracy)
-                        .strokeColor(Color.BLUE));
-                synchronized (mMateCircle) {
-                    mMateCircle.put(mate.id, circle);
-                }
 
                 synchronized (mMateMarker) {
                     Marker marker = mMateMarker.get(mate.id);
@@ -312,23 +305,36 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                     }
                 }
 
-                mMarkerView.invalidate();
-                mMarkerViewTitle.setText(mate.getDisplayName());
-                mMarkerView.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-                        View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-                mMarkerView.layout(0, 0, mMarkerView.getMeasuredWidth(), mMarkerView.getMeasuredHeight());
-                mMarkerView.setDrawingCacheEnabled(true);
-                mMarkerView.buildDrawingCache();
+                if(mate.deleted){
+                    mMateCircle.remove(mate.id);
+                    mMateMarker.remove(mate.id);
+                }else {
+                    Circle circle = googleMap.addCircle(new CircleOptions()
+                            .center(new LatLng(mate.latitude, mate.longitude))
+                            .radius(mate.accuracy)
+                            .strokeColor(Color.BLUE));
+                    synchronized (mMateCircle) {
+                        mMateCircle.put(mate.id, circle);
+                    }
 
-                Marker marker = googleMap.addMarker(
-                        new MarkerOptions()
-                                .position(new LatLng(mate.latitude, mate.longitude))
-                                .anchor(0.5f, 1f)
-                                .icon(BitmapDescriptorFactory.fromBitmap(mMarkerView.getDrawingCache()))
-                );
+                    mMarkerView.invalidate();
+                    mMarkerViewTitle.setText(mate.getDisplayName());
+                    mMarkerView.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+                    mMarkerView.layout(0, 0, mMarkerView.getMeasuredWidth(), mMarkerView.getMeasuredHeight());
+                    mMarkerView.setDrawingCacheEnabled(true);
+                    mMarkerView.buildDrawingCache();
 
-                synchronized (mMateMarker){
-                    mMateMarker.put(mate.id, marker);
+                    Marker marker = googleMap.addMarker(
+                            new MarkerOptions()
+                                    .position(new LatLng(mate.latitude, mate.longitude))
+                                    .anchor(0.5f, 1f)
+                                    .icon(BitmapDescriptorFactory.fromBitmap(mMarkerView.getDrawingCache()))
+                    );
+
+                    synchronized (mMateMarker) {
+                        mMateMarker.put(mate.id, marker);
+                    }
                 }
             }
         });
@@ -362,13 +368,17 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                         circle.remove();
                     }
                 }
-                if(enchantment.enable==null || enchantment.enable){
-                    Circle circle = googleMap.addCircle(new CircleOptions()
-                            .center(new LatLng(enchantment.latitude, enchantment.longitude))
-                            .radius(enchantment.radius)
-                            .strokeColor(enchantment.isPublic?Color.RED:Color.YELLOW));
-                    synchronized (mEnchantmentCircle) {
-                        mEnchantmentCircle.put(enchantment.id, circle);
+                if(enchantment.deleted){
+                    mEnchantmentCircle.remove(enchantment.id);
+                }else {
+                    if (enchantment.enable == null || enchantment.enable) {
+                        Circle circle = googleMap.addCircle(new CircleOptions()
+                                .center(new LatLng(enchantment.latitude, enchantment.longitude))
+                                .radius(enchantment.radius)
+                                .strokeColor(enchantment.isPublic ? Color.RED : Color.YELLOW));
+                        synchronized (mEnchantmentCircle) {
+                            mEnchantmentCircle.put(enchantment.id, circle);
+                        }
                     }
                 }
             }
@@ -389,19 +399,23 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                         m.remove();
                     }
                 }
-                if(marker.enable==null || marker.enable){
-                    m = googleMap.addMarker(
-                            new MarkerOptions()
-                                    .title(marker.name)
-                                    .position(new LatLng(marker.latitude, marker.longitude))
-                                    .icon(marker.getIconBitmapDescriptor())
-                                    .anchor(0.5f, 1)
-                    );
+                if(marker.deleted){
+                    mMarkerMarker.remove(marker.id);
+                }else {
+                    if (marker.enable == null || marker.enable) {
+                        m = googleMap.addMarker(
+                                new MarkerOptions()
+                                        .title(marker.name)
+                                        .position(new LatLng(marker.latitude, marker.longitude))
+                                        .icon(marker.getIconBitmapDescriptor())
+                                        .anchor(0.5f, 1)
+                        );
 
-                    synchronized (mMarkerMarker){
-                        mMarkerMarker.put(marker.id, m);
+                        synchronized (mMarkerMarker) {
+                            mMarkerMarker.put(marker.id, m);
+                        }
+
                     }
-
                 }
             }
         });

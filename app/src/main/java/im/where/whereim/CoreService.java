@@ -777,25 +777,53 @@ public class CoreService extends Service {
 
             cursor = Channel.getCursor(mWimDBHelper.getDatabase());
             while (cursor.moveToNext()) {
-                mqttClientChannelHandler(Channel.parseToJson(cursor));
+                Channel channel = Channel.parse(cursor);
+                mChannelList.add(channel);
+                mChannelMap.put(channel.id, channel);
+                clientChannelHandler(channel);
             }
 
             cursor = Mate.getCursor(mWimDBHelper.getDatabase());
             while (cursor.moveToNext()) {
-                JSONObject j = Mate.parseToJson(cursor);
-                mqttChannelMateHandler(j.getString(Key.CHANNEL), j);
+                Mate mate = Mate.parse(cursor);
+
+                HashMap<String, Mate> mateMap;
+                synchronized (mChannelMate) {
+                    mateMap = mChannelMate.get(mate.channel_id);
+                    if(mateMap==null){
+                        mateMap = new HashMap<>();
+                        mChannelMate.put(mate.channel_id, mateMap);
+                    }
+                    mateMap.put(mate.id, mate);
+                }
+
+                channelMateHandler(mate);
             }
 
             cursor = Marker.getCursor(mWimDBHelper.getDatabase());
             while (cursor.moveToNext()) {
-                JSONObject j = Marker.parseToJson(cursor);
-                mqttMarkerHandler(j);
+                Marker marker = Marker.parse(cursor);
+                HashMap<String, Marker> list = mChannelMarker.get(marker.channel_id);
+                if (list == null) {
+                    list = new HashMap<>();
+                    mChannelMarker.put(marker.channel_id, list);
+                }
+                list.put(marker.id, marker);
+
+                markerHandler(marker);
             }
 
             cursor = Enchantment.getCursor(mWimDBHelper.getDatabase());
             while (cursor.moveToNext()) {
-                JSONObject j = Enchantment.parseToJson(cursor);
-                mqttEnchantmentHandler(j);
+                Enchantment enchantment = Enchantment.parse(cursor);
+                HashMap<String, Enchantment> list = mChannelEnchantment.get(enchantment.channel_id);
+                if (list == null) {
+                    list = new HashMap<>();
+                    mChannelEnchantment.put(enchantment.channel_id, list);
+                }
+                list.put(enchantment.id, enchantment);
+
+                enchantmentHandler(enchantment);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -910,6 +938,19 @@ public class CoreService extends Service {
                 _checkLocationService();
             }
         });
+    }
+
+    private void notifyChannelMateListChangedListeners(String channel_id){
+        List<Runnable> list;
+        synchronized (mMateListener){
+            list = mMateListener.get(channel_id);
+            if(list!=null){
+                for (Runnable runnable : list) {
+                    mHandler.post(runnable);
+                }
+            }
+        }
+
     }
 
     private void notifyChannelEnchantmentListChangedListeners(String channel_id){
@@ -1082,7 +1123,7 @@ public class CoreService extends Service {
     }
 
     private final HashMap<String, HashMap<String, Enchantment>> mChannelEnchantment = new HashMap<>();
-    private void mqttEnchantmentHandler(JSONObject data){
+    private void mqttEnchantmentHandler(JSONObject data) {
         final String enchantment_id;
         final String channel_id;
         Enchantment enchantment;
@@ -1095,13 +1136,13 @@ public class CoreService extends Service {
         }
         synchronized (mChannelEnchantment) {
             HashMap<String, Enchantment> list = mChannelEnchantment.get(channel_id);
-            if(list==null){
+            if (list == null) {
                 list = new HashMap<>();
                 mChannelEnchantment.put(channel_id, list);
             }
 
             enchantment = list.get(enchantment_id);
-            if(enchantment==null){
+            if (enchantment == null) {
                 enchantment = new Enchantment();
                 list.put(enchantment_id, enchantment);
             }
@@ -1113,36 +1154,52 @@ public class CoreService extends Service {
             enchantment.radius = data.optDouble(Key.RADIUS, enchantment.radius);
             enchantment.isPublic = data.optBoolean(Key.PUBLIC, enchantment.isPublic);
             enchantment.enable = Util.JsonOptBoolean(data, Key.ENABLE, enchantment.enable);
+            enchantment.deleted = Util.JsonOptBoolean(data, Key.DELETED, enchantment.deleted);
+        }
+
+        if(!enchantment.deleted){
+            mWimDBHelper.replace(enchantment);
         }
 
         try {
-            if(data.has(Key.TS)) {
-                mWimDBHelper.replace(enchantment);
+            if (data.has(Key.TS)) {
                 setTS(channel_id, data.getLong(Key.TS));
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        final Enchantment _e = enchantment;
+        enchantmentHandler(enchantment);
+    }
+
+    private void enchantmentHandler(final Enchantment enchantment){
         mHandler.post(new Runnable() {
             @Override
             public void run() {
                 synchronized (mMapDataReceiver){
-                    if(mMapDataReceiver.containsKey(channel_id)){
-                        for (MapDataReceiver mapDataReceiver : mMapDataReceiver.get(channel_id)) {
-                            mapDataReceiver.onEnchantmentData(_e);
+                    if(mMapDataReceiver.containsKey(enchantment.channel_id)){
+                        for (MapDataReceiver mapDataReceiver : mMapDataReceiver.get(enchantment.channel_id)) {
+                            mapDataReceiver.onEnchantmentData(enchantment);
                         }
                     }
                 }
 
             }
         });
-        notifyChannelEnchantmentListChangedListeners(channel_id);
+
+        if(enchantment.deleted){
+            HashMap<String, Enchantment> list = mChannelEnchantment.get(enchantment.channel_id);
+            if(list!=null) {
+                list.remove(enchantment.id);
+            }
+            enchantment.delete(mWimDBHelper.getDatabase());
+        }
+
+        notifyChannelEnchantmentListChangedListeners(enchantment.channel_id);
     }
 
     private final HashMap<String, HashMap<String, Marker>> mChannelMarker = new HashMap<>();
-    private void mqttMarkerHandler(JSONObject data){
+    private void mqttMarkerHandler(JSONObject data) {
         final String marker_id;
         final String channel_id;
         try {
@@ -1155,13 +1212,13 @@ public class CoreService extends Service {
         Marker marker;
         synchronized (mChannelMarker) {
             HashMap<String, Marker> list = mChannelMarker.get(channel_id);
-            if(list==null){
+            if (list == null) {
                 list = new HashMap<>();
                 mChannelMarker.put(channel_id, list);
             }
 
             marker = list.get(marker_id);
-            if(marker==null){
+            if (marker == null) {
                 marker = new Marker();
                 list.put(marker_id, marker);
             }
@@ -1172,40 +1229,55 @@ public class CoreService extends Service {
                 marker.name = Util.JsonOptNullableString(data, Key.NAME, marker.name);
                 marker.latitude = data.optDouble(Key.LATITUDE, marker.latitude);
                 marker.longitude = data.optDouble(Key.LONGITUDE, marker.longitude);
-                if(data.has(Key.ATTR)) {
+                if (data.has(Key.ATTR)) {
                     marker.attr = data.getJSONObject(Key.ATTR);
                 }
                 marker.isPublic = data.optBoolean(Key.PUBLIC, marker.isPublic);
                 marker.enable = Util.JsonOptBoolean(data, Key.ENABLE, marker.enable);
+                marker.deleted = Util.JsonOptBoolean(data, Key.DELETED, marker.deleted);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
 
+        if(!marker.deleted){
+            mWimDBHelper.replace(marker);
+        }
+
         try {
-            if(data.has(Key.TS)) {
-                mWimDBHelper.replace(marker);
+            if (data.has(Key.TS)) {
                 setTS(channel_id, data.getLong(Key.TS));
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        final Marker _m = marker;
+        markerHandler(marker);
+    }
+
+    private void markerHandler(final Marker marker){
         mHandler.post(new Runnable() {
             @Override
             public void run() {
                 synchronized (mMapDataReceiver){
-                    if(mMapDataReceiver.containsKey(channel_id)){
-                        for (MapDataReceiver mapDataReceiver : mMapDataReceiver.get(channel_id)) {
-                            mapDataReceiver.onMarkerData(_m);
+                    if(mMapDataReceiver.containsKey(marker.channel_id)){
+                        for (MapDataReceiver mapDataReceiver : mMapDataReceiver.get(marker.channel_id)) {
+                            mapDataReceiver.onMarkerData(marker);
                         }
                     }
                 }
-
             }
         });
-        notifyChannelMarkerListChangedListeners(channel_id);
+
+        if(marker.deleted){
+            HashMap<String, Marker> list = mChannelMarker.get(marker.channel_id);
+            if(list!=null){
+                list.remove(marker.id);
+            }
+            marker.delete(mWimDBHelper.getDatabase());
+        }
+
+        notifyChannelMarkerListChangedListeners(marker.channel_id);
     }
 
     private final HashMap<String, Boolean> mChannelDataSync = new HashMap<>();
@@ -1229,25 +1301,39 @@ public class CoreService extends Service {
             channel.channel_name  = msg.optString(Key.CHANNEL_NAME, channel.channel_name);
             channel.user_channel_name = Util.JsonOptNullableString(msg, Key.USER_CHANNEL_NAME, channel.user_channel_name);
             channel.mate_id = Util.JsonOptNullableString(msg, Key.MATE, channel.mate_id);
+            channel.deleted = Util.JsonOptBoolean(msg, Key.DELETED, channel.deleted);
             if(msg.has(Key.ENABLE)){
                 channel.enable = msg.getBoolean(Key.ENABLE);
             }
 
-            if(msg.has(Key.TS)) {
+            if(!channel.deleted){
                 mWimDBHelper.replace(channel);
+            }
+
+            if(msg.has(Key.TS)) {
                 setTS(msg.getLong(Key.TS));
             }
 
-            subscribe(String.format("channel/%s/data/+/get", channel_id));
-
-            syncChannelData(channel);
-
-            notifyChannelListChangedListeners();
-
-            syncChannelMessage(channel);
+            clientChannelHandler(channel);
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+    }
+
+    private void clientChannelHandler(Channel channel){
+        String topic = String.format("channel/%s/data/+/get", channel.id);
+        if(channel.deleted){
+            unsubscribe(topic);
+            mChannelMap.remove(channel.id);
+            mChannelList.remove(channel);
+            channel.delete(mWimDBHelper.getDatabase());
+        }else{
+            subscribe(topic);
+            syncChannelData(channel);
+            syncChannelMessage(channel);
+        }
+        notifyChannelListChangedListeners();
     }
 
     // ================ Channel Data ================
@@ -1305,15 +1391,45 @@ public class CoreService extends Service {
         Mate mate = getChannelMate(channel_id, mate_id);
         mate.mate_name = Util.JsonGetNullableString(data, Key.MATE_NAME);
         mate.user_mate_name = Util.JsonGetNullableString(data, Key.USER_MATE_NAME);
+        mate.deleted = Util.JsonOptBoolean(data, Key.DELETED, mate.deleted);
+
+        if(!mate.deleted) {
+            mWimDBHelper.replace(mate);
+        }
 
         try {
             if(data.has(Key.TS)) {
-                mWimDBHelper.replace(mate);
                 setTS(channel_id, data.getLong(Key.TS));
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+        channelMateHandler(mate);
+    }
+
+    private void channelMateHandler(final Mate mate){
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (mMapDataReceiver){
+                    if(mMapDataReceiver.containsKey(mate.channel_id)){
+                        for (MapDataReceiver mapDataReceiver : mMapDataReceiver.get(mate.channel_id)) {
+                            mapDataReceiver.onMateData(mate);
+                        }
+                    }
+                }
+            }
+        });
+
+        if(mate.deleted){
+            HashMap<String, Mate> list = mChannelMate.get(mate.channel_id);
+            if(list!=null){
+                list.remove(mate.id);
+            }
+            mate.delete(mWimDBHelper.getDatabase());
+        }
+        notifyChannelMateListChangedListeners(mate.channel_id);
     }
 
     private HashMap<String, HashMap<String, Mate>> mChannelMate = new HashMap<>();
