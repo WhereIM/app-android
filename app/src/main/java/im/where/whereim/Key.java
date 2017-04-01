@@ -40,6 +40,7 @@ public class Key {
     public final static String PUBLIC = "public";
 
     public final static String RADIUS = "r";
+    public final static String ENABLE_RADIUS = "enable_radius";
 
     public final static String SN = "sn";
     public final static String SPEED = "spd";

@@ -3,7 +3,6 @@ package im.where.whereim;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.text.SpannableString;
 import android.view.LayoutInflater;
@@ -25,8 +24,6 @@ public class ChannelMessengerFragment extends BaseFragment {
     public ChannelMessengerFragment() {
         // Required empty public constructor
     }
-
-    private Handler mHandler = new Handler();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

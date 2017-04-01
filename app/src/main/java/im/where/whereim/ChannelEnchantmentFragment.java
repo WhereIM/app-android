@@ -33,17 +33,21 @@ public class ChannelEnchantmentFragment extends BaseFragment {
 
         @Override
         public int getGroupCount() {
-            return 2;
+            return 3;
         }
 
         @Override
         public int getChildrenCount(int groupPosition) {
-            if(mEnchantmentList==null)
-                return 0;
             switch (groupPosition){
                 case 0:
-                    return mEnchantmentList.public_list.size();
+                    return 1;
                 case 1:
+                    if(mEnchantmentList==null)
+                        return 0;
+                    return mEnchantmentList.public_list.size();
+                case 2:
+                    if(mEnchantmentList==null)
+                        return 0;
                     return mEnchantmentList.private_list.size();
             }
             return 0;
@@ -53,21 +57,27 @@ public class ChannelEnchantmentFragment extends BaseFragment {
         public Object getGroup(int groupPosition) {
             switch (groupPosition){
                 case 0:
-                    return R.string.is_public;
+                    return R.string.self;
                 case 1:
-                    return R.string.is_private;
+                    return R.string.public_enchantment;
+                case 2:
+                    return R.string.private_enchantment;
             }
             return 0;
         }
 
         @Override
         public Object getChild(int groupPosition, int childPosition) {
-            if(mEnchantmentList==null)
-                return null;
             switch (groupPosition){
                 case 0:
-                    return mEnchantmentList.public_list.get(childPosition);
+                    return null;
                 case 1:
+                    if(mEnchantmentList==null)
+                        return null;
+                    return mEnchantmentList.public_list.get(childPosition);
+                case 2:
+                    if(mEnchantmentList==null)
+                        return null;
                     return mEnchantmentList.private_list.get(childPosition);
             }
             return null;
@@ -121,6 +131,7 @@ public class ChannelEnchantmentFragment extends BaseFragment {
 
         private class ChildViewHolder {
             private Enchantment enchantment;
+            private Channel channel;
             TextView name;
             Switch enable;
             View loading;
@@ -135,7 +146,12 @@ public class ChannelEnchantmentFragment extends BaseFragment {
                         postBinderTask(new CoreService.BinderTask() {
                             @Override
                             public void onBinderReady(CoreService.CoreBinder binder) {
-                                binder.toggleEnchantmentEnabled(enchantment);
+                                if(enchantment!=null) {
+                                    binder.toggleEnchantmentEnabled(enchantment);
+                                }
+                                if(channel!=null){
+                                    binder.toggleRadiusEnabled(channel);
+                                }
                             }
                         });
                     }
@@ -144,6 +160,7 @@ public class ChannelEnchantmentFragment extends BaseFragment {
 
             public void setItem(Enchantment e){
                 enchantment = e;
+                channel = null;
                 this.name.setText(e.name);
                 if(e.enable==null){
                     this.loading.setVisibility(View.VISIBLE);
@@ -152,6 +169,20 @@ public class ChannelEnchantmentFragment extends BaseFragment {
                     this.loading.setVisibility(View.GONE);
                     this.enable.setVisibility(View.VISIBLE);
                     this.enable.setChecked(e.enable);
+                }
+            }
+
+            public void setItem(Channel c){
+                enchantment = null;
+                channel = c;
+                this.name.setText(getString(R.string.radius_m, (int)c.radius));
+                if(c.enable_radius ==null){
+                    this.loading.setVisibility(View.VISIBLE);
+                    this.enable.setVisibility(View.GONE);
+                }else{
+                    this.loading.setVisibility(View.GONE);
+                    this.enable.setVisibility(View.VISIBLE);
+                    this.enable.setChecked(c.enable_radius);
                 }
             }
         }
@@ -165,8 +196,12 @@ public class ChannelEnchantmentFragment extends BaseFragment {
             }else{
                 vh = (ChildViewHolder) view.getTag();
             }
-            Enchantment e = (Enchantment) getChild(groupPosition, childPosition);
-            vh.setItem(e);
+            if(groupPosition==0){
+                vh.setItem(mChannel);
+            }else{
+                Enchantment e = (Enchantment) getChild(groupPosition, childPosition);
+                vh.setItem(e);
+            }
             return view;
         }
 
@@ -205,6 +240,7 @@ public class ChannelEnchantmentFragment extends BaseFragment {
                             }
                         });
 
+                        binder.addChannelChangedListener(channel.id, mChannelListener);
                         binder.addEnchantmentListener(channel, mEnchantmentListener);
                     }
                 });
@@ -212,6 +248,18 @@ public class ChannelEnchantmentFragment extends BaseFragment {
         });
         return view;
     }
+
+    private Runnable mChannelListener = new Runnable() {
+        @Override
+        public void run() {
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    mAdapter.notifyDataSetChanged();
+                }
+            });
+        }
+    };
 
     private Runnable mEnchantmentListener = new Runnable() {
         @Override
@@ -236,6 +284,7 @@ public class ChannelEnchantmentFragment extends BaseFragment {
         postBinderTask(new CoreService.BinderTask() {
             @Override
             public void onBinderReady(CoreService.CoreBinder binder) {
+                binder.removeChannelChangedListener(mChannel.id, mChannelListener);
                 binder.removeEnchantmentListener(mChannel, mEnchantmentListener);
             }
         });

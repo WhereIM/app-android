@@ -16,6 +16,8 @@ public class Channel extends BaseModel {
     private final static String COL_USER_CHANNEL_NAME = "user_channel_name";
     private final static String COL_MATE = "mate";
     private final static String COL_ENABLE = "enable";
+    private final static String COL_ENABLE_RADIUS = "enable_radius";
+    private final static String COL_RADIUS = "radius";
 
     public static void createTable(SQLiteDatabase db){
         String sql;
@@ -24,7 +26,10 @@ public class Channel extends BaseModel {
                 COL_CHANNEL_NAME + " TEXT, " +
                 COL_USER_CHANNEL_NAME + " TEXT, " +
                 COL_MATE + " TEXT, " +
-                COL_ENABLE + " INTEGER)";
+                COL_ENABLE + " BOOLEAN, " +
+                COL_ENABLE_RADIUS + " BOOLEAN, " +
+                COL_RADIUS + " DOUBLE PRECISION" +
+                ")";
         db.execSQL(sql);
     }
 
@@ -33,6 +38,8 @@ public class Channel extends BaseModel {
     public String user_channel_name;
     public String mate_id;
     public Boolean enable;
+    public Boolean enable_radius;
+    public double radius;
     public boolean deleted = false;
 
     public static Channel parse(Cursor cursor){
@@ -42,6 +49,8 @@ public class Channel extends BaseModel {
         channel.user_channel_name = cursor.getString(cursor.getColumnIndexOrThrow(COL_USER_CHANNEL_NAME));
         channel.mate_id = cursor.getString(cursor.getColumnIndexOrThrow(COL_MATE));
         channel.enable = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ENABLE))!=0;
+        channel.enable_radius = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ENABLE_RADIUS))!=0;
+        channel.radius = cursor.getDouble(cursor.getColumnIndexOrThrow(COL_RADIUS));
         return channel;
     }
 
@@ -58,6 +67,8 @@ public class Channel extends BaseModel {
         cv.put(COL_USER_CHANNEL_NAME, user_channel_name);
         cv.put(COL_MATE, mate_id);
         cv.put(COL_ENABLE, enable?1:0);
+        cv.put(COL_ENABLE_RADIUS, enable_radius ?1:0);
+        cv.put(COL_RADIUS, radius);
         return cv;
     }
 

@@ -146,6 +146,9 @@ public class Message extends BaseModel {
                         }
                     }
                     return ret;
+
+                case "radius_report":
+                    return new SpannableString(this.message);
             }
         }catch(JSONException e){
             e.printStackTrace();

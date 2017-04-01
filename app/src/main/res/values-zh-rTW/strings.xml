@@ -19,7 +19,14 @@
     <string name="icon">圖示</string>
     <string name="mock">假資料</string>
 
+    <string name="radius_m">%1$d m</string>
+
+    <string name="self">自己</string>
     <string name="mate">同伴</string>
+    <string name="public_enchantment">公用結界</string>
+    <string name="private_enchantment">個人結界</string>
+    <string name="public_marker">公用圖釘</string>
+    <string name="private_marker">個人圖釘</string>
     <string name="is_public">公用</string>
     <string name="is_private">自用</string>
 

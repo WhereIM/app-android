@@ -20,7 +20,14 @@
     <string name="icon">Icon</string>
     <string name="mock">Mock</string>
 
+    <string name="radius_m">%1$d m</string>
+
+    <string name="self">Self</string>
     <string name="mate">Mate</string>
+    <string name="public_enchantment">Public Enchantment</string>
+    <string name="private_enchantment">Private Enchantment</string>
+    <string name="public_marker">Public Marker</string>
+    <string name="private_marker">Private Marker</string>
     <string name="is_public">Public</string>
     <string name="is_private">Private</string>
 

@@ -82,9 +82,9 @@ public class ChannelMarkerFragment extends BaseFragment {
                 case 0:
                     return R.string.mate;
                 case 1:
-                    return R.string.is_public;
+                    return R.string.public_marker;
                 case 2:
-                    return R.string.is_private;
+                    return R.string.private_marker;
             }
             return 0;
         }

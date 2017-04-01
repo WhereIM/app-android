@@ -230,7 +230,11 @@ public class CoreService extends Service {
 
         public List<Channel> getChannelList(){
             synchronized (mChannelList) {
-                return Collections.unmodifiableList(mChannelList);
+                ArrayList<Channel> list = new ArrayList<>();
+                for (Channel channel : mChannelList) {
+                    list.add(channel);
+                }
+                return list;
             }
         }
 
@@ -242,6 +246,26 @@ public class CoreService extends Service {
                 }
             }
             return null;
+        }
+
+        public void addChannelChangedListener(String channel_id, Runnable r){
+            synchronized (mChannelChangedListener){
+                List<Runnable> list = mChannelChangedListener.get(channel_id);
+                if(list==null){
+                    list = new ArrayList<>();
+                    mChannelChangedListener.put(channel_id, list);
+                }
+                list.add(r);
+            }
+        }
+
+        public void removeChannelChangedListener(String channel_id, Runnable r){
+            synchronized (mChannelChangedListener){
+                List<Runnable> list = mChannelChangedListener.get(channel_id);
+                if(list!=null){
+                    list.remove(r);
+                }
+            }
         }
 
         public void toggleChannelEnabled(Channel channel){
@@ -372,6 +396,26 @@ public class CoreService extends Service {
 
         public Mate getChannelMate(String channel_id, String mate_id){
             return CoreService.this.getChannelMate(channel_id, mate_id);
+        }
+
+        public void toggleRadiusEnabled(Channel channel){
+            if(channel==null){
+                return;
+            }
+            if(channel.enable_radius==null){
+                return;
+            }
+            try {
+                JSONObject payload = new JSONObject();
+                payload.put(Key.CHANNEL, channel.id);
+                payload.put(Key.ENABLE_RADIUS, !channel.enable_radius);
+                channel.enable_radius = null;
+                String topic = String.format("client/%s/channel/put", mClientId);
+                publish(topic, payload);
+                notifyChannelChangedListeners(channel.id);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
 
         public void createEnchantment(String name, String channel_id, boolean ispublic, double latitude, double longitude, int radius, boolean enable) {
@@ -704,6 +748,7 @@ public class CoreService extends Service {
     private Handler mHandler = new Handler();
     private final List<ConnectionStatusCallback> mConnectionStatusChangedListener = new ArrayList<>();
     private final List<Runnable> mChannelListChangedListener = new ArrayList<>();
+    private final HashMap<String, List<Runnable>> mChannelChangedListener = new HashMap<>();
     private final HashMap<String, List<Runnable>> mMateListener = new HashMap<>();
     private final HashMap<String, List<Runnable>> mEnchantmentListener = new HashMap<>();
     private final HashMap<String, List<Runnable>> mMarkerListener = new HashMap<>();
@@ -938,6 +983,17 @@ public class CoreService extends Service {
                 _checkLocationService();
             }
         });
+    }
+
+    private void notifyChannelChangedListeners(String channel_id){
+        synchronized (mChannelChangedListener){
+            List<Runnable> list = mChannelChangedListener.get(channel_id);
+            if(list!=null){
+                for (Runnable runnable : list) {
+                    mHandler.post(runnable);
+                }
+            }
+        }
     }
 
     private void notifyChannelMateListChangedListeners(String channel_id){
@@ -1301,6 +1357,8 @@ public class CoreService extends Service {
             channel.channel_name  = msg.optString(Key.CHANNEL_NAME, channel.channel_name);
             channel.user_channel_name = Util.JsonOptNullableString(msg, Key.USER_CHANNEL_NAME, channel.user_channel_name);
             channel.mate_id = Util.JsonOptNullableString(msg, Key.MATE, channel.mate_id);
+            channel.enable_radius = Util.JsonOptBoolean(msg, Key.ENABLE_RADIUS, channel.enable_radius);
+            channel.radius = msg.optDouble(Key.RADIUS, channel.radius);
             channel.deleted = Util.JsonOptBoolean(msg, Key.DELETED, channel.deleted);
             if(msg.has(Key.ENABLE)){
                 channel.enable = msg.getBoolean(Key.ENABLE);
@@ -1333,6 +1391,7 @@ public class CoreService extends Service {
             syncChannelData(channel);
             syncChannelMessage(channel);
         }
+        notifyChannelChangedListeners(channel.id);
         notifyChannelListChangedListeners();
     }
 
@@ -1557,7 +1616,6 @@ public class CoreService extends Service {
                         }
                     }
                 }
-
             }
         });
     }
