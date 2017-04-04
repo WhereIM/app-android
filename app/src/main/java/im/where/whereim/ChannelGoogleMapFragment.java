@@ -162,6 +162,13 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
 
     private Channel mChannel;
 
+    private Runnable channedChangedListener = new Runnable() {
+        @Override
+        public void run() {
+            updateSelfMate();
+        }
+    };
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -175,6 +182,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                     public void onGetChannel(Channel channel) {
                         mChannel = channel;
                         binder.openMap(channel, ChannelGoogleMapFragment.this);
+                        binder.addChannelChangedListener(mChannel.id, channedChangedListener);
                     }
                 });
             }
@@ -200,6 +208,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
             @Override
             public void onBinderReady(CoreService.CoreBinder binder) {
                 binder.closeMap(mChannel, ChannelGoogleMapFragment.this);
+                binder.removeChannelChangedListener(mChannel.id, channedChangedListener);
             }
         });
 
@@ -240,7 +249,9 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         super.onDestroyView();
     }
 
+    private Mate selfMate = null;
     private Marker mMockMarker;
+    private Circle mRadiusCircle = null;
     private HashMap<String, Circle> mMateCircle = new HashMap<>();
     private HashMap<String, Marker> mMateMarker = new HashMap<>();
 
@@ -312,7 +323,9 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                     Circle circle = googleMap.addCircle(new CircleOptions()
                             .center(new LatLng(mate.latitude, mate.longitude))
                             .radius(mate.accuracy)
-                            .strokeColor(Color.BLUE));
+                            .fillColor(0x3f888888)
+                            .strokeWidth(0)
+                    );
                     synchronized (mMateCircle) {
                         mMateCircle.put(mate.id, circle);
                     }
@@ -336,6 +349,35 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                         mMateMarker.put(mate.id, marker);
                     }
                 }
+
+                if(mate.id.equals(mChannel.mate_id)){
+                    selfMate = mate;
+                    updateSelfMate();
+                }
+            }
+        });
+    }
+
+    private void updateSelfMate(){
+        if(selfMate==null)
+            return;
+        postMapTask(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                if(mRadiusCircle!=null){
+                    mRadiusCircle.remove();
+                }
+                int color;
+                if(mChannel.enable){
+                    color = Color.MAGENTA;
+                }else{
+                    color = Color.GRAY;
+                }
+                mRadiusCircle = googleMap.addCircle(new CircleOptions()
+                        .center(new LatLng(selfMate.latitude, selfMate.longitude))
+                        .radius(mChannel.radius)
+                        .strokeWidth(5)
+                        .strokeColor(color));
             }
         });
     }
@@ -375,7 +417,8 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                         Circle circle = googleMap.addCircle(new CircleOptions()
                                 .center(new LatLng(enchantment.latitude, enchantment.longitude))
                                 .radius(enchantment.radius)
-                                .strokeColor(enchantment.isPublic ? Color.RED : Color.YELLOW));
+                                .strokeWidth(3)
+                                .strokeColor(enchantment.isPublic ? Color.RED : 0xFFFFA500));
                         synchronized (mEnchantmentCircle) {
                             mEnchantmentCircle.put(enchantment.id, circle);
                         }
@@ -502,7 +545,8 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                     mEditingEnchantmentCircle = googleMap.addCircle(new CircleOptions()
                             .center(new LatLng(mEditingLatitude, mEditingLongitude))
                             .radius(Config.ENCHANTMENT_RADIUS[mEditingEnchantmentRadiusIndex])
-                            .strokeColor(Color.RED));
+                            .strokeWidth(5)
+                            .strokeColor(mEditingEnchantment.isPublic ? Color.RED : 0xFFFFA500));
                 }
             });
         }else{
