@@ -63,12 +63,15 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
         public int getCount() {
             if(mChannelList == null)
                 return 0;
-            return mChannelList.size();
+            return mChannelList.size() + 2;
         }
 
         @Override
         public Object getItem(int position) {
-            return mChannelList.get(position);
+            if(position<mChannelList.size())
+                return mChannelList.get(position);
+            else
+                return null;
         }
 
         @Override
@@ -97,6 +100,15 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
             }
 
             public void setItem(Channel channel){
+                if(channel==null){
+                    mTitle.setVisibility(View.GONE);
+                    mSubtitle.setVisibility(View.GONE);
+                    mEnable.setVisibility(View.GONE);
+                    mLoading.setVisibility(View.GONE);
+                    return;
+                }else{
+                    mTitle.setVisibility(View.VISIBLE);
+                }
                 mChannel = channel;
                 if(channel.user_channel_name !=null && !channel.user_channel_name.isEmpty()){
                     mSubtitle.setVisibility(View.VISIBLE);
@@ -209,9 +221,11 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Channel channel = (Channel) mAdapter.getItem(position);
-                Intent intent = new Intent(ChannelListActivity.this, ChannelActivity.class);
-                intent.putExtra("channel", channel.id);
-                startActivity(intent);
+                if(channel!=null){
+                    Intent intent = new Intent(ChannelListActivity.this, ChannelActivity.class);
+                    intent.putExtra("channel", channel.id);
+                    startActivity(intent);
+                }
             }
         });
 
