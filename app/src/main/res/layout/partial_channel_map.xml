@@ -34,57 +34,67 @@
         android:layout_marginBottom="16dp"
         android:background="#77ffffff"
         android:orientation="horizontal"
-        android:visibility="gone"
-        android:padding="25dp">
+        android:visibility="gone">
 
-        <Button
+        <TextView
             android:id="@+id/enchantment_reduce"
-            android:layout_width="wrap_content"
+            android:layout_width="55dp"
             android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:gravity="center"
             android:text="➖" />
 
-        <Button
+        <TextView
             android:id="@+id/enchantment_enlarge"
-            android:layout_width="wrap_content"
+            android:layout_width="55dp"
             android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:gravity="center"
             android:text="➕" />
 
-        <Button
+        <TextView
             android:id="@+id/enchantment_cancel"
-            android:layout_width="wrap_content"
+            android:layout_width="55dp"
             android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:gravity="center"
             android:text="✘" />
 
-        <Button
+        <TextView
             android:id="@+id/enchantment_ok"
-            android:layout_width="wrap_content"
+            android:layout_width="55dp"
             android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:gravity="center"
             android:text="✔" />
 
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/marker_controller"
-        android:layout_width="wrap_content"
+        android:layout_width="35dp"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="16dp"
         android:background="#77ffffff"
         android:orientation="horizontal"
-        android:visibility="gone"
-        android:padding="25dp">
+        android:visibility="gone">
 
-        <Button
+        <TextView
             android:id="@+id/marker_cancel"
-            android:layout_width="wrap_content"
+            android:layout_width="55dp"
             android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:gravity="center"
             android:text="✘" />
 
-        <Button
+        <TextView
             android:id="@+id/marker_ok"
-            android:layout_width="wrap_content"
+            android:layout_width="55dp"
             android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:gravity="center"
             android:text="✔" />
 
     </LinearLayout>
