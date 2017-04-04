@@ -72,7 +72,7 @@
 
     <LinearLayout
         android:id="@+id/marker_controller"
-        android:layout_width="35dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
