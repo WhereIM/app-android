@@ -148,7 +148,7 @@ public class Message extends BaseModel {
                     return ret;
 
                 case "radius_report":
-                    return new SpannableString(this.message);
+                    return new SpannableString(context.getResources().getString(R.string.message_radius_report, json.optString(Key.RADIUS, ""), json.optString("in", ""), json.optString("out", "")));
             }
         }catch(JSONException e){
             e.printStackTrace();

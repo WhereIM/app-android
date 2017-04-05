@@ -37,6 +37,8 @@
     <string name="message_enchantment_in">進入 %1$s 結界</string>
     <string name="message_enchantment_out">離開 %1$s 結界</string>
     <string name="message_marker_create">放了 %1$s 圖釘 {icon}</string>
+    <string name="message_radius_report">圈內: %2$s\n圈外: %3$s  (%1$s m)</string>
+
     <string name="mock_location_service_not_running">定位傳送功能未啟用，無法傳送假資料</string>
     <string name="mock_confirm_disable">確定不再傳送假資料？</string>
 </resources>
