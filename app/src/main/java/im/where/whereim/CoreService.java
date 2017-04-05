@@ -3,6 +3,7 @@ package im.where.whereim;
 import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -19,6 +20,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -1540,10 +1542,11 @@ public class CoreService extends Service {
     private void mqttChannelMessageHandler(String channel_id, JSONObject payload){
         Message message = Message.parse(payload);
         mWimDBHelper.insert(message);
-        notifyMessageListener(channel_id, message);
+        boolean fromSync = Util.JsonOptBoolean(payload, "sync", false);
+        notifyMessageListener(channel_id, message, fromSync);
     }
 
-    private void notifyMessageListener(String channel_id, Message message){
+    private void notifyMessageListener(String channel_id, Message message, boolean fromSync){
         int count = 0;
         if(channel_id==null){
             synchronized (mMessageListener) {
@@ -1565,20 +1568,28 @@ public class CoreService extends Service {
                 }
             }
         }
-//        if(count==0){
-        Log.e("lala","count="+count);
-            if(message.notify>0){
-                NotificationCompat.Builder mBuilder =
-                        new NotificationCompat.Builder(this)
-                                .setSmallIcon(R.drawable.ic_stat_logo)
-                                .setContentTitle(getString(R.string.app_name))
-                                .setContentText(message.getText(this, mBinder))
-                                .setDefaults(Notification.DEFAULT_SOUND)
-                                .setAutoCancel(true);
-                NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                notificationManager.notify((int)message.id, mBuilder.build());
-            }
-//        }
+        if(!fromSync){
+            Intent intent = new Intent(this, ChannelActivity.class);
+            intent.putExtra("channel", channel_id);
+            intent.putExtra("tab", "message");
+
+            PendingIntent pendingIntent =
+                    TaskStackBuilder.create(this)
+                            .addParentStack(ChannelActivity.class)
+                            .addNextIntent(intent)
+                            .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
+            NotificationCompat.Builder mBuilder =
+                    new NotificationCompat.Builder(this)
+                            .setSmallIcon(R.drawable.ic_stat_logo)
+                            .setContentTitle(getString(R.string.app_name))
+                            .setContentText(message.getText(this, mBinder))
+                            .setDefaults(Notification.DEFAULT_SOUND)
+                            .setContentIntent(pendingIntent)
+                            .setAutoCancel(true);
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.notify((int)message.id, mBuilder.build());
+        }
     }
 
     // ================ Channel Location ================

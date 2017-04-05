@@ -25,6 +25,8 @@ import im.where.whereim.models.Marker;
 import im.where.whereim.models.Mate;
 
 public class ChannelActivity extends BaseActivity implements CoreService.ConnectionStatusCallback {
+    private final static int TAB_MAP = 0;
+    private final static int TAB_MESSAGE = 1;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -122,7 +124,9 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
         postBinderTask(new CoreService.BinderTask() {
             @Override
             public void onBinderReady(CoreService.CoreBinder binder) {
-                String channel_id = getIntent().getStringExtra("channel");
+                Intent intent = getIntent();
+
+                String channel_id = intent.getStringExtra("channel");
                 if(channel_id!=null){
                     mChannelId = channel_id;
                 }
@@ -130,6 +134,15 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
                 mChannel = mBinder.getChannelById(mChannelId);
                 processGetChannelCallback();
                 mTabLayout.setupWithViewPager(mViewPager);
+
+                String tab = intent.getStringExtra("tab");
+                if(tab != null){
+                    switch (tab){
+                        case "message":
+                            mTabLayout.getTabAt(TAB_MESSAGE).select();
+                            break;
+                    }
+                }
             }
         });
     }
@@ -171,12 +184,12 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
             return;
         }
         mChannelMapFragment.moveToMate(mate);
-        mTabLayout.getTabAt(0).select();
+        mTabLayout.getTabAt(TAB_MAP).select();
     }
 
     public void moveToMaker(Marker marker){
         mChannelMapFragment.moveToMarker(marker);
-        mTabLayout.getTabAt(0).select();
+        mTabLayout.getTabAt(TAB_MAP).select();
     }
 
     private ChannelMapFragment mChannelMapFragment;

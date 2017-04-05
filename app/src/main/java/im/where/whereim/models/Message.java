@@ -102,7 +102,6 @@ public class Message extends BaseModel {
         m.type = cursor.getString(cursor.getColumnIndexOrThrow(COL_TYPE));
         m.message = cursor.getString(cursor.getColumnIndexOrThrow(COL_MESSAGE));
         m.time = cursor.getLong(cursor.getColumnIndexOrThrow(COL_TIME));
-        m.notify = 0;
         m.isPublic = 0 != cursor.getInt(cursor.getColumnIndexOrThrow(COL_PUBLIC));
         return m;
     }
