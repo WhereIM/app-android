@@ -366,18 +366,21 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
             public void onMapReady(GoogleMap googleMap) {
                 if(mRadiusCircle!=null){
                     mRadiusCircle.remove();
+                    mRadiusCircle = null;
                 }
-                int color;
-                if(mChannel.enable){
-                    color = Color.MAGENTA;
-                }else{
-                    color = Color.GRAY;
+                if(mChannel.enable_radius!=null && mChannel.enable_radius) {
+                    int color;
+                    if (mChannel.enable) {
+                        color = Color.MAGENTA;
+                    } else {
+                        color = Color.GRAY;
+                    }
+                    mRadiusCircle = googleMap.addCircle(new CircleOptions()
+                            .center(new LatLng(selfMate.latitude, selfMate.longitude))
+                            .radius(mChannel.radius)
+                            .strokeWidth(5)
+                            .strokeColor(color));
                 }
-                mRadiusCircle = googleMap.addCircle(new CircleOptions()
-                        .center(new LatLng(selfMate.latitude, selfMate.longitude))
-                        .radius(mChannel.radius)
-                        .strokeWidth(5)
-                        .strokeColor(color));
             }
         });
     }
