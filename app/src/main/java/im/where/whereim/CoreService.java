@@ -787,6 +787,14 @@ public class CoreService extends Service {
 
     @Override
     public void onDestroy() {
+        if(mqttManager!=null){
+            try {
+                mqttManager.disconnect();
+            } catch (Exception e) {
+                //noop
+            }
+        }
+
         stopLocationService();
         if(mIsForeground){
             mIsForeground = false;
