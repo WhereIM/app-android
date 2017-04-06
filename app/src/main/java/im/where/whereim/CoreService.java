@@ -790,6 +790,7 @@ public class CoreService extends Service {
         if(mqttManager!=null){
             try {
                 mqttManager.disconnect();
+                mqttManager = null;
             } catch (Exception e) {
                 //noop
             }
