@@ -43,6 +43,8 @@
     <string name="message_marker_create">Marker %1$s is created. {icon}</string>
     <string name="message_radius_report">In: %2$s\nOut: %3$s  (%1$s m)</string>
 
+    <string name="message_limit_channel_enable">Limit of number of enabled channels (%1$s) is reached.</string>
+
     <string name="mock_location_service_not_running">Location service is not running, mock data is not sending.</string>
     <string name="mock_confirm_disable">Are you sure to finish mocking?</string>
 </resources>

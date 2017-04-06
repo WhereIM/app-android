@@ -35,6 +35,7 @@ import com.amazonaws.mobileconnectors.iot.AWSIotMqttQos;
 import com.amazonaws.regions.Region;
 import com.amazonaws.util.IOUtils;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -1152,6 +1153,10 @@ public class CoreService extends Service {
                         break;
                     case "profile":
                         mqttClientProfileHandler(msg);
+                        break;
+                    case "toast":
+                        mqttToastHandler(msg);
+                        break;
                 }
                 return;
             }
@@ -1191,6 +1196,31 @@ public class CoreService extends Service {
                 return;
             }
         } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void mqttToastHandler(JSONObject data) {
+        try {
+            String key = data.getString("key");
+            JSONArray args = data.getJSONArray("args");
+            String message = null;
+            switch (key) {
+                case "limit_enable_channel":
+                    String limit = args.getString(0);
+                    message = getString(R.string.message_limit_channel_enable, limit);
+                    break;
+            }
+            if(message!=null){
+                final String _message = message;
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(CoreService.this, _message, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        }catch(JSONException e){
             e.printStackTrace();
         }
     }
