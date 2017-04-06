@@ -332,6 +332,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                 }
             }, this.getIntent().getData(), this);
         }
+        mBinder.setActivity(this);
         mBinder.addChannelListChangedListener(mChannelListChangedListener);
         mBinder.addConnectionStatusChangedListener(this);
     }
@@ -339,6 +340,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
     @Override
     protected void onPause() {
         if(mBinder!=null) {
+            mBinder.setActivity(null);
             mBinder.removeChannelListChangedListener(mChannelListChangedListener);
             mBinder.removeConnectionStatusChangedListener(this);
         }

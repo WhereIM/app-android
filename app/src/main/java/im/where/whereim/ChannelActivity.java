@@ -281,6 +281,7 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         super.onServiceConnected(name, service);
+        mBinder.setActivity(this);
         mBinder.addChannelListChangedListener(mChannelListChangedListener);
         mBinder.addConnectionStatusChangedListener(this);
     }
@@ -288,6 +289,7 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
     @Override
     protected void onPause() {
         if(mBinder!=null) {
+            mBinder.setActivity(null);
             mBinder.removeChannelListChangedListener(mChannelListChangedListener);
             mBinder.removeConnectionStatusChangedListener(this);
         }

@@ -1,11 +1,13 @@
 package im.where.whereim;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -21,6 +23,7 @@ import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -87,6 +90,13 @@ public class CoreService extends Service {
     }
 
     public class CoreBinder extends Binder{
+        public void setActivity(Activity activity){
+            mCurrentActivity = activity;
+            if(mCurrentActivity!=null) {
+                requestActiveClient();
+            }
+        }
+
         public String getClientId(){
             return mClientId;
         }
@@ -746,8 +756,11 @@ public class CoreService extends Service {
         }
     }
 
+    private Activity mCurrentActivity = null;
     private boolean mMocking = false;
     private Handler mHandler = new Handler();
+    private Boolean mIsActiveDevice = null;
+    private boolean mRequestActiveDevice = false;
     private final List<ConnectionStatusCallback> mConnectionStatusChangedListener = new ArrayList<>();
     private final List<Runnable> mChannelListChangedListener = new ArrayList<>();
     private final HashMap<String, List<Runnable>> mChannelChangedListener = new HashMap<>();
@@ -1051,7 +1064,7 @@ public class CoreService extends Service {
             }
         }
         if(!pending) {
-            if(enableCount>0){
+            if(mIsActiveDevice!=null && mIsActiveDevice && enableCount>0){
                 if(!mIsForeground){
                     mIsForeground = true;
                     Notification notification = new NotificationCompat.Builder(this)
@@ -1137,6 +1150,8 @@ public class CoreService extends Service {
                     case "marker":
                         mqttMarkerHandler(msg);
                         break;
+                    case "profile":
+                        mqttClientProfileHandler(msg);
                 }
                 return;
             }
@@ -1175,6 +1190,62 @@ public class CoreService extends Service {
                 mqttSystemMessageHandler(msg, false);
                 return;
             }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void mqttClientProfileHandler(JSONObject data) {
+        String activeDevice = data.optString(Key.ACTIVE);
+        if(activeDevice!=null){
+            boolean active = activeDevice.equals(mClientId);
+            if((mIsActiveDevice==null || active!=mIsActiveDevice) && !active){
+                mRequestActiveDevice = true;
+                requestActiveClient();
+            }
+            mIsActiveDevice = active;
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    _checkLocationService();
+                }
+            });
+        }
+    }
+
+    private void requestActiveClient(){
+        if(!mRequestActiveDevice)
+            return;
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                final Activity activity = mCurrentActivity;
+                if(activity!=null){
+                    new AlertDialog.Builder(activity)
+                            .setTitle(R.string.active_client)
+                            .setMessage(R.string.active_client_message)
+                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    setActiveClient();
+                                }
+                            })
+                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            }).show();
+                }
+
+            }
+        });
+    }
+
+    private void setActiveClient(){
+        try {
+            JSONObject payload = new JSONObject();
+            payload.put(Key.ACTIVE, mClientId);
+            publish(String.format("client/%s/profile/put", mClientId), payload);
         } catch (JSONException e) {
             e.printStackTrace();
         }

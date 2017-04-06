@@ -6,6 +6,7 @@ package im.where.whereim;
 
 public class Key {
     public final static String ACCURACY = "acc";
+    public final static String ACTIVE = "active";
     public final static String ALTITUDE = "alt";
     public final static String ATTR = "attr";
 

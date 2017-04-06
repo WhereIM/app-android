@@ -6,6 +6,9 @@
     <string name="action_invite">Invite</string>
     <string name="action_quit">Quit</string>
 
+    <string name="active_client">Client not active</string>
+    <string name="active_client_message">This client is not active, take over from your other client?</string>
+
     <string name="retry">Retry</string>
 
     <string name="channel_name">Channel Name</string>
