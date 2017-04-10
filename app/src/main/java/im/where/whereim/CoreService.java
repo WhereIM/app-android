@@ -1073,24 +1073,22 @@ public class CoreService extends Service {
                     enableCount += 1;
             }
         }
-        if(!pending) {
-            if(mIsActiveDevice!=null && mIsActiveDevice && enableCount>0){
-                if(!mIsForeground){
-                    mIsForeground = true;
-                    Notification notification = new NotificationCompat.Builder(this)
-                            .setContentTitle(getResources().getString(R.string.app_name))
-                            .setSmallIcon(R.drawable.ic_stat_logo)
-                            .build();
+        if(mIsActiveDevice!=null && mIsActiveDevice && enableCount>0 && !pending){
+            if(!mIsForeground){
+                mIsForeground = true;
+                Notification notification = new NotificationCompat.Builder(this)
+                        .setContentTitle(getResources().getString(R.string.app_name))
+                        .setSmallIcon(R.drawable.ic_stat_logo)
+                        .build();
 
-                    startForeground(1, notification);
-                }
-                startLocationService();
-            }else if(enableCount==0){
-                stopLocationService();
-                if(mIsForeground){
-                    mIsForeground = false;
-                    stopForeground(true);
-                }
+                startForeground(1, notification);
+            }
+            startLocationService();
+        }else if(enableCount==0 || mIsActiveDevice==null || !mIsActiveDevice){
+            stopLocationService();
+            if(mIsForeground){
+                mIsForeground = false;
+                stopForeground(true);
             }
         }
     }
