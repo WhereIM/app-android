@@ -1084,7 +1084,8 @@ public class CoreService extends Service {
                 startForeground(1, notification);
             }
             startLocationService();
-        }else if(enableCount==0 || mIsActiveDevice==null || !mIsActiveDevice){
+        }
+        if((!pending && enableCount==0) || mIsActiveDevice==null || !mIsActiveDevice){
             stopLocationService();
             if(mIsForeground){
                 mIsForeground = false;
