@@ -1260,6 +1260,7 @@ public class CoreService extends Service {
             public void run() {
                 final Activity activity = mCurrentActivity;
                 if(activity!=null){
+                    mRequestActiveDevice = false;
                     new AlertDialog.Builder(activity)
                             .setTitle(R.string.active_client)
                             .setMessage(R.string.active_client_message)
