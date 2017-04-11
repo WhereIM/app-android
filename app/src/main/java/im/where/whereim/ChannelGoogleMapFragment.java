@@ -448,10 +448,11 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                 if(marker.deleted){
                     mMarkerMarker.remove(marker.id);
                 }else {
-                    if (marker.enable == null || marker.enable) {
+                    if (marker.enable == null || marker.enable || marker==focusMarker) {
                         m = googleMap.addMarker(
                                 new MarkerOptions()
                                         .title(marker.name)
+                                        .alpha((marker.enable == null || marker.enable) ? 1f: 0.4f)
                                         .position(new LatLng(marker.latitude, marker.longitude))
                                         .icon(marker.getIconBitmapDescriptor())
                                         .anchor(0.5f, 1)
@@ -467,12 +468,19 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         });
     }
 
+    private im.where.whereim.models.Marker focusMarker = null;
     @Override
     public void moveToMarker(final im.where.whereim.models.Marker marker) {
         if(mMapView!=null){
             mMapView.getMapAsync(new OnMapReadyCallback() {
                 @Override
                 public void onMapReady(GoogleMap googleMap) {
+                    im.where.whereim.models.Marker exFocusMaker = focusMarker;
+                    focusMarker = marker;
+                    if(exFocusMaker!=null){
+                        onMarkerData(exFocusMaker);
+                    }
+                    onMarkerData(marker);
                     googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(marker.latitude, marker.longitude)));
                     Marker m = mMarkerMarker.get(marker.id);
                     if(m!=null) {
