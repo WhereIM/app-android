@@ -1627,6 +1627,9 @@ public class CoreService extends Service {
     }
 
     private Mate getChannelMate(String channel_id, String mate_id){
+        if(channel_id==null || mate_id==null){
+            return null;
+        }
         HashMap<String, Mate> mateMap;
         synchronized (mChannelMate) {
             mateMap = mChannelMate.get(channel_id);

@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 import im.where.whereim.CoreService;
 import im.where.whereim.Key;
 import im.where.whereim.R;
+import im.where.whereim.Util;
 
 /**
  * Created by buganini on 17/01/17.
@@ -77,7 +78,7 @@ public class Message extends BaseModel {
                 m.channel_id = json.getString(Key.CHANNEL);
             }
             if(json.has(Key.MATE)) {
-                m.mate_id = json.getString(Key.MATE);
+                m.mate_id = Util.JsonGetNullableString(json, Key.MATE);
             }
             m.type = json.getString("type");
             m.message = json.getString("message");
@@ -94,11 +95,12 @@ public class Message extends BaseModel {
     }
 
     public static Message parse(Cursor cursor){
+        int COL_MATE_IDX = cursor.getColumnIndexOrThrow(COL_MATE);
         Message m = new Message();
         m.id = cursor.getLong(cursor.getColumnIndexOrThrow(COL_ID));
         m.sn = cursor.getLong(cursor.getColumnIndexOrThrow(COL_SN));
         m.channel_id = cursor.getString(cursor.getColumnIndexOrThrow(COL_CHANNEL));
-        m.mate_id = cursor.getString(cursor.getColumnIndexOrThrow(COL_MATE));
+        m.mate_id = cursor.isNull(COL_MATE_IDX) ? null : cursor.getString(COL_MATE_IDX);
         m.type = cursor.getString(cursor.getColumnIndexOrThrow(COL_TYPE));
         m.message = cursor.getString(cursor.getColumnIndexOrThrow(COL_MESSAGE));
         m.time = cursor.getLong(cursor.getColumnIndexOrThrow(COL_TIME));

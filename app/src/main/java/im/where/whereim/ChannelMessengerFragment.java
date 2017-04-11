@@ -18,6 +18,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 
 import im.where.whereim.models.Channel;
+import im.where.whereim.models.Mate;
 import im.where.whereim.models.Message;
 
 public class ChannelMessengerFragment extends BaseFragment {
@@ -77,7 +78,8 @@ public class ChannelMessengerFragment extends BaseFragment {
                 vh.time.setText(null);
                 return;
             }
-            vh.sender.setText(binder.getChannelMate(mChannel.id, m.mate_id).getDisplayName());
+            Mate mate = binder.getChannelMate(mChannel.id, m.mate_id);
+            vh.sender.setText(mate==null?"":mate.getDisplayName());
             SpannableString text = m.getText(getActivity(), binder);
             vh.message.setText(text);
             vh.time.setText(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Timestamp(m.time*1000)));
