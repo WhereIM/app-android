@@ -440,11 +440,13 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                 public void onMapReady(GoogleMap googleMap) {
                     Enchantment exFocusEnchantment = focusEnchantment;
                     focusEnchantment = enchantment;
-                    if(exFocusEnchantment!=null){
+                    if(exFocusEnchantment!=null) {
                         onEnchantmentData(exFocusEnchantment);
                     }
-                    onEnchantmentData(enchantment);
-                    googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(enchantment.latitude, enchantment.longitude)));
+                    if(enchantment!=null) {
+                        onEnchantmentData(enchantment);
+                        googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(enchantment.latitude, enchantment.longitude)));
+                    }
                 }
             });
         }
@@ -496,14 +498,16 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                 public void onMapReady(GoogleMap googleMap) {
                     im.where.whereim.models.Marker exFocusMaker = focusMarker;
                     focusMarker = marker;
-                    if(exFocusMaker!=null){
+                    if(exFocusMaker!=null) {
                         onMarkerData(exFocusMaker);
                     }
-                    onMarkerData(marker);
-                    googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(marker.latitude, marker.longitude)));
-                    Marker m = mMarkerMarker.get(marker.id);
-                    if(m!=null) {
-                        m.showInfoWindow();
+                    if(marker!=null) {
+                        onMarkerData(marker);
+                        googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(marker.latitude, marker.longitude)));
+                        Marker m = mMarkerMarker.get(marker.id);
+                        if(m!=null) {
+                            m.showInfoWindow();
+                        }
                     }
                 }
             });
