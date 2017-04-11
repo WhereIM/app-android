@@ -75,6 +75,7 @@ public class CoreService extends Service {
         void onMateData(Mate mate);
         void moveToMate(Mate mate);
         void onEnchantmentData(Enchantment enchantment);
+        void moveToEnchantment(Enchantment enchantment);
         void onMarkerData(Marker marker);
         void moveToMarker(Marker marker);
         void onMapAd(HashMap<String, Ad> ads);

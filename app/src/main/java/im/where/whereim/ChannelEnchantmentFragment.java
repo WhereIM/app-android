@@ -207,7 +207,7 @@ public class ChannelEnchantmentFragment extends BaseFragment {
 
         @Override
         public boolean isChildSelectable(int groupPosition, int childPosition) {
-            return false;
+            return true;
         }
     };
 
@@ -231,7 +231,18 @@ public class ChannelEnchantmentFragment extends BaseFragment {
                         for(int i=0;i<mAdapter.getGroupCount();i+=1){
                             mListView.expandGroup(i);
                         }
-
+                        mListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+                            @Override
+                            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+                                Enchantment enchantment = (Enchantment) mAdapter.getChild(groupPosition, childPosition);
+                                if(enchantment!=null){
+                                    ChannelActivity activity = (ChannelActivity) getActivity();
+                                    activity.moveToEnchantment(enchantment);
+                                    return true;
+                                }
+                                return false;
+                            }
+                        });
                         // disable click-to-collapse
                         mListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
                             @Override

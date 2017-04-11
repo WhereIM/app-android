@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import im.where.whereim.models.Channel;
+import im.where.whereim.models.Enchantment;
 import im.where.whereim.models.Marker;
 import im.where.whereim.models.Mate;
 
@@ -184,6 +185,11 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
             return;
         }
         mChannelMapFragment.moveToMate(mate);
+        mTabLayout.getTabAt(TAB_MAP).select();
+    }
+
+    public void moveToEnchantment(Enchantment enchantment){
+        mChannelMapFragment.moveToEnchantment(enchantment);
         mTabLayout.getTabAt(TAB_MAP).select();
     }
 

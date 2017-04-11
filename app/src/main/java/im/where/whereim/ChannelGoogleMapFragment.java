@@ -416,12 +416,12 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                 if(enchantment.deleted){
                     mEnchantmentCircle.remove(enchantment.id);
                 }else {
-                    if (enchantment.enable == null || enchantment.enable) {
+                    if (enchantment.enable == null || enchantment.enable || enchantment==focusEnchantment) {
                         Circle circle = googleMap.addCircle(new CircleOptions()
                                 .center(new LatLng(enchantment.latitude, enchantment.longitude))
                                 .radius(enchantment.radius)
                                 .strokeWidth(3)
-                                .strokeColor(enchantment.isPublic ? Color.RED : 0xFFFFA500));
+                                .strokeColor((enchantment.enable == null || enchantment.enable) ? (enchantment.isPublic ? Color.RED : 0xFFFFA500) : Color.GRAY));
                         synchronized (mEnchantmentCircle) {
                             mEnchantmentCircle.put(enchantment.id, circle);
                         }
@@ -429,6 +429,25 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                 }
             }
         });
+    }
+
+    private Enchantment focusEnchantment = null;
+    @Override
+    public void moveToEnchantment(final Enchantment enchantment) {
+        if(mMapView!=null){
+            mMapView.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(GoogleMap googleMap) {
+                    Enchantment exFocusEnchantment = focusEnchantment;
+                    focusEnchantment = enchantment;
+                    if(exFocusEnchantment!=null){
+                        onEnchantmentData(exFocusEnchantment);
+                    }
+                    onEnchantmentData(enchantment);
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(enchantment.latitude, enchantment.longitude)));
+                }
+            });
+        }
     }
 
     final private HashMap<String, Marker> mMarkerMarker = new HashMap<>();
