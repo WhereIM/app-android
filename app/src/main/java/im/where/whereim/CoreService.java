@@ -1473,6 +1473,9 @@ public class CoreService extends Service {
             channel.enable_radius = Util.JsonOptBoolean(msg, Key.ENABLE_RADIUS, channel.enable_radius);
             channel.radius = msg.optDouble(Key.RADIUS, channel.radius);
             channel.deleted = Util.JsonOptBoolean(msg, Key.DELETED, channel.deleted);
+            if(msg.has(Key.ARCHIVE)){
+                channel.archive = msg.getBoolean(Key.ARCHIVE);
+            }
             if(msg.has(Key.ENABLE)){
                 channel.enable = msg.getBoolean(Key.ENABLE);
             }

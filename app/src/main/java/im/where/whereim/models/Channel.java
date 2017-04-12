@@ -15,6 +15,7 @@ public class Channel extends BaseModel {
     private final static String COL_CHANNEL_NAME = "channel_name";
     private final static String COL_USER_CHANNEL_NAME = "user_channel_name";
     private final static String COL_MATE = "mate";
+    private final static String COL_ARCHIVE = "archive";
     private final static String COL_ENABLE = "enable";
     private final static String COL_ENABLE_RADIUS = "enable_radius";
     private final static String COL_RADIUS = "radius";
@@ -26,6 +27,7 @@ public class Channel extends BaseModel {
                 COL_CHANNEL_NAME + " TEXT, " +
                 COL_USER_CHANNEL_NAME + " TEXT, " +
                 COL_MATE + " TEXT, " +
+                COL_ARCHIVE + " BOOLEAN, " +
                 COL_ENABLE + " BOOLEAN, " +
                 COL_ENABLE_RADIUS + " BOOLEAN, " +
                 COL_RADIUS + " DOUBLE PRECISION" +
@@ -37,6 +39,7 @@ public class Channel extends BaseModel {
     public String channel_name;
     public String user_channel_name;
     public String mate_id;
+    public Boolean archive;
     public Boolean enable;
     public Boolean enable_radius;
     public double radius;
@@ -48,6 +51,7 @@ public class Channel extends BaseModel {
         channel.channel_name = cursor.getString(cursor.getColumnIndexOrThrow(COL_CHANNEL_NAME));
         channel.user_channel_name = cursor.getString(cursor.getColumnIndexOrThrow(COL_USER_CHANNEL_NAME));
         channel.mate_id = cursor.getString(cursor.getColumnIndexOrThrow(COL_MATE));
+        channel.archive = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ARCHIVE))!=0;
         channel.enable = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ENABLE))!=0;
         channel.enable_radius = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ENABLE_RADIUS))!=0;
         channel.radius = cursor.getDouble(cursor.getColumnIndexOrThrow(COL_RADIUS));
@@ -66,6 +70,7 @@ public class Channel extends BaseModel {
         cv.put(COL_CHANNEL_NAME, channel_name);
         cv.put(COL_USER_CHANNEL_NAME, user_channel_name);
         cv.put(COL_MATE, mate_id);
+        cv.put(COL_ARCHIVE, archive?1:0);
         cv.put(COL_ENABLE, enable?1:0);
         cv.put(COL_ENABLE_RADIUS, enable_radius ?1:0);
         cv.put(COL_RADIUS, radius);
