@@ -4,6 +4,7 @@
     <string name="app_name">Where.IM</string>
     <string name="permission_rationale">It\'s all about where. Grant location permission please.</string>
     <string name="action_invite">Invite</string>
+    <string name="action_about">About</string>
     <string name="action_quit">Quit</string>
 
     <string name="active_client">Client not active</string>

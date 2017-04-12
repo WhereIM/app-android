@@ -3,6 +3,7 @@
 
     <string name="permission_rationale">本程式需要定位功能才能運作喔</string>
     <string name="action_invite">邀請</string>
+    <string name="action_about">關於</string>
     <string name="action_quit">關閉程式</string>
 
     <string name="active_client">此裝置不是主要裝置</string>
