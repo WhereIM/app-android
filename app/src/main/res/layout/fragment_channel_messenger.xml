@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#55aabbff"
     tools:context="im.where.whereim.ChannelActivity">
 
     <ListView
@@ -18,6 +17,7 @@
         android:stackFromBottom="true" />
 
     <LinearLayout
+        android:background="#cccccc"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -25,9 +25,11 @@
         <EditText
             android:id="@+id/input"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="5dp"
             android:layout_weight="1"
-            android:layout_gravity="center_vertical" />
+            android:background="@android:color/white" />
 
         <ImageButton
             android:id="@+id/send"
