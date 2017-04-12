@@ -43,12 +43,12 @@ public class ChannelEnchantmentFragment extends BaseFragment {
                     return 1;
                 case 1:
                     if(mEnchantmentList==null)
-                        return 0;
-                    return mEnchantmentList.public_list.size();
+                        return 1;
+                    return mEnchantmentList.public_list.size() > 0 ? mEnchantmentList.public_list.size() : 1;
                 case 2:
                     if(mEnchantmentList==null)
-                        return 0;
-                    return mEnchantmentList.private_list.size();
+                        return 1;
+                    return mEnchantmentList.private_list.size() > 0 ? mEnchantmentList.private_list.size() : 1;
             }
             return 0;
         }
@@ -74,11 +74,15 @@ public class ChannelEnchantmentFragment extends BaseFragment {
                 case 1:
                     if(mEnchantmentList==null)
                         return null;
-                    return mEnchantmentList.public_list.get(childPosition);
+                    if(childPosition<mEnchantmentList.public_list.size())
+                        return mEnchantmentList.public_list.get(childPosition);
+                    return null;
                 case 2:
                     if(mEnchantmentList==null)
                         return null;
-                    return mEnchantmentList.private_list.get(childPosition);
+                    if(childPosition<mEnchantmentList.private_list.size())
+                        return mEnchantmentList.private_list.get(childPosition);
+                    return null;
             }
             return null;
         }
@@ -188,19 +192,33 @@ public class ChannelEnchantmentFragment extends BaseFragment {
         }
         @Override
         public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View view, ViewGroup parent) {
-            ChildViewHolder vh;
-            if(view==null){
-                view = LayoutInflater.from(getActivity()).inflate(R.layout.enchantment_item, parent, false);
-                vh = new ChildViewHolder(view);
-                view.setTag(vh);
-            }else{
-                vh = (ChildViewHolder) view.getTag();
-            }
             if(groupPosition==0){
+                ChildViewHolder vh;
+                if(view==null){
+                    view = LayoutInflater.from(getActivity()).inflate(R.layout.enchantment_item, parent, false);
+                    vh = new ChildViewHolder(view);
+                    view.setTag(vh);
+                }else{
+                    vh = (ChildViewHolder) view.getTag();
+                }
                 vh.setItem(mChannel);
             }else{
                 Enchantment e = (Enchantment) getChild(groupPosition, childPosition);
-                vh.setItem(e);
+                if(e!=null) {
+                    ChildViewHolder vh;
+                    if (view == null) {
+                        view = LayoutInflater.from(getActivity()).inflate(R.layout.enchantment_item, parent, false);
+                        vh = new ChildViewHolder(view);
+                        view.setTag(vh);
+                    } else {
+                        vh = (ChildViewHolder) view.getTag();
+                    }
+                    vh.setItem(e);
+                }else{
+                    if (view == null) {
+                        view = LayoutInflater.from(getActivity()).inflate(R.layout.placeholder_item, parent, false);
+                    }
+                }
             }
             return view;
         }
