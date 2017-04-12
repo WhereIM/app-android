@@ -54,6 +54,24 @@ public class ChannelEnchantmentFragment extends BaseFragment {
         }
 
         @Override
+        public int getChildType(int groupPosition, int childPosition) {
+            if(groupPosition==0){
+                return 0;
+            }else{
+                if(getChild(groupPosition, childPosition)!=null) {
+                    return 0;
+                } else {
+                    return 1;
+                }
+            }
+        }
+
+        @Override
+        public int getChildTypeCount() {
+            return 2;
+        }
+
+        @Override
         public Object getGroup(int groupPosition) {
             switch (groupPosition){
                 case 0:
