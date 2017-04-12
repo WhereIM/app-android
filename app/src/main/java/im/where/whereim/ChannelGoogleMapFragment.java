@@ -342,6 +342,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                             new MarkerOptions()
                                     .position(new LatLng(mate.latitude, mate.longitude))
                                     .anchor(0.5f, 1f)
+                                    .zIndex(0.5f)
                                     .icon(BitmapDescriptorFactory.fromBitmap(mMarkerView.getDrawingCache()))
                     );
 
