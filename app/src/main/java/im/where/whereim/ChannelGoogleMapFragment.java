@@ -371,7 +371,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                 }
                 if(mChannel.enable_radius!=null && mChannel.enable_radius) {
                     int color;
-                    if (mChannel.enable) {
+                    if (mChannel.active) {
                         color = Color.MAGENTA;
                     } else {
                         color = Color.GRAY;
@@ -417,12 +417,12 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                 if(enchantment.deleted){
                     mEnchantmentCircle.remove(enchantment.id);
                 }else {
-                    if (enchantment.enable == null || enchantment.enable || enchantment==focusEnchantment) {
+                    if (enchantment.enabled == null || enchantment.enabled || enchantment==focusEnchantment) {
                         Circle circle = googleMap.addCircle(new CircleOptions()
                                 .center(new LatLng(enchantment.latitude, enchantment.longitude))
                                 .radius(enchantment.radius)
                                 .strokeWidth(3)
-                                .strokeColor((enchantment.enable == null || enchantment.enable) ? (enchantment.isPublic ? Color.RED : 0xFFFFA500) : Color.GRAY));
+                                .strokeColor((enchantment.enabled == null || enchantment.enabled) ? (enchantment.isPublic ? Color.RED : 0xFFFFA500) : Color.GRAY));
                         synchronized (mEnchantmentCircle) {
                             mEnchantmentCircle.put(enchantment.id, circle);
                         }
@@ -470,11 +470,11 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                 if(marker.deleted){
                     mMarkerMarker.remove(marker.id);
                 }else {
-                    if (marker.enable == null || marker.enable || marker==focusMarker) {
+                    if (marker.enabled == null || marker.enabled || marker==focusMarker) {
                         m = googleMap.addMarker(
                                 new MarkerOptions()
                                         .title(marker.name)
-                                        .alpha((marker.enable == null || marker.enable) ? 1f: 0.4f)
+                                        .alpha((marker.enabled == null || marker.enabled) ? 1f: 0.4f)
                                         .position(new LatLng(marker.latitude, marker.longitude))
                                         .icon(marker.getIconBitmapDescriptor())
                                         .anchor(0.5f, 1)

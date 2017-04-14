@@ -30,7 +30,7 @@ public class Marker extends BaseModel {
     private final static String COL_LONGITUDE = "longitude";
     private final static String COL_ATTR = "attr";
     private final static String COL_PUBLIC = "public";
-    private final static String COL_ENABLE = "enable";
+    private final static String COL_ENABLED = "enabled";
 
     public static String[] getIconList(){
         return new String[]{
@@ -58,7 +58,7 @@ public class Marker extends BaseModel {
                 COL_LONGITUDE + " DOUBLE PRECISION, " +
                 COL_ATTR + " TEXT, " +
                 COL_PUBLIC + " BOOLEAN, " +
-                COL_ENABLE + " BOOLEAN)";
+                COL_ENABLED + " BOOLEAN)";
         db.execSQL(sql);
 
         sql = "CREATE INDEX marker_index ON "+TABLE_NAME+" ("+COL_CHANNEL_ID+")";
@@ -83,7 +83,7 @@ public class Marker extends BaseModel {
     public double longitude;
     public JSONObject attr;
     public boolean isPublic;
-    public Boolean enable;
+    public Boolean enabled;
     public boolean deleted = false;
 
     public static int getIconResource(JSONObject attr) {
@@ -141,7 +141,7 @@ public class Marker extends BaseModel {
             marker.attr = new JSONObject();
         }
         marker.isPublic = cursor.getInt(cursor.getColumnIndexOrThrow(COL_PUBLIC))!=0;
-        marker.enable = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ENABLE))!=0;
+        marker.enabled = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ENABLED))!=0;
         return marker;
     }
 
@@ -160,7 +160,7 @@ public class Marker extends BaseModel {
         cv.put(COL_LONGITUDE, longitude);
         cv.put(COL_ATTR, attr.toString());
         cv.put(COL_PUBLIC, isPublic?1:0);
-        cv.put(COL_ENABLE, enable?1:0);
+        cv.put(COL_ENABLED, enabled ?1:0);
         return cv;
     }
 

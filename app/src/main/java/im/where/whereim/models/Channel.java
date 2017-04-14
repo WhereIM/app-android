@@ -15,8 +15,8 @@ public class Channel extends BaseModel {
     private final static String COL_CHANNEL_NAME = "channel_name";
     private final static String COL_USER_CHANNEL_NAME = "user_channel_name";
     private final static String COL_MATE = "mate";
-    private final static String COL_ARCHIVE = "archive";
-    private final static String COL_ENABLE = "enable";
+    private final static String COL_ACTIVE = "active";
+    private final static String COL_ENABLED = "enabled";
     private final static String COL_ENABLE_RADIUS = "enable_radius";
     private final static String COL_RADIUS = "radius";
 
@@ -27,8 +27,8 @@ public class Channel extends BaseModel {
                 COL_CHANNEL_NAME + " TEXT, " +
                 COL_USER_CHANNEL_NAME + " TEXT, " +
                 COL_MATE + " TEXT, " +
-                COL_ARCHIVE + " BOOLEAN, " +
-                COL_ENABLE + " BOOLEAN, " +
+                COL_ACTIVE + " BOOLEAN, " +
+                COL_ENABLED + " BOOLEAN, " +
                 COL_ENABLE_RADIUS + " BOOLEAN, " +
                 COL_RADIUS + " DOUBLE PRECISION" +
                 ")";
@@ -39,11 +39,21 @@ public class Channel extends BaseModel {
     public String channel_name;
     public String user_channel_name;
     public String mate_id;
-    public Boolean archive;
-    public Boolean enable;
+    public Boolean active;
+    public Boolean enabled;
     public Boolean enable_radius;
     public double radius;
     public boolean deleted = false;
+
+    public String getSortValue(){
+        if(this.user_channel_name!=null && !this.user_channel_name.isEmpty()){
+            return this.user_channel_name;
+        }
+        if(this.channel_name!=null && !this.channel_name.isEmpty()){
+            return this.channel_name;
+        }
+        return "";
+    }
 
     public static Channel parse(Cursor cursor){
         Channel channel = new Channel();
@@ -51,8 +61,8 @@ public class Channel extends BaseModel {
         channel.channel_name = cursor.getString(cursor.getColumnIndexOrThrow(COL_CHANNEL_NAME));
         channel.user_channel_name = cursor.getString(cursor.getColumnIndexOrThrow(COL_USER_CHANNEL_NAME));
         channel.mate_id = cursor.getString(cursor.getColumnIndexOrThrow(COL_MATE));
-        channel.archive = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ARCHIVE))!=0;
-        channel.enable = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ENABLE))!=0;
+        channel.active = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ACTIVE))!=0;
+        channel.enabled = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ENABLED))!=0;
         channel.enable_radius = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ENABLE_RADIUS))!=0;
         channel.radius = cursor.getDouble(cursor.getColumnIndexOrThrow(COL_RADIUS));
         return channel;
@@ -70,8 +80,8 @@ public class Channel extends BaseModel {
         cv.put(COL_CHANNEL_NAME, channel_name);
         cv.put(COL_USER_CHANNEL_NAME, user_channel_name);
         cv.put(COL_MATE, mate_id);
-        cv.put(COL_ARCHIVE, archive?1:0);
-        cv.put(COL_ENABLE, enable?1:0);
+        cv.put(COL_ACTIVE, active ?1:0);
+        cv.put(COL_ENABLED, enabled ?1:0);
         cv.put(COL_ENABLE_RADIUS, enable_radius ?1:0);
         cv.put(COL_RADIUS, radius);
         return cv;

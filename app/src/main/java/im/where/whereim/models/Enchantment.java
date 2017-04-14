@@ -20,7 +20,7 @@ public class Enchantment extends BaseModel {
     private final static String COL_LONGITUDE = "longitude";
     private final static String COL_RADIUS = "radius";
     private final static String COL_PUBLIC = "public";
-    private final static String COL_ENABLE = "enable";
+    private final static String COL_ENABLED = "enabled";
 
     public static void createTable(SQLiteDatabase db){
         String sql;
@@ -32,7 +32,7 @@ public class Enchantment extends BaseModel {
                 COL_LONGITUDE + " DOUBLE PRECISION, " +
                 COL_RADIUS + " DOUBLE PRECISION, " +
                 COL_PUBLIC + " BOOLEAN, " +
-                COL_ENABLE + " BOOLEAN)";
+                COL_ENABLED + " BOOLEAN)";
         db.execSQL(sql);
 
         sql = "CREATE INDEX enchantment_index ON "+TABLE_NAME+" ("+COL_CHANNEL_ID+")";
@@ -57,7 +57,7 @@ public class Enchantment extends BaseModel {
     public double longitude;
     public double radius;
     public boolean isPublic;
-    public Boolean enable;
+    public Boolean enabled;
     public boolean deleted = false;
 
     public static Enchantment parse(Cursor cursor){
@@ -69,7 +69,7 @@ public class Enchantment extends BaseModel {
         enchantment.longitude = cursor.getDouble(cursor.getColumnIndexOrThrow(COL_LONGITUDE));
         enchantment.radius = cursor.getDouble(cursor.getColumnIndexOrThrow(COL_RADIUS));
         enchantment.isPublic = cursor.getInt(cursor.getColumnIndexOrThrow(COL_PUBLIC))!=0;
-        enchantment.enable = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ENABLE))!=0;
+        enchantment.enabled = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ENABLED))!=0;
         return enchantment;
     }
 
@@ -88,7 +88,7 @@ public class Enchantment extends BaseModel {
         cv.put(COL_LONGITUDE, longitude);
         cv.put(COL_RADIUS, radius);
         cv.put(COL_PUBLIC, isPublic?1:0);
-        cv.put(COL_ENABLE, enable?1:0);
+        cv.put(COL_ENABLED, enabled ?1:0);
         return cv;
     }
 

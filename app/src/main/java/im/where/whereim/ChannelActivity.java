@@ -81,7 +81,7 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
     private View mConnectionStatus;
     private TextView mChannelTitle;
     private TextView mChannelSubtitle;
-    private Switch mEnable;
+    private Switch mActive;
     private View mEnableLoading;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,16 +93,16 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
 
         mChannelTitle = (TextView) findViewById(R.id.channel_title);
         mChannelSubtitle = (TextView) findViewById(R.id.channel_subtitle);
-        mEnable = (Switch) findViewById(R.id.enable);
+        mActive = (Switch) findViewById(R.id.enable);
         mEnableLoading = findViewById(R.id.enable_loading);
 
-        mEnable.setOnClickListener(new View.OnClickListener() {
+        mActive.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 postBinderTask(new CoreService.BinderTask() {
                     @Override
                     public void onBinderReady(CoreService.CoreBinder binder) {
-                        binder.toggleChannelEnabled(mChannel);
+                        binder.toggleChannelActive(mChannel);
                     }
                 });
             }
@@ -133,6 +133,11 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
                 }
 
                 mChannel = mBinder.getChannelById(mChannelId);
+                if(mChannel.enabled!=null && !mChannel.enabled){
+                    finish();
+                    return;
+                }
+
                 processGetChannelCallback();
                 mTabLayout.setupWithViewPager(mViewPager);
 
@@ -258,7 +263,7 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
         @Override
         public void run() {
             if(mChannel==null) {
-                mEnable.setVisibility(View.GONE);
+                mActive.setVisibility(View.GONE);
                 mEnableLoading.setVisibility(View.GONE);
                 return;
             }
@@ -270,14 +275,14 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
                 mChannelTitle.setText(mChannel.user_channel_name);
                 mChannelSubtitle.setText(mChannel.channel_name);
             }
-            Boolean enable = mChannel.enable;
-            if(enable==null){
-                mEnable.setVisibility(View.GONE);
+            Boolean active = mChannel.active;
+            if(active==null){
+                mActive.setVisibility(View.GONE);
                 mEnableLoading.setVisibility(View.VISIBLE);
             }else{
-                mEnable.setVisibility(View.VISIBLE);
+                mActive.setVisibility(View.VISIBLE);
                 mEnableLoading.setVisibility(View.GONE);
-                mEnable.setChecked(enable);
+                mActive.setChecked(active);
             }
         }
     };

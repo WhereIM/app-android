@@ -214,13 +214,13 @@ public class ChannelMarkerFragment extends BaseFragment {
                 marker = m;
                 this.icon.setImageResource(m.getIconResId());
                 this.name.setText(m.name);
-                if(m.enable==null){
+                if(m.enabled ==null){
                     this.loading.setVisibility(View.VISIBLE);
                     this.enable.setVisibility(View.GONE);
                 }else{
                     this.loading.setVisibility(View.GONE);
                     this.enable.setVisibility(View.VISIBLE);
-                    this.enable.setChecked(m.enable);
+                    this.enable.setChecked(m.enabled);
                 }
             }
         }

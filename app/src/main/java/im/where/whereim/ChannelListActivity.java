@@ -13,6 +13,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -94,7 +95,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                 mEnable.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        mBinder.toggleChannelEnabled(mChannel);
+                        mBinder.toggleChannelActive(mChannel);
                     }
                 });
             }
@@ -106,7 +107,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                     mEnable.setVisibility(View.GONE);
                     mLoading.setVisibility(View.GONE);
                     return;
-                }else{
+                } else {
                     mTitle.setVisibility(View.VISIBLE);
                 }
                 mChannel = channel;
@@ -114,17 +115,22 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                     mSubtitle.setVisibility(View.VISIBLE);
                     mTitle.setText(channel.user_channel_name);
                     mSubtitle.setText(channel.channel_name);
-                }else{
+                } else {
                     mTitle.setText(channel.channel_name);
                     mSubtitle.setVisibility(View.GONE);
                 }
-                if(channel.enable==null){
-                    mLoading.setVisibility(View.VISIBLE);
-                    mEnable.setVisibility(View.GONE);
-                }else{
+                if(channel.enabled!=null && channel.enabled) {
+                    if(channel.active == null) {
+                        mLoading.setVisibility(View.VISIBLE);
+                        mEnable.setVisibility(View.GONE);
+                    } else {
+                        mLoading.setVisibility(View.GONE);
+                        mEnable.setVisibility(View.VISIBLE);
+                        mEnable.setChecked(channel.active);
+                    }
+                } else {
                     mLoading.setVisibility(View.GONE);
-                    mEnable.setVisibility(View.VISIBLE);
-                    mEnable.setChecked(channel.enable);
+                    mEnable.setVisibility(View.GONE);
                 }
             }
         }
@@ -221,11 +227,59 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Channel channel = (Channel) mAdapter.getItem(position);
-                if(channel!=null){
+                if(channel!=null && channel.enabled!=null && channel.enabled){
                     Intent intent = new Intent(ChannelListActivity.this, ChannelActivity.class);
                     intent.putExtra("channel", channel.id);
                     startActivity(intent);
                 }
+            }
+        });
+        mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+                startActionMode(new ActionMode.Callback() {
+                    private final static int ACTION_EDIT = 0;
+                    private final static int ACTION_TOGGLE_ENABLED = 1;
+                    private Channel channel;
+
+                    @Override
+                    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                        channel = (Channel) mAdapter.getItem(position);
+                        if(channel ==null){
+                            return false;
+                        }
+//                        menu.add(0, ACTION_EDIT, 0, "✏️");
+                        if(channel.enabled !=null && !channel.enabled)
+                            menu.add(0, ACTION_TOGGLE_ENABLED, 0, "\uD83D\uDD13");
+                        if(channel.enabled !=null && channel.enabled)
+                            menu.add(0, ACTION_TOGGLE_ENABLED, 0, "\uD83D\uDD12");
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                        mode.finish();
+                        switch(item.getItemId()){
+                            case ACTION_EDIT:
+                                return true;
+                            case ACTION_TOGGLE_ENABLED:
+                                mBinder.toggleChannelEnabled(channel);
+                                return true;
+                            default:
+                                return false;
+                        }
+                    }
+
+                    @Override
+                    public void onDestroyActionMode(ActionMode mode) {
+                    }
+                });
+                return true;
             }
         });
 

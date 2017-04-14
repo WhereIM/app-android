@@ -8,7 +8,6 @@ public class Key {
     public final static String ACCURACY = "acc";
     public final static String ACTIVE = "active";
     public final static String ALTITUDE = "alt";
-    public final static String ARCHIVE = "archive";
     public final static String ATTR = "attr";
 
     public final static String BEARING = "bear";
@@ -21,7 +20,7 @@ public class Key {
     public final static String DELETED = "deleted";
     public final static String DESC = "desc";
 
-    public final static String ENABLE = "enable";
+    public final static String ENABLED = "enabled";
 
     public final static String FACEBOOK = "facebook";
 

@@ -52,6 +52,7 @@ public class Mate extends BaseModel {
         }
         return "";
     }
+
     public static Mate parse(Cursor cursor){
         Mate mate = new Mate();
         mate.id = cursor.getString(cursor.getColumnIndexOrThrow(COL_ID));

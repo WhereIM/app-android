@@ -184,13 +184,13 @@ public class ChannelEnchantmentFragment extends BaseFragment {
                 enchantment = e;
                 channel = null;
                 this.name.setText(e.name);
-                if(e.enable==null){
+                if(e.enabled ==null){
                     this.loading.setVisibility(View.VISIBLE);
                     this.enable.setVisibility(View.GONE);
                 }else{
                     this.loading.setVisibility(View.GONE);
                     this.enable.setVisibility(View.VISIBLE);
-                    this.enable.setChecked(e.enable);
+                    this.enable.setChecked(e.enabled);
                 }
             }
 

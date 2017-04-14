@@ -248,6 +248,18 @@ public class CoreService extends Service {
                 for (Channel channel : mChannelList) {
                     list.add(channel);
                 }
+                Collections.sort(list, new Comparator<Channel>() {
+                    @Override
+                    public int compare(Channel lhs, Channel rhs) {
+                        if (lhs.enabled == rhs.enabled) {
+                            return lhs.getSortValue().compareToIgnoreCase(rhs.getSortValue());
+                        }
+                        int e0 = lhs.enabled!=null && lhs.enabled ? 0 : 1;
+                        int e1 = rhs.enabled!=null && rhs.enabled ? 0 : 1;
+                        return e0 - e1;
+                    }
+                });
+
                 return list;
             }
         }
@@ -282,21 +294,40 @@ public class CoreService extends Service {
             }
         }
 
-        public void toggleChannelEnabled(Channel channel){
+        public void toggleChannelActive(Channel channel){
             if(channel==null){
                 return;
             }
-            if(channel.enable==null){
+            if(channel.active ==null){
                 return;
             }
             try {
                 JSONObject payload = new JSONObject();
                 payload.put(Key.CHANNEL, channel.id);
-                payload.put(Key.ENABLE, !channel.enable);
-                channel.enable = null;
+                payload.put(Key.ACTIVE, !channel.active);
+                channel.active = null;
                 String topic = String.format("client/%s/channel/put", mClientId);
                 publish(topic, payload);
                 notifyChannelListChangedListeners();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void toggleChannelEnabled(Channel channel){
+            if(channel==null){
+                return;
+            }
+            if(channel.enabled ==null){
+                return;
+            }
+            try {
+                JSONObject payload = new JSONObject();
+                payload.put(Key.CHANNEL, channel.id);
+                payload.put(Key.ENABLED, !channel.enabled);
+                channel.enabled = null;
+                String topic = String.format("client/%s/channel/put", mClientId);
+                publish(topic, payload);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -440,7 +471,7 @@ public class CoreService extends Service {
                 payload.put(Key.LATITUDE, latitude);
                 payload.put(Key.LONGITUDE, longitude);
                 payload.put(Key.RADIUS, radius);
-                payload.put(Key.ENABLE, enable);
+                payload.put(Key.ENABLED, enable);
                 String topic;
                 if(ispublic){
                     topic = String.format("channel/%s/data/enchantment/put", channel_id);
@@ -457,14 +488,14 @@ public class CoreService extends Service {
             if(enchantment==null){
                 return;
             }
-            if(enchantment.enable==null){
+            if(enchantment.enabled ==null){
                 return;
             }
             try {
                 JSONObject payload = new JSONObject();
                 payload.put(Key.ID, enchantment.id);
-                payload.put(Key.ENABLE, !enchantment.enable);
-                enchantment.enable = null;
+                payload.put(Key.ENABLED, !enchantment.enabled);
+                enchantment.enabled = null;
                 String topic;
                 if(enchantment.isPublic){
                     topic = String.format("channel/%s/data/enchantment/put", enchantment.channel_id);
@@ -486,7 +517,7 @@ public class CoreService extends Service {
                 payload.put(Key.LATITUDE, latitude);
                 payload.put(Key.LONGITUDE, longitude);
                 payload.put(Key.ATTR, attr);
-                payload.put(Key.ENABLE, enable);
+                payload.put(Key.ENABLED, enable);
                 String topic;
                 if(ispublic){
                     topic = String.format("channel/%s/data/marker/put", channel_id);
@@ -503,14 +534,14 @@ public class CoreService extends Service {
             if(marker==null){
                 return;
             }
-            if(marker.enable==null){
+            if(marker.enabled ==null){
                 return;
             }
             try {
                 JSONObject payload = new JSONObject();
                 payload.put(Key.ID, marker.id);
-                payload.put(Key.ENABLE, !marker.enable);
-                marker.enable = null;
+                payload.put(Key.ENABLED, !marker.enabled);
+                marker.enabled = null;
                 String topic;
                 if(marker.isPublic){
                     topic = String.format("channel/%s/data/marker/put", marker.channel_id);
@@ -1066,11 +1097,11 @@ public class CoreService extends Service {
         int enableCount = 0;
         synchronized (mChannelList){
             for (Channel channel : mChannelList) {
-                if(channel.enable==null){
+                if(channel.active ==null){
                     pending = true;
                     break;
                 }
-                if(channel.enable)
+                if(channel.active)
                     enableCount += 1;
             }
         }
@@ -1214,10 +1245,13 @@ public class CoreService extends Service {
             String key = data.getString("key");
             JSONArray args = data.getJSONArray("args");
             String message = null;
+            String s1;
             switch (key) {
-                case "limit_enable_channel":
-                    String limit = args.getString(0);
-                    message = getString(R.string.message_limit_channel_enable, limit);
+                case "limit_active_channel":
+                    message = getString(R.string.message_limit_active_channel, args.getString(0));
+                    break;
+                case "limit_enabled_channel":
+                    message = getString(R.string.message_limit_enabled_channel, args.getString(0));
                     break;
             }
             if(message!=null){
@@ -1225,7 +1259,7 @@ public class CoreService extends Service {
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(CoreService.this, _message, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CoreService.this, _message, Toast.LENGTH_LONG).show();
                     }
                 });
             }
@@ -1322,7 +1356,7 @@ public class CoreService extends Service {
             enchantment.longitude = data.optDouble(Key.LONGITUDE, enchantment.longitude);
             enchantment.radius = data.optDouble(Key.RADIUS, enchantment.radius);
             enchantment.isPublic = data.optBoolean(Key.PUBLIC, enchantment.isPublic);
-            enchantment.enable = Util.JsonOptBoolean(data, Key.ENABLE, enchantment.enable);
+            enchantment.enabled = Util.JsonOptBoolean(data, Key.ENABLED, enchantment.enabled);
             enchantment.deleted = Util.JsonOptBoolean(data, Key.DELETED, enchantment.deleted);
         }
 
@@ -1402,7 +1436,7 @@ public class CoreService extends Service {
                     marker.attr = data.getJSONObject(Key.ATTR);
                 }
                 marker.isPublic = data.optBoolean(Key.PUBLIC, marker.isPublic);
-                marker.enable = Util.JsonOptBoolean(data, Key.ENABLE, marker.enable);
+                marker.enabled = Util.JsonOptBoolean(data, Key.ENABLED, marker.enabled);
                 marker.deleted = Util.JsonOptBoolean(data, Key.DELETED, marker.deleted);
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -1473,11 +1507,11 @@ public class CoreService extends Service {
             channel.enable_radius = Util.JsonOptBoolean(msg, Key.ENABLE_RADIUS, channel.enable_radius);
             channel.radius = msg.optDouble(Key.RADIUS, channel.radius);
             channel.deleted = Util.JsonOptBoolean(msg, Key.DELETED, channel.deleted);
-            if(msg.has(Key.ARCHIVE)){
-                channel.archive = msg.getBoolean(Key.ARCHIVE);
+            if(msg.has(Key.ACTIVE)){
+                channel.active = msg.getBoolean(Key.ACTIVE);
             }
-            if(msg.has(Key.ENABLE)){
-                channel.enable = msg.getBoolean(Key.ENABLE);
+            if(msg.has(Key.ENABLED)){
+                channel.enabled = msg.getBoolean(Key.ENABLED);
             }
 
             if(!channel.deleted){
@@ -1503,9 +1537,14 @@ public class CoreService extends Service {
             mChannelList.remove(channel);
             channel.delete(mWimDBHelper.getDatabase());
         }else{
-            subscribe(topic);
-            syncChannelData(channel);
-            syncChannelMessage(channel);
+            if(channel.enabled!=null && channel.enabled){
+                subscribe(topic);
+                syncChannelData(channel);
+                syncChannelMessage(channel);
+            }
+            if(channel.enabled!=null && !channel.enabled){
+                unsubscribe(topic);
+            }
         }
         notifyChannelChangedListeners(channel.id);
         notifyChannelListChangedListeners();
