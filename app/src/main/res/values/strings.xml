@@ -15,11 +15,13 @@
     <string name="object_create_hint">Long press on map to create</string>
 
     <string name="channel_name">Channel Name</string>
+    <string name="user_channel_name">Channel Alias</string>
     <string name="display_name">Display Name</string>
     <string name="create_channel">Create Channel</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="join_channel">Join Channel</string>
+    <string name="edit_channel">Edit Channel</string>
     <string name="create_enchantment">New Enchantment ⭕</string>
     <string name="create_marker">New Marker 📍</string>
     <string name="name">Name</string>

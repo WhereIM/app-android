@@ -248,7 +248,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                         if(channel ==null){
                             return false;
                         }
-//                        menu.add(0, ACTION_EDIT, 0, "✏️");
+                        menu.add(0, ACTION_EDIT, 0, "✏️");
                         if(channel.enabled !=null && !channel.enabled)
                             menu.add(0, ACTION_TOGGLE_ENABLED, 0, "\uD83D\uDD13");
                         if(channel.enabled !=null && channel.enabled)
@@ -266,6 +266,34 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                         mode.finish();
                         switch(item.getItemId()){
                             case ACTION_EDIT:
+                                final View dialog_view = LayoutInflater.from(ChannelListActivity.this).inflate(R.layout.dialog_channel_edit,  null);
+                                final EditText et_channel_name = (EditText) dialog_view.findViewById(R.id.channel_name);
+                                final EditText et_user_channel_name = (EditText) dialog_view.findViewById(R.id.user_channel_name);
+                                et_channel_name.setText(channel.channel_name);
+                                et_user_channel_name.setText(channel.user_channel_name);
+                                new AlertDialog.Builder(ChannelListActivity.this)
+                                        .setTitle(R.string.edit_channel)
+                                        .setView(dialog_view)
+                                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                final String channel_name = et_channel_name.getText().toString();
+                                                final String user_channel_name = et_user_channel_name.getText().toString();
+                                                postBinderTask(new CoreService.BinderTask() {
+                                                    @Override
+                                                    public void onBinderReady(CoreService.CoreBinder binder) {
+                                                        Log.e("lala", "ok");
+                                                        binder.editChannel(channel, channel_name, user_channel_name);
+                                                    }
+                                                });
+                                            }
+                                        })
+                                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+
+                                            }
+                                        }).show();
                                 return true;
                             case ACTION_TOGGLE_ENABLED:
                                 mBinder.toggleChannelEnabled(channel);
