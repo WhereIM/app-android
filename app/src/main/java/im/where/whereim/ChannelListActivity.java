@@ -240,6 +240,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                 startActionMode(new ActionMode.Callback() {
                     private final static int ACTION_EDIT = 0;
                     private final static int ACTION_TOGGLE_ENABLED = 1;
+                    private final static int ACTION_DELETE = 2;
                     private Channel channel;
 
                     @Override
@@ -253,6 +254,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                             menu.add(0, ACTION_TOGGLE_ENABLED, 0, "\uD83D\uDD13");
                         if(channel.enabled !=null && channel.enabled)
                             menu.add(0, ACTION_TOGGLE_ENABLED, 0, "\uD83D\uDD12");
+                        menu.add(0, ACTION_DELETE, 0, "❌️");
                         return true;
                     }
 
@@ -282,7 +284,6 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                                                 postBinderTask(new CoreService.BinderTask() {
                                                     @Override
                                                     public void onBinderReady(CoreService.CoreBinder binder) {
-                                                        Log.e("lala", "ok");
                                                         binder.editChannel(channel, channel_name, user_channel_name);
                                                     }
                                                 });
@@ -297,6 +298,27 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                                 return true;
                             case ACTION_TOGGLE_ENABLED:
                                 mBinder.toggleChannelEnabled(channel);
+                                return true;
+                            case ACTION_DELETE:
+                                new AlertDialog.Builder(ChannelListActivity.this)
+                                        .setTitle(R.string.quit_channel)
+                                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                postBinderTask(new CoreService.BinderTask() {
+                                                    @Override
+                                                    public void onBinderReady(CoreService.CoreBinder binder) {
+                                                        binder.deleteChannel(channel);
+                                                    }
+                                                });
+                                            }
+                                        })
+                                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+
+                                            }
+                                        }).show();
                                 return true;
                             default:
                                 return false;

@@ -22,6 +22,7 @@
     <string name="cancel">Cancel</string>
     <string name="join_channel">Join Channel</string>
     <string name="edit_channel">Edit Channel</string>
+    <string name="quit_channel">Leave Channel</string>
     <string name="create_enchantment">New Enchantment ⭕</string>
     <string name="create_marker">New Marker 📍</string>
     <string name="name">Name</string>

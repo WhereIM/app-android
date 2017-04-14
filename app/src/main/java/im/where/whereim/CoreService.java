@@ -347,14 +347,12 @@ public class CoreService extends Service {
 
         public void editChannel(Channel channel, String channel_name, String user_channel_name){
             try {
-                Log.e("lala", "editChnnale A");
                 JSONObject payload = new JSONObject();
                 payload.put(Key.CHANNEL, channel.id);
                 payload.put(Key.CHANNEL_NAME, channel_name);
                 payload.put(Key.USER_CHANNEL_NAME, user_channel_name);
                 String topic = String.format("client/%s/channel/put", mClientId);
                 publish(topic, payload);
-                Log.e("lala", "editChnnale B");
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -366,6 +364,18 @@ public class CoreService extends Service {
                 payload.put(Key.CHANNEL_NAME, channel_alias);
                 payload.put(Key.MATE_NAME, mate_name);
                 String topic = String.format("channel/%s/join", channel_id);
+                publish(topic, payload);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void deleteChannel(Channel channel){
+            try {
+                JSONObject payload = new JSONObject();
+                payload.put(Key.CHANNEL, channel.id);
+                payload.put(Key.DELETED, true);
+                String topic = String.format("client/%s/channel/put", mClientId);
                 publish(topic, payload);
             } catch (JSONException e) {
                 e.printStackTrace();
