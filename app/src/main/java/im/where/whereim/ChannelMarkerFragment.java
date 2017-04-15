@@ -20,6 +20,9 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 import im.where.whereim.models.Channel;
@@ -426,11 +429,41 @@ public class ChannelMarkerFragment extends BaseFragment {
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             mode.finish();
+            Activity activity = getActivity();
             switch(item.getItemId()) {
                 case ACTION_EDIT:
+                    final View dialog_view = LayoutInflater.from(activity).inflate(R.layout.dialog_marker_edit,  null);
+                    final EditText et_name = (EditText) dialog_view.findViewById(R.id.name);
+                    et_name.setText(mEditingMarker.name);
+                    new AlertDialog.Builder(activity)
+                            .setView(dialog_view)
+                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    final String name = et_name.getText().toString();
+                                    postBinderTask(new CoreService.BinderTask() {
+                                        @Override
+                                        public void onBinderReady(CoreService.CoreBinder binder) {
+                                            try {
+                                                JSONObject changes = new JSONObject();
+                                                changes.put(Key.NAME, name);
+                                                binder.updateMarker(mEditingMarker, changes);
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    });
+                                }
+                            })
+                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                }
+                            }).show();
                     return true;
                 case ACTION_DELETE:
-                    new AlertDialog.Builder(getActivity())
+                    new AlertDialog.Builder(activity)
                             .setTitle(R.string.delete)
                             .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                                 @Override

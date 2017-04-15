@@ -631,6 +631,23 @@ public class CoreService extends Service {
             }
         }
 
+        public void updateMarker(Marker marker, JSONObject payload) {
+            if(marker==null){
+                return;
+            }
+            try {
+                payload.put(Key.ID, marker.id);
+
+                if(marker.isPublic){
+                    publish(String.format("channel/%s/data/marker/put", marker.channel_id), payload);
+                }else{
+                    publish(String.format("client/%s/marker/put", mClientId), payload);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
         public void deleteMarker(Marker marker){
             if(marker==null){
                 return;
