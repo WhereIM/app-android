@@ -38,21 +38,25 @@ public class ChannelMarkerFragment extends BaseFragment {
 
         @Override
         public int getGroupCount() {
-            return 3;
+            return 4;
         }
 
         @Override
         public int getChildrenCount(int groupPosition) {
             switch (groupPosition){
                 case 0:
+                    if(mSelfMate==null)
+                        return 0;
+                    return 1;
+                case 1:
                     if(mMateList==null)
                         return 0;
-                    return mMateList.size();
-                case 1:
+                    return mMateList.size() > 0 ? mMateList.size() : 1;
+                case 2:
                     if(mMarkerList==null)
                         return 1;
                     return mMarkerList.public_list.size() > 0 ? mMarkerList.public_list.size() : 1;
-                case 2:
+                case 3:
                     if(mMarkerList==null)
                         return 1;
                     return mMarkerList.private_list.size() > 0 ? mMarkerList.private_list.size() : 1;
@@ -60,12 +64,16 @@ public class ChannelMarkerFragment extends BaseFragment {
             return 0;
         }
 
-        private int viewType[] = {R.layout.mate_item, R.layout.marker_item, R.layout.placeholder_item};
+        private int viewType[] = {R.layout.mate_item, R.layout.marker_item, R.layout.placeholder_item, R.layout.mate_placeholder_item};
 
         @Override
         public int getChildType(int groupPosition, int childPosition) {
-            if(groupPosition==0){
-                return 0;
+            if(groupPosition==0 || groupPosition==1) {
+                if(getChild(groupPosition, childPosition)!=null) {
+                    return 0;
+                } else {
+                    return 3;
+                }
             }else{
                 if(getChild(groupPosition, childPosition)!=null) {
                     return 1;
@@ -84,10 +92,12 @@ public class ChannelMarkerFragment extends BaseFragment {
         public Object getGroup(int groupPosition) {
             switch (groupPosition){
                 case 0:
-                    return R.string.mate;
+                    return R.string.self;
                 case 1:
-                    return R.string.public_marker;
+                    return R.string.mate;
                 case 2:
+                    return R.string.public_marker;
+                case 3:
                     return R.string.private_marker;
             }
             return 0;
@@ -97,16 +107,22 @@ public class ChannelMarkerFragment extends BaseFragment {
         public Object getChild(int groupPosition, int childPosition) {
             switch (groupPosition){
                 case 0:
+                    if(mSelfMate==null)
+                        return null;
+                    return mSelfMate;
+                case 1:
                     if(mMateList==null)
                         return null;
-                    return mMateList.get(childPosition);
-                case 1:
+                    if(childPosition < mMateList.size())
+                        return mMateList.get(childPosition);
+                    return null;
+                case 2:
                     if(mMarkerList==null)
                         return null;
                     if(childPosition<mMarkerList.public_list.size())
                         return mMarkerList.public_list.get(childPosition);
                     return null;
-                case 2:
+                case 3:
                     if(mMarkerList==null)
                         return null;
                     if(childPosition<mMarkerList.private_list.size())
@@ -227,17 +243,23 @@ public class ChannelMarkerFragment extends BaseFragment {
 
         @Override
         public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View view, ViewGroup parent) {
-            if(groupPosition==0){
-                MateViewHolder vh;
-                if(view==null){
-                    view = LayoutInflater.from(getActivity()).inflate(viewType[getChildType(groupPosition, childPosition)], parent, false);
-                    vh = new MateViewHolder(view);
-                    view.setTag(vh);
-                }else{
-                    vh = (MateViewHolder) view.getTag();
-                }
+            if(groupPosition==0 || groupPosition==1){
                 Mate m = (Mate) getChild(groupPosition, childPosition);
-                vh.setItem(m);
+
+                if (m!=null) {
+                    MateViewHolder vh;
+                    if (view == null) {
+                        view = LayoutInflater.from(getActivity()).inflate(viewType[getChildType(groupPosition, childPosition)], parent, false);
+                        vh = new MateViewHolder(view);
+                        view.setTag(vh);
+                    } else {
+                        vh = (MateViewHolder) view.getTag();
+                    }
+                    vh.setItem(m);
+                } else {
+                    if(view==null)
+                        view = LayoutInflater.from(getActivity()).inflate(viewType[getChildType(groupPosition, childPosition)], parent, false);
+                }
             }else{
                 Marker m = (Marker) getChild(groupPosition, childPosition);
                 if(m!=null){
@@ -285,9 +307,11 @@ public class ChannelMarkerFragment extends BaseFragment {
                             @Override
                             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
                                 ChannelActivity activity = (ChannelActivity) getActivity();
-                                if(groupPosition==0){
+                                if(groupPosition==0 || groupPosition==1){
                                     Mate mate = (Mate) mAdapter.getChild(groupPosition, childPosition);
-                                    activity.moveToMate(mate);
+                                    if(mate!=null) {
+                                        activity.moveToMate(mate);
+                                    }
                                 }else{
                                     Marker marker = (Marker) mAdapter.getChild(groupPosition, childPosition);
                                     if(marker!=null) {
@@ -327,7 +351,15 @@ public class ChannelMarkerFragment extends BaseFragment {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            mMateList = binder.getChannelMate(mChannel.id);
+                            ArrayList<Mate> list = new ArrayList<Mate>();
+                            for (Mate mate : binder.getChannelMate(mChannel.id)) {
+                                if (mate.id.equals(mChannel.mate_id)) {
+                                    mSelfMate = mate;
+                                } else {
+                                    list.add(mate);
+                                }
+                            }
+                            mMateList = list;
                             mAdapter.notifyDataSetChanged();
                         }
                     });
