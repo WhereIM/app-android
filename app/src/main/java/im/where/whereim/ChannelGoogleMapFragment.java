@@ -484,6 +484,9 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                             mMarkerMarker.put(marker.id, m);
                         }
 
+                        if(marker==focusMarker){
+                            m.showInfoWindow();
+                        }
                     }
                 }
             }
@@ -505,10 +508,6 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                     if(marker!=null) {
                         onMarkerData(marker);
                         googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(marker.latitude, marker.longitude)));
-                        Marker m = mMarkerMarker.get(marker.id);
-                        if(m!=null) {
-                            m.showInfoWindow();
-                        }
                     }
                 }
             });
