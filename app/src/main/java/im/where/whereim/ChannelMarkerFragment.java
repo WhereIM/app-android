@@ -406,6 +406,62 @@ public class ChannelMarkerFragment extends BaseFragment {
         }
     };
 
+    private Marker mEditingMarker;
+    private ActionMode.Callback mMarkerAction = new ActionMode.Callback() {
+        private final static int ACTION_EDIT = 0;
+        private final static int ACTION_DELETE = 1;
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            menu.add(0, ACTION_EDIT, 0, "✏️");
+            menu.add(0, ACTION_DELETE, 0, "❌️");
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            mode.finish();
+            switch(item.getItemId()) {
+                case ACTION_EDIT:
+                    return true;
+                case ACTION_DELETE:
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle(R.string.delete)
+                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    postBinderTask(new CoreService.BinderTask() {
+                                        @Override
+                                        public void onBinderReady(CoreService.CoreBinder binder) {
+                                            if(mEditingMarker!=null) {
+                                                binder.deleteMarker(mEditingMarker);
+                                            }
+                                        }
+                                    });
+                                }
+                            })
+                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                }
+                            }).show();
+                    return true;
+            }
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+
+        }
+    };
+
     private ExpandableListView mListView;
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -462,7 +518,10 @@ public class ChannelMarkerFragment extends BaseFragment {
                                             getActivity().startActionMode(mMateAction);
                                         }
                                     } else {
-
+                                        mEditingMarker = (Marker) mAdapter.getChild(groupPosition, childPosition);
+                                        if(mEditingMarker!=null) {
+                                            getActivity().startActionMode(mMarkerAction);
+                                        }
                                     }
 
                                     return true;

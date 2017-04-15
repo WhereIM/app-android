@@ -631,6 +631,25 @@ public class CoreService extends Service {
             }
         }
 
+        public void deleteMarker(Marker marker){
+            if(marker==null){
+                return;
+            }
+            try {
+                JSONObject payload = new JSONObject();
+                payload.put(Key.ID, marker.id);
+                payload.put(Key.DELETED, true);
+
+                if(marker.isPublic){
+                    publish(String.format("channel/%s/data/marker/put", marker.channel_id), payload);
+                }else{
+                    publish(String.format("client/%s/marker/put", mClientId), payload);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
         public Enchantment getChannelEnchantment(String channel_id, String enchantment_id){
             synchronized (mChannelEnchantment) {
                 HashMap<String, Enchantment> list;
