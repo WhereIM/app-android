@@ -1,12 +1,20 @@
 package im.where.whereim;
 
+import android.app.Activity;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.Switch;
@@ -31,6 +39,7 @@ public class ChannelMarkerFragment extends BaseFragment {
     }
 
     private Channel mChannel;
+    private Mate mSelfMate;
     private ArrayList<Mate> mMateList;
     private Marker.List mMarkerList;
     private MarkerAdapter mAdapter;
@@ -85,7 +94,7 @@ public class ChannelMarkerFragment extends BaseFragment {
 
         @Override
         public int getChildTypeCount() {
-            return 3;
+            return 4;
         }
 
         @Override
@@ -286,6 +295,117 @@ public class ChannelMarkerFragment extends BaseFragment {
         }
     };
 
+    private Mate mEditingMate;
+    private ActionMode.Callback mSelfAction = new ActionMode.Callback() {
+        private final static int ACTION_EDIT = 0;
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            menu.add(0, ACTION_EDIT, 0, "✏️");
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            mode.finish();
+            switch(item.getItemId()) {
+                case ACTION_EDIT:
+                    Activity activity = getActivity();
+                    final View dialog_view = LayoutInflater.from(activity).inflate(R.layout.dialog_self_edit,  null);
+                    final EditText et_name = (EditText) dialog_view.findViewById(R.id.name);
+                    et_name.setText(mEditingMate.mate_name);
+                    new AlertDialog.Builder(activity)
+                            .setView(dialog_view)
+                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    final String name = et_name.getText().toString();
+                                    postBinderTask(new CoreService.BinderTask() {
+                                        @Override
+                                        public void onBinderReady(CoreService.CoreBinder binder) {
+                                            binder.editSelf(mEditingMate, name);
+                                        }
+                                    });
+                                }
+                            })
+                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                }
+                            }).show();
+                    return true;
+            }
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+
+        }
+    };
+    private ActionMode.Callback mMateAction = new ActionMode.Callback() {
+        private final static int ACTION_EDIT = 0;
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            menu.add(0, ACTION_EDIT, 0, "✏️");
+
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            mode.finish();
+            switch(item.getItemId()) {
+                case ACTION_EDIT:
+                    Activity activity = getActivity();
+                    final View dialog_view = LayoutInflater.from(activity).inflate(R.layout.dialog_mate_edit,  null);
+                    final TextView mate_name = (TextView) dialog_view.findViewById(R.id.mate_name);
+                    final EditText et_user_mate_name = (EditText) dialog_view.findViewById(R.id.user_mate_name);
+                    mate_name.setText(mEditingMate.mate_name);
+                    et_user_mate_name.setText(mEditingMate.user_mate_name);
+                    new AlertDialog.Builder(activity)
+                            .setView(dialog_view)
+                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    final String user_mate_name = et_user_mate_name.getText().toString();
+                                    postBinderTask(new CoreService.BinderTask() {
+                                        @Override
+                                        public void onBinderReady(CoreService.CoreBinder binder) {
+                                            binder.editMate(mEditingMate, user_mate_name);
+                                        }
+                                    });
+                                }
+                            })
+                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                }
+                            }).show();
+                    return true;
+            }
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+
+        }
+    };
+
     private ExpandableListView mListView;
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -319,6 +439,35 @@ public class ChannelMarkerFragment extends BaseFragment {
                                     }
                                 }
                                 return true;
+                            }
+                        });
+                        mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                            @Override
+                            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                                long packedPos = mListView.getExpandableListPosition(position);
+                                int itemType = ExpandableListView.getPackedPositionType(id);
+
+                                if (itemType == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
+                                    int childPosition = ExpandableListView.getPackedPositionChild(packedPos);
+                                    int groupPosition = ExpandableListView.getPackedPositionGroup(packedPos);
+
+                                    if (groupPosition==0) {
+                                        mEditingMate = (Mate) mAdapter.getChild(groupPosition, childPosition);
+                                        if(mEditingMate!=null) {
+                                            getActivity().startActionMode(mSelfAction);
+                                        }
+                                    } else if (groupPosition==1) {
+                                        mEditingMate = (Mate) mAdapter.getChild(groupPosition, childPosition);
+                                        if(mEditingMate!=null) {
+                                            getActivity().startActionMode(mMateAction);
+                                        }
+                                    } else {
+
+                                    }
+
+                                    return true;
+                                }
+                                return false;
                             }
                         });
                         for(int i=0;i<mAdapter.getGroupCount();i+=1){

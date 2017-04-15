@@ -382,6 +382,30 @@ public class CoreService extends Service {
             }
         }
 
+        public void editSelf(Mate mate, String mate_name){
+            try {
+                JSONObject payload = new JSONObject();
+                payload.put(Key.ID, mate.id);
+                payload.put(Key.MATE_NAME, mate_name);
+                String topic = String.format("channel/%s/data/mate/put", mate.channel_id);
+                publish(topic, payload);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void editMate(Mate mate, String user_mate_name){
+            try {
+                JSONObject payload = new JSONObject();
+                payload.put(Key.ID, mate.id);
+                payload.put(Key.USER_MATE_NAME, user_mate_name);
+                String topic = String.format("channel/%s/data/mate/put", mate.channel_id);
+                publish(topic, payload);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
         public boolean openMap(Channel channel, MapDataReceiver receiver){
             if(channel==null)
                 return false;
@@ -1628,8 +1652,8 @@ public class CoreService extends Service {
             return;
         }
         Mate mate = getChannelMate(channel_id, mate_id);
-        mate.mate_name = Util.JsonGetNullableString(data, Key.MATE_NAME);
-        mate.user_mate_name = Util.JsonGetNullableString(data, Key.USER_MATE_NAME);
+        mate.mate_name = Util.JsonOptNullableString(data, Key.MATE_NAME, mate.mate_name);
+        mate.user_mate_name = Util.JsonOptNullableString(data, Key.USER_MATE_NAME, mate.user_mate_name);
         mate.deleted = Util.JsonOptBoolean(data, Key.DELETED, mate.deleted);
 
         if(!mate.deleted) {
