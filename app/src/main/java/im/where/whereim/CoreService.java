@@ -568,6 +568,23 @@ public class CoreService extends Service {
             }
         }
 
+        public void updateEnchantment(Enchantment enchantment, JSONObject payload) {
+            if(enchantment==null){
+                return;
+            }
+            try {
+                payload.put(Key.ID, enchantment.id);
+
+                if(enchantment.isPublic){
+                    publish(String.format("channel/%s/data/enchantment/put", enchantment.channel_id), payload);
+                }else{
+                    publish(String.format("client/%s/enchantment/put", mClientId), payload);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
         public void deleteEnchantment(Enchantment enchantment){
             try {
                 JSONObject payload = new JSONObject();
