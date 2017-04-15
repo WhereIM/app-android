@@ -328,6 +328,8 @@ public class ChannelMarkerFragment extends BaseFragment {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     final String name = et_name.getText().toString();
+                                    if(name.isEmpty())
+                                        return;
                                     postBinderTask(new CoreService.BinderTask() {
                                         @Override
                                         public void onBinderReady(CoreService.CoreBinder binder) {
@@ -441,6 +443,8 @@ public class ChannelMarkerFragment extends BaseFragment {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     final String name = et_name.getText().toString();
+                                    if(name.isEmpty())
+                                        return;
                                     postBinderTask(new CoreService.BinderTask() {
                                         @Override
                                         public void onBinderReady(CoreService.CoreBinder binder) {
