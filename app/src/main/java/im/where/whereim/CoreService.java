@@ -409,8 +409,6 @@ public class CoreService extends Service {
         public boolean openMap(Channel channel, MapDataReceiver receiver){
             if(channel==null)
                 return false;
-            if(!mMqttConnected)
-                return false;
             synchronized (mMapDataReceiver){
                 if(!mMapDataReceiver.containsKey(channel.id)){
                     mMapDataReceiver.put(channel.id, new ArrayList<MapDataReceiver>());
