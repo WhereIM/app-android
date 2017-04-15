@@ -568,6 +568,23 @@ public class CoreService extends Service {
             }
         }
 
+        public void deleteEnchantment(Enchantment enchantment){
+            try {
+                JSONObject payload = new JSONObject();
+                payload.put(Key.ID, enchantment.id);
+                payload.put(Key.DELETED, true);
+                String topic;
+                if(enchantment.isPublic){
+                    topic = String.format("channel/%s/data/enchantment/put", enchantment.channel_id);
+                }else{
+                    topic = String.format("client/%s/enchantment/put", mClientId);
+                }
+                publish(topic, payload);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
         public void createMarker(String name, String channel_id, boolean ispublic, double latitude, double longitude, JSONObject attr, boolean enable) {
             try {
                 JSONObject payload = new JSONObject();

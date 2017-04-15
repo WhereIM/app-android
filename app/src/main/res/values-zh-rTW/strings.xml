@@ -20,6 +20,7 @@
     <string name="create_channel">建立群組</string>
     <string name="ok">好</string>
     <string name="cancel">取消</string>
+    <string name="delete">刪除</string>
     <string name="join_channel">加入群組</string>
     <string name="edit_channel">編輯群組</string>
     <string name="quit_channel">離開群組</string>

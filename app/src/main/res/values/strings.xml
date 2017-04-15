@@ -21,6 +21,7 @@
     <string name="create_channel">Create Channel</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
     <string name="join_channel">Join Channel</string>
     <string name="edit_channel">Edit Channel</string>
     <string name="quit_channel">Leave Channel</string>
