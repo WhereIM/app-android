@@ -1202,12 +1202,17 @@ public class CoreService extends Service {
 
     final AWSIotMqttNewMessageCallback mAwsIotMqttNewMessageCallback = new AWSIotMqttNewMessageCallback() {
         @Override
-        public void onMessageArrived(String topic, byte[] data) {
+        public void onMessageArrived(final String topic, byte[] data) {
             try {
                 String message = new String(data, "UTF-8");
                 Log.e(TAG, "Receive "+topic+" "+message);
-                JSONObject payload = new JSONObject(message);
-                mqttMessageHandler(topic, payload);
+                final JSONObject payload = new JSONObject(message);
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mqttMessageHandler(topic, payload);
+                    }
+                });
             } catch (Exception e) {
                 e.printStackTrace();
             }
