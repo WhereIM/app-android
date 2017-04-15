@@ -382,6 +382,18 @@ public class CoreService extends Service {
             }
         }
 
+        public void setSelfRadius(Channel channel, int radius){
+            try {
+                JSONObject payload = new JSONObject();
+                payload.put(Key.CHANNEL, channel.id);
+                payload.put(Key.RADIUS, radius);
+                String topic = String.format("client/%s/channel/put", mClientId);
+                publish(topic, payload);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
         public void editSelf(Mate mate, String mate_name){
             try {
                 JSONObject payload = new JSONObject();

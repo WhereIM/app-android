@@ -1,15 +1,27 @@
 package im.where.whereim;
 
+import android.app.Activity;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.Collections;
 
 import im.where.whereim.models.Channel;
 import im.where.whereim.models.Enchantment;
@@ -247,6 +259,111 @@ public class ChannelEnchantmentFragment extends BaseFragment {
         }
     };
 
+    private ActionMode.Callback mSelfAction = new ActionMode.Callback() {
+        private final static int ACTION_EDIT = 0;
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            menu.add(0, ACTION_EDIT, 0, "✏️");
+
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            mode.finish();
+            switch(item.getItemId()) {
+                case ACTION_EDIT:
+                    Activity activity = getActivity();
+                    final View dialog_view = LayoutInflater.from(activity).inflate(R.layout.dialog_radius_edit,  null);
+                    final Spinner spinner = (Spinner) dialog_view.findViewById(R.id.radius);
+                    final ArrayList<Integer> radius_list = new ArrayList<>();
+                    for (int r : Config.SELF_RADIUS) {
+                        radius_list.add(r);
+                    }
+                    if(!radius_list.contains(mChannel.radius)){
+                        radius_list.add(mChannel.radius);
+                        Collections.sort(radius_list);
+                    }
+                    spinner.setAdapter(new BaseAdapter() {
+                        class ViewHolder {
+                            TextView label;
+
+                            public ViewHolder(View view) {
+                                view.setTag(this);
+                                this.label = (TextView) view.findViewById(R.id.label);
+                            }
+
+                            void setItem(String text){
+                                label.setText(text);
+                            }
+                        }
+
+                        @Override
+                        public int getCount() {
+                            return radius_list.size();
+                        }
+
+                        @Override
+                        public String getItem(int position) {
+                            return getString(R.string.radius_m, radius_list.get(position));
+                        }
+
+                        @Override
+                        public long getItemId(int position) {
+                            return position;
+                        }
+
+                        @Override
+                        public View getView(int position, View view, ViewGroup parent) {
+                            ViewHolder vh;
+                            if(view==null){
+                                view = LayoutInflater.from(getActivity()).inflate(R.layout.radius_item, parent, false);
+                                vh = new ViewHolder(view);
+                            }else{
+                                vh = (ViewHolder) view.getTag();
+                            }
+                            vh.setItem(getItem(position));
+                            return view;
+                        }
+                    });
+                    spinner.setSelection(radius_list.indexOf(mChannel.radius));
+                    new AlertDialog.Builder(activity)
+                            .setView(dialog_view)
+                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    final int r = radius_list.get(spinner.getSelectedItemPosition());
+                                    postBinderTask(new CoreService.BinderTask() {
+                                        @Override
+                                        public void onBinderReady(CoreService.CoreBinder binder) {
+                                            binder.setSelfRadius(mChannel, r);
+                                        }
+                                    });
+                                }
+                            })
+                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                }
+                            }).show();
+                    return true;
+            }
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+
+        }
+    };
+
     private ExpandableListView mListView;
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -279,6 +396,28 @@ public class ChannelEnchantmentFragment extends BaseFragment {
                                 return false;
                             }
                         });
+                        mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                            @Override
+                            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                                long packedPos = mListView.getExpandableListPosition(position);
+                                int itemType = ExpandableListView.getPackedPositionType(id);
+
+                                if (itemType == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
+                                    int childPosition = ExpandableListView.getPackedPositionChild(packedPos);
+                                    int groupPosition = ExpandableListView.getPackedPositionGroup(packedPos);
+
+                                    if (groupPosition==0) {
+                                        getActivity().startActionMode(mSelfAction);
+                                    } else {
+
+                                    }
+
+                                    return true;
+                                }
+                                return false;
+                            }
+                        });
+
                         // disable click-to-collapse
                         mListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
                             @Override
