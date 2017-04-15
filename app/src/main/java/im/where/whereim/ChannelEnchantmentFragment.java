@@ -466,7 +466,9 @@ public class ChannelEnchantmentFragment extends BaseFragment {
                                         getActivity().startActionMode(mSelfAction);
                                     } else {
                                         mEditingEnchantment = (Enchantment) mAdapter.getChild(groupPosition, childPosition);
-                                        getActivity().startActionMode(mEnchantmentAction);
+                                        if(mEditingEnchantment!=null) {
+                                            getActivity().startActionMode(mEnchantmentAction);
+                                        }
                                     }
 
                                     return true;
