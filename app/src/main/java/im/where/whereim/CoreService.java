@@ -1963,7 +1963,7 @@ public class CoreService extends Service {
                 Log.e(TAG, "Publish "+topic+" "+message);
                 try {
                     mqttManager.publishString(message, topic, AWSIotMqttQos.QOS1);
-                } catch (com.amazonaws.AmazonClientException e){
+                } catch (Exception e){
                     // noop
                 }
             }
