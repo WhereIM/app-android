@@ -437,7 +437,7 @@ public class CoreService extends Service {
             if(mMocking) {
                 receiver.onMockData(mMockMate);
             }
-            subscribeChannelLocation(channel.id);
+            subscribeChannelMap(channel.id);
             return true;
         }
 
@@ -450,7 +450,7 @@ public class CoreService extends Service {
                     mMapDataReceiver.get(channel.id).remove(receiver);
                 }
             }
-            unsubscribeChannelLocation(channel.id);
+            unsubscribeChannelMap(channel.id);
         }
 
         public void setVisibleTiles(String[] tiles){
@@ -982,7 +982,6 @@ public class CoreService extends Service {
 
         mqttManager = new AWSIotMqttManager(mClientId, Region.getRegion(Config.AWS_REGION_ID), Config.AWS_IOT_MQTT_ENDPOINT);
         mqttManager.setAutoReconnect(true);
-        Log.e(TAG, "Service Started");
         keyStore = AWSIotKeystoreHelper.getIotKeystore(Config.CERT_ID, keyStorePath, Config.KEY_STORE_NAME, Config.KEY_STORE_PASSWORD);
 
         mqttManager.connect(keyStore, new AWSIotMqttClientStatusCallback() {
@@ -1219,7 +1218,7 @@ public class CoreService extends Service {
 
     private Pattern mClientGetPattern = Pattern.compile("^client/[A-Fa-f0-9]{32}/([^/]+)/get$");
     private Pattern mChannelDataPattern = Pattern.compile("^channel/([a-f0-9]{32})/data/([^/]+)/get$");
-    private Pattern mChannelLocationPattern = Pattern.compile("^channel/([a-f0-9]{32})/location/([^/]+)/get$");
+    private Pattern mChannelLocationPattern = Pattern.compile("^channel/([a-f0-9]{32})/map/location/get$");
     private Pattern mMapAdPattern = Pattern.compile("^system/map_ad/get/([0-3]*)$");
     private Pattern mSystemMessagePattern = Pattern.compile("^system/message/get$");
     private void mqttMessageHandler(String topic, JSONObject msg){
@@ -1904,13 +1903,13 @@ public class CoreService extends Service {
 
     // ================ Util Functions ================
 
-    private void subscribeChannelLocation(String channel_id){
-        String topic = String.format("channel/%s/location/private/get", channel_id);
+    private void subscribeChannelMap(String channel_id){
+        String topic = String.format("channel/%s/map/+/get", channel_id);
         subscribe(topic);
     }
 
-    private void unsubscribeChannelLocation(String channel_id){
-        String topic = String.format("channel/%s/location/private/get", channel_id);
+    private void unsubscribeChannelMap(String channel_id){
+        String topic = String.format("channel/%s/map/+/get", channel_id);
         unsubscribe(topic);
     }
 
