@@ -30,7 +30,7 @@ public class Enchantment extends BaseModel {
                 COL_NAME + " TEXT, " +
                 COL_LATITUDE + " DOUBLE PRECISION, " +
                 COL_LONGITUDE + " DOUBLE PRECISION, " +
-                COL_RADIUS + " DOUBLE PRECISION, " +
+                COL_RADIUS + " INTEGER, " +
                 COL_PUBLIC + " BOOLEAN, " +
                 COL_ENABLED + " BOOLEAN)";
         db.execSQL(sql);
@@ -55,7 +55,7 @@ public class Enchantment extends BaseModel {
     public String name;
     public double latitude;
     public double longitude;
-    public double radius;
+    public int radius;
     public boolean isPublic;
     public Boolean enabled;
     public boolean deleted = false;
@@ -67,7 +67,7 @@ public class Enchantment extends BaseModel {
         enchantment.name = cursor.getString(cursor.getColumnIndexOrThrow(COL_NAME));
         enchantment.latitude = cursor.getDouble(cursor.getColumnIndexOrThrow(COL_LATITUDE));
         enchantment.longitude = cursor.getDouble(cursor.getColumnIndexOrThrow(COL_LONGITUDE));
-        enchantment.radius = cursor.getDouble(cursor.getColumnIndexOrThrow(COL_RADIUS));
+        enchantment.radius = cursor.getInt(cursor.getColumnIndexOrThrow(COL_RADIUS));
         enchantment.isPublic = cursor.getInt(cursor.getColumnIndexOrThrow(COL_PUBLIC))!=0;
         enchantment.enabled = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ENABLED))!=0;
         return enchantment;

@@ -30,7 +30,7 @@ public class Channel extends BaseModel {
                 COL_ACTIVE + " BOOLEAN, " +
                 COL_ENABLED + " BOOLEAN, " +
                 COL_ENABLE_RADIUS + " BOOLEAN, " +
-                COL_RADIUS + " DOUBLE PRECISION" +
+                COL_RADIUS + " INTEGER" +
                 ")";
         db.execSQL(sql);
     }
@@ -42,7 +42,7 @@ public class Channel extends BaseModel {
     public Boolean active;
     public Boolean enabled;
     public Boolean enable_radius;
-    public double radius;
+    public int radius;
     public boolean deleted = false;
 
     public String getSortValue(){
@@ -64,7 +64,7 @@ public class Channel extends BaseModel {
         channel.active = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ACTIVE))!=0;
         channel.enabled = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ENABLED))!=0;
         channel.enable_radius = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ENABLE_RADIUS))!=0;
-        channel.radius = cursor.getDouble(cursor.getColumnIndexOrThrow(COL_RADIUS));
+        channel.radius = cursor.getInt(cursor.getColumnIndexOrThrow(COL_RADIUS));
         return channel;
     }
 

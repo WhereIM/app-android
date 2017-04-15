@@ -1405,7 +1405,7 @@ public class CoreService extends Service {
             enchantment.name = Util.JsonOptNullableString(data, Key.NAME, enchantment.name);
             enchantment.latitude = data.optDouble(Key.LATITUDE, enchantment.latitude);
             enchantment.longitude = data.optDouble(Key.LONGITUDE, enchantment.longitude);
-            enchantment.radius = data.optDouble(Key.RADIUS, enchantment.radius);
+            enchantment.radius = data.optInt(Key.RADIUS, enchantment.radius);
             enchantment.isPublic = data.optBoolean(Key.PUBLIC, enchantment.isPublic);
             enchantment.enabled = Util.JsonOptBoolean(data, Key.ENABLED, enchantment.enabled);
             enchantment.deleted = Util.JsonOptBoolean(data, Key.DELETED, enchantment.deleted);
@@ -1556,7 +1556,7 @@ public class CoreService extends Service {
             channel.user_channel_name = Util.JsonOptNullableString(msg, Key.USER_CHANNEL_NAME, channel.user_channel_name);
             channel.mate_id = Util.JsonOptNullableString(msg, Key.MATE, channel.mate_id);
             channel.enable_radius = Util.JsonOptBoolean(msg, Key.ENABLE_RADIUS, channel.enable_radius);
-            channel.radius = msg.optDouble(Key.RADIUS, channel.radius);
+            channel.radius = msg.optInt(Key.RADIUS, channel.radius);
             channel.deleted = Util.JsonOptBoolean(msg, Key.DELETED, channel.deleted);
             if(msg.has(Key.ACTIVE)){
                 channel.active = msg.getBoolean(Key.ACTIVE);
