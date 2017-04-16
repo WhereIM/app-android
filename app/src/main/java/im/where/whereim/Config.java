@@ -19,7 +19,7 @@ public class Config {
     public final static String AWS_IOT_MQTT_ENDPOINT = "a3ftvwpcurxils";
     public final static String AWS_API_GATEWAY_REGISTER_CLIENT = "https://gznzura26h.execute-api.ap-northeast-1.amazonaws.com/production";
 
-    public final static String CAPTCHA_URL = "https://where.im/captcha.html";
+    public final static String CAPTCHA_URL = "http://dev.where.im/captcha.html";
     public final static String CAPTCHA_PREFIX = "whereim://";
 
     public final static int FACEBOOK_REQUEST_CODE = 5566;
