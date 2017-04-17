@@ -181,7 +181,7 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
         Intent i = new Intent(Intent.ACTION_SEND);
         i.setType("text/plain");
         i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.action_invite));
-        i.putExtra(Intent.EXTRA_TEXT, "http://where.im/channel/"+mChannelId);
+        i.putExtra(Intent.EXTRA_TEXT, "https://where.im/channel/"+mChannelId);
         startActivity(Intent.createChooser(i, getString(R.string.action_invite)));
     }
 
