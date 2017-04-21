@@ -1740,9 +1740,7 @@ public class CoreService extends Service {
         mate.user_mate_name = Util.JsonOptNullableString(data, Key.USER_MATE_NAME, mate.user_mate_name);
         mate.deleted = Util.JsonOptBoolean(data, Key.DELETED, mate.deleted);
 
-        if(!mate.deleted) {
-            mWimDBHelper.replace(mate);
-        }
+        mWimDBHelper.replace(mate);
 
         try {
             if(data.has(Key.TS)) {
@@ -1769,13 +1767,6 @@ public class CoreService extends Service {
             }
         });
 
-        if(mate.deleted){
-            HashMap<String, Mate> list = mChannelMate.get(mate.channel_id);
-            if(list!=null){
-                list.remove(mate.id);
-            }
-            mate.delete(mWimDBHelper.getDatabase());
-        }
         notifyChannelMateListChangedListeners(mate.channel_id);
     }
 
@@ -1787,7 +1778,9 @@ public class CoreService extends Service {
             HashMap<String, Mate> mateMap = mChannelMate.get(channel_id);
             if(mateMap!=null){
                 for (Mate mate : mateMap.values()) {
-                    list.add(mate);
+                    if(!mate.deleted){
+                        list.add(mate);
+                    }
                 }
             }
         }

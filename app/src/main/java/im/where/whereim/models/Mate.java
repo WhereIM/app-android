@@ -15,6 +15,7 @@ public class Mate extends BaseModel {
     private final static String COL_CHANNEL_ID = "channel_id";
     private final static String COL_MATE_NAME = "mate_name";
     private final static String COL_USER_MATE_NAME = "user_mate_name";
+    private final static String COL_DELETED = "deleted";
 
     public static void createTable(SQLiteDatabase db){
         String sql;
@@ -22,11 +23,23 @@ public class Mate extends BaseModel {
                 COL_ID + " TEXT PRIMARY KEY, " +
                 COL_CHANNEL_ID + " TEXT, " +
                 COL_MATE_NAME + " TEXT, " +
-                COL_USER_MATE_NAME + " TEXT)";
+                COL_USER_MATE_NAME + " TEXT, " +
+                COL_DELETED + " BOOLEAN" +
+                ")";
         db.execSQL(sql);
 
         sql = "CREATE INDEX mate_index ON "+TABLE_NAME+" ("+COL_CHANNEL_ID+")";
         db.execSQL(sql);
+    }
+
+    public static void upgradeTable(SQLiteDatabase db, int currVersion){
+        String sql;
+        if (currVersion < 2) {
+            sql = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + COL_DELETED + " BOOLEAN NOT NULL DEFAULT 0";
+            db.execSQL(sql);
+
+            currVersion = 2;
+        }
     }
 
     public String id;
@@ -59,6 +72,7 @@ public class Mate extends BaseModel {
         mate.channel_id = cursor.getString(cursor.getColumnIndexOrThrow(COL_CHANNEL_ID));
         mate.mate_name = cursor.getString(cursor.getColumnIndexOrThrow(COL_MATE_NAME));
         mate.user_mate_name = cursor.getString(cursor.getColumnIndexOrThrow(COL_USER_MATE_NAME));
+        mate.deleted = cursor.getInt(cursor.getColumnIndexOrThrow(COL_DELETED))!=0;
         return mate;
     }
 
@@ -74,6 +88,7 @@ public class Mate extends BaseModel {
         cv.put(COL_CHANNEL_ID, channel_id);
         cv.put(COL_MATE_NAME, mate_name);
         cv.put(COL_USER_MATE_NAME, user_mate_name);
+        cv.put(COL_DELETED, deleted);
         return cv;
     }
 
