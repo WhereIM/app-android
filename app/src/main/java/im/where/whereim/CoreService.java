@@ -1857,7 +1857,8 @@ public class CoreService extends Service {
                 }
             }
         }
-        if(!fromSync){
+        Channel channel = mChannelMap.get(channel_id);
+        if(!fromSync && (channel==null || !channel.mate_id.equals(message.mate_id))){
             Intent intent = new Intent(this, ChannelActivity.class);
             intent.putExtra("channel", channel_id);
             intent.putExtra("tab", "message");
