@@ -87,12 +87,12 @@ public class Channel extends BaseModel {
         return cv;
     }
 
-    public void delete(SQLiteDatabase db){
-        db.rawQuery("DELETE FROM "+TABLE_NAME+" WHERE "+COL_ID+"=?", new String[]{id});
+    public void delete(SQLiteDatabase db) {
+        db.execSQL("DELETE FROM " + TABLE_NAME + " WHERE " + COL_ID + "=?", new String[]{id});
     }
 
     public static Cursor getCursor(SQLiteDatabase db){
-        return db.rawQuery("SELECT * FROM "+TABLE_NAME+" ORDER BY COALESCE("+COL_USER_CHANNEL_NAME+","+COL_CHANNEL_NAME+")", new String[]{});
+        return db.rawQuery("SELECT * FROM "+TABLE_NAME, new String[]{});
     }
 }
 

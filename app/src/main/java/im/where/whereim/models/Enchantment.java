@@ -93,7 +93,7 @@ public class Enchantment extends BaseModel {
     }
 
     public void delete(SQLiteDatabase db){
-        db.rawQuery("DELETE FROM "+TABLE_NAME+" WHERE "+COL_ID+"=?", new String[]{id});
+        db.execSQL("DELETE FROM "+TABLE_NAME+" WHERE "+COL_ID+"=?", new String[]{id});
     }
 
     public static Cursor getCursor(SQLiteDatabase db){
