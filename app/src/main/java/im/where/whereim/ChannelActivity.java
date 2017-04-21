@@ -178,11 +178,16 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
     }
 
     private void invite_join(){
-        Intent i = new Intent(Intent.ACTION_SEND);
-        i.setType("text/plain");
-        i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.action_invite));
-        i.putExtra(Intent.EXTRA_TEXT, "https://where.im/channel/"+mChannelId);
-        startActivity(Intent.createChooser(i, getString(R.string.action_invite)));
+        getChannel(new GetChannelCallback() {
+            @Override
+            public void onGetChannel(Channel channel) {
+                Intent i = new Intent(Intent.ACTION_SEND);
+                i.setType("text/plain");
+                i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.action_invite));
+                i.putExtra(Intent.EXTRA_TEXT, channel.channel_name+"\n"+String.format(Config.CHANNEL_JOIN_URL, "channel/"+mChannelId));
+                startActivity(Intent.createChooser(i, getString(R.string.action_invite)));
+            }
+        });
     }
 
     public void moveToMate(Mate mate){

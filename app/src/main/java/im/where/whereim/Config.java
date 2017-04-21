@@ -22,6 +22,8 @@ public class Config {
     public final static String CAPTCHA_URL = "http://dev.where.im/captcha.html";
     public final static String CAPTCHA_PREFIX = "whereim://";
 
+    public final static String CHANNEL_JOIN_URL = "https://dev.where.im/channel/%s";
+
     public final static int FACEBOOK_REQUEST_CODE = 5566;
 
     public final static int[] SELF_RADIUS = new int[]{75, 100, 150, 200, 250, 300, 400, 500, 1000, 1500, 2000, 3000};
