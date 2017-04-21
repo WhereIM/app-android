@@ -1830,7 +1830,7 @@ public class CoreService extends Service {
 
     private void mqttChannelMessageHandler(String channel_id, JSONObject payload){
         Message message = Message.parse(payload);
-        mWimDBHelper.insert(message);
+        mWimDBHelper.replace(message);
         boolean fromSync = Util.JsonOptBoolean(payload, "sync", false);
         notifyMessageListener(channel_id, message, fromSync);
     }
