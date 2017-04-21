@@ -352,7 +352,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                                 mBinder.createChannel(channel_name, mate_name);
                             }
                         })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
 
