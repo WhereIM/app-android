@@ -4,7 +4,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.text.SpannableString;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,8 +44,33 @@ public class ChannelMessengerFragment extends BaseFragment {
             super.changeCursor(bc.cursor);
         }
 
-        class ViewHolder {
+        private int getItemViewType(Cursor cursor) {
+            Message m = Message.parse(cursor);
+            if(mChannel.mate_id.equals(m.mate_id)){
+                return 1; // out
+            }else{
+                return 0; // in
+            }
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            Cursor cursor = (Cursor) getItem(position);
+            return getItemViewType(cursor);
+        }
+
+        @Override
+        public int getViewTypeCount() {
+            return 2;
+        }
+
+        class InViewHolder {
             TextView sender;
+            TextView time;
+            TextView message;
+        }
+
+        class OutViewHolder {
             TextView time;
             TextView message;
         }
@@ -58,12 +82,25 @@ public class ChannelMessengerFragment extends BaseFragment {
 
         @Override
         public View newView(Context context, Cursor cursor, ViewGroup parent) {
-            View view = LayoutInflater.from(context).inflate(R.layout.message_item, parent, false);
-            ViewHolder vh = new ViewHolder();
-            vh.sender = (TextView) view.findViewById(R.id.sender);
-            vh.time = (TextView) view.findViewById(R.id.time);
-            vh.message = (TextView) view.findViewById(R.id.message);
-            view.setTag(vh);
+            View view = null;
+            switch(getItemViewType(cursor)){
+                case 0:
+                    view = LayoutInflater.from(context).inflate(R.layout.in_message_item, parent, false);
+                    InViewHolder ivh = new InViewHolder();
+                    ivh.sender = (TextView) view.findViewById(R.id.sender);
+                    ivh.time = (TextView) view.findViewById(R.id.time);
+                    ivh.message = (TextView) view.findViewById(R.id.message);
+                    view.setTag(ivh);
+                    return view;
+                case 1:
+                    view = LayoutInflater.from(context).inflate(R.layout.out_message_item, parent, false);
+                    OutViewHolder ovh = new OutViewHolder();
+                    ovh.time = (TextView) view.findViewById(R.id.time);
+                    ovh.message = (TextView) view.findViewById(R.id.message);
+                    view.setTag(ovh);
+
+                    return view;
+            }
             return view;
         }
 
@@ -71,18 +108,31 @@ public class ChannelMessengerFragment extends BaseFragment {
         public void bindView(View view, Context context, Cursor cursor) {
             CoreService.CoreBinder binder = getBinder();
             Message m = Message.parse(cursor);
-            ViewHolder vh = (ViewHolder) view.getTag();
-            if(binder==null){
-                vh.sender.setText(null);
-                vh.message.setText(null);
-                vh.time.setText(null);
-                return;
+            switch(getItemViewType(cursor)){
+                case 0:
+                    InViewHolder ivh = (InViewHolder) view.getTag();
+                    if(binder==null){
+                        ivh.sender.setText(null);
+                        ivh.message.setText(null);
+                        ivh.time.setText(null);
+                        return;
+                    }
+                    Mate mate = binder.getChannelMate(mChannel.id, m.mate_id);
+                    ivh.sender.setText(mate==null?"":mate.getDisplayName());
+                    ivh.message.setText(m.getText(getActivity(), binder));
+                    ivh.time.setText(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Timestamp(m.time*1000)));
+                    return;
+                case 1:
+                    OutViewHolder ovh = (OutViewHolder) view.getTag();
+                    if(binder==null){
+                        ovh.message.setText(null);
+                        ovh.time.setText(null);
+                        return;
+                    }
+                    ovh.message.setText(m.getText(getActivity(), binder));
+                    ovh.time.setText(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Timestamp(m.time*1000)));
+                    return;
             }
-            Mate mate = binder.getChannelMate(mChannel.id, m.mate_id);
-            vh.sender.setText(mate==null?"":mate.getDisplayName());
-            SpannableString text = m.getText(getActivity(), binder);
-            vh.message.setText(text);
-            vh.time.setText(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Timestamp(m.time*1000)));
         }
     };
 
