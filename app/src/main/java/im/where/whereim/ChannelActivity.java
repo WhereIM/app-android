@@ -184,7 +184,7 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
                 Intent i = new Intent(Intent.ACTION_SEND);
                 i.setType("text/plain");
                 i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.action_invite));
-                i.putExtra(Intent.EXTRA_TEXT, channel.channel_name+"\n"+String.format(Config.CHANNEL_JOIN_URL, "channel/"+mChannelId));
+                i.putExtra(Intent.EXTRA_TEXT, getString(R.string.invitation, channel.channel_name)+"\n"+String.format(Config.CHANNEL_JOIN_URL, mChannelId));
                 startActivity(Intent.createChooser(i, getString(R.string.action_invite)));
             }
         });

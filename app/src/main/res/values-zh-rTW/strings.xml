@@ -11,6 +11,8 @@
 
     <string name="retry">再試一次</string>
 
+    <string name="invitation">邀請：%s</string>
+
     <string name="mate_invite_hint">沒有人，邀請別人進來吧</string>
     <string name="object_create_hint">在地圖上長按即可建立</string>
 
