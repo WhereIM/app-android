@@ -174,6 +174,21 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         super.onAttach(context);
         mMarkerView = LayoutInflater.from(context).inflate(R.layout.map_mate, null);
         mMarkerViewTitle = (TextView) mMarkerView.findViewById(R.id.title);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mMarkerView = null;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if(mMapView!=null)
+            mMapView.onResume();
+
         postBinderTask(new CoreService.BinderTask() {
             @Override
             public void onBinderReady(final CoreService.CoreBinder binder) {
@@ -187,19 +202,6 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                 });
             }
         });
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mMarkerView = null;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if(mMapView!=null)
-            mMapView.onResume();
     }
 
     @Override
