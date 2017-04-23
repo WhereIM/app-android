@@ -57,10 +57,10 @@ public class Mate extends BaseModel {
     public boolean deleted = false;
 
     public String getDisplayName(){
-        if(this.user_mate_name!=null){
+        if(user_mate_name!=null && !user_mate_name.isEmpty()){
             return this.user_mate_name;
         }
-        if(this.mate_name!=null){
+        if(mate_name!=null && !mate_name.isEmpty()){
             return this.mate_name;
         }
         return "";
