@@ -1236,8 +1236,14 @@ public class CoreService extends Service {
         if(mIsActiveDevice!=null && mIsActiveDevice && enableCount>0 && !pending){
             if(!mIsForeground){
                 mIsForeground = true;
+
+                Intent notificationIntent = new Intent(this, ChannelListActivity.class);
+                notificationIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
                 Notification notification = new NotificationCompat.Builder(this)
                         .setContentTitle(getResources().getString(R.string.app_name))
+                        .setContentIntent(pendingIntent)
                         .setSmallIcon(R.drawable.ic_stat_logo)
                         .build();
 
