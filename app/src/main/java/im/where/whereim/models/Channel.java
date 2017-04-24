@@ -45,7 +45,7 @@ public class Channel extends BaseModel {
     public int radius;
     public boolean deleted = false;
 
-    public String getSortValue(){
+    public String getDisplayName(){
         if(this.user_channel_name!=null && !this.user_channel_name.isEmpty()){
             return this.user_channel_name;
         }

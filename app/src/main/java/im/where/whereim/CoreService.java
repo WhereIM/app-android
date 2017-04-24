@@ -258,7 +258,7 @@ public class CoreService extends Service {
                     @Override
                     public int compare(Channel lhs, Channel rhs) {
                         if (lhs.enabled == rhs.enabled) {
-                            return lhs.getSortValue().compareToIgnoreCase(rhs.getSortValue());
+                            return lhs.getDisplayName().compareToIgnoreCase(rhs.getDisplayName());
                         }
                         int e0 = lhs.enabled!=null && lhs.enabled ? 0 : 1;
                         int e1 = rhs.enabled!=null && rhs.enabled ? 0 : 1;
@@ -1863,7 +1863,7 @@ public class CoreService extends Service {
             }
         }
         Channel channel = mChannelMap.get(channel_id);
-        if(!fromSync && (channel==null || !channel.mate_id.equals(message.mate_id) && !message.type.equals("text"))){
+        if(!fromSync && (channel==null || !channel.mate_id.equals(message.mate_id) || !message.type.equals("text"))){
             Intent intent = new Intent(this, ChannelActivity.class);
             intent.putExtra("channel", channel_id);
             intent.putExtra("tab", "message");
@@ -1874,11 +1874,20 @@ public class CoreService extends Service {
                             .addNextIntent(intent)
                             .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
+            String channel_text = "";
+            String sender_text = "";
+            if(channel!=null){
+                channel_text = " - "+channel.getDisplayName();
+                if(message.mate_id!=null){
+                    Mate mate = getChannelMate(channel_id, message.mate_id);
+                    sender_text = mate.getDisplayName()+"\n";
+                }
+            }
             NotificationCompat.Builder mBuilder =
                     new NotificationCompat.Builder(this)
                             .setSmallIcon(R.drawable.ic_stat_logo)
-                            .setContentTitle(getString(R.string.app_name))
-                            .setContentText(message.getText(this, mBinder))
+                            .setContentTitle(getString(R.string.app_name)+channel_text)
+                            .setContentText(sender_text+message.getText(this, mBinder))
                             .setDefaults(Notification.DEFAULT_SOUND)
                             .setContentIntent(pendingIntent)
                             .setAutoCancel(true);
