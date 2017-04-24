@@ -32,7 +32,7 @@ public class LoginActivity extends BaseActivity {
         public void onBinderReady(final CoreService.CoreBinder binder) {
             startLoading();
 
-            binder.register_client(mProvider, mAuthId, mName, new CoreService.RegisterClientCallback() {
+            binder.register_client(mProvider, mToken, mAuthId, mName, new CoreService.RegisterClientCallback() {
                 @Override
                 public void onCaptchaRequired() {
                     Intent intent = new Intent(LoginActivity.this, CaptchaActivity.class);
@@ -59,6 +59,7 @@ public class LoginActivity extends BaseActivity {
     };
 
     private String mProvider;
+    private String mToken;
     private String mAuthId;
     private String mName;
 
@@ -101,11 +102,13 @@ public class LoginActivity extends BaseActivity {
                             stopTracking();
 
                             mAuthId = loginResult.getAccessToken().getUserId();
+                            mToken = loginResult.getAccessToken().getToken();
                             mName = name;
 
                             SharedPreferences.Editor editor = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
                             editor.putString(Key.PROVIDER, mProvider);
                             editor.putString(Key.ID, mAuthId);
+                            editor.putString(Key.TOKEN, mToken);
                             editor.putString(Key.NAME, mName);
                             editor.apply();
 
@@ -114,11 +117,13 @@ public class LoginActivity extends BaseActivity {
                     }.startTracking();
                 }else{
                     mAuthId = loginResult.getAccessToken().getUserId();
+                    mToken = loginResult.getAccessToken().getToken();
                     mName = profile.getName();
 
                     SharedPreferences.Editor editor = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
                     editor.putString(Key.PROVIDER, mProvider);
                     editor.putString(Key.ID, mAuthId);
+                    editor.putString(Key.TOKEN, mToken);
                     editor.putString(Key.NAME, mName);
                     editor.apply();
 
@@ -151,8 +156,16 @@ public class LoginActivity extends BaseActivity {
             stopLoading();
             SharedPreferences sp = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
             mAuthId = sp.getString(Key.ID, null);
+            mToken = sp.getString(Key.TOKEN, null);
             mName = sp.getString(Key.NAME, null);
             mProvider = sp.getString(Key.PROVIDER, null);
+
+            SharedPreferences.Editor e = sp.edit();
+            e.remove(Key.ID);
+            e.remove(Key.TOKEN);
+            e.remove(Key.NAME);
+            e.remove(Key.PROVIDER);
+            e.apply();
             if(mAuthId==null){
                 mLogin.setVisibility(View.VISIBLE);
             }else{

@@ -19,6 +19,7 @@ public class WhereImApplication extends MultiDexApplication {
         super.onCreate();
         Branch.getAutoInstance(this);
         FacebookSdk.sdkInitialize(getApplicationContext(), Config.FACEBOOK_REQUEST_CODE);
+        LoginManager.getInstance().logOut();
         AppEventsLogger.activateApp(this);
         startService(new Intent(this, CoreService.class));
     }

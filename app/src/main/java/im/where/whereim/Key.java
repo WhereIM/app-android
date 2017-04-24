@@ -48,6 +48,7 @@ public class Key {
 
     public final static String TILE = "tile";
     public final static String TIME = "time";
+    public final static String TOKEN = "token";
     public final static String TS = "ts";
 
     public final static String USER_CHANNEL_NAME = "user_channel_name";

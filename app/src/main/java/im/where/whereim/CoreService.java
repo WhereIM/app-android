@@ -111,7 +111,7 @@ public class CoreService extends Service {
             mOTP = otp;
         }
 
-        public void register_client(final String provider, final String auth_id, final String name, final RegisterClientCallback callback){
+        public void register_client(final String provider, final String auth_token, final String auth_id, final String name, final RegisterClientCallback callback){
             if(mOTP==null || mOTP.isEmpty()){
                 callback.onCaptchaRequired();
                 return;
@@ -124,6 +124,7 @@ public class CoreService extends Service {
 
                         JSONObject payload = new JSONObject();
                         payload.put("auth_provider", provider);
+                        payload.put("auth_token", auth_token);
                         payload.put("auth_id", auth_id);
                         payload.put("otp", mOTP);
 
@@ -172,6 +173,11 @@ public class CoreService extends Service {
                         }
 
                         if("ok".equals(status)) {
+                            SharedPreferences.Editor editor = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
+                            editor.putString(Key.NAME, name);
+                            editor.apply();
+
+
                             URL key_url = new URL(res.getString("key"));
                             conn = (HttpsURLConnection) key_url.openConnection();
                             is = conn.getInputStream();
