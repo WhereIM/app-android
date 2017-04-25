@@ -566,8 +566,10 @@ public class ChannelEnchantmentFragment extends BaseFragment {
         postBinderTask(new CoreService.BinderTask() {
             @Override
             public void onBinderReady(CoreService.CoreBinder binder) {
-                binder.removeChannelChangedListener(mChannel.id, mChannelListener);
-                binder.removeEnchantmentListener(mChannel, mEnchantmentListener);
+                if(mChannel!=null){
+                    binder.removeChannelChangedListener(mChannel.id, mChannelListener);
+                    binder.removeEnchantmentListener(mChannel, mEnchantmentListener);
+                }
             }
         });
         super.onDestroyView();

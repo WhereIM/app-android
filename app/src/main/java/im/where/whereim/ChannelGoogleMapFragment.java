@@ -209,8 +209,10 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         postBinderTask(new CoreService.BinderTask() {
             @Override
             public void onBinderReady(CoreService.CoreBinder binder) {
-                binder.closeMap(mChannel, ChannelGoogleMapFragment.this);
-                binder.removeChannelChangedListener(mChannel.id, channedChangedListener);
+                if(mChannel != null){
+                    binder.closeMap(mChannel, ChannelGoogleMapFragment.this);
+                    binder.removeChannelChangedListener(mChannel.id, channedChangedListener);
+                }
             }
         });
 

@@ -636,8 +636,10 @@ public class ChannelMarkerFragment extends BaseFragment {
         postBinderTask(new CoreService.BinderTask() {
             @Override
             public void onBinderReady(CoreService.CoreBinder binder) {
-                binder.removeMateListener(mChannel, mMateListener);
-                binder.removeMarkerListener(mChannel, mMarkerListener);
+                if(mChannel!=null){
+                    binder.removeMateListener(mChannel, mMateListener);
+                    binder.removeMarkerListener(mChannel, mMarkerListener);
+                }
             }
         });
         super.onDestroyView();

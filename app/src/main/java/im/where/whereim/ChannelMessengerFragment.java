@@ -231,7 +231,9 @@ public class ChannelMessengerFragment extends BaseFragment {
         postBinderTask(new CoreService.BinderTask() {
             @Override
             public void onBinderReady(CoreService.CoreBinder binder) {
-                binder.removeMessageListener(mChannel, mMessageListener);
+                if(mChannel!=null){
+                    binder.removeMessageListener(mChannel, mMessageListener);
+                }
             }
         });
         super.onDestroyView();
