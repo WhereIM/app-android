@@ -208,10 +208,10 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
         mTabLayout.getTabAt(TAB_MAP).select();
     }
 
-    private ChannelMapFragment mChannelMapFragment;
-    private ChannelMessengerFragment mChannelMessengerFragment;
-    private ChannelMarkerFragment mChannelMarkerFragment;
-    private ChannelEnchantmentFragment mChannelEnchantmentFragment;
+    private ChannelMapFragment mChannelMapFragment = new ChannelGoogleMapFragment();
+    private ChannelMessengerFragment mChannelMessengerFragment = new ChannelMessengerFragment();
+    private ChannelMarkerFragment mChannelMarkerFragment = new ChannelMarkerFragment();
+    private ChannelEnchantmentFragment mChannelEnchantmentFragment = new ChannelEnchantmentFragment();
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         public SectionsPagerAdapter(FragmentManager fm) {
@@ -222,22 +222,12 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    if(mChannelMapFragment ==null) {
-                        mChannelMapFragment = new ChannelGoogleMapFragment();
-                        processMapRunnable();
-                    }
                     return mChannelMapFragment;
                 case 1:
-                    if(mChannelMessengerFragment ==null)
-                        mChannelMessengerFragment = new ChannelMessengerFragment();
                     return mChannelMessengerFragment;
                 case 2:
-                    if(mChannelMarkerFragment ==null)
-                        mChannelMarkerFragment = new ChannelMarkerFragment();
                     return mChannelMarkerFragment;
                 case 3:
-                    if(mChannelEnchantmentFragment ==null)
-                        mChannelEnchantmentFragment = new ChannelEnchantmentFragment();
                     return mChannelEnchantmentFragment;
             }
             return null;
@@ -310,33 +300,5 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
             mBinder.removeConnectionStatusChangedListener(this);
         }
         super.onPause();
-    }
-
-    private interface MapFragmentCallback{
-        public void onMapFragmentReady(CoreService.MapDataReceiver fragment);
-    }
-    private List<MapFragmentCallback> mPendingMapRunnable = new ArrayList<>();
-    private void postMap(MapFragmentCallback r){
-        synchronized (mPendingMapRunnable) {
-            mPendingMapRunnable.add(r);
-        }
-        processMapRunnable();
-    }
-
-    private void processMapRunnable(){
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                if(mChannelMapFragment ==null){
-                    return;
-                }
-                synchronized (mPendingMapRunnable) {
-                    while(mPendingMapRunnable.size()>0){
-                        MapFragmentCallback r = mPendingMapRunnable.remove(0);
-                        r.onMapFragmentReady(mChannelMapFragment);
-                    }
-                }
-            }
-        });
     }
 }
