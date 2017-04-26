@@ -30,7 +30,7 @@ import im.where.whereim.view.Joystick;
  * Created by buganini on 19/01/17.
  */
 
-abstract public class ChannelMapFragment extends BaseFragment implements CoreService.MapDataReceiver {
+abstract public class ChannelMapFragment extends BaseFragment implements CoreService.MapDataDelegate {
     protected Handler mHandler = new Handler();
 
     protected View mEnchantmentController;

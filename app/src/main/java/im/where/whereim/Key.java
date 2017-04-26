@@ -8,6 +8,8 @@ public class Key {
     public final static String ACCURACY = "acc";
     public final static String ACTIVE = "active";
     public final static String ALTITUDE = "alt";
+    public final static String API = "api";
+    public final static String API_PREFIX = "api_";
     public final static String ATTR = "attr";
 
     public final static String BEARING = "bear";
@@ -24,7 +26,11 @@ public class Key {
 
     public final static String FACEBOOK = "facebook";
 
+    public final static String GOOGLE_SEARCH = "google_search";
+
     public final static String ID = "id";
+
+    public final static String KEY = "key";
 
     public final static String LANG = "lang";
     public final static String LATITUDE = "lat";

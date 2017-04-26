@@ -1,6 +1,7 @@
 package im.where.whereim;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,12 +15,14 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Switch;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import im.where.whereim.geo.QuadTree;
 import im.where.whereim.models.Channel;
 import im.where.whereim.models.Enchantment;
 import im.where.whereim.models.Marker;
@@ -119,6 +122,26 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
         mViewPager.setOffscreenPageLimit(mSectionsPagerAdapter.getCount());
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                View view = getCurrentFocus();
+                if (view != null) {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
 
         mTabLayout = (TabLayout) findViewById(R.id.tabs);
 
@@ -208,7 +231,21 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
         mTabLayout.getTabAt(TAB_MAP).select();
     }
 
+    public QuadTree.LatLng getMapCenter() {
+        return mChannelMapFragment.getMapCenter();
+    }
+
+    public void setSearchResult(ArrayList<ChannelSearchFragment.SearchResult> results){
+        mChannelMapFragment.setSearchResult(results);
+    }
+
+    public void moveToSearchResult(int position){
+        mChannelMapFragment.moveToSearchResult(position);
+        mTabLayout.getTabAt(TAB_MAP).select();
+    }
+
     private ChannelMapFragment mChannelMapFragment = new ChannelGoogleMapFragment();
+    private ChannelSearchFragment mChannelSearchFragment = new ChannelGoogleSearchFragment();
     private ChannelMessengerFragment mChannelMessengerFragment = new ChannelMessengerFragment();
     private ChannelMarkerFragment mChannelMarkerFragment = new ChannelMarkerFragment();
     private ChannelEnchantmentFragment mChannelEnchantmentFragment = new ChannelEnchantmentFragment();
@@ -224,10 +261,12 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
                 case 0:
                     return mChannelMapFragment;
                 case 1:
-                    return mChannelMessengerFragment;
+                    return mChannelSearchFragment;
                 case 2:
-                    return mChannelMarkerFragment;
+                    return mChannelMessengerFragment;
                 case 3:
+                    return mChannelMarkerFragment;
+                case 4:
                     return mChannelEnchantmentFragment;
             }
             return null;
@@ -235,7 +274,7 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
 
         @Override
         public int getCount() {
-            return 4;
+            return 5;
         }
 
         @Override
@@ -243,11 +282,13 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
             switch (position) {
                 case 0: // map
                     return "\uD83C\uDF0F️";
-                case 1: // messenger
+                case 1: // search
+                    return "\uD83D\uDD0D";
+                case 2: // messenger
                     return "\uD83D\uDCAC";
-                case 2: // marker
+                case 3: // marker
                     return "\uD83D\uDEA9";
-                case 3: // enchantment
+                case 4: // enchantment
                     return "⭕";
             }
             return null;

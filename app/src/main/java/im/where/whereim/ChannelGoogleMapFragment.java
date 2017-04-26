@@ -77,6 +77,8 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
 
     private double defaultLat = 0;
     private double defaultLng = 0;
+    private double currentLat = 0;
+    private double currentLng = 0;
 
     private MapView mMapView;
 
@@ -98,6 +100,8 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
             defaultLat = locationByGPS.getLatitude();
             defaultLng = locationByGPS.getLongitude();
         }
+        currentLat = defaultLat;
+        currentLng = defaultLng;
     }
 
     @Override
@@ -131,6 +135,8 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     final ArrayList<Polyline> lines = new ArrayList<>();
     private void cameraMoved(GoogleMap googleMap){
         float zoom = googleMap.getCameraPosition().zoom-1;
+        currentLat = googleMap.getCameraPosition().target.latitude;
+        currentLng = googleMap.getCameraPosition().target.longitude;
         LatLngBounds bounds = googleMap.getProjection().getVisibleRegion().latLngBounds;
         String nw = QuadTree.fromLatLng(bounds.northeast.latitude, bounds.southwest.longitude, zoom);
         String se = QuadTree.fromLatLng(bounds.southwest.latitude, bounds.northeast.longitude, zoom);
@@ -512,6 +518,62 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                     if(marker!=null) {
                         onMarkerData(marker);
                         googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(marker.latitude, marker.longitude)));
+                    }
+                }
+            });
+        }
+    }
+
+    @Override
+    public QuadTree.LatLng getMapCenter() {
+        return new QuadTree.LatLng(currentLat, currentLng);
+    }
+
+    private ArrayList<ChannelSearchFragment.SearchResult> mSearchResults;
+    private ArrayList<Marker> mSearchResultMarkers = new ArrayList<>();
+    @Override
+    public void setSearchResult(final ArrayList<ChannelSearchFragment.SearchResult> results) {
+        synchronized (mSearchResultMarkers) {
+            for (Marker marker : mSearchResultMarkers) {
+                marker.remove();
+            }
+            mSearchResultMarkers.clear();
+        }
+        mMapView.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                mSearchResults = results;
+                for (ChannelSearchFragment.SearchResult _result : results) {
+                    ChannelGoogleSearchFragment.GoogleSearchResult result = (ChannelGoogleSearchFragment.GoogleSearchResult) _result;
+                    Marker m = googleMap.addMarker(
+                            new MarkerOptions()
+                                    .title(result.name)
+                                    .position(new LatLng(result.latitude, result.longitude))
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.search_marker))
+                                    .anchor(0.5f, 1f)
+                    );
+                    synchronized (mSearchResultMarkers) {
+                        mSearchResultMarkers.add(m);
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public void moveToSearchResult(final int position) {
+        if(mMapView!=null){
+            mMapView.getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(GoogleMap googleMap) {
+                    if(mSearchResults==null || position >= mSearchResults.size()){
+                        return;
+                    }
+                    ChannelSearchFragment.SearchResult result = mSearchResults.get(position);
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(result.latitude, result.longitude)));
+                    Marker m = mSearchResultMarkers.get(position);
+                    if(m != null){
+                        m.showInfoWindow();
                     }
                 }
             });

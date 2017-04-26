@@ -55,6 +55,7 @@ import java.util.regex.Pattern;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import im.where.whereim.geo.QuadTree;
 import im.where.whereim.models.Ad;
 import im.where.whereim.models.Channel;
 import im.where.whereim.models.Enchantment;
@@ -70,7 +71,7 @@ public class CoreService extends Service {
         void onBinderReady(CoreService.CoreBinder binder);
     };
 
-    public interface MapDataReceiver {
+    public interface MapDataDelegate {
         void onMockData(Mate mock);
         void onMateData(Mate mate);
         void moveToMate(Mate mate);
@@ -78,6 +79,9 @@ public class CoreService extends Service {
         void moveToEnchantment(Enchantment enchantment);
         void onMarkerData(Marker marker);
         void moveToMarker(Marker marker);
+        QuadTree.LatLng getMapCenter();
+        void setSearchResult(ArrayList<ChannelSearchFragment.SearchResult> results);
+        void moveToSearchResult(int position);
         void onMapAd(HashMap<String, Ad> ads);
     };
 
@@ -89,6 +93,10 @@ public class CoreService extends Service {
 
     public interface ConnectionStatusCallback {
         void onConnectionStatusChanged(boolean connected);
+    }
+
+    public interface ApiKeyCallback {
+        void apiKey(String api_key);
     }
 
     public class CoreBinder extends Binder{
@@ -105,6 +113,37 @@ public class CoreService extends Service {
 
         public String getUserName(){
             return mUserName;
+        }
+
+        public void getApiKey(String api, ApiKeyCallback callback) {
+            SharedPreferences sp = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+            String key = sp.getString(Key.API_PREFIX+api, null);
+            if(key!=null){
+                callback.apiKey(key);
+                return;
+            }
+            synchronized (mApiKeyCallback) {
+                List<ApiKeyCallback> list = mApiKeyCallback.get(api);
+                if(list==null){
+                    list = new ArrayList<>();
+                    mApiKeyCallback.put(api, list);
+                }
+                list.add(callback);
+            }
+            try {
+                JSONObject payload = new JSONObject();
+                payload.put(Key.API, api);
+                String topic = String.format("system/key/get");
+                publish(topic, payload);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void invalidateApiKey(String api) {
+            SharedPreferences.Editor editor = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
+            editor.remove(Key.API_PREFIX+api);
+            editor.apply();
         }
 
         public void setOTP(String otp){
@@ -424,12 +463,12 @@ public class CoreService extends Service {
             }
         }
 
-        public boolean openMap(Channel channel, MapDataReceiver receiver){
+        public boolean openMap(Channel channel, MapDataDelegate receiver){
             if(channel==null)
                 return false;
             synchronized (mMapDataReceiver){
                 if(!mMapDataReceiver.containsKey(channel.id)){
-                    mMapDataReceiver.put(channel.id, new ArrayList<MapDataReceiver>());
+                    mMapDataReceiver.put(channel.id, new ArrayList<MapDataDelegate>());
                 }
                 mMapDataReceiver.get(channel.id).add(receiver);
             }
@@ -457,7 +496,7 @@ public class CoreService extends Service {
             return true;
         }
 
-        public void closeMap(Channel channel, MapDataReceiver receiver){
+        public void closeMap(Channel channel, MapDataDelegate receiver){
             setVisibleTiles(new String[]{});
             if(channel==null)
                 return;
@@ -916,9 +955,9 @@ public class CoreService extends Service {
             mate = mMockMate;
         }
         synchronized (mMapDataReceiver) {
-            for (List<MapDataReceiver> mapDataReceivers : mMapDataReceiver.values()) {
-                for (MapDataReceiver mapDataReceiver : mapDataReceivers) {
-                    mapDataReceiver.onMockData(mate);
+            for (List<MapDataDelegate> mapDataDelegates : mMapDataReceiver.values()) {
+                for (MapDataDelegate mapDataDelegate : mapDataDelegates) {
+                    mapDataDelegate.onMockData(mate);
                 }
             }
         }
@@ -929,6 +968,7 @@ public class CoreService extends Service {
     private Handler mHandler = new Handler();
     private Boolean mIsActiveDevice = null;
     private boolean mRequestActiveDevice = false;
+    private final HashMap<String, List<ApiKeyCallback>> mApiKeyCallback = new HashMap<>();
     private final List<ConnectionStatusCallback> mConnectionStatusChangedListener = new ArrayList<>();
     private final List<Runnable> mChannelListChangedListener = new ArrayList<>();
     private final HashMap<String, List<Runnable>> mChannelChangedListener = new HashMap<>();
@@ -938,7 +978,7 @@ public class CoreService extends Service {
     private final HashMap<String, List<Runnable>> mMessageListener = new HashMap<>();
     private final CoreBinder mBinder = new CoreBinder();
 
-    final private HashMap<String, List<MapDataReceiver>> mMapDataReceiver = new HashMap<>();
+    final private HashMap<String, List<MapDataDelegate>> mMapDataReceiver = new HashMap<>();
 
     public CoreService() {
 
@@ -1317,6 +1357,7 @@ public class CoreService extends Service {
     private Pattern mChannelDataPattern = Pattern.compile("^channel/([a-f0-9]{32})/data/([^/]+)/get$");
     private Pattern mChannelLocationPattern = Pattern.compile("^channel/([a-f0-9]{32})/map/location/get$");
     private Pattern mMapAdPattern = Pattern.compile("^system/map_ad/get/([0-3]*)$");
+    private Pattern mSystemKeyPattern = Pattern.compile("^system/key/get$");
     private Pattern mSystemMessagePattern = Pattern.compile("^system/message/get$");
     private void mqttMessageHandler(String topic, JSONObject msg){
         try {
@@ -1373,6 +1414,11 @@ public class CoreService extends Service {
             m = mMapAdPattern.matcher(topic);
             if(m.matches()){
                 mqttSystemMapAdHandler(msg);
+                return;
+            }
+            m = mSystemKeyPattern.matcher(topic);
+            if(m.matches()){
+                mqttSystemKeyHandler(msg);
                 return;
             }
             m = mSystemMessagePattern.matcher(topic);
@@ -1526,8 +1572,8 @@ public class CoreService extends Service {
             public void run() {
                 synchronized (mMapDataReceiver){
                     if(mMapDataReceiver.containsKey(enchantment.channel_id)){
-                        for (MapDataReceiver mapDataReceiver : mMapDataReceiver.get(enchantment.channel_id)) {
-                            mapDataReceiver.onEnchantmentData(enchantment);
+                        for (MapDataDelegate mapDataDelegate : mMapDataReceiver.get(enchantment.channel_id)) {
+                            mapDataDelegate.onEnchantmentData(enchantment);
                         }
                     }
                 }
@@ -1609,8 +1655,8 @@ public class CoreService extends Service {
             public void run() {
                 synchronized (mMapDataReceiver){
                     if(mMapDataReceiver.containsKey(marker.channel_id)){
-                        for (MapDataReceiver mapDataReceiver : mMapDataReceiver.get(marker.channel_id)) {
-                            mapDataReceiver.onMarkerData(marker);
+                        for (MapDataDelegate mapDataDelegate : mMapDataReceiver.get(marker.channel_id)) {
+                            mapDataDelegate.onMarkerData(marker);
                         }
                     }
                 }
@@ -1771,8 +1817,8 @@ public class CoreService extends Service {
             public void run() {
                 synchronized (mMapDataReceiver){
                     if(mMapDataReceiver.containsKey(mate.channel_id)){
-                        for (MapDataReceiver mapDataReceiver : mMapDataReceiver.get(mate.channel_id)) {
-                            mapDataReceiver.onMateData(mate);
+                        for (MapDataDelegate mapDataDelegate : mMapDataReceiver.get(mate.channel_id)) {
+                            mapDataDelegate.onMateData(mate);
                         }
                     }
                 }
@@ -1926,8 +1972,8 @@ public class CoreService extends Service {
             public void run() {
                 synchronized (mMapDataReceiver){
                     if(mMapDataReceiver.containsKey(channel_id)){
-                        for (MapDataReceiver mapDataReceiver : mMapDataReceiver.get(channel_id)) {
-                            mapDataReceiver.onMateData(_m);
+                        for (MapDataDelegate mapDataDelegate : mMapDataReceiver.get(channel_id)) {
+                            mapDataDelegate.onMateData(_m);
                         }
                     }
                 }
@@ -1983,15 +2029,43 @@ public class CoreService extends Service {
             @Override
             public void run() {
                 synchronized (mMapDataReceiver){
-                    for (List<MapDataReceiver> mapDataReceiverList : mMapDataReceiver.values()) {
-                        for (MapDataReceiver mapDataReceiver : mapDataReceiverList) {
-                            mapDataReceiver.onMapAd(mapAds);
+                    for (List<MapDataDelegate> mapDataDelegateList : mMapDataReceiver.values()) {
+                        for (MapDataDelegate mapDataDelegate : mapDataDelegateList) {
+                            mapDataDelegate.onMapAd(mapAds);
                         }
                     }
                 }
 
             }
         });
+    }
+
+    private void mqttSystemKeyHandler(JSONObject msg){
+        try {
+            final String api = msg.getString(Key.API);
+            final String key = msg.getString(Key.KEY);
+            SharedPreferences.Editor editor = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
+            editor.putString(Key.API_PREFIX+api, key);
+            editor.apply();
+
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    synchronized (mApiKeyCallback) {
+                        List<ApiKeyCallback> list = mApiKeyCallback.get(api);
+                        if(list!=null){
+                            while(list.size()>0){
+                                ApiKeyCallback callback = list.remove(0);
+                                callback.apiKey(key);
+                            }
+                        }
+                    }
+                }
+            });
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     private void mqttSystemMessageHandler(JSONObject msg, boolean isPublic){
