@@ -81,8 +81,6 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
         }
 
         mAdView.setVisibility(View.GONE);
-        mSearch.setVisibility(View.GONE);
-        mClear.setVisibility(View.VISIBLE);
 
         mLoading.setVisibility(View.VISIBLE);
         mListView.setAdapter(null);
@@ -198,6 +196,9 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
+                mSearch.setVisibility(View.GONE);
+                mClear.setVisibility(View.VISIBLE);
+
                 final ChannelActivity activity = (ChannelActivity) getActivity();
                 activity.setSearchResult(result);
                 mLoading.setVisibility(View.GONE);
