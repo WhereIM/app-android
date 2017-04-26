@@ -19,6 +19,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.NativeExpressAdView;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -68,6 +71,14 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
             }
         }
+
+        if(keyword.isEmpty()){
+            mAdView.setVisibility(View.VISIBLE);
+            setSearchResult(new ArrayList<SearchResult>());
+            return;
+        }
+
+        mAdView.setVisibility(View.GONE);
 
         mLoading.setVisibility(View.VISIBLE);
         mListView.setAdapter(null);
@@ -255,6 +266,7 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
         }
     }
 
+    private NativeExpressAdView mAdView;
     private View mLoading;
     private ListView mListView;
     private SearchResultAdapter mAdapter = new SearchResultAdapter();
@@ -263,6 +275,12 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_channel_search, container, false);
+
+        mAdView = (NativeExpressAdView) view.findViewById(R.id.adView);
+
+        AdRequest request = new AdRequest.Builder()
+                .build();
+        mAdView.loadAd(request);
 
         mLoading = view.findViewById(R.id.loading);
 
@@ -273,9 +291,7 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
                 boolean handled = false;
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     String q = keyword.getText().toString();
-                    if(!q.isEmpty()){
-                        search(q);
-                    }
+                    search(q);
                     handled = true;
                 }
                 return handled;
@@ -287,9 +303,7 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
             @Override
             public void onClick(View v) {
                 String q = keyword.getText().toString();
-                if(!q.isEmpty()){
-                    search(q);
-                }
+                search(q);
             }
         });
 

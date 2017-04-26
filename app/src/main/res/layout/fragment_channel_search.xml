@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
     tools:context="im.where.whereim.ChannelActivity">
 
     <LinearLayout
@@ -38,6 +39,15 @@
             android:layout_weight="1" />
 
     </LinearLayout>
+
+    <com.google.android.gms.ads.NativeExpressAdView
+        android:id="@+id/adView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        ads:adUnitId="ca-app-pub-5449795846702141/2364100516"
+        ads:adSize="320x320">
+    </com.google.android.gms.ads.NativeExpressAdView>
 
     <ProgressBar
         android:id="@+id/loading"
