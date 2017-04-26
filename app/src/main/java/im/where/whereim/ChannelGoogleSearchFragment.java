@@ -3,8 +3,10 @@ package im.where.whereim;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.Editable;
 import android.text.Html;
 import android.text.Spanned;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -79,6 +81,8 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
         }
 
         mAdView.setVisibility(View.GONE);
+        mSearch.setVisibility(View.GONE);
+        mClear.setVisibility(View.VISIBLE);
 
         mLoading.setVisibility(View.VISIBLE);
         mListView.setAdapter(null);
@@ -267,6 +271,8 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
     }
 
     private NativeExpressAdView mAdView;
+    private Button mSearch;
+    private Button mClear;
     private View mLoading;
     private ListView mListView;
     private SearchResultAdapter mAdapter = new SearchResultAdapter();
@@ -297,9 +303,35 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
                 return handled;
             }
         });
+        keyword.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-        final Button search = (Button) view.findViewById(R.id.search);
-        search.setOnClickListener(new View.OnClickListener() {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                mClear.setVisibility(View.GONE);
+                mSearch.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        mClear = (Button) view.findViewById(R.id.clear);
+        mClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                keyword.setText("");
+                search("");
+            }
+        });
+
+        mSearch = (Button) view.findViewById(R.id.search);
+        mSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String q = keyword.getText().toString();
