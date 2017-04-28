@@ -13,6 +13,54 @@ import java.util.List;
 public class BaseFragment extends Fragment {
     private List<CoreService.BinderTask> mPendingTask = new ArrayList<>();
 
+    protected boolean _mResumed = false;
+    protected boolean _mVisible = true;
+    protected boolean _mShowed = false;
+
+    protected void determineVisibility(){
+        if(_mResumed && _mVisible){
+            if(!_mShowed){
+                _mShowed = true;
+
+                onShow();
+            }
+        }else{
+            if(_mShowed){
+                _mShowed = false;
+                onHide();
+            }
+        }
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        _mVisible = isVisibleToUser;
+        determineVisibility();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        _mResumed = true;
+        determineVisibility();
+    }
+
+    @Override
+    public void onPause() {
+        _mResumed = false;
+        determineVisibility();
+        super.onPause();
+    }
+
+    public void onShow(){
+
+    }
+
+    public void onHide(){
+
+    }
+
     protected CoreService.CoreBinder getBinder(){
         BaseActivity activity = (BaseActivity) getActivity();
         if(activity==null){

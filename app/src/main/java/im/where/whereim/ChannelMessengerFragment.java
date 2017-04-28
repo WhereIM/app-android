@@ -26,6 +26,16 @@ public class ChannelMessengerFragment extends BaseFragment {
     }
 
     @Override
+    public void onShow() {
+        postBinderTask(new CoreService.BinderTask() {
+            @Override
+            public void onBinderReady(CoreService.CoreBinder binder) {
+                binder.setRead(mChannel);
+            }
+        });
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }

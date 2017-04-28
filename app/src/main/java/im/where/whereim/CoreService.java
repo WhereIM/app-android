@@ -63,6 +63,7 @@ import im.where.whereim.models.Marker;
 import im.where.whereim.models.Mate;
 import im.where.whereim.models.Message;
 import im.where.whereim.models.WimDBHelper;
+import me.leolin.shortcutbadger.ShortcutBadger;
 
 public class CoreService extends Service {
     private final static String TAG = "CoreService";
@@ -908,6 +909,12 @@ public class CoreService extends Service {
             }
         }
 
+        public void setRead(Channel channel){
+            channel.unread = false;
+            mWimDBHelper.replace(channel);
+            updateBadge();
+        }
+
         public Message.BundledCursor getMessageCursor(Channel channel){
             return Message.getCursor(mWimDBHelper.getDatabase(), channel);
         }
@@ -1059,6 +1066,7 @@ public class CoreService extends Service {
                 mChannelMap.put(channel.id, channel);
                 clientChannelHandler(channel);
             }
+            updateBadge();
 
             cursor = Mate.getCursor(mWimDBHelper.getDatabase());
             while (cursor.moveToNext()) {
@@ -1884,16 +1892,21 @@ public class CoreService extends Service {
         mWimDBHelper.replace(message);
         boolean fromSync = Util.JsonOptBoolean(payload, "sync", false);
         notifyMessageListener(channel_id, message, fromSync);
+        Channel channel = mChannelMap.get(channel_id);
+        if(channel!=null){
+            channel.unread = true;
+            mWimDBHelper.replace(channel);
+            notifyChannelListChangedListeners();
+            updateBadge();
+        }
     }
 
     private void notifyMessageListener(String channel_id, Message message, boolean fromSync){
-        int count = 0;
         if(channel_id==null){
             synchronized (mMessageListener) {
                 for (List<Runnable> runnables : mMessageListener.values()) {
                     for (Runnable runnable : runnables) {
                         mHandler.post(runnable);
-                        count += 1;
                     }
                 }
             }
@@ -1903,7 +1916,6 @@ public class CoreService extends Service {
                 if(list!=null){
                     for (Runnable runnable : list) {
                         mHandler.post(runnable);
-                        count += 1;
                     }
                 }
             }
@@ -2076,6 +2088,18 @@ public class CoreService extends Service {
     }
 
     // ================ Util Functions ================
+
+    private void updateBadge(){
+        int unread = 0;
+        synchronized (mChannelList) {
+            for (Channel channel : mChannelList) {
+                if(channel.unread){
+                    unread+=1;
+                }
+            }
+        }
+        ShortcutBadger.applyCount(this, unread);
+    }
 
     private void subscribeChannelMap(String channel_id){
         String topic = String.format("channel/%s/map/+/get", channel_id);

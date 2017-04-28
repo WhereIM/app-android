@@ -19,6 +19,7 @@ public class Channel extends BaseModel {
     private final static String COL_ENABLED = "enabled";
     private final static String COL_ENABLE_RADIUS = "enable_radius";
     private final static String COL_RADIUS = "radius";
+    private final static String COL_UNREAD = "unread";
 
     public static void createTable(SQLiteDatabase db){
         String sql;
@@ -30,9 +31,20 @@ public class Channel extends BaseModel {
                 COL_ACTIVE + " BOOLEAN, " +
                 COL_ENABLED + " BOOLEAN, " +
                 COL_ENABLE_RADIUS + " BOOLEAN, " +
-                COL_RADIUS + " INTEGER" +
+                COL_RADIUS + " INTEGER, " +
+                COL_UNREAD + " BOOLEAN" +
                 ")";
         db.execSQL(sql);
+    }
+
+    public static void upgradeTable(SQLiteDatabase db, int currVersion){
+        String sql;
+        if (currVersion < 3) {
+            sql = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + COL_UNREAD + " BOOLEAN NOT NULL DEFAULT 0";
+            db.execSQL(sql);
+
+            currVersion = 3;
+        }
     }
 
     public String id;
@@ -44,6 +56,7 @@ public class Channel extends BaseModel {
     public Boolean enable_radius;
     public int radius;
     public boolean deleted = false;
+    public boolean unread = false;
 
     public String getDisplayName(){
         if(this.user_channel_name!=null && !this.user_channel_name.isEmpty()){
@@ -65,6 +78,7 @@ public class Channel extends BaseModel {
         channel.enabled = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ENABLED))!=0;
         channel.enable_radius = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ENABLE_RADIUS))!=0;
         channel.radius = cursor.getInt(cursor.getColumnIndexOrThrow(COL_RADIUS));
+        channel.unread = cursor.getInt(cursor.getColumnIndexOrThrow(COL_UNREAD))!=0;
         return channel;
     }
 
@@ -80,10 +94,11 @@ public class Channel extends BaseModel {
         cv.put(COL_CHANNEL_NAME, channel_name);
         cv.put(COL_USER_CHANNEL_NAME, user_channel_name);
         cv.put(COL_MATE, mate_id);
-        cv.put(COL_ACTIVE, active ?1:0);
-        cv.put(COL_ENABLED, enabled ?1:0);
-        cv.put(COL_ENABLE_RADIUS, enable_radius ?1:0);
+        cv.put(COL_ACTIVE, active ? 1 : 0);
+        cv.put(COL_ENABLED, enabled ? 1 : 0);
+        cv.put(COL_ENABLE_RADIUS, enable_radius ? 1 : 0);
         cv.put(COL_RADIUS, radius);
+        cv.put(COL_UNREAD, unread ? 1 : 0);
         return cv;
     }
 
@@ -95,4 +110,3 @@ public class Channel extends BaseModel {
         return db.rawQuery("SELECT * FROM "+TABLE_NAME, new String[]{});
     }
 }
-

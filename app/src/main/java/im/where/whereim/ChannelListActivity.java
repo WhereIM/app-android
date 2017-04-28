@@ -82,12 +82,14 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
 
         class ViewHolder{
             Channel mChannel;
+            View mRoot;
             TextView mTitle;
             TextView mSubtitle;
             Switch mEnable;
             View mLoading;
 
             public ViewHolder(View view) {
+                mRoot = view;
                 mTitle = (TextView) view.findViewById(R.id.title);
                 mSubtitle = (TextView) view.findViewById(R.id.subtitle);
                 mEnable = (Switch) view.findViewById(R.id.enable);
@@ -106,11 +108,13 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                     mSubtitle.setVisibility(View.GONE);
                     mEnable.setVisibility(View.GONE);
                     mLoading.setVisibility(View.GONE);
+                    mRoot.setBackgroundColor(0);
                     return;
                 } else {
                     mTitle.setVisibility(View.VISIBLE);
                 }
                 mChannel = channel;
+                mRoot.setBackgroundColor(mChannel.unread ? ContextCompat.getColor(ChannelListActivity.this, R.color.colorUnreadChannel) : 0);
                 if(channel.user_channel_name !=null && !channel.user_channel_name.isEmpty()){
                     mSubtitle.setVisibility(View.VISIBLE);
                     mTitle.setText(channel.user_channel_name);
@@ -163,7 +167,6 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
             public void onBinderReady(CoreService.CoreBinder binder) {
                 final View dialog_view = LayoutInflater.from(ChannelListActivity.this).inflate(R.layout.dialog_channel_join,  null);
                 final TextView tv_channel_name = (TextView) dialog_view.findViewById(R.id.channel_name);
-//        final EditText et_channel_alias = (EditText) dialog_view.findViewById(R.id.channel_alias);
                 final EditText et_mate_name = (EditText) dialog_view.findViewById(R.id.mate_name);
                 et_mate_name.setText(binder.getUserName());
                 new AlertDialog.Builder(ChannelListActivity.this)
@@ -172,7 +175,6 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                         .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-//                        final String channel_alias = et_channel_alias.getText().toString();
                                 final String mate_name = et_mate_name.getText().toString();
                                 postBinderTask(new CoreService.BinderTask() {
                                     @Override
