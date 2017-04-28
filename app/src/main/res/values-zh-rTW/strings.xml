@@ -1,60 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="lang">zh-TW</string>
-
     <string name="permission_rationale">本程式需要定位功能才能運作喔</string>
     <string name="action_invite">邀請</string>
     <string name="action_about">關於</string>
     <string name="action_quit">關閉程式</string>
-
     <string name="active_client">此裝置不是主要裝置</string>
     <string name="active_client_message">取代您的其他裝置成為主要裝置？</string>
-
+    <string name="error">錯誤</string>
     <string name="retry">再試一次</string>
-
-    <string name="invitation">邀請：%s</string>
-
-    <string name="mate_invite_hint">沒有人，邀請別人進來吧</string>
+    <string name="invitation">邀請：%1$s</string>
     <string name="object_create_hint">在地圖上長按即可建立</string>
-
+    <string name="mate_invite_hint">沒有人，邀請別人進來吧</string>
+    <string name="name">名稱</string>
+    <string name="icon">圖示</string>
+    <string name="mock">假資料</string>
     <string name="channel_name">群組名稱</string>
     <string name="user_channel_name">群組別稱</string>
     <string name="display_name">個人暱稱</string>
     <string name="create_channel">建立群組</string>
+    <string name="join_channel">加入全組</string>
+    <string name="edit_channel">編輯全組</string>
+    <string name="quit_channel">離開群組</string>
     <string name="ok">好</string>
     <string name="cancel">取消</string>
     <string name="delete">刪除</string>
-    <string name="join_channel">加入群組</string>
-    <string name="edit_channel">編輯群組</string>
-    <string name="quit_channel">離開群組</string>
     <string name="create_enchantment">設立結界 ⭕</string>
     <string name="create_marker">放置圖釘 📍</string>
-    <string name="name">名稱</string>
-    <string name="icon">圖示</string>
-    <string name="mock">假資料</string>
-
     <string name="radius_m">%1$d m</string>
-
     <string name="self">自己</string>
-    <string name="mate">同伴</string>
-    <string name="public_enchantment">公用結界</string>
+    <string name="mate">夥伴</string>
+    <string name="is_public">共用</string>
+    <string name="public_enchantment">共用結界</string>
     <string name="private_enchantment">個人結界</string>
-    <string name="public_marker">公用圖釘</string>
+    <string name="public_marker">共用圖釘</string>
     <string name="private_marker">個人圖釘</string>
-    <string name="is_public">公用</string>
-    <string name="is_private">自用</string>
-
     <string name="error_exhausted">可註冊數量已滿，請稍後再試。</string>
-
-    <string name="message_enchantment_create">%1$s 結界已設立.</string>
+    <string name="message_enchantment_create">%1$s 結界已設立</string>
     <string name="message_enchantment_emerge">出現在 %1$s 結界</string>
     <string name="message_enchantment_in">進入 %1$s 結界</string>
     <string name="message_enchantment_out">離開 %1$s 結界</string>
     <string name="message_marker_create">放了 %1$s 圖釘 {icon}</string>
-    <string name="message_radius_report">圈內：%2$s\n圈外：%3$s  (%1$s m)</string>
-
+    <string name="message_radius_report">"圈內：%1$s
+\n圈外：%2$s  (%3$s m)"</string>
     <string name="message_limit_active_channel">同時傳送中的群組數量已達上限（%1$s）</string>
     <string name="message_limit_enabled_channel">同時啟用的群組數量已達上限 (%1$s)，在群組列表中長按並鎖上不需要啟用的群組</string>
-
     <string name="mock_location_service_not_running">定位傳送功能未啟用，無法傳送假資料</string>
     <string name="mock_confirm_disable">確定不再傳送假資料？</string>
 </resources>
