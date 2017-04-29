@@ -160,7 +160,9 @@ public class Marker extends BaseModel {
         cv.put(COL_LONGITUDE, longitude);
         cv.put(COL_ATTR, attr.toString());
         cv.put(COL_PUBLIC, isPublic?1:0);
-        cv.put(COL_ENABLED, enabled ?1:0);
+        if (enabled != null) {
+            cv.put(COL_ENABLED, enabled ?1:0);
+        }
         return cv;
     }
 

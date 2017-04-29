@@ -88,7 +88,9 @@ public class Enchantment extends BaseModel {
         cv.put(COL_LONGITUDE, longitude);
         cv.put(COL_RADIUS, radius);
         cv.put(COL_PUBLIC, isPublic?1:0);
-        cv.put(COL_ENABLED, enabled ?1:0);
+        if (enabled != null) {
+            cv.put(COL_ENABLED, enabled ?1:0);
+        }
         return cv;
     }
 

@@ -94,9 +94,15 @@ public class Channel extends BaseModel {
         cv.put(COL_CHANNEL_NAME, channel_name);
         cv.put(COL_USER_CHANNEL_NAME, user_channel_name);
         cv.put(COL_MATE, mate_id);
-        cv.put(COL_ACTIVE, active ? 1 : 0);
-        cv.put(COL_ENABLED, enabled ? 1 : 0);
-        cv.put(COL_ENABLE_RADIUS, enable_radius ? 1 : 0);
+        if (active != null) {
+            cv.put(COL_ACTIVE, active ? 1 : 0);
+        }
+        if (enabled != null) {
+            cv.put(COL_ENABLED, enabled ? 1 : 0);
+        }
+        if (enable_radius != null) {
+            cv.put(COL_ENABLE_RADIUS, enable_radius ? 1 : 0);
+        }
         cv.put(COL_RADIUS, radius);
         cv.put(COL_UNREAD, unread ? 1 : 0);
         return cv;
