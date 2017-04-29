@@ -175,6 +175,13 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
                                     res.add(r);
                                 }
                                 setSearchResult(res);
+                                mHandler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mClear.setVisibility(View.VISIBLE);
+                                        mSearch.setVisibility(View.GONE);
+                                    }
+                                });
                                 return;
                             }
                         } catch (Exception e) {
@@ -196,9 +203,6 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                mSearch.setVisibility(View.GONE);
-                mClear.setVisibility(View.VISIBLE);
-
                 final ChannelActivity activity = (ChannelActivity) getActivity();
                 activity.setSearchResult(result);
                 mLoading.setVisibility(View.GONE);
@@ -326,6 +330,8 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
         mClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mClear.setVisibility(View.GONE);
+                mSearch.setVisibility(View.VISIBLE);
                 keyword.setText("");
                 search("");
             }
