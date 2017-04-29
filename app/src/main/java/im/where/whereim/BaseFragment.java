@@ -61,6 +61,10 @@ public class BaseFragment extends Fragment {
 
     }
 
+    public boolean isShowed(){
+        return _mShowed;
+    }
+
     protected CoreService.CoreBinder getBinder(){
         BaseActivity activity = (BaseActivity) getActivity();
         if(activity==null){

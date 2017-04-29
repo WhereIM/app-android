@@ -231,6 +231,9 @@ public class ChannelMessengerFragment extends BaseFragment {
                 public void onBinderReady(CoreService.CoreBinder binder) {
                     mCurrentCursor = binder.getMessageCursor(mChannel);
                     mAdapter.changeCursor(mCurrentCursor);
+                    if(isShowed()) {
+                        binder.setRead(mChannel);
+                    }
                 }
             });
         }
