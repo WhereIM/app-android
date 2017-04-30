@@ -103,6 +103,7 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
                                 .addPathSegment("json")
                                 .addQueryParameter("key", api_key)
                                 .addQueryParameter("query", keyword)
+                                .addQueryParameter("language", getString(R.string.google_lang))
                                 .addQueryParameter("location", String.format(Locale.ENGLISH, "%f,%f", latlng.latitude, latlng.longitude))
                                 .addQueryParameter("rankby", "distance")
                                 .build();
