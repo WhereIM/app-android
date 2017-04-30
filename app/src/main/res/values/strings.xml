@@ -29,6 +29,7 @@
     <string name="delete">Delete</string>
     <string name="create_enchantment">New Enchantment ⭕</string>
     <string name="create_marker">New Marker 📍</string>
+    <string name="forge_location">Forge Location 😈</string>
     <string name="radius_m">%1$d m</string>
     <string name="self">Self</string>
     <string name="mate">Mate</string>

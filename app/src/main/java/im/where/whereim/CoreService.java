@@ -505,6 +505,23 @@ public class CoreService extends Service {
             unsubscribeChannelMap(channel.id);
         }
 
+        public void forgeLocation(Channel channel, double latitude, double longitude) {
+            try {
+                JSONObject payload = new JSONObject();
+                payload.put(Key.CHANNEL, channel.id);
+                if(channel.active==null || channel.active) {
+                    payload.put(Key.ACTIVE, false);
+                }
+                payload.put(Key.LATITUDE, latitude);
+                payload.put(Key.LONGITUDE, longitude);
+                String topic = String.format("client/%s/channel/put", mClientId);
+                publish(topic, payload);
+                notifyChannelListChangedListeners();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
         public void setVisibleTiles(String[] tiles){
             CoreService.this.setVisibleTiles(tiles);
         }

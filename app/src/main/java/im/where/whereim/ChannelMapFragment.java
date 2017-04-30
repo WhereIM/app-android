@@ -249,6 +249,23 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
                         }).show();
             }
         });
+        dialog_view.findViewById(R.id.location).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                getChannel(new ChannelActivity.GetChannelCallback() {
+                    @Override
+                    public void onGetChannel(final Channel channel) {
+                        postBinderTask(new CoreService.BinderTask() {
+                            @Override
+                            public void onBinderReady(CoreService.CoreBinder binder) {
+                                binder.forgeLocation(channel, mEditingLatitude, mEditingLongitude);
+                            }
+                        });
+                    }
+                });
+            }
+        });
         dialog.show();
     }
 }

@@ -20,4 +20,10 @@
         android:layout_height="wrap_content"
         android:text="@string/create_marker"/>
 
+    <Button
+        android:id="@+id/location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/forge_location"/>
+
 </LinearLayout>

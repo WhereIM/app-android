@@ -28,6 +28,7 @@
     <string name="delete">刪除</string>
     <string name="create_enchantment">設立結界 ⭕</string>
     <string name="create_marker">放置圖釘 📍</string>
+    <string name="forge_location">假造位置 😈</string>
     <string name="radius_m">%1$d m</string>
     <string name="self">自己</string>
     <string name="mate">夥伴</string>
