@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="lang">en</string>
     <string name="app_name">Where.IM</string>
+    <string name="lang">en</string>
+    <string name="google_lang">en</string>
     <string name="permission_rationale">Your location is essential for this app to work.</string>
     <string name="action_invite">Invite</string>
     <string name="action_about">About</string>
@@ -32,20 +33,17 @@
     <string name="self">Self</string>
     <string name="mate">Mate</string>
     <string name="is_public">Shared</string>
-    <string name="public_enchantment">Public Enchantment</string>
-    <string name="private_enchantment">Private Enchantment</string>
-    <string name="public_marker">Public Marker</string>
-    <string name="private_marker">Private Marker</string>
+    <string name="public_enchantment">Shared Enchantment</string>
+    <string name="private_enchantment">Personal Enchantment</string>
+    <string name="public_marker">Shared Marker</string>
+    <string name="private_marker">Personal Marker</string>
     <string name="error_exhausted">Client capacity is exhausted, please try later.</string>
     <string name="message_enchantment_create">Enchantment %1$s is created.</string>
     <string name="message_enchantment_emerge">Emerged in enchantment %1$s.</string>
     <string name="message_enchantment_in">Entered enchantment %1$s.</string>
     <string name="message_enchantment_out">Left enchantment %1$s.</string>
     <string name="message_marker_create">Marker %1$s is created. {icon}</string>
-    <string name="message_radius_report">"In: %1$s
-\nOut: %2$s  (%3$s m)"</string>
+    <string name="message_radius_report">In/Out: %1$s / %2$s (%3$s m)</string>
     <string name="message_limit_active_channel">Limit of number of active channels (%1$s) is reached.</string>
     <string name="message_limit_enabled_channel">Limit of number of enabled channels (%1$s) is reached, long press on channel list and tap the lock icon to disable some channels.</string>
-    <string name="mock_location_service_not_running">Location service is not running, mock data is not sending.</string>
-    <string name="mock_confirm_disable">Are you sure to finish mocking?</string>
 </resources>
