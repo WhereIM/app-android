@@ -1,28 +1,15 @@
 package im.where.whereim;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.text.Editable;
 import android.text.Html;
 import android.text.Spanned;
-import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.NativeExpressAdView;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -66,24 +53,7 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
     @Override
     public void search(final String keyword) {
         final ChannelActivity activity = (ChannelActivity) getActivity();
-        if(activity!=null) {
-            View view = activity.getCurrentFocus();
-            if (view != null) {
-                InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-            }
-        }
 
-        if(keyword.isEmpty()){
-            mAdView.setVisibility(View.VISIBLE);
-            setSearchResult(new ArrayList<SearchResult>());
-            return;
-        }
-
-        mAdView.setVisibility(View.GONE);
-
-        mLoading.setVisibility(View.VISIBLE);
-        mListView.setAdapter(null);
         getApiKey(new CoreService.ApiKeyCallback() {
             @Override
             public void apiKey(final String api_key) {
@@ -197,24 +167,6 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
         });
     }
 
-    public static class GoogleSearchResult extends ChannelSearchFragment.SearchResult {
-        String address;
-        Spanned attribution;
-    }
-
-    private ArrayList<SearchResult> mSearchResult = new ArrayList<>();
-    private void setSearchResult(final ArrayList<SearchResult> result){
-        mSearch.setVisibility(View.GONE);
-        mClear.setVisibility(View.VISIBLE);
-
-        final ChannelActivity activity = (ChannelActivity) getActivity();
-        activity.setSearchResult(result);
-        mLoading.setVisibility(View.GONE);
-        mSearchResult = result;
-        mAdapter.notifyDataSetChanged();
-        mListView.setAdapter(mAdapter);
-    }
-
     class SearchResultAdapter extends BaseAdapter {
         private class ViewHolder {
             TextView name;
@@ -277,89 +229,19 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
         }
     }
 
-    private NativeExpressAdView mAdView;
-    private Button mSearch;
-    private Button mClear;
-    private View mLoading;
-    private ListView mListView;
-    private SearchResultAdapter mAdapter = new SearchResultAdapter();
+    @Override
+    protected BaseAdapter getAdapter() {
+        return new SearchResultAdapter();
+    }
+
+    public static class GoogleSearchResult extends ChannelSearchFragment.SearchResult {
+        String address;
+        Spanned attribution;
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_channel_search, container, false);
-
-        mAdView = (NativeExpressAdView) view.findViewById(R.id.adView);
-
-        AdRequest request = new AdRequest.Builder()
-                .build();
-        mAdView.loadAd(request);
-
-        mLoading = view.findViewById(R.id.loading);
-
-        final EditText keyword = (EditText) view.findViewById(R.id.keyword);
-        keyword.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean handled = false;
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    String q = keyword.getText().toString();
-                    search(q);
-                    handled = true;
-                }
-                return handled;
-            }
-        });
-        keyword.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                mClear.setVisibility(View.GONE);
-                mSearch.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-
-        mClear = (Button) view.findViewById(R.id.clear);
-        mClear.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                keyword.setText("");
-                search("");
-                mSearch.setVisibility(View.VISIBLE);
-                mClear.setVisibility(View.GONE);
-            }
-        });
-
-        mSearch = (Button) view.findViewById(R.id.search);
-        mSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String q = keyword.getText().toString();
-                search(q);
-            }
-        });
-
-        mListView = (ListView) view.findViewById(R.id.results);
-        mListView.setAdapter(mAdapter);
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                final ChannelActivity activity = (ChannelActivity) getActivity();
-                if(activity!=null){
-                    activity.moveToSearchResult(position);
-                }
-            }
-        });
-
-        return view;
+        return inflater.inflate(R.layout.fragment_channel_search, container, false);
     }
 }
