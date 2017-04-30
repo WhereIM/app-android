@@ -43,9 +43,9 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
 
     private List<OnMapReadyCallback> mPendingTask = new ArrayList<>();
 
-    protected void postMapTask(OnMapReadyCallback task){
+    protected void getMapAsync(OnMapReadyCallback callback){
         synchronized (mPendingTask) {
-            mPendingTask.add(task);
+            mPendingTask.add(callback);
         }
         processMapTask();
     }
@@ -81,7 +81,6 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     private double currentLng = 0;
 
     private MapView mMapView;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -128,6 +127,8 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                 googleMap.setOnMapLongClickListener(ChannelGoogleMapFragment.this);
             }
         });
+
+        processMapTask();
 
         return view;
     }
@@ -267,7 +268,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
 
     @Override
     public void onMockData(final Mate mock) {
-        postMapTask(new OnMapReadyCallback() {
+        getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(final GoogleMap googleMap) {
                 if(mMockMarker!=null){
@@ -309,7 +310,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         if(mate.latitude==null){
             return;
         }
-        postMapTask(new OnMapReadyCallback() {
+        getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 synchronized (mMateCircle) {
@@ -372,7 +373,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     private void updateSelfMate(){
         if(selfMate==null)
             return;
-        postMapTask(new OnMapReadyCallback() {
+        getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 if(mRadiusCircle!=null){
@@ -401,21 +402,19 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         if(mate.latitude==null){
             return;
         }
-        if(mMapView!=null){
-            mMapView.getMapAsync(new OnMapReadyCallback() {
-                @Override
-                public void onMapReady(GoogleMap googleMap) {
-                    googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(mate.latitude, mate.longitude)));
-                }
-            });
-        }
+        getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(mate.latitude, mate.longitude)));
+            }
+        });
     }
 
     final private HashMap<String, Circle> mEnchantmentCircle = new HashMap<>();
 
     @Override
     public void onEnchantmentData(final Enchantment enchantment){
-        postMapTask(new OnMapReadyCallback() {
+        getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 synchronized (mEnchantmentCircle) {
@@ -445,29 +444,27 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     private Enchantment focusEnchantment = null;
     @Override
     public void moveToEnchantment(final Enchantment enchantment) {
-        if(mMapView!=null){
-            mMapView.getMapAsync(new OnMapReadyCallback() {
-                @Override
-                public void onMapReady(GoogleMap googleMap) {
-                    Enchantment exFocusEnchantment = focusEnchantment;
-                    focusEnchantment = enchantment;
-                    if(exFocusEnchantment!=null) {
-                        onEnchantmentData(exFocusEnchantment);
-                    }
-                    if(enchantment!=null) {
-                        onEnchantmentData(enchantment);
-                        googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(enchantment.latitude, enchantment.longitude)));
-                    }
+        getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                Enchantment exFocusEnchantment = focusEnchantment;
+                focusEnchantment = enchantment;
+                if(exFocusEnchantment!=null) {
+                    onEnchantmentData(exFocusEnchantment);
                 }
-            });
-        }
+                if(enchantment!=null) {
+                    onEnchantmentData(enchantment);
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(enchantment.latitude, enchantment.longitude)));
+                }
+            }
+        });
     }
 
     final private HashMap<String, Marker> mMarkerMarker = new HashMap<>();
 
     @Override
     public void onMarkerData(final im.where.whereim.models.Marker marker) {
-        postMapTask(new OnMapReadyCallback() {
+        getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 Marker m;
@@ -506,22 +503,20 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     private im.where.whereim.models.Marker focusMarker = null;
     @Override
     public void moveToMarker(final im.where.whereim.models.Marker marker) {
-        if(mMapView!=null){
-            mMapView.getMapAsync(new OnMapReadyCallback() {
-                @Override
-                public void onMapReady(GoogleMap googleMap) {
-                    im.where.whereim.models.Marker exFocusMaker = focusMarker;
-                    focusMarker = marker;
-                    if(exFocusMaker!=null) {
-                        onMarkerData(exFocusMaker);
-                    }
-                    if(marker!=null) {
-                        onMarkerData(marker);
-                        googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(marker.latitude, marker.longitude)));
-                    }
+        getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                im.where.whereim.models.Marker exFocusMaker = focusMarker;
+                focusMarker = marker;
+                if(exFocusMaker!=null) {
+                    onMarkerData(exFocusMaker);
                 }
-            });
-        }
+                if(marker!=null) {
+                    onMarkerData(marker);
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(marker.latitude, marker.longitude)));
+                }
+            }
+        });
     }
 
     @Override
@@ -539,7 +534,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
             }
             mSearchResultMarkers.clear();
         }
-        mMapView.getMapAsync(new OnMapReadyCallback() {
+        getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 mSearchResults = results;
@@ -562,28 +557,26 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
 
     @Override
     public void moveToSearchResult(final int position) {
-        if(mMapView!=null){
-            mMapView.getMapAsync(new OnMapReadyCallback() {
-                @Override
-                public void onMapReady(GoogleMap googleMap) {
-                    if(mSearchResults==null || position >= mSearchResults.size()){
-                        return;
-                    }
-                    ChannelSearchFragment.SearchResult result = mSearchResults.get(position);
-                    googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(result.latitude, result.longitude)));
-                    Marker m = mSearchResultMarkers.get(position);
-                    if(m != null){
-                        m.showInfoWindow();
-                    }
+        getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                if(mSearchResults==null || position >= mSearchResults.size()){
+                    return;
                 }
-            });
-        }
+                ChannelSearchFragment.SearchResult result = mSearchResults.get(position);
+                googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(result.latitude, result.longitude)));
+                Marker m = mSearchResultMarkers.get(position);
+                if(m != null){
+                    m.showInfoWindow();
+                }
+            }
+        });
     }
 
     private final HashMap<String, Marker> mAdMarkers = new HashMap<>();
     @Override
     public void onMapAd(final HashMap<String, Ad> ads) {
-        postMapTask(new OnMapReadyCallback() {
+        getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 float zoom = googleMap.getCameraPosition().zoom;
@@ -636,7 +629,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     protected void refreshEditing(){
         if(mEditingType==R.string.create_enchantment){
             mEnchantmentController.setVisibility(View.VISIBLE);
-            mMapView.getMapAsync(new OnMapReadyCallback() {
+            getMapAsync(new OnMapReadyCallback() {
                 @Override
                 public void onMapReady(GoogleMap googleMap) {
                     if(mEditingEnchantmentCircle !=null){
@@ -657,7 +650,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         }
         if(mEditingType==R.string.create_marker){
             mMarkerController.setVisibility(View.VISIBLE);
-            mMapView.getMapAsync(new OnMapReadyCallback() {
+            getMapAsync(new OnMapReadyCallback() {
                 @Override
                 public void onMapReady(GoogleMap googleMap) {
                     if(mEditingMarkerMarker !=null){
