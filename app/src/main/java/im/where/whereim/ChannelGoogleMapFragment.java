@@ -268,9 +268,6 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
 
     @Override
     public void onMateData(final Mate mate){
-        if(mate.latitude==null){
-            return;
-        }
         getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
@@ -292,34 +289,36 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                     mMateCircle.remove(mate.id);
                     mMateMarker.remove(mate.id);
                 }else {
-                    Circle circle = googleMap.addCircle(new CircleOptions()
-                            .center(new LatLng(mate.latitude, mate.longitude))
-                            .radius(mate.accuracy)
-                            .fillColor(0x3f888888)
-                            .strokeWidth(0)
-                    );
-                    synchronized (mMateCircle) {
-                        mMateCircle.put(mate.id, circle);
-                    }
+                    if(mate.latitude!=null && mate.longitude!=null){
+                        Circle circle = googleMap.addCircle(new CircleOptions()
+                                .center(new LatLng(mate.latitude, mate.longitude))
+                                .radius(mate.accuracy)
+                                .fillColor(0x3f888888)
+                                .strokeWidth(0)
+                        );
+                        synchronized (mMateCircle) {
+                            mMateCircle.put(mate.id, circle);
+                        }
 
-                    mMarkerView.invalidate();
-                    mMarkerViewTitle.setText(mate.getDisplayName());
-                    mMarkerView.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-                            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-                    mMarkerView.layout(0, 0, mMarkerView.getMeasuredWidth(), mMarkerView.getMeasuredHeight());
-                    mMarkerView.setDrawingCacheEnabled(true);
-                    mMarkerView.buildDrawingCache();
+                        mMarkerView.invalidate();
+                        mMarkerViewTitle.setText(mate.getDisplayName());
+                        mMarkerView.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+                        mMarkerView.layout(0, 0, mMarkerView.getMeasuredWidth(), mMarkerView.getMeasuredHeight());
+                        mMarkerView.setDrawingCacheEnabled(true);
+                        mMarkerView.buildDrawingCache();
 
-                    Marker marker = googleMap.addMarker(
-                            new MarkerOptions()
-                                    .position(new LatLng(mate.latitude, mate.longitude))
-                                    .anchor(0.5f, 1f)
-                                    .zIndex(0.5f)
-                                    .icon(BitmapDescriptorFactory.fromBitmap(mMarkerView.getDrawingCache()))
-                    );
+                        Marker marker = googleMap.addMarker(
+                                new MarkerOptions()
+                                        .position(new LatLng(mate.latitude, mate.longitude))
+                                        .anchor(0.5f, 1f)
+                                        .zIndex(0.5f)
+                                        .icon(BitmapDescriptorFactory.fromBitmap(mMarkerView.getDrawingCache()))
+                        );
 
-                    synchronized (mMateMarker) {
-                        mMateMarker.put(mate.id, marker);
+                        synchronized (mMateMarker) {
+                            mMateMarker.put(mate.id, marker);
+                        }
                     }
                 }
 
@@ -341,18 +340,20 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                     mRadiusCircle.remove();
                     mRadiusCircle = null;
                 }
-                if(mChannel.enable_radius!=null && mChannel.enable_radius) {
-                    int color;
-                    if (mChannel.active) {
-                        color = Color.MAGENTA;
-                    } else {
-                        color = Color.GRAY;
+                if(selfMate.latitude!=null && selfMate.longitude!=null){
+                    if(mChannel.enable_radius!=null && mChannel.enable_radius) {
+                        int color;
+                        if (mChannel.active) {
+                            color = Color.MAGENTA;
+                        } else {
+                            color = Color.GRAY;
+                        }
+                        mRadiusCircle = googleMap.addCircle(new CircleOptions()
+                                .center(new LatLng(selfMate.latitude, selfMate.longitude))
+                                .radius(mChannel.radius)
+                                .strokeWidth(5)
+                                .strokeColor(color));
                     }
-                    mRadiusCircle = googleMap.addCircle(new CircleOptions()
-                            .center(new LatLng(selfMate.latitude, selfMate.longitude))
-                            .radius(mChannel.radius)
-                            .strokeWidth(5)
-                            .strokeColor(color));
                 }
             }
         });

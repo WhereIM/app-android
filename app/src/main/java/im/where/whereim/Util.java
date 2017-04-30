@@ -22,10 +22,30 @@ public class Util {
 
     static public String JsonOptNullableString(JSONObject jsObj, String key, String fallback){
         try {
-            if (!jsObj.has(key) || jsObj.isNull(key)) {
+            if (!jsObj.has(key)) {
                 return fallback;
             } else {
-                return jsObj.getString(key);
+                if (jsObj.isNull(key)) {
+                    return null;
+                } else {
+                    return jsObj.getString(key);
+                }
+            }
+        }catch (Exception e){
+            return fallback;
+        }
+    }
+
+    static public Double JsonOptNullableDouble(JSONObject jsObj, String key, Double fallback){
+        try {
+            if (!jsObj.has(key)) {
+                return fallback;
+            } else {
+                if (jsObj.isNull(key)) {
+                    return null;
+                } else {
+                    return jsObj.getDouble(key);
+                }
             }
         }catch (Exception e){
             return fallback;

@@ -1912,17 +1912,9 @@ public class CoreService extends Service {
             return;
         }
         Mate mate = getChannelMate(channel_id, mate_id);
-        try {
-            mate.latitude = data.getDouble(Key.LATITUDE);
-            mate.longitude = data.getDouble(Key.LONGITUDE);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        try {
-            mate.accuracy = data.getDouble(Key.ACCURACY);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        mate.latitude = Util.JsonOptNullableDouble(data, Key.LATITUDE, mate.latitude);
+        mate.longitude = Util.JsonOptNullableDouble(data, Key.LONGITUDE, mate.longitude);
+        mate.accuracy = Util.JsonOptNullableDouble(data, Key.ACCURACY, mate.accuracy);
 
         final Mate _m = mate;
         mHandler.post(new Runnable() {
