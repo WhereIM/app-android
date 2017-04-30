@@ -136,12 +136,17 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
                                 return;
                             }
                             if("ZERO_RESULTS".equals(status)){
-                                setSearchResult(new ArrayList<SearchResult>());
+                                mHandler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        setSearchResult(new ArrayList<SearchResult>());
+                                    }
+                                });
                                 return;
                             }
                             if("OK".equals(status)){
                                 JSONArray results = ret.getJSONArray("results");
-                                ArrayList<SearchResult> res = new ArrayList<SearchResult>();
+                                final ArrayList<SearchResult> res = new ArrayList<SearchResult>();
                                 for(int i=0;i<results.length();i+=1){
                                     JSONObject result = results.getJSONObject(i);
                                     Double lat = null;
@@ -174,7 +179,12 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
                                     r.longitude = lng;
                                     res.add(r);
                                 }
-                                setSearchResult(res);
+                                mHandler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        setSearchResult(res);
+                                    }
+                                });
                                 return;
                             }
                         } catch (Exception e) {
@@ -193,20 +203,15 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
 
     private ArrayList<SearchResult> mSearchResult = new ArrayList<>();
     private void setSearchResult(final ArrayList<SearchResult> result){
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                mSearch.setVisibility(View.GONE);
-                mClear.setVisibility(View.VISIBLE);
+        mSearch.setVisibility(View.GONE);
+        mClear.setVisibility(View.VISIBLE);
 
-                final ChannelActivity activity = (ChannelActivity) getActivity();
-                activity.setSearchResult(result);
-                mLoading.setVisibility(View.GONE);
-                mSearchResult = result;
-                mAdapter.notifyDataSetChanged();
-                mListView.setAdapter(mAdapter);
-            }
-        });
+        final ChannelActivity activity = (ChannelActivity) getActivity();
+        activity.setSearchResult(result);
+        mLoading.setVisibility(View.GONE);
+        mSearchResult = result;
+        mAdapter.notifyDataSetChanged();
+        mListView.setAdapter(mAdapter);
     }
 
     class SearchResultAdapter extends BaseAdapter {
@@ -328,6 +333,8 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
             public void onClick(View v) {
                 keyword.setText("");
                 search("");
+                mSearch.setVisibility(View.VISIBLE);
+                mClear.setVisibility(View.GONE);
             }
         });
 
