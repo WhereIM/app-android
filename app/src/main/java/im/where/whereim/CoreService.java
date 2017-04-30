@@ -1011,7 +1011,6 @@ public class CoreService extends Service {
                 mChannelMap.put(channel.id, channel);
                 clientChannelHandler(channel);
             }
-            updateBadge();
 
             cursor = Mate.getCursor(mWimDBHelper.getDatabase());
             while (cursor.moveToNext()) {
@@ -1692,6 +1691,8 @@ public class CoreService extends Service {
         }
         notifyChannelChangedListeners(channel.id);
         notifyChannelListChangedListeners();
+
+        updateBadge();
     }
 
     // ================ Channel Data ================
@@ -2038,7 +2039,7 @@ public class CoreService extends Service {
         int unread = 0;
         synchronized (mChannelList) {
             for (Channel channel : mChannelList) {
-                if(channel.unread){
+                if(channel.enabled!=null && channel.enabled && channel.unread){
                     unread+=1;
                 }
             }

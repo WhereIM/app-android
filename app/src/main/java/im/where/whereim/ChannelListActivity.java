@@ -114,7 +114,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                     mTitle.setVisibility(View.VISIBLE);
                 }
                 mChannel = channel;
-                mRoot.setBackgroundColor(mChannel.unread ? ContextCompat.getColor(ChannelListActivity.this, R.color.colorUnreadChannel) : 0);
+                mRoot.setBackgroundColor((mChannel.enabled!=null && mChannel.enabled && mChannel.unread) ? ContextCompat.getColor(ChannelListActivity.this, R.color.colorUnreadChannel) : 0);
                 if(channel.user_channel_name !=null && !channel.user_channel_name.isEmpty()){
                     mSubtitle.setVisibility(View.VISIBLE);
                     mTitle.setText(channel.user_channel_name);
