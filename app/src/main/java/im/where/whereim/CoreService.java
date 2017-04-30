@@ -73,7 +73,6 @@ public class CoreService extends Service {
     };
 
     public interface MapDataDelegate {
-        void onMockData(Mate mock);
         void onMateData(Mate mate);
         void moveToMate(Mate mate);
         void onEnchantmentData(Enchantment enchantment);
@@ -490,9 +489,6 @@ public class CoreService extends Service {
                 }
             }
             receiver.onMapAd(mapAds);
-            if(mMocking) {
-                receiver.onMockData(mMockMate);
-            }
             subscribeChannelMap(channel.id);
             return true;
         }
@@ -918,60 +914,9 @@ public class CoreService extends Service {
         public Message.BundledCursor getMessageCursor(Channel channel){
             return Message.getCursor(mWimDBHelper.getDatabase(), channel);
         }
-
-        public boolean isMocking(){
-            return mMocking;
-        }
-
-        public void startMocking(){
-            if(mMocking){
-                return;
-            }
-            mMocking = true;
-            if(!mLocationServiceRunning){
-                Toast.makeText(CoreService.this, R.string.mock_location_service_not_running, Toast.LENGTH_SHORT).show();
-            }
-            if(mLastBestLocation!=null){
-                mMockingLocation = new Location(mLastBestLocation);
-                notifyMocking(mMockingLocation);
-            }
-        }
-
-        public void moveMocking(float x, float y){
-            if(mMockingLocation==null)
-                return;
-            mMockingLocation.setLongitude(mMockingLocation.getLongitude() + 0.0005*x);
-            mMockingLocation.setLatitude(mMockingLocation.getLatitude() - 0.0005*y);
-
-            notifyMocking(mMockingLocation);
-        }
-
-        public void stopMocking(){
-            mMocking = false;
-            mMockingLocation = null;
-            notifyMocking(null);
-        }
-    };
-
-    private Mate mMockMate = new Mate();
-    private void notifyMocking(Location loc){
-        Mate mate = null;
-        if(loc!=null){
-            mMockMate.latitude = loc.getLatitude();
-            mMockMate.longitude = loc.getLongitude();
-            mate = mMockMate;
-        }
-        synchronized (mMapDataReceiver) {
-            for (List<MapDataDelegate> mapDataDelegates : mMapDataReceiver.values()) {
-                for (MapDataDelegate mapDataDelegate : mapDataDelegates) {
-                    mapDataDelegate.onMockData(mate);
-                }
-            }
-        }
     }
 
     private Activity mCurrentActivity = null;
-    private boolean mMocking = false;
     private Handler mHandler = new Handler();
     private Boolean mIsActiveDevice = null;
     private boolean mRequestActiveDevice = false;
@@ -2260,27 +2205,13 @@ public class CoreService extends Service {
         mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, UPDATE_MIN_TIME, UPDATE_MIN_DISTANCE, mNetworkLocationListener);
     }
 
-    Location mMockingLocation;
     private void processLocation(String provider, Location newLocation){
         Location loc;
-        if(mMocking){
-            provider = "MOCKING";
-            if(mMockingLocation==null){
-                if(isBetterLocation(newLocation, mLastBestLocation)){
-                    mMockingLocation = new Location(newLocation);
-                }else{
-                    mMockingLocation = new Location(mLastBestLocation);
-                }
-                notifyMocking(mMockingLocation);
-            }
-            loc = mMockingLocation;
-        }else{
-            if(!isBetterLocation(newLocation, mLastBestLocation)){
-                return;
-            }
-            mLastBestLocation = newLocation;
-            loc = mLastBestLocation;
+        if(!isBetterLocation(newLocation, mLastBestLocation)){
+            return;
         }
+        mLastBestLocation = newLocation;
+        loc = mLastBestLocation;
         try {
             JSONObject msg = new JSONObject();
             msg.put(Key.LATITUDE, loc.getLatitude());

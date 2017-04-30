@@ -267,45 +267,6 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     private HashMap<String, Marker> mMateMarker = new HashMap<>();
 
     @Override
-    public void onMockData(final Mate mock) {
-        getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(final GoogleMap googleMap) {
-                if(mMockMarker!=null){
-                    mMockMarker.remove();
-                }
-                if(mock==null){
-                    return;
-                }
-                postBinderTask(new CoreService.BinderTask() {
-                    @Override
-                    public void onBinderReady(CoreService.CoreBinder binder) {
-                        if(mChannel==null){
-                            mMarkerViewTitle.setText(null);
-                        }else{
-                            Mate m = binder.getChannelMate(mChannel.id, mChannel.mate_id);
-                            mMarkerViewTitle.setText(m.getDisplayName());
-                        }
-                        mMarkerView.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-                                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-                        mMarkerView.layout(0, 0, mMarkerView.getMeasuredWidth(), mMarkerView.getMeasuredHeight());
-                        mMarkerView.setDrawingCacheEnabled(true);
-                        mMarkerView.buildDrawingCache();
-
-                        mMockMarker = googleMap.addMarker(
-                                new MarkerOptions()
-                                        .position(new LatLng(mock.latitude, mock.longitude))
-                                        .alpha(0.3f)
-                                        .anchor(0.5f, 1f)
-                                        .icon(BitmapDescriptorFactory.fromBitmap(mMarkerView.getDrawingCache()))
-                        );
-                    }
-                });
-            }
-        });
-    }
-
-    @Override
     public void onMateData(final Mate mate){
         if(mate.latitude==null){
             return;
