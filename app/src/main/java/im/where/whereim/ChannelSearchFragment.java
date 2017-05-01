@@ -7,7 +7,9 @@ import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -16,9 +18,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.NativeExpressAdView;
 
 import java.util.ArrayList;
 
@@ -80,12 +79,15 @@ abstract public class ChannelSearchFragment extends BaseFragment {
     private Button mClear;
     private View mLoading;
     private ListView mListView;
-    private NativeExpressAdView mAdView;
+    private View mAdView;
     private BaseAdapter mAdapter = getAdapter();
 
+    @Nullable
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_channel_search, container, false);
+
+        mAdView = view.findViewById(R.id.adView);
 
         mClear = (Button) view.findViewById(R.id.clear);
         mClear.setOnClickListener(new View.OnClickListener() {
@@ -119,12 +121,6 @@ abstract public class ChannelSearchFragment extends BaseFragment {
         });
         mListView.setAdapter(mAdapter);
 
-        mAdView = (NativeExpressAdView) view.findViewById(R.id.adView);
-
-        AdRequest request = new AdRequest.Builder()
-                .build();
-        mAdView.loadAd(request);
-
         mLoading = view.findViewById(R.id.loading);
 
         mKeyword = (EditText) view.findViewById(R.id.keyword);
@@ -157,5 +153,7 @@ abstract public class ChannelSearchFragment extends BaseFragment {
 
             }
         });
+
+        return view;
     }
 }

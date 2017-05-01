@@ -1,7 +1,5 @@
 package im.where.whereim;
 
-import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.text.Html;
 import android.text.Spanned;
 import android.view.LayoutInflater;
@@ -237,11 +235,5 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
     public static class GoogleSearchResult extends ChannelSearchFragment.SearchResult {
         String address;
         Spanned attribution;
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_channel_search, container, false);
     }
 }
