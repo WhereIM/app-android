@@ -32,7 +32,10 @@ import im.where.whereim.models.Mate;
 
 public class ChannelActivity extends BaseActivity implements CoreService.ConnectionStatusCallback {
     private final static int TAB_MAP = 0;
-    private final static int TAB_MESSAGE = 1;
+    private final static int TAB_SEARCH = 1;
+    private final static int TAB_MESSAGE = 2;
+    private final static int TAB_MARKER = 3;
+    private final static int TAB_ENCHANTMENT = 4;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
