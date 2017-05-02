@@ -24,6 +24,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -1899,8 +1900,8 @@ public class CoreService extends Service {
             String sender_text = "";
             if(channel!=null){
                 channel_text = " - "+channel.getDisplayName();
-                if(message.mate_id!=null){
-                    Mate mate = getChannelMate(channel_id, message.mate_id);
+                Mate mate = getChannelMate(channel_id, message.mate_id);
+                if(mate!=null){
                     sender_text = mate.getDisplayName()+"\n";
                 }
             }
@@ -1908,7 +1909,7 @@ public class CoreService extends Service {
                     new NotificationCompat.Builder(this)
                             .setSmallIcon(R.drawable.ic_stat_logo)
                             .setContentTitle(getString(R.string.app_name)+channel_text)
-                            .setContentText(sender_text+message.getText(this, mBinder))
+                            .setContentText(TextUtils.concat(sender_text, message.getNotificationText(this, mBinder)))
                             .setDefaults(Notification.DEFAULT_SOUND)
                             .setContentIntent(pendingIntent)
                             .setAutoCancel(true);
