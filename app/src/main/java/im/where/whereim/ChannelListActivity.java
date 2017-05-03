@@ -64,15 +64,12 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
         public int getCount() {
             if(mChannelList == null)
                 return 0;
-            return mChannelList.size() + 2;
+            return mChannelList.size();
         }
 
         @Override
         public Object getItem(int position) {
-            if(position<mChannelList.size())
-                return mChannelList.get(position);
-            else
-                return null;
+            return mChannelList.get(position);
         }
 
         @Override
@@ -103,16 +100,6 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
             }
 
             public void setItem(Channel channel){
-                if(channel==null){
-                    mTitle.setVisibility(View.GONE);
-                    mSubtitle.setVisibility(View.GONE);
-                    mEnable.setVisibility(View.GONE);
-                    mLoading.setVisibility(View.GONE);
-                    mRoot.setBackgroundColor(0);
-                    return;
-                } else {
-                    mTitle.setVisibility(View.VISIBLE);
-                }
                 mChannel = channel;
                 mRoot.setBackgroundColor((mChannel.enabled!=null && mChannel.enabled && mChannel.unread) ? ContextCompat.getColor(ChannelListActivity.this, R.color.colorUnreadChannel) : 0);
                 if(channel.user_channel_name !=null && !channel.user_channel_name.isEmpty()){
@@ -229,7 +216,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Channel channel = (Channel) mAdapter.getItem(position);
-                if(channel!=null && channel.enabled!=null && channel.enabled){
+                if(channel.enabled!=null && channel.enabled){
                     Intent intent = new Intent(ChannelListActivity.this, ChannelActivity.class);
                     intent.putExtra("channel", channel.id);
                     startActivity(intent);
@@ -248,9 +235,6 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                     @Override
                     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                         channel = (Channel) mAdapter.getItem(position);
-                        if(channel ==null){
-                            return false;
-                        }
                         menu.add(0, ACTION_EDIT, 0, "✏️");
                         if(channel.enabled !=null && !channel.enabled)
                             menu.add(0, ACTION_TOGGLE_ENABLED, 0, "\uD83D\uDD13");

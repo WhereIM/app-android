@@ -40,7 +40,9 @@
         <ListView
             android:id="@+id/channel_list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:paddingBottom="100dp"
+            android:clipToPadding="false"/>
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab"
