@@ -1933,6 +1933,11 @@ public class CoreService extends Service {
         mate.latitude = Util.JsonOptNullableDouble(data, Key.LATITUDE, mate.latitude);
         mate.longitude = Util.JsonOptNullableDouble(data, Key.LONGITUDE, mate.longitude);
         mate.accuracy = Util.JsonOptNullableDouble(data, Key.ACCURACY, mate.accuracy);
+        if(data.has(Key.STALE)) {
+            mate.stale = true;
+        } else {
+            mate.stale = false;
+        }
 
         final Mate _m = mate;
         mHandler.post(new Runnable() {
@@ -2239,7 +2244,7 @@ public class CoreService extends Service {
             if(loc.hasSpeed()){
                 msg.put(Key.SPEED, loc.getSpeed());
             }
-            msg.put(Key.TIME, System.currentTimeMillis());
+//            msg.put(Key.TIME, (int)(System.currentTimeMillis()/1000));
             msg.put(Key.PROVIDER, provider);
             String topic = String.format("client/%s/location/put", mClientId);
             publish(topic, msg);

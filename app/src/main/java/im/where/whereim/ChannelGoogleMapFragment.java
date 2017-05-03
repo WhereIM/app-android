@@ -261,7 +261,6 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     }
 
     private Mate selfMate = null;
-    private Marker mMockMarker;
     private Circle mRadiusCircle = null;
     private HashMap<String, Circle> mMateCircle = new HashMap<>();
     private HashMap<String, Marker> mMateMarker = new HashMap<>();
@@ -289,7 +288,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                     mMateCircle.remove(mate.id);
                     mMateMarker.remove(mate.id);
                 }else {
-                    if(mate.latitude!=null && mate.longitude!=null){
+                    if(mate.latitude!=null && mate.longitude!=null && (!mate.stale || mate==focusMate)){
                         Circle circle = googleMap.addCircle(new CircleOptions()
                                 .center(new LatLng(mate.latitude, mate.longitude))
                                 .radius(mate.accuracy)
@@ -313,6 +312,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                                         .position(new LatLng(mate.latitude, mate.longitude))
                                         .anchor(0.5f, 1f)
                                         .zIndex(0.5f)
+                                        .alpha(mate.stale ? 0.5f : 1f)
                                         .icon(BitmapDescriptorFactory.fromBitmap(mMarkerView.getDrawingCache()))
                         );
 
@@ -359,15 +359,23 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         });
     }
 
+    private Mate focusMate = null;
     @Override
     public void moveToMate(final Mate mate) {
-        if(mate.latitude==null){
-            return;
-        }
         getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
-                googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(mate.latitude, mate.longitude)));
+                Mate exFocusMate = focusMate;
+                focusMate = mate;
+                if(exFocusMate!=null) {
+                    onMateData(exFocusMate);
+                }
+                if(mate!=null) {
+                    onMateData(mate);
+                    if(mate.latitude!=null && mate.longitude!=null){
+                        googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(mate.latitude, mate.longitude)));
+                    }
+                }
             }
         });
     }

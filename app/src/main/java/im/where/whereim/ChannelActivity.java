@@ -234,11 +234,10 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
     }
 
     public void moveToMate(Mate mate){
-        if(mate.latitude==null){
-            return;
-        }
         mChannelMapFragment.moveToMate(mate);
-        mTabLayout.getTabAt(TAB_MAP).select();
+        if(mate.latitude!=null){
+            mTabLayout.getTabAt(TAB_MAP).select();
+        }
     }
 
     public void moveToEnchantment(Enchantment enchantment){

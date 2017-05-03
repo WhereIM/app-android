@@ -54,6 +54,7 @@ public class Mate extends BaseModel {
     public Double bearing;
     public Double speed; //m
     public Long time;
+    public boolean stale = false;
     public boolean deleted = false;
 
     public String getDisplayName(){
