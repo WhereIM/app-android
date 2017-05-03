@@ -28,13 +28,15 @@
         </LinearLayout>
 
         <TextView
-            android:text="message"
+            android:text="message https://where.im test"
             android:background="@drawable/out_message_background"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="right"
             android:id="@+id/message"
-            android:textColor="@android:color/white"
+            android:autoLink="web|email"
+            android:textColor="@android:color/black"
+            android:textColorLink="@color/textColorLink"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:padding="7dp"
             android:layout_marginRight="30dp" />

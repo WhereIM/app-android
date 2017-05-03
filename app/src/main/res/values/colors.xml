@@ -6,4 +6,5 @@
     <color name="colorText">#CCCCCC</color>
     <color name="colorTextHighlight">#FFFFFF</color>
     <color name="colorUnreadChannel">#EDF2FA</color>
+    <color name="textColorLink">#047bfe</color>
 </resources>
