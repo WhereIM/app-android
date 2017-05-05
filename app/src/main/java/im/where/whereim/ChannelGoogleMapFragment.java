@@ -657,6 +657,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     private Marker mEditingMarkerMarker = null;
     @Override
     public void onMapLongClick(final LatLng latLng) {
+        clearAction();
         mEditingLatitude = latLng.latitude;
         mEditingLongitude = latLng.longitude;
 
