@@ -22,7 +22,7 @@ public class Config {
     public final static String CAPTCHA_URL = "http://dev.where.im/captcha.html";
     public final static String CAPTCHA_PREFIX = "whereim://";
 
-    public final static String CHANNEL_JOIN_URL = "https://dev.where.im/channel/%s";
+    public final static String WHERE_IM_URL = "https://dev.where.im/%s";
 
     public final static int FACEBOOK_REQUEST_CODE = 5566;
 

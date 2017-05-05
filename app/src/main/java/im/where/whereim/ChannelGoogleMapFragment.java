@@ -36,7 +36,7 @@ import im.where.whereim.models.Channel;
 import im.where.whereim.models.Enchantment;
 import im.where.whereim.models.Mate;
 
-public class ChannelGoogleMapFragment extends ChannelMapFragment implements GoogleMap.OnMapLongClickListener {
+public class ChannelGoogleMapFragment extends ChannelMapFragment implements GoogleMap.OnMapLongClickListener, GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener {
     public ChannelGoogleMapFragment() {
         // Required empty public constructor
     }
@@ -77,6 +77,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
 
     private double defaultLat = 0;
     private double defaultLng = 0;
+    private float defaultZoom = 0;
     private double currentLat = 0;
     private double currentLng = 0;
 
@@ -94,10 +95,12 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
             positionTime = locationByNetwork.getTime();
             defaultLat = locationByNetwork.getLatitude();
             defaultLng = locationByNetwork.getLongitude();
+            defaultZoom = 15;
         }
         if(locationByGPS != null && locationByGPS.getTime() > positionTime){
             defaultLat = locationByGPS.getLatitude();
             defaultLng = locationByGPS.getLongitude();
+            defaultZoom = 15;
         }
         currentLat = defaultLat;
         currentLng = defaultLng;
@@ -116,6 +119,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(final GoogleMap googleMap) {
+                googleMap.getUiSettings().setMapToolbarEnabled(false);
                 googleMap.setMyLocationEnabled(true);
                 googleMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
                     @Override
@@ -123,8 +127,10 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                         cameraMoved(googleMap);
                     }
                 });
-                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(defaultLat, defaultLng), 15));
+                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(defaultLat, defaultLng), defaultZoom));
+                googleMap.setOnMapClickListener(ChannelGoogleMapFragment.this);
                 googleMap.setOnMapLongClickListener(ChannelGoogleMapFragment.this);
+                googleMap.setOnMarkerClickListener(ChannelGoogleMapFragment.this);
             }
         });
 
@@ -260,25 +266,28 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         super.onDestroyView();
     }
 
+    private HashMap<Marker, Object> mMarkerMap = new HashMap<>();
     private Mate selfMate = null;
     private Circle mRadiusCircle = null;
     private HashMap<String, Circle> mMateCircle = new HashMap<>();
     private HashMap<String, Marker> mMateMarker = new HashMap<>();
 
     @Override
-    public void onMateData(final Mate mate){
+    public void onMateData(final Mate mate, final boolean focus){
         getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
+                Circle circle;
+                Marker marker;
                 synchronized (mMateCircle) {
-                    Circle circle = mMateCircle.get(mate.id);
+                    circle = mMateCircle.get(mate.id);
                     if(circle!=null){
                         circle.remove();
                     }
                 }
 
                 synchronized (mMateMarker) {
-                    Marker marker = mMateMarker.get(mate.id);
+                    marker = mMateMarker.get(mate.id);
                     if(marker!=null){
                         marker.remove();
                     }
@@ -289,7 +298,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                     mMateMarker.remove(mate.id);
                 }else {
                     if(mate.latitude!=null && mate.longitude!=null && (!mate.stale || mate==focusMate)){
-                        Circle circle = googleMap.addCircle(new CircleOptions()
+                        circle = googleMap.addCircle(new CircleOptions()
                                 .center(new LatLng(mate.latitude, mate.longitude))
                                 .radius(mate.accuracy)
                                 .fillColor(0x3f888888)
@@ -307,11 +316,11 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                         mMarkerView.setDrawingCacheEnabled(true);
                         mMarkerView.buildDrawingCache();
 
-                        Marker marker = googleMap.addMarker(
+                        marker = googleMap.addMarker(
                                 new MarkerOptions()
                                         .position(new LatLng(mate.latitude, mate.longitude))
                                         .anchor(0.5f, 1f)
-                                        .zIndex(0.5f)
+                                        .zIndex(0.75f)
                                         .alpha(mate.stale ? 0.5f : 1f)
                                         .icon(BitmapDescriptorFactory.fromBitmap(mMarkerView.getDrawingCache()))
                         );
@@ -320,6 +329,13 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                             mMateMarker.put(mate.id, marker);
                         }
                     }
+                }
+
+                synchronized (mMarkerMap) {
+                    mMarkerMap.put(marker, mate);
+                }
+                if(focus){
+                    onMarkerClick(marker);
                 }
 
                 if(mate.id.equals(mChannel.mate_id)){
@@ -361,17 +377,17 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
 
     private Mate focusMate = null;
     @Override
-    public void moveToMate(final Mate mate) {
+    public void moveToMate(final Mate mate, final boolean focus) {
         getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 Mate exFocusMate = focusMate;
                 focusMate = mate;
                 if(exFocusMate!=null) {
-                    onMateData(exFocusMate);
+                    onMateData(exFocusMate, false);
                 }
                 if(mate!=null) {
-                    onMateData(mate);
+                    onMateData(mate, focus);
                     if(mate.latitude!=null && mate.longitude!=null){
                         googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(mate.latitude, mate.longitude)));
                     }
@@ -433,7 +449,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     final private HashMap<String, Marker> mMarkerMarker = new HashMap<>();
 
     @Override
-    public void onMarkerData(final im.where.whereim.models.Marker marker) {
+    public void onMarkerData(final im.where.whereim.models.Marker marker, final boolean focus) {
         getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
@@ -455,6 +471,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                                         .position(new LatLng(marker.latitude, marker.longitude))
                                         .icon(marker.getIconBitmapDescriptor())
                                         .anchor(0.5f, 1)
+                                        .zIndex(0.25f)
                         );
 
                         synchronized (mMarkerMarker) {
@@ -466,23 +483,29 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                         }
                     }
                 }
+                synchronized (mMarkerMap) {
+                    mMarkerMap.put(m, marker);
+                }
+                if(focus){
+                    onMarkerClick(m);
+                }
             }
         });
     }
 
     private im.where.whereim.models.Marker focusMarker = null;
     @Override
-    public void moveToMarker(final im.where.whereim.models.Marker marker) {
+    public void moveToMarker(final im.where.whereim.models.Marker marker, final boolean focus) {
         getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 im.where.whereim.models.Marker exFocusMaker = focusMarker;
                 focusMarker = marker;
                 if(exFocusMaker!=null) {
-                    onMarkerData(exFocusMaker);
+                    onMarkerData(exFocusMaker, false);
                 }
                 if(marker!=null) {
-                    onMarkerData(marker);
+                    onMarkerData(marker, focus);
                     googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(marker.latitude, marker.longitude)));
                 }
             }
@@ -516,9 +539,13 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                                     .position(new LatLng(result.latitude, result.longitude))
                                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.search_marker))
                                     .anchor(0.5f, 1f)
+                                    .zIndex(0.5f)
                     );
                     synchronized (mSearchResultMarkers) {
                         mSearchResultMarkers.add(m);
+                    }
+                    synchronized (mMarkerMap) {
+                        mMarkerMap.put(m, _result);
                     }
                 }
             }
@@ -526,7 +553,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     }
 
     @Override
-    public void moveToSearchResult(final int position) {
+    public void moveToSearchResult(final int position, final boolean focus) {
         getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
@@ -538,6 +565,9 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                 Marker m = mSearchResultMarkers.get(position);
                 if(m != null){
                     m.showInfoWindow();
+                }
+                if(focus) {
+                    onMarkerClick(m);
                 }
             }
         });
@@ -585,6 +615,44 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         });
     }
 
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        if(marker==null){
+            return false;
+        }
+        if(mMarkerMap==null)
+            return false;
+        Object obj = mMarkerMap.get(marker);
+        if(obj==null){
+            return false;
+        }
+        boolean mCreateMarker;
+        boolean mCreateEnchantment;
+        boolean mShare;
+        boolean mOpenIn;
+        if (obj instanceof  Mate) {
+            mCreateMarker = true;
+            mCreateEnchantment = true;
+            mShare = true;
+            mOpenIn = true;
+        } else if (obj instanceof im.where.whereim.models.Marker) {
+            mCreateMarker = false;
+            mCreateEnchantment = true;
+            mShare = true;
+            mOpenIn = true;
+        } else if (obj instanceof ChannelSearchFragment.SearchResult) {
+            mCreateMarker = true;
+            mCreateEnchantment = true;
+            mShare = true;
+            mOpenIn = true;
+        } else {
+            return false;
+        }
+        LatLng ll = marker.getPosition();
+        showMarkerActionsPanel(marker.getTitle(), ll.latitude, ll.longitude, mCreateMarker, mCreateEnchantment, mShare, mOpenIn);
+        return false;
+    }
+
     private Circle mEditingEnchantmentCircle = null;
     private Marker mEditingMarkerMarker = null;
     @Override
@@ -593,6 +661,11 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         mEditingLongitude = latLng.longitude;
 
         startEditing();
+    }
+
+    @Override
+    public void onMapClick(LatLng latLng) {
+        clearAction();
     }
 
     @Override
@@ -628,10 +701,13 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                     }
                     mEditingMarkerMarker = googleMap.addMarker(
                             new MarkerOptions()
+                                    .title(mEditingMarker.name)
                                     .position(new LatLng(mEditingLatitude, mEditingLongitude))
                                     .icon(mEditingMarker.getIconBitmapDescriptor())
                                     .anchor(0.5f, 1f)
+                                    .zIndex(1f)
                     );
+                    mEditingMarkerMarker.showInfoWindow();
                 }
             });
 

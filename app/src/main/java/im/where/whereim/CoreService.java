@@ -74,15 +74,15 @@ public class CoreService extends Service {
     };
 
     public interface MapDataDelegate {
-        void onMateData(Mate mate);
-        void moveToMate(Mate mate);
+        void onMateData(Mate mate, boolean focus);
+        void moveToMate(Mate mate, boolean focus);
         void onEnchantmentData(Enchantment enchantment);
         void moveToEnchantment(Enchantment enchantment);
-        void onMarkerData(Marker marker);
-        void moveToMarker(Marker marker);
+        void onMarkerData(Marker marker, boolean focus);
+        void moveToMarker(Marker marker, boolean focus);
         QuadTree.LatLng getMapCenter();
         void setSearchResult(ArrayList<ChannelSearchFragment.SearchResult> results);
-        void moveToSearchResult(int position);
+        void moveToSearchResult(int position, boolean focus);
         void onMapAd(HashMap<String, Ad> ads);
     };
 
@@ -485,7 +485,7 @@ public class CoreService extends Service {
                 HashMap<String, Marker> list = mChannelMarker.get(channel.id);
                 if(list!=null){
                     for (Marker marker : list.values()) {
-                        receiver.onMarkerData(marker);
+                        receiver.onMarkerData(marker, false);
                     }
                 }
             }
@@ -1626,7 +1626,7 @@ public class CoreService extends Service {
                 synchronized (mMapDataReceiver){
                     if(mMapDataReceiver.containsKey(marker.channel_id)){
                         for (MapDataDelegate mapDataDelegate : mMapDataReceiver.get(marker.channel_id)) {
-                            mapDataDelegate.onMarkerData(marker);
+                            mapDataDelegate.onMarkerData(marker, false);
                         }
                     }
                 }
@@ -1790,7 +1790,7 @@ public class CoreService extends Service {
                 synchronized (mMapDataReceiver){
                     if(mMapDataReceiver.containsKey(mate.channel_id)){
                         for (MapDataDelegate mapDataDelegate : mMapDataReceiver.get(mate.channel_id)) {
-                            mapDataDelegate.onMateData(mate);
+                            mapDataDelegate.onMateData(mate, false);
                         }
                     }
                 }
@@ -1946,7 +1946,7 @@ public class CoreService extends Service {
                 synchronized (mMapDataReceiver){
                     if(mMapDataReceiver.containsKey(channel_id)){
                         for (MapDataDelegate mapDataDelegate : mMapDataReceiver.get(channel_id)) {
-                            mapDataDelegate.onMateData(_m);
+                            mapDataDelegate.onMateData(_m, false);
                         }
                     }
                 }

@@ -4,6 +4,7 @@
     <string name="lang">en</string>
     <string name="google_lang">en</string>
     <string name="permission_rationale">Your location is essential for this app to work.</string>
+    <string name="action_share">Share</string>
     <string name="action_invite">Invite</string>
     <string name="action_about">About</string>
     <string name="action_quit">Quit</string>
@@ -27,6 +28,8 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
+    <string name="open_in">Open In ...</string>
+    <string name="share_location">Share Location</string>
     <string name="create_enchantment">New Enchantment ⭕</string>
     <string name="create_marker">New Marker 📍</string>
     <string name="forge_location">Forge Location 😈</string>
@@ -53,4 +56,6 @@
     <string name="notification_radius_report">In/Out: %1$s / %2$s (%3$s m)</string>
     <string name="message_limit_active_channel">Limit of number of active channels (%1$s) is reached.</string>
     <string name="message_limit_enabled_channel">Limit of number of enabled channels (%1$s) is reached, long press on channel list and tap the lock icon to disable some channels.</string>
+    <string name="google_maps">Google Maps</string>
+    <string name="google_maps_navigation">Google Maps Navigation</string>
 </resources>

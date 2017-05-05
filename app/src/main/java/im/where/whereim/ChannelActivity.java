@@ -227,14 +227,14 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
                 Intent i = new Intent(Intent.ACTION_SEND);
                 i.setType("text/plain");
                 i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.action_invite));
-                i.putExtra(Intent.EXTRA_TEXT, getString(R.string.invitation, channel.channel_name)+"\n"+String.format(Config.CHANNEL_JOIN_URL, mChannelId));
+                i.putExtra(Intent.EXTRA_TEXT, getString(R.string.invitation, channel.channel_name)+"\n"+String.format(Config.WHERE_IM_URL, "channel/"+mChannelId));
                 startActivity(Intent.createChooser(i, getString(R.string.action_invite)));
             }
         });
     }
 
     public void moveToMate(Mate mate){
-        mChannelMapFragment.moveToMate(mate);
+        mChannelMapFragment.moveToMate(mate, true);
         if(mate.latitude!=null){
             mTabLayout.getTabAt(TAB_MAP).select();
         }
@@ -246,7 +246,7 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
     }
 
     public void moveToMaker(Marker marker){
-        mChannelMapFragment.moveToMarker(marker);
+        mChannelMapFragment.moveToMarker(marker, true);
         mTabLayout.getTabAt(TAB_MAP).select();
     }
 
@@ -259,7 +259,7 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
     }
 
     public void moveToSearchResult(int position){
-        mChannelMapFragment.moveToSearchResult(position);
+        mChannelMapFragment.moveToSearchResult(position, true);
         mTabLayout.getTabAt(TAB_MAP).select();
     }
 

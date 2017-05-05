@@ -2,47 +2,110 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
 
     <LinearLayout
+        android:id="@+id/marker_actions_controller"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="16dp"
+        android:background="@color/panelBackground"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <im.where.whereim.views.EmojiView
+            android:id="@+id/create_marker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_gravity="center_vertical"
+            android:textSize="24dp"
+            android:text="📍" />
+
+        <im.where.whereim.views.EmojiView
+            android:id="@+id/create_enchantment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_gravity="center_vertical"
+            android:textSize="24dp"
+            android:text="⭕" />
+
+        <im.where.whereim.views.EmojiView
+            android:id="@+id/share"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_gravity="center_vertical"
+            android:textSize="36dp"
+            android:text="✉️" />
+
+        <im.where.whereim.views.EmojiView
+            android:id="@+id/open_in"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_gravity="center_vertical"
+            android:textSize="36dp"
+            android:text="⤴️" />
+
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/enchantment_controller"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="16dp"
-        android:background="#77ffffff"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:visibility="gone">
 
         <TextView
-            android:id="@+id/enchantment_reduce"
-            android:layout_width="55dp"
+            android:id="@+id/enchantment_radius"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="15dp"
-            android:gravity="center"
-            android:text="➖" />
+            android:layout_gravity="center_horizontal"
+            android:textColor="@android:color/black"
+            android:textSize="24sp"/>
 
-        <TextView
-            android:id="@+id/enchantment_enlarge"
-            android:layout_width="55dp"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="15dp"
-            android:gravity="center"
-            android:text="➕" />
+            android:orientation="horizontal"
+            android:background="@color/panelBackground">
+            <TextView
+                android:id="@+id/enchantment_reduce"
+                android:layout_width="55dp"
+                android:layout_height="wrap_content"
+                android:padding="15dp"
+                android:gravity="center"
+                android:text="➖" />
 
-        <TextView
-            android:id="@+id/enchantment_cancel"
-            android:layout_width="55dp"
-            android:layout_height="wrap_content"
-            android:padding="15dp"
-            android:gravity="center"
-            android:text="✘" />
+            <TextView
+                android:id="@+id/enchantment_enlarge"
+                android:layout_width="55dp"
+                android:layout_height="wrap_content"
+                android:padding="15dp"
+                android:gravity="center"
+                android:text="➕" />
 
-        <TextView
-            android:id="@+id/enchantment_ok"
-            android:layout_width="55dp"
-            android:layout_height="wrap_content"
-            android:padding="15dp"
-            android:gravity="center"
-            android:text="✔" />
+            <TextView
+                android:id="@+id/enchantment_cancel"
+                android:layout_width="55dp"
+                android:layout_height="wrap_content"
+                android:padding="15dp"
+                android:gravity="center"
+                android:text="✘" />
+
+            <TextView
+                android:id="@+id/enchantment_ok"
+                android:layout_width="55dp"
+                android:layout_height="wrap_content"
+                android:padding="15dp"
+                android:gravity="center"
+                android:text="✔" />
+        </LinearLayout>
+
 
     </LinearLayout>
 
@@ -53,7 +116,7 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="16dp"
-        android:background="#77ffffff"
+        android:background="@color/panelBackground"
         android:orientation="horizontal"
         android:visibility="gone">
 

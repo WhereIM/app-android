@@ -14,9 +14,11 @@ import io.branch.referral.Branch;
  */
 
 public class WhereImApplication extends MultiDexApplication {
+
     @Override
     public void onCreate() {
         super.onCreate();
+
         Branch.getAutoInstance(this);
         FacebookSdk.sdkInitialize(getApplicationContext(), Config.FACEBOOK_REQUEST_CODE);
         LoginManager.getInstance().logOut();
