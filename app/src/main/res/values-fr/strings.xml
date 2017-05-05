@@ -44,13 +44,13 @@
     <string name="message_enchantment_create">L\'enchantement %1$s a été créé.</string>
     <string name="message_enchantment_emerge">Est apparu dans l\'enchantement %1$s.</string>
     <string name="message_enchantment_in">Est entré dans l\'enchantement %1$s.</string>
-    <string name="message_enchantment_out">Enchantement à gauche %1$s.</string>
+    <string name="message_enchantment_out">Est sorti de l\'enchantement %1$s.</string>
     <string name="message_marker_create">Le marqueur %1$s a été créé. {icon}</string>
     <string name="message_radius_report">Dedans/Dehors : %1$s / %2$s (%3$s m)</string>
     <string name="notification_enchantment_create">L\'enchantement %1$s a été créé.</string>
     <string name="notification_enchantment_emerge">Est apparu dans l\'enchantement %1$s.</string>
     <string name="notification_enchantment_in">Est entré dans l\'enchantement %1$s.</string>
-    <string name="notification_enchantment_out">Enchantement à gauche %1$s.</string>
+    <string name="notification_enchantment_out">Est sorti de l\'enchantement %1$s.</string>
     <string name="notification_marker_create">Le marqueur %1$s a été créé.</string>
     <string name="notification_radius_report">Dedans/Dehors : %1$s / %2$s (%3$s m)</string>
     <string name="message_limit_active_channel">La limite du nombre de chaînes actives (%1$s est atteinte.</string>
