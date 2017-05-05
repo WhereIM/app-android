@@ -57,5 +57,5 @@
     <string name="message_limit_active_channel">Limit of number of active channels (%1$s) is reached.</string>
     <string name="message_limit_enabled_channel">Limit of number of enabled channels (%1$s) is reached, long press on channel list and tap the lock icon to disable some channels.</string>
     <string name="google_maps">Google Maps</string>
-    <string name="google_maps_navigation">Google Maps Navigation</string>
+    <string name="google_maps_navigation">Google Maps - Navigation &amp; Transit</string>
 </resources>
