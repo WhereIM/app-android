@@ -3,10 +3,13 @@ package im.where.whereim.dialogs;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 
 import im.where.whereim.R;
+import im.where.whereim.views.EmojiText;
 
 /**
  * Created by buganini on 04/05/17.
@@ -30,35 +33,45 @@ public class DialogMapMenu {
 
                     }
                 }).create();
-        dialog_view.findViewById(R.id.open_in).setOnClickListener(new View.OnClickListener() {
+        Button open_in = (Button) dialog_view.findViewById(R.id.open_in);
+        open_in.setText(TextUtils.concat(open_in.getText(), " ", new EmojiText(context, "⤴")));
+        open_in.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
                 callback.onOpenIn();
             }
         });
-        dialog_view.findViewById(R.id.share_location).setOnClickListener(new View.OnClickListener() {
+        Button share_location = (Button) dialog_view.findViewById(R.id.share_location);
+        share_location.setText(TextUtils.concat(share_location.getText(), " ", new EmojiText(context, "✉")));
+        share_location.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
                 callback.onShareLocation();
             }
         });
-        dialog_view.findViewById(R.id.create_enchantment).setOnClickListener(new View.OnClickListener() {
+        Button create_enchantment = (Button) dialog_view.findViewById(R.id.create_enchantment);
+        create_enchantment.setText(TextUtils.concat(create_enchantment.getText(), " ", new EmojiText(context, "⭕")));
+        create_enchantment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
                 callback.onCreateEnchantment();
             }
         });
-        dialog_view.findViewById(R.id.create_marker).setOnClickListener(new View.OnClickListener() {
+        Button create_marker = (Button) dialog_view.findViewById(R.id.create_marker);
+        create_marker.setText(TextUtils.concat(create_marker.getText(), " ", new EmojiText(context, "\uD83D\uDCCD")));
+        create_marker.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
                 callback.onCreateMarker();
             }
         });
-        dialog_view.findViewById(R.id.forge_location).setOnClickListener(new View.OnClickListener() {
+        Button forge_location = (Button) dialog_view.findViewById(R.id.forge_location);
+        forge_location.setText(TextUtils.concat(forge_location.getText(), " ", new EmojiText(context, "\uD83D\uDE08")));
+        forge_location.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();

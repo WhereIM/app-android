@@ -12,30 +12,35 @@
         android:id="@+id/open_in"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textAllCaps="false"
         android:text="@string/open_in"/>
 
     <Button
         android:id="@+id/share_location"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/share_location"/>
+        android:textAllCaps="false"
+        android:text="@string/share"/>
 
     <Button
         android:id="@+id/create_enchantment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textAllCaps="false"
         android:text="@string/create_enchantment"/>
 
     <Button
         android:id="@+id/create_marker"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textAllCaps="false"
         android:text="@string/create_marker"/>
 
     <Button
         android:id="@+id/forge_location"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textAllCaps="false"
         android:text="@string/forge_location"/>
 
 </LinearLayout>

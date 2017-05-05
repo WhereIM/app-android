@@ -27,11 +27,11 @@
     <string name="ok">好</string>
     <string name="cancel">取消</string>
     <string name="delete">刪除</string>
-    <string name="open_in">用其他程式開啟</string>
-    <string name="share_location">分享位置</string>
-    <string name="create_enchantment">設立結界 ⭕</string>
-    <string name="create_marker">放置圖釘 📍</string>
-    <string name="forge_location">假造位置 😈</string>
+    <string name="open_in">在其他應用程式中開啟</string>
+    <string name="share">分享</string>
+    <string name="create_enchantment">設立結界</string>
+    <string name="create_marker">放置圖釘</string>
+    <string name="forge_location">假造位置</string>
     <string name="radius_m">%1$d m</string>
     <string name="self">自己</string>
     <string name="mate">夥伴</string>
@@ -55,6 +55,6 @@
     <string name="notification_radius_report">圈內/外：%1$s / %2$s (%3$s m)</string>
     <string name="message_limit_active_channel">同時傳送中的群組數量已達上限（%1$s）。</string>
     <string name="message_limit_enabled_channel">同時啟用的群組數量已達上限 (%1$s)，在群組列表中長按並鎖上不需要啟用的群組。</string>
-    <string name="google_maps">Google Maps</string>
-    <string name="google_maps_navigation">Google Maps 導航</string>
+    <string name="google_maps">Google 地圖</string>
+    <string name="google_maps_navigation">Google 地圖 - 導航和大眾運輸</string>
 </resources>

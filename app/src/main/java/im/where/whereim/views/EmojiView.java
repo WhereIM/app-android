@@ -4,13 +4,12 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.widget.TextView;
 
 /**
  * Created by buganini on 05/05/17.
  */
 
-public class EmojiView extends TextView {
+public class EmojiView extends android.support.v7.widget.AppCompatTextView {
     private static Typeface sNotoColorEmoji;
 
     public EmojiView(Context context, @Nullable AttributeSet attrs) {

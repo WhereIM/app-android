@@ -28,11 +28,11 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
-    <string name="open_in">Open In ...</string>
-    <string name="share_location">Share Location</string>
-    <string name="create_enchantment">New Enchantment ⭕</string>
-    <string name="create_marker">New Marker 📍</string>
-    <string name="forge_location">Forge Location 😈</string>
+    <string name="open_in">Open in</string>
+    <string name="share">Share</string>
+    <string name="create_enchantment">New Enchantment</string>
+    <string name="create_marker">New Marker</string>
+    <string name="forge_location">Forge Location</string>
     <string name="radius_m">%1$d m</string>
     <string name="self">Self</string>
     <string name="mate">Mate</string>

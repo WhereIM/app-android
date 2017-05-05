@@ -30,10 +30,12 @@ public class DialogOpenIn {
         dialog_view.setPadding((int)r.getDimension(R.dimen.activity_vertical_margin), (int)r.getDimension(R.dimen.activity_horizontal_margin), (int)r.getDimension(R.dimen.activity_vertical_margin), (int)r.getDimension(R.dimen.activity_horizontal_margin));
 
         Button google_maps = new Button(context);
+        google_maps.setAllCaps(false);
         google_maps.setText(R.string.google_maps);
         dialog_view.addView(google_maps);
 
         Button google_maps_navigation = new Button(context);
+        google_maps_navigation.setAllCaps(false);
         google_maps_navigation.setText(R.string.google_maps_navigation);
         dialog_view.addView(google_maps_navigation);
 
