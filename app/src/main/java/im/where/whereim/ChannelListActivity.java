@@ -34,12 +34,18 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import im.where.whereim.dialogs.DialogChannelJoin;
+import im.where.whereim.dialogs.DialogChannelNew;
+import im.where.whereim.dialogs.DialogCreateChannel;
 import im.where.whereim.models.Channel;
 import im.where.whereim.models.POI;
 import io.branch.referral.Branch;
 import io.branch.referral.BranchError;
 
 public class ChannelListActivity extends BaseActivity implements CoreService.ConnectionStatusCallback {
+    public final static int REQUEST_PENDING_POI = 0;
+    public final static int REQUEST_QR_CODE = 1;
+
     private List<Channel> mChannelList;
     private ListView mListView;
     private Runnable mChannelListChangedListener = new Runnable() {
@@ -153,32 +159,13 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
     private void channelJoin(final String channel_id){
         postBinderTask(new CoreService.BinderTask() {
             @Override
-            public void onBinderReady(CoreService.CoreBinder binder) {
-                final View dialog_view = LayoutInflater.from(ChannelListActivity.this).inflate(R.layout.dialog_channel_join,  null);
-                final TextView tv_channel_name = (TextView) dialog_view.findViewById(R.id.channel_name);
-                final EditText et_mate_name = (EditText) dialog_view.findViewById(R.id.mate_name);
-                et_mate_name.setText(binder.getUserName());
-                new AlertDialog.Builder(ChannelListActivity.this)
-                        .setTitle(R.string.join_channel)
-                        .setView(dialog_view)
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                final String mate_name = et_mate_name.getText().toString();
-                                postBinderTask(new CoreService.BinderTask() {
-                                    @Override
-                                    public void onBinderReady(CoreService.CoreBinder binder) {
-                                        binder.joinChannel(channel_id, null /*channel_alias*/, mate_name);
-                                    }
-                                });
-                            }
-                        })
-                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                            }
-                        }).show();
+            public void onBinderReady(final CoreService.CoreBinder binder) {
+            new DialogChannelJoin(ChannelListActivity.this, binder.getUserName(), new DialogChannelJoin.Callback() {
+                @Override
+                public void onDone(String mate_name) {
+                    binder.joinChannel(channel_id, null /*channel_alias*/, mate_name);
+                }
+            });
             }
         });
     }
@@ -340,27 +327,24 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final View dialog_view = LayoutInflater.from(ChannelListActivity.this).inflate(R.layout.dialog_channel_create,  null);
-                final EditText et_channel_name = (EditText) dialog_view.findViewById(R.id.channel_name);
-                final EditText et_mate_name = (EditText) dialog_view.findViewById(R.id.mate_name);
-                et_mate_name.setText(mBinder.getUserName());
-                new AlertDialog.Builder(ChannelListActivity.this)
-                        .setTitle(R.string.create_channel)
-                        .setView(dialog_view)
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                new DialogChannelNew(ChannelListActivity.this, new DialogChannelNew.Callback() {
+                    @Override
+                    public void onSelectJoinByQrCode() {
+                        Intent intent = new Intent(ChannelListActivity.this, ScannerActivity.class);
+                        startActivityForResult(intent, REQUEST_QR_CODE);
+                    }
+
+                    @Override
+                    public void onSelectCreateChannel() {
+                        new DialogCreateChannel(ChannelListActivity.this, mBinder.getUserName(), new DialogCreateChannel.Callback() {
+
                             @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                String channel_name = et_channel_name.getText().toString();
-                                String mate_name = et_mate_name.getText().toString();
+                            public void onDone(String channel_name, String mate_name) {
                                 mBinder.createChannel(channel_name, mate_name);
                             }
-                        })
-                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                            }
-                        }).show();
+                        });
+                    }
+                });
             }
         });
 
@@ -427,22 +411,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                     if (error == null) {
                         String uri = Util.JsonOptNullableString(referringParams, "$deeplink_path", null);
                         if(uri!=null){
-                            Pattern mPatternChannelJoin = Pattern.compile("^channel/([A-Fa-f0-9]{32})$");
-                            Matcher m;
-                            m = mPatternChannelJoin.matcher(uri);
-                            if(m.matches()){
-                                channelJoin(m.group(1));
-                                return;
-                            }
-                            Pattern mPatternHere = Pattern.compile("^here/(-?[0-9.]+)/(-?[0-9.]+)(?:/(.*))?$");
-                            m = mPatternHere.matcher(uri);
-                            if(m.matches()){
-                                Intent intent = new Intent(ChannelListActivity.this, PoiViewerActivity.class);
-                                intent.putExtra(Key.LATITUDE, Double.valueOf(m.group(1)));
-                                intent.putExtra(Key.LONGITUDE, Double.valueOf(m.group(2)));
-                                intent.putExtra(Key.NAME, m.group(3));
-                                startActivityForResult(intent, 0);
-                            }
+                            processLink(uri);
                         }
                     } else {
                         Log.i("WhereIM", error.getMessage());
@@ -468,6 +437,25 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
         mBinder.addConnectionStatusChangedListener(this);
     }
 
+    private void processLink(String link){
+        Pattern mPatternChannelJoin = Pattern.compile("^channel/([A-Fa-f0-9]{32})$");
+        Matcher m;
+        m = mPatternChannelJoin.matcher(link);
+        if(m.matches()){
+            channelJoin(m.group(1));
+            return;
+        }
+        Pattern mPatternHere = Pattern.compile("^here/(-?[0-9.]+)/(-?[0-9.]+)(?:/(.*))?$");
+        m = mPatternHere.matcher(link);
+        if(m.matches()){
+            Intent intent = new Intent(ChannelListActivity.this, PoiViewerActivity.class);
+            intent.putExtra(Key.LATITUDE, Double.valueOf(m.group(1)));
+            intent.putExtra(Key.LONGITUDE, Double.valueOf(m.group(2)));
+            intent.putExtra(Key.NAME, m.group(3));
+            startActivityForResult(intent, 0);
+        }
+    }
+
     @Override
     protected void onPause() {
         if(mBinder!=null) {
@@ -487,13 +475,23 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == 0){
-            if(resultCode == 1){
-                pendingPOI = new POI();
-                pendingPOI.latitude = data.getDoubleExtra(Key.LATITUDE, 0);
-                pendingPOI.longitude = data.getDoubleExtra(Key.LONGITUDE, 0);
-                pendingPOI.name = data.getStringExtra(Key.NAME);
-            }
+        switch (requestCode) {
+            case REQUEST_PENDING_POI:
+                if (resultCode == 1) {
+                    pendingPOI = new POI();
+                    pendingPOI.latitude = data.getDoubleExtra(Key.LATITUDE, 0);
+                    pendingPOI.longitude = data.getDoubleExtra(Key.LONGITUDE, 0);
+                    pendingPOI.name = data.getStringExtra(Key.NAME);
+                }
+                break;
+            case REQUEST_QR_CODE:
+                if (resultCode == 1) {
+                    String link = data.getStringExtra(Key.LINK);
+                    if(link!=null){
+                        processLink(link);
+                    }
+                }
+                break;
         }
     }
 }

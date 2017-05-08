@@ -1,5 +1,7 @@
 package im.where.whereim;
 
+import java.util.regex.Pattern;
+
 /**
  * Created by buganini on 04/01/17.
  */
@@ -35,6 +37,7 @@ public class Key {
     public final static String LANG = "lang";
     public final static String LATITUDE = "lat";
     public final static String LEVEL = "lvl";
+    public final static String LINK = "link";
     public final static String LONGITUDE = "lng";
 
     public final static String MATE = "mate";
