@@ -434,7 +434,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                                 channelJoin(m.group(1));
                                 return;
                             }
-                            Pattern mPatternHere = Pattern.compile("^here/([0-9.]+)/([0-9.]+)(?:/(.*))?$");
+                            Pattern mPatternHere = Pattern.compile("^here/(-?[0-9.]+)/(-?[0-9.]+)(?:/(.*))?$");
                             m = mPatternHere.matcher(uri);
                             if(m.matches()){
                                 Intent intent = new Intent(ChannelListActivity.this, PoiViewerActivity.class);
