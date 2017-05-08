@@ -29,6 +29,9 @@
     <string name="close">關閉</string>
     <string name="delete">刪除</string>
     <string name="open_in_channel">在群組中開啟</string>
+    <string name="scan_qr_code">"掃瞄 QR  Code"</string>
+    <string name="generate_qr_code">產生 QR Code</string>
+    <string name="send_invite_link">發送邀請連結</string>
     <string name="open_in">在其他應用程式中開啟</string>
     <string name="share">分享</string>
     <string name="create_enchantment">設立結界</string>

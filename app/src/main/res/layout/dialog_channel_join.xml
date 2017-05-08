@@ -7,40 +7,13 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:columnCount="2"
-    android:rowCount="3">
-
-    <!--
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/channel_name"
-        android:layout_column="1"
-        android:layout_row="0"
-        android:layout_columnSpan="1" />
-        -->
-
-    <!--
-    <TextView
-        android:text="@string/channel_alias"
-        android:layout_column="0"
-        android:layout_row="1" />
-        -->
+    android:rowCount="1">
 
     <TextView
         android:text="@string/display_name"
         android:layout_column="0"
-        android:layout_row="2" />
+        android:layout_row="0" />
 
-    <!--
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="textPersonName"
-        android:layout_column="1"
-        android:layout_row="1"
-        android:ems="10"
-        android:id="@+id/channel_alias" />
-        -->
 
     <EditText
         android:layout_width="wrap_content"
@@ -48,7 +21,7 @@
         android:inputType="textPersonName"
         android:ems="10"
         android:layout_column="1"
-        android:layout_row="2"
+        android:layout_row="0"
         android:id="@+id/mate_name" />
 
 </GridLayout>

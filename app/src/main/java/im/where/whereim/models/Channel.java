@@ -4,6 +4,10 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.util.Locale;
+
+import im.where.whereim.Config;
+
 /**
  * Created by buganini on 31/01/17.
  */
@@ -66,6 +70,10 @@ public class Channel extends BaseModel {
             return this.channel_name;
         }
         return "";
+    }
+
+    public String getLink() {
+        return String.format(Locale.ENGLISH, Config.WHERE_IM_URL, "channel/"+id);
     }
 
     public static Channel parse(Cursor cursor){

@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -20,16 +21,17 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Switch;
 import android.widget.TextView;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import im.where.whereim.dialogs.DialogChannelInvite;
+import im.where.whereim.dialogs.DialogChannelInviteQrCode;
+import im.where.whereim.geo.QuadTree;
+import im.where.whereim.models.*;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import im.where.whereim.geo.QuadTree;
-import im.where.whereim.models.Channel;
-import im.where.whereim.models.Enchantment;
-import im.where.whereim.models.Marker;
-import im.where.whereim.models.Mate;
-import im.where.whereim.models.POI;
 
 public class ChannelActivity extends BaseActivity implements CoreService.ConnectionStatusCallback {
     private final static int TAB_MAP = 0;
@@ -224,12 +226,23 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
     private void invite_join(){
         getChannel(new GetChannelCallback() {
             @Override
-            public void onGetChannel(Channel channel) {
-                Intent i = new Intent(Intent.ACTION_SEND);
-                i.setType("text/plain");
-                i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.action_invite));
-                i.putExtra(Intent.EXTRA_TEXT, getString(R.string.invitation, channel.channel_name)+"\n"+String.format(Config.WHERE_IM_URL, "channel/"+mChannelId));
-                startActivity(Intent.createChooser(i, getString(R.string.action_invite)));
+            public void onGetChannel(final Channel channel) {
+                new DialogChannelInvite(ChannelActivity.this, new DialogChannelInvite.Callback(){
+
+                    @Override
+                    public void onSelectGenerateQRCode() {
+                        new DialogChannelInviteQrCode(ChannelActivity.this, channel);
+                    }
+
+                    @Override
+                    public void onSelectSendInviteLink() {
+                        Intent i = new Intent(Intent.ACTION_SEND);
+                        i.setType("text/plain");
+                        i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.action_invite));
+                        i.putExtra(Intent.EXTRA_TEXT, getString(R.string.invitation, channel.channel_name)+"\n"+channel.getLink());
+                        startActivity(Intent.createChooser(i, getString(R.string.action_invite)));
+                    }
+                });
             }
         });
     }

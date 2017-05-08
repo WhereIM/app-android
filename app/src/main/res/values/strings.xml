@@ -30,6 +30,9 @@
     <string name="close">Close</string>
     <string name="delete">Delete</string>
     <string name="open_in_channel">Open in Channel</string>
+    <string name="scan_qr_code">Scan QR Code</string>
+    <string name="generate_qr_code">Generate QR Code</string>
+    <string name="send_invite_link">Send Invite Link</string>
     <string name="open_in">Open in</string>
     <string name="share">Share</string>
     <string name="create_enchantment">New Enchantment</string>
