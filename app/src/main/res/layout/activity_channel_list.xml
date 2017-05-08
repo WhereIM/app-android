@@ -54,4 +54,44 @@
             app:srcCompat="@android:drawable/ic_input_add" />
     </RelativeLayout>
 
+    <RelativeLayout
+        android:id="@+id/pending"
+        android:background="#aabbff"
+        android:layout_width="match_parent"
+        android:layout_height="64dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_centerInParent="true">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_marker_red"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/title"
+                    android:textColor="#000000"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/desc"
+                    android:textColor="#000000"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
 </LinearLayout>

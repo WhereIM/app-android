@@ -16,6 +16,8 @@ import im.where.whereim.dialogs.DialogShareLocation;
 import im.where.whereim.models.Channel;
 import im.where.whereim.models.Enchantment;
 import im.where.whereim.models.Marker;
+import im.where.whereim.models.Mate;
+import im.where.whereim.models.POI;
 
 /**
  * Created by buganini on 19/01/17.
@@ -284,5 +286,55 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
 
     protected void clearMakerActionsController(){
         mMarkerActionsController.setVisibility(View.GONE);
+    }
+
+
+
+    public void clickMarker(Object obj) {
+        if(obj==null){
+            return;
+        }
+        String title;
+        double latitude;
+        double longitude;
+
+        boolean mCreateMarker;
+        boolean mCreateEnchantment;
+        boolean mShare;
+        boolean mOpenIn;
+        if (obj instanceof Mate) {
+            Mate mate = (Mate) obj;
+            title = mate.getDisplayName();
+            latitude = mate.latitude;
+            longitude = mate.longitude;
+
+            mCreateMarker = true;
+            mCreateEnchantment = true;
+            mShare = true;
+            mOpenIn = true;
+        } else if (obj instanceof im.where.whereim.models.Marker) {
+            im.where.whereim.models.Marker marker = (im.where.whereim.models.Marker) obj;
+            title = marker.name;
+            latitude = marker.latitude;
+            longitude = marker.longitude;
+
+            mCreateMarker = false;
+            mCreateEnchantment = true;
+            mShare = true;
+            mOpenIn = true;
+        } else if (obj instanceof POI) {
+            POI poi = (POI) obj;
+            title = poi.name;
+            latitude = poi.latitude;
+            longitude = poi.longitude;
+
+            mCreateMarker = true;
+            mCreateEnchantment = true;
+            mShare = true;
+            mOpenIn = true;
+        } else {
+            return;
+        }
+        showMarkerActionsPanel(title, latitude, longitude, mCreateMarker, mCreateEnchantment, mShare, mOpenIn);
     }
 }

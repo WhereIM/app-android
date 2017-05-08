@@ -26,6 +26,7 @@
     <string name="quit_channel">Dejar Canal</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancelar</string>
+    <string name="close">Cerrar</string>
     <string name="delete">Eliminar</string>
     <string name="share">Compartir</string>
     <string name="create_enchantment">Nuevo Encantamiento</string>

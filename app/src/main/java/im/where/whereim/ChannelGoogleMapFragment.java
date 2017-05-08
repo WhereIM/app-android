@@ -1,6 +1,8 @@
 package im.where.whereim;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
@@ -34,7 +36,9 @@ import im.where.whereim.geo.QuadTree;
 import im.where.whereim.models.Ad;
 import im.where.whereim.models.Channel;
 import im.where.whereim.models.Enchantment;
+import im.where.whereim.models.GooglePOI;
 import im.where.whereim.models.Mate;
+import im.where.whereim.models.POI;
 
 public class ChannelGoogleMapFragment extends ChannelMapFragment implements GoogleMap.OnMapLongClickListener, GoogleMap.OnMapClickListener, GoogleMap.OnMarkerClickListener {
     public ChannelGoogleMapFragment() {
@@ -83,6 +87,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
 
     private MapView mMapView;
 
+    private Marker mPendingPOIMarker = null;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,19 +96,50 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         Location locationByGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         Location locationByNetwork = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
         long positionTime = 0;
-        if(locationByNetwork != null){
-            positionTime = locationByNetwork.getTime();
-            defaultLat = locationByNetwork.getLatitude();
-            defaultLng = locationByNetwork.getLongitude();
-            defaultZoom = 15;
+
+        Activity activity = getActivity();
+        Intent intent = activity.getIntent();
+        if (intent.getBooleanExtra(Key.PENDING_POI, false)) {
+            final POI poi = new POI();
+            poi.latitude = intent.getDoubleExtra(Key.LATITUDE, 0);
+            poi.longitude = intent.getDoubleExtra(Key.LONGITUDE, 0);
+            poi.name = intent.getStringExtra(Key.NAME);
+
+            getMapAsync(new OnMapReadyCallback() {
+                @Override
+                public void onMapReady(GoogleMap googleMap) {
+                    mPendingPOIMarker = googleMap.addMarker(
+                            new MarkerOptions()
+                                    .title(poi.name)
+                                    .position(new LatLng(poi.latitude, poi.longitude))
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.search_marker))
+                                    .anchor(0.5f, 1f)
+                                    .zIndex(0.5f)
+                    );
+                    mPendingPOIMarker.showInfoWindow();
+                    mMarkerMap.put(mPendingPOIMarker, poi);
+                    clickMarker(poi);
+                }
+            });
+
+            currentLat = defaultLat = poi.latitude;
+            currentLng = defaultLng = poi.longitude;
+            defaultZoom = 13;
+        } else {
+            if(locationByNetwork != null){
+                positionTime = locationByNetwork.getTime();
+                defaultLat = locationByNetwork.getLatitude();
+                defaultLng = locationByNetwork.getLongitude();
+                defaultZoom = 15;
+            }
+            if(locationByGPS != null && locationByGPS.getTime() > positionTime){
+                defaultLat = locationByGPS.getLatitude();
+                defaultLng = locationByGPS.getLongitude();
+                defaultZoom = 15;
+            }
+            currentLat = defaultLat;
+            currentLng = defaultLng;
         }
-        if(locationByGPS != null && locationByGPS.getTime() > positionTime){
-            defaultLat = locationByGPS.getLatitude();
-            defaultLng = locationByGPS.getLongitude();
-            defaultZoom = 15;
-        }
-        currentLat = defaultLat;
-        currentLng = defaultLng;
     }
 
     @Override
@@ -335,7 +371,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                     mMarkerMap.put(marker, mate);
                 }
                 if(focus){
-                    onMarkerClick(marker);
+                    clickMarker(mate);
                 }
 
                 if(mate.id.equals(mChannel.mate_id)){
@@ -487,7 +523,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                     mMarkerMap.put(m, marker);
                 }
                 if(focus){
-                    onMarkerClick(m);
+                    clickMarker(marker);
                 }
             }
         });
@@ -517,10 +553,10 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         return new QuadTree.LatLng(currentLat, currentLng);
     }
 
-    private ArrayList<ChannelSearchFragment.SearchResult> mSearchResults;
+    private ArrayList<POI> mSearchResults;
     private ArrayList<Marker> mSearchResultMarkers = new ArrayList<>();
     @Override
-    public void setSearchResult(final ArrayList<ChannelSearchFragment.SearchResult> results) {
+    public void setSearchResult(final ArrayList<POI> results) {
         synchronized (mSearchResultMarkers) {
             for (Marker marker : mSearchResultMarkers) {
                 marker.remove();
@@ -531,8 +567,8 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 mSearchResults = results;
-                for (ChannelSearchFragment.SearchResult _result : results) {
-                    ChannelGoogleSearchFragment.GoogleSearchResult result = (ChannelGoogleSearchFragment.GoogleSearchResult) _result;
+                for (POI _result : results) {
+                    GooglePOI result = (GooglePOI) _result;
                     Marker m = googleMap.addMarker(
                             new MarkerOptions()
                                     .title(result.name)
@@ -560,14 +596,14 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                 if(mSearchResults==null || position >= mSearchResults.size()){
                     return;
                 }
-                ChannelSearchFragment.SearchResult result = mSearchResults.get(position);
+                POI result = mSearchResults.get(position);
                 googleMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(result.latitude, result.longitude)));
                 Marker m = mSearchResultMarkers.get(position);
                 if(m != null){
                     m.showInfoWindow();
                 }
                 if(focus) {
-                    onMarkerClick(m);
+                    clickMarker(result);
                 }
             }
         });
@@ -615,44 +651,6 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         });
     }
 
-    @Override
-    public boolean onMarkerClick(Marker marker) {
-        if(marker==null){
-            return false;
-        }
-        if(mMarkerMap==null)
-            return false;
-        Object obj = mMarkerMap.get(marker);
-        if(obj==null){
-            return false;
-        }
-        boolean mCreateMarker;
-        boolean mCreateEnchantment;
-        boolean mShare;
-        boolean mOpenIn;
-        if (obj instanceof  Mate) {
-            mCreateMarker = true;
-            mCreateEnchantment = true;
-            mShare = true;
-            mOpenIn = true;
-        } else if (obj instanceof im.where.whereim.models.Marker) {
-            mCreateMarker = false;
-            mCreateEnchantment = true;
-            mShare = true;
-            mOpenIn = true;
-        } else if (obj instanceof ChannelSearchFragment.SearchResult) {
-            mCreateMarker = true;
-            mCreateEnchantment = true;
-            mShare = true;
-            mOpenIn = true;
-        } else {
-            return false;
-        }
-        LatLng ll = marker.getPosition();
-        showMarkerActionsPanel(marker.getTitle(), ll.latitude, ll.longitude, mCreateMarker, mCreateEnchantment, mShare, mOpenIn);
-        return false;
-    }
-
     private Circle mEditingEnchantmentCircle = null;
     private Marker mEditingMarkerMarker = null;
     @Override
@@ -666,6 +664,9 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
 
     @Override
     public void onMapClick(LatLng latLng) {
+        if(mPendingPOIMarker!=null){
+            mPendingPOIMarker.remove();
+        }
         clearAction();
     }
 
@@ -718,5 +719,12 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                 mEditingMarkerMarker.remove();
             }
         }
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        Object obj = mMarkerMap.get(marker);
+        clickMarker(obj);
+        return false;
     }
 }

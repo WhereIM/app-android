@@ -26,6 +26,7 @@
     <string name="quit_channel">チャンネルを出る</string>
     <string name="ok">OK</string>
     <string name="cancel">キャンセル</string>
+    <string name="close">閉じる</string>
     <string name="delete">削除する</string>
     <string name="open_in">開いている</string>
     <string name="share">共有</string>

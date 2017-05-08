@@ -21,12 +21,14 @@
     <string name="user_channel_name">群組別稱</string>
     <string name="display_name">個人暱稱</string>
     <string name="create_channel">建立群組</string>
-    <string name="join_channel">加入全組</string>
-    <string name="edit_channel">編輯全組</string>
+    <string name="join_channel">加入群組</string>
+    <string name="edit_channel">編輯群組</string>
     <string name="quit_channel">離開群組</string>
     <string name="ok">好</string>
     <string name="cancel">取消</string>
+    <string name="close">關閉</string>
     <string name="delete">刪除</string>
+    <string name="open_in_channel">在群組中開啟</string>
     <string name="open_in">在其他應用程式中開啟</string>
     <string name="share">分享</string>
     <string name="create_enchantment">設立結界</string>

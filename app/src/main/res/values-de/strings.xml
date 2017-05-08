@@ -26,6 +26,7 @@
     <string name="quit_channel">Channel verlassen</string>
     <string name="ok">OK</string>
     <string name="cancel">Abbrechen</string>
+    <string name="close">Schließen</string>
     <string name="delete">Löschen</string>
     <string name="open_in">Öffnen in</string>
     <string name="share">Teilen</string>

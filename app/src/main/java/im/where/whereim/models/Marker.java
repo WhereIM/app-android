@@ -117,13 +117,16 @@ public class Marker extends BaseModel {
 
     private final static HashMap<Integer, BitmapDescriptor> mIconBitmapDescriptor = new HashMap<>();
     public BitmapDescriptor getIconBitmapDescriptor(){
-        int rid = getIconResId();
+        return getIconBitmapDescriptor(getIconResId());
+    }
+
+    public static BitmapDescriptor getIconBitmapDescriptor(int resourceId){
         BitmapDescriptor f;
-        if(mIconBitmapDescriptor.containsKey(rid)) {
-            f = mIconBitmapDescriptor.get(rid);
+        if(mIconBitmapDescriptor.containsKey(resourceId)) {
+            f = mIconBitmapDescriptor.get(resourceId);
         }else{
-            f = BitmapDescriptorFactory.fromResource(rid);
-            mIconBitmapDescriptor.put(rid, f);
+            f = BitmapDescriptorFactory.fromResource(resourceId);
+            mIconBitmapDescriptor.put(resourceId, f);
         }
         return f;
     }

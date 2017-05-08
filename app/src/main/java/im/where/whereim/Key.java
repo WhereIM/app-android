@@ -43,6 +43,7 @@ public class Key {
 
     public final static String NAME = "name";
 
+    public final static String PENDING_POI = "pending_poi";
     public final static String PROVIDER = "pvdr";
     public final static String PUBLIC = "public";
 

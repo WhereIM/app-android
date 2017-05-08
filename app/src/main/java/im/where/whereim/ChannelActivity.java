@@ -29,6 +29,7 @@ import im.where.whereim.models.Channel;
 import im.where.whereim.models.Enchantment;
 import im.where.whereim.models.Marker;
 import im.where.whereim.models.Mate;
+import im.where.whereim.models.POI;
 
 public class ChannelActivity extends BaseActivity implements CoreService.ConnectionStatusCallback {
     private final static int TAB_MAP = 0;
@@ -254,7 +255,7 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
         return mChannelMapFragment.getMapCenter();
     }
 
-    public void setSearchResult(ArrayList<ChannelSearchFragment.SearchResult> results){
+    public void setSearchResult(ArrayList<POI> results){
         mChannelMapFragment.setSearchResult(results);
     }
 

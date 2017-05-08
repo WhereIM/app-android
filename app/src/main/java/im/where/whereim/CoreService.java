@@ -63,6 +63,7 @@ import im.where.whereim.models.Enchantment;
 import im.where.whereim.models.Marker;
 import im.where.whereim.models.Mate;
 import im.where.whereim.models.Message;
+import im.where.whereim.models.POI;
 import im.where.whereim.models.WimDBHelper;
 import me.leolin.shortcutbadger.ShortcutBadger;
 
@@ -81,7 +82,7 @@ public class CoreService extends Service {
         void onMarkerData(Marker marker, boolean focus);
         void moveToMarker(Marker marker, boolean focus);
         QuadTree.LatLng getMapCenter();
-        void setSearchResult(ArrayList<ChannelSearchFragment.SearchResult> results);
+        void setSearchResult(ArrayList<POI> results);
         void moveToSearchResult(int position, boolean focus);
         void onMapAd(HashMap<String, Ad> ads);
     };

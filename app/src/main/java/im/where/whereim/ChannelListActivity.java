@@ -30,10 +30,12 @@ import android.widget.Toast;
 import org.json.JSONObject;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import im.where.whereim.models.Channel;
+import im.where.whereim.models.POI;
 import io.branch.referral.Branch;
 import io.branch.referral.BranchError;
 
@@ -181,6 +183,10 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
         });
     }
 
+    private POI pendingPOI;
+    private View mPendingPanel;
+    private TextView mPendingTitle;
+    private TextView mPendingDesc;
     private View mConnectionStatus;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -204,6 +210,10 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
 
         setContentView(R.layout.activity_channel_list);
 
+        mPendingPanel = findViewById(R.id.pending);
+        mPendingTitle = (TextView) findViewById(R.id.title);
+        mPendingDesc = (TextView) findViewById(R.id.desc);
+
         mConnectionStatus = findViewById(R.id.connection_status);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -219,6 +229,13 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                 if(channel.enabled!=null && channel.enabled){
                     Intent intent = new Intent(ChannelListActivity.this, ChannelActivity.class);
                     intent.putExtra("channel", channel.id);
+                    if(pendingPOI != null){
+                        intent.putExtra(Key.LATITUDE, pendingPOI.latitude);
+                        intent.putExtra(Key.LONGITUDE, pendingPOI.longitude);
+                        intent.putExtra(Key.NAME, pendingPOI.name);
+                        intent.putExtra(Key.PENDING_POI, true);
+                        pendingPOI = null;
+                    }
                     startActivity(intent);
                 }
             }
@@ -411,10 +428,20 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                         String uri = Util.JsonOptNullableString(referringParams, "$deeplink_path", null);
                         if(uri!=null){
                             Pattern mPatternChannelJoin = Pattern.compile("^channel/([A-Fa-f0-9]{32})$");
-                            Matcher m = mPatternChannelJoin.matcher(uri);
+                            Matcher m;
+                            m = mPatternChannelJoin.matcher(uri);
                             if(m.matches()){
                                 channelJoin(m.group(1));
                                 return;
+                            }
+                            Pattern mPatternHere = Pattern.compile("^here/([0-9.]+)/([0-9.]+)(?:/(.*))?$");
+                            m = mPatternHere.matcher(uri);
+                            if(m.matches()){
+                                Intent intent = new Intent(ChannelListActivity.this, PoiViewerActivity.class);
+                                intent.putExtra(Key.LATITUDE, Double.valueOf(m.group(1)));
+                                intent.putExtra(Key.LONGITUDE, Double.valueOf(m.group(2)));
+                                intent.putExtra(Key.NAME, m.group(3));
+                                startActivityForResult(intent, 0);
                             }
                         }
                     } else {
@@ -422,6 +449,19 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                     }
                 }
             }, this.getIntent().getData(), this);
+
+            if(pendingPOI==null){
+                mPendingPanel.setVisibility(View.GONE);
+            }else{
+                mPendingPanel.setVisibility(View.VISIBLE);
+                if (pendingPOI.name!=null) {
+                    mPendingTitle.setText(pendingPOI.name);
+                    mPendingTitle.setVisibility(View.VISIBLE);
+                } else {
+                    mPendingTitle.setVisibility(View.GONE);
+                }
+                mPendingDesc.setText(String.format(Locale.ENGLISH, "%f,%f", pendingPOI.latitude, pendingPOI.longitude));
+            }
         }
         mBinder.setActivity(this);
         mBinder.addChannelListChangedListener(mChannelListChangedListener);
@@ -441,5 +481,19 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
     @Override
     public void onConnectionStatusChanged(boolean connected) {
         mConnectionStatus.setVisibility(connected?View.GONE:View.VISIBLE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == 0){
+            if(resultCode == 1){
+                pendingPOI = new POI();
+                pendingPOI.latitude = data.getDoubleExtra(Key.LATITUDE, 0);
+                pendingPOI.longitude = data.getDoubleExtra(Key.LONGITUDE, 0);
+                pendingPOI.name = data.getStringExtra(Key.NAME);
+            }
+        }
     }
 }

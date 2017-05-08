@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import im.where.whereim.geo.QuadTree;
+import im.where.whereim.models.GooglePOI;
+import im.where.whereim.models.POI;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -108,14 +110,14 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
                                 mHandler.post(new Runnable() {
                                     @Override
                                     public void run() {
-                                        setSearchResult(new ArrayList<SearchResult>());
+                                        setSearchResult(new ArrayList<POI>());
                                     }
                                 });
                                 return;
                             }
                             if("OK".equals(status)){
                                 JSONArray results = ret.getJSONArray("results");
-                                final ArrayList<SearchResult> res = new ArrayList<SearchResult>();
+                                final ArrayList<POI> res = new ArrayList<POI>();
                                 for(int i=0;i<results.length();i+=1){
                                     JSONObject result = results.getJSONObject(i);
                                     Double lat = null;
@@ -140,7 +142,7 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
                                         e.printStackTrace();
                                         continue;
                                     }
-                                    GoogleSearchResult r = new GoogleSearchResult();
+                                    GooglePOI r = new GooglePOI();
                                     r.name = name;
                                     r.address = address;
                                     r.attribution = attribution;
@@ -177,7 +179,7 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
                 attribution = (TextView) view.findViewById(R.id.attribution);
             }
 
-            public void setItem(GoogleSearchResult result){
+            public void setItem(GooglePOI result){
                 name.setText(result.name);
                 if(result.address==null){
                     address.setVisibility(View.GONE);
@@ -221,7 +223,7 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
                 vh = (ViewHolder) view.getTag();
             }
 
-            vh.setItem((GoogleSearchResult) getItem(position));
+            vh.setItem((GooglePOI) getItem(position));
 
             return view;
         }
@@ -230,10 +232,5 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
     @Override
     protected BaseAdapter getAdapter() {
         return new SearchResultAdapter();
-    }
-
-    public static class GoogleSearchResult extends ChannelSearchFragment.SearchResult {
-        String address;
-        Spanned attribution;
     }
 }

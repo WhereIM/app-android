@@ -21,18 +21,14 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import im.where.whereim.models.POI;
+
 /**
  * Created by buganini on 19/01/17.
  */
 
 abstract public class ChannelSearchFragment extends BaseFragment {
     protected Handler mHandler = new Handler();
-
-    public static class SearchResult {
-        String name;
-        Double latitude;
-        Double longitude;
-    }
 
     abstract protected void search(String keyword);
     abstract protected BaseAdapter getAdapter();
@@ -49,7 +45,7 @@ abstract public class ChannelSearchFragment extends BaseFragment {
 
         if(keyword.isEmpty()){
             mAdView.setVisibility(View.VISIBLE);
-            setSearchResult(new ArrayList<SearchResult>());
+            setSearchResult(new ArrayList<POI>());
             return;
         }
 
@@ -61,8 +57,8 @@ abstract public class ChannelSearchFragment extends BaseFragment {
         search(keyword);
     }
 
-    protected ArrayList<SearchResult> mSearchResult = new ArrayList<>();
-    protected void setSearchResult(final ArrayList<SearchResult> result){
+    protected ArrayList<POI> mSearchResult = new ArrayList<>();
+    protected void setSearchResult(final ArrayList<POI> result){
         mSearch.setVisibility(View.GONE);
         mClear.setVisibility(View.VISIBLE);
 

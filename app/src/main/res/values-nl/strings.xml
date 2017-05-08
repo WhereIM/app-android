@@ -26,6 +26,7 @@
     <string name="quit_channel">Kanaal verlaten</string>
     <string name="ok">OK</string>
     <string name="cancel">Annuleren</string>
+    <string name="close">Sluiten</string>
     <string name="delete">Wissen</string>
     <string name="share">Delen</string>
     <string name="create_enchantment">Nieuwe Voorkeur</string>

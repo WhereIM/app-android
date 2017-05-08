@@ -27,7 +27,9 @@
     <string name="quit_channel">Leave Channel</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="close">Close</string>
     <string name="delete">Delete</string>
+    <string name="open_in_channel">Open in Channel</string>
     <string name="open_in">Open in</string>
     <string name="share">Share</string>
     <string name="create_enchantment">New Enchantment</string>
