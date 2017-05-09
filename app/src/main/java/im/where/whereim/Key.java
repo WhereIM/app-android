@@ -53,6 +53,7 @@ public class Key {
     public final static String RADIUS = "r";
     public final static String ENABLE_RADIUS = "enable_radius";
 
+    public final static String SEARCH_HISTORY = "search_history";
     public final static String SN = "sn";
     public final static String SPEED = "spd";
     public final static String STALE = "stale";
