@@ -78,6 +78,7 @@ public class ScannerActivity extends AppCompatActivity {
 
         cameraSource = new CameraSource
                 .Builder(this, barcodeDetector)
+                .setAutoFocusEnabled(true)
                 .setRequestedPreviewSize(e, e)
                 .build();
 
