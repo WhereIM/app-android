@@ -167,6 +167,97 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
         });
     }
 
+    @Override
+    protected void autoComplete(final String keyword) {
+        final ChannelActivity activity = (ChannelActivity) getActivity();
+
+        getApiKey(new CoreService.ApiKeyCallback() {
+            @Override
+            public void apiKey(final String api_key) {
+                if(activity==null)
+                    return;
+                new Thread(){
+                    @Override
+                    public void run() {
+                        QuadTree.LatLng latlng = activity.getMapCenter();
+                        HttpUrl url = new HttpUrl.Builder()
+                                .scheme("https")
+                                .host("maps.googleapis.com")
+                                .addPathSegment("maps")
+                                .addPathSegment("api")
+                                .addPathSegment("place")
+                                .addPathSegment("queryautocomplete")
+                                .addPathSegment("json")
+                                .addQueryParameter("key", api_key)
+                                .addQueryParameter("input", keyword)
+                                .addQueryParameter("language", getString(R.string.google_lang))
+                                .addQueryParameter("radius", "50000")
+                                .addQueryParameter("location", String.format(Locale.ENGLISH, "%f,%f", latlng.latitude, latlng.longitude))
+                                .build();
+                        OkHttpClient client = new OkHttpClient();
+                        Request request = new Request.Builder()
+                                .url(url)
+                                .addHeader("Referer", "where.im")
+                                .build();
+                        try {
+                            Response response = client.newCall(request).execute();
+                            JSONObject ret = new JSONObject(response.body().string());
+                            String status = ret.getString("status");
+                            if("REQUEST_DENIED".equals(status)){
+                                postBinderTask(new CoreService.BinderTask() {
+                                    @Override
+                                    public void onBinderReady(CoreService.CoreBinder binder) {
+                                        cachedApiKey = null;
+                                        binder.invalidateApiKey(Key.GOOGLE_SEARCH);
+                                        mHandler.post(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                autoComplete(keyword);
+                                            }
+                                        });
+                                    }
+                                });
+                                return;
+                            }
+                            if("OVER_QUERY_LIMIT".equals(status)){
+                                Toast.makeText(activity, R.string.error, Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            if("ZERO_RESULTS".equals(status)){
+                                mHandler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        setAutoComplete(new ArrayList<String>());
+                                    }
+                                });
+                                return;
+                            }
+                            if("OK".equals(status)){
+                                JSONArray predictions = ret.getJSONArray("predictions");
+                                final ArrayList<String> res = new ArrayList<String>();
+
+                                for(int i=0;i<predictions.length();i+=1){
+                                    JSONObject prediction = predictions.getJSONObject(i);
+                                    String description = prediction.getString("description");
+                                    res.add(description);
+                                }
+                                mHandler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        setAutoComplete(res);
+                                    }
+                                });
+                                return;
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }.start();
+            }
+        });
+    }
+
     class SearchResultAdapter extends BaseAdapter {
         private class ViewHolder {
             TextView name;
@@ -230,7 +321,57 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
     }
 
     @Override
-    protected BaseAdapter getAdapter() {
+    protected BaseAdapter getSearchResultAdapter() {
         return new SearchResultAdapter();
+    }
+
+    class AutoCompleteAdapter extends BaseAdapter {
+        private class ViewHolder {
+            TextView text;
+
+            public ViewHolder(View view){
+                text = (TextView) view.findViewById(R.id.text);
+            }
+
+            public void setItem(String prediction){
+                text.setText(prediction);
+            }
+        }
+        @Override
+        public int getCount() {
+            return mPredictions.size();
+        }
+
+        @Override
+        public Object getItem(int i) {
+            return mPredictions.get(i);
+        }
+
+        @Override
+        public long getItemId(int i) {
+            return i;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View view = convertView;
+            AutoCompleteAdapter.ViewHolder vh;
+            if(view == null){
+                view = LayoutInflater.from(getActivity()).inflate(R.layout.autocomplete_item, parent, false);
+                vh = new AutoCompleteAdapter.ViewHolder(view);
+                view.setTag(vh);
+            }else{
+                vh = (AutoCompleteAdapter.ViewHolder) view.getTag();
+            }
+
+            vh.setItem((String) getItem(position));
+
+            return view;
+        }
+    }
+
+    @Override
+    protected BaseAdapter getAutoCompleteAdapter() {
+        return new AutoCompleteAdapter();
     }
 }

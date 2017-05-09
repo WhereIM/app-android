@@ -31,7 +31,9 @@ abstract public class ChannelSearchFragment extends BaseFragment {
     protected Handler mHandler = new Handler();
 
     abstract protected void search(String keyword);
-    abstract protected BaseAdapter getAdapter();
+    abstract protected void autoComplete(String keyword);
+    abstract protected BaseAdapter getSearchResultAdapter();
+    abstract protected BaseAdapter getAutoCompleteAdapter();
 
     private void do_search(String keyword){
         final ChannelActivity activity = (ChannelActivity) getActivity();
@@ -66,8 +68,17 @@ abstract public class ChannelSearchFragment extends BaseFragment {
         activity.setSearchResult(result);
         mLoading.setVisibility(View.GONE);
         mSearchResult = result;
-        mAdapter.notifyDataSetChanged();
-        mListView.setAdapter(mAdapter);
+        mSearchResultAdapter.notifyDataSetChanged();
+        mListView.setAdapter(mSearchResultAdapter);
+    }
+
+    protected ArrayList<String> mPredictions = new ArrayList<>();
+    protected void setAutoComplete(final ArrayList<String> predictions){
+        mAdView.setVisibility(View.GONE);
+        mLoading.setVisibility(View.GONE);
+        mPredictions = predictions;
+        mAutoCompleteAdapter.notifyDataSetChanged();
+        mListView.setAdapter(mAutoCompleteAdapter);
     }
 
     private EditText mKeyword;
@@ -76,7 +87,8 @@ abstract public class ChannelSearchFragment extends BaseFragment {
     private View mLoading;
     private ListView mListView;
     private View mAdView;
-    private BaseAdapter mAdapter = getAdapter();
+    private BaseAdapter mSearchResultAdapter = getSearchResultAdapter();
+    private BaseAdapter mAutoCompleteAdapter = getAutoCompleteAdapter();
 
     @Nullable
     @Override
@@ -109,13 +121,21 @@ abstract public class ChannelSearchFragment extends BaseFragment {
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                final ChannelActivity activity = (ChannelActivity) getActivity();
-                if(activity!=null){
-                    activity.moveToSearchResult(position);
+                if(mListView.getAdapter()==mSearchResultAdapter){
+                    final ChannelActivity activity = (ChannelActivity) getActivity();
+                    if(activity!=null){
+                        activity.moveToSearchResult(position);
+                    }
+                    return;
+                }
+                if(mListView.getAdapter()==mAutoCompleteAdapter){
+                    String k = (String)mAutoCompleteAdapter.getItem(position);
+                    do_search(k);
+                    mKeyword.setText(k);
                 }
             }
         });
-        mListView.setAdapter(mAdapter);
+        mListView.setAdapter(mSearchResultAdapter);
 
         mLoading = view.findViewById(R.id.loading);
 
@@ -142,6 +162,11 @@ abstract public class ChannelSearchFragment extends BaseFragment {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 mClear.setVisibility(View.GONE);
                 mSearch.setVisibility(View.VISIBLE);
+                if(s.length()==0){
+
+                }else{
+                    autoComplete(s.toString());
+                }
             }
 
             @Override
