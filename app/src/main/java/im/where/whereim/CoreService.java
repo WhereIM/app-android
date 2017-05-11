@@ -1951,6 +1951,7 @@ public class CoreService extends Service {
                         }
                     }
                 }
+                notifyChannelMateListChangedListeners(channel_id);
             }
         });
     }

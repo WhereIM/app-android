@@ -201,7 +201,7 @@ abstract public class ChannelSearchFragment extends BaseFragment {
                 if(mListView.getAdapter()==mSearchResultAdapter){
                     final ChannelActivity activity = (ChannelActivity) getActivity();
                     if(activity!=null){
-                        activity.moveToSearchResult(position);
+                        activity.moveToSearchResult(position, true);
                     }
                     return;
                 }

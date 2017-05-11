@@ -31,9 +31,10 @@ import im.where.whereim.geo.QuadTree;
 import im.where.whereim.models.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-public class ChannelActivity extends BaseActivity implements CoreService.ConnectionStatusCallback {
+public class ChannelActivity extends BaseActivity implements CoreService.ConnectionStatusCallback, CoreService.MapDataDelegate {
     private final static int TAB_MAP = 0;
     private final static int TAB_SEARCH = 1;
     private final static int TAB_MESSAGE = 2;
@@ -247,21 +248,40 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
         });
     }
 
-    public void moveToMate(Mate mate){
-        mChannelMapFragment.moveToMate(mate, true);
+    @Override
+    public void onMateData(Mate mate, boolean focus) {
+        mChannelMapFragment.onMateData(mate, focus);
+    }
+
+    @Override
+    public void moveToMate(Mate mate, boolean focus) {
+        mChannelMapFragment.moveToMate(mate, focus);
         if(mate.latitude!=null){
             mTabLayout.getTabAt(TAB_MAP).select();
         }
     }
 
-    public void moveToEnchantment(Enchantment enchantment){
+    @Override
+    public void onEnchantmentData(Enchantment enchantment) {
+        mChannelMapFragment.onEnchantmentData(enchantment);
+    }
+
+    @Override
+    public void moveToEnchantment(Enchantment enchantment) {
         mChannelMapFragment.moveToEnchantment(enchantment);
         mTabLayout.getTabAt(TAB_MAP).select();
     }
 
-    public void moveToMaker(Marker marker){
-        mChannelMapFragment.moveToMarker(marker, true);
+    @Override
+    public void onMarkerData(Marker marker, boolean focus) {
+        mChannelMapFragment.onMarkerData(marker, focus);
+    }
+
+    @Override
+    public void moveToMarker(Marker marker, boolean focus) {
+        mChannelMapFragment.moveToMarker(marker, focus);
         mTabLayout.getTabAt(TAB_MAP).select();
+
     }
 
     public QuadTree.LatLng getMapCenter() {
@@ -272,9 +292,15 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
         mChannelMapFragment.setSearchResult(results);
     }
 
-    public void moveToSearchResult(int position){
-        mChannelMapFragment.moveToSearchResult(position, true);
+    @Override
+    public void moveToSearchResult(int position, boolean focus) {
+        mChannelMapFragment.moveToSearchResult(position, focus);
         mTabLayout.getTabAt(TAB_MAP).select();
+    }
+
+    @Override
+    public void onMapAd(HashMap<String, Ad> ads) {
+        mChannelMapFragment.onMapAd(ads);
     }
 
     private ChannelMapFragment mChannelMapFragment = new ChannelGoogleMapFragment();
@@ -362,6 +388,7 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
     public void onServiceConnected(ComponentName name, IBinder service) {
         super.onServiceConnected(name, service);
         mBinder.setActivity(this);
+        mBinder.openMap(mChannel, this);
         mBinder.addChannelListChangedListener(mChannelListChangedListener);
         mBinder.addConnectionStatusChangedListener(this);
     }
@@ -370,6 +397,7 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
     protected void onPause() {
         if(mBinder!=null) {
             mBinder.setActivity(null);
+            mBinder.closeMap(mChannel, ChannelActivity.this);
             mBinder.removeChannelListChangedListener(mChannelListChangedListener);
             mBinder.removeConnectionStatusChangedListener(this);
         }

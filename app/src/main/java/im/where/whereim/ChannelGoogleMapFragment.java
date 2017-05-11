@@ -245,7 +245,6 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                     @Override
                     public void onGetChannel(Channel channel) {
                         mChannel = channel;
-                        binder.openMap(channel, ChannelGoogleMapFragment.this);
                         binder.addChannelChangedListener(mChannel.id, channedChangedListener);
                     }
                 });
@@ -259,7 +258,6 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
             @Override
             public void onBinderReady(CoreService.CoreBinder binder) {
                 if(mChannel != null){
-                    binder.closeMap(mChannel, ChannelGoogleMapFragment.this);
                     binder.removeChannelChangedListener(mChannel.id, channedChangedListener);
                 }
             }
@@ -370,7 +368,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                 synchronized (mMarkerMap) {
                     mMarkerMap.put(marker, mate);
                 }
-                if(focus){
+                if(focus && mate.latitude!=null && mate.longitude!=null){
                     clickMarker(mate);
                 }
 

@@ -192,23 +192,32 @@ public class ChannelMarkerFragment extends BaseFragment {
 
         private class MateViewHolder {
             private Mate mate;
+            TextView indicator;
             TextView title;
             TextView subtitle;
 
             public MateViewHolder(View view) {
+                this.indicator = (TextView) view.findViewById(R.id.indicator);
                 this.title = (TextView) view.findViewById(R.id.title);
                 this.subtitle = (TextView) view.findViewById(R.id.subtitle);
             }
 
             public void setItem(Mate m){
                 mate = m;
-                if(mate.user_mate_name !=null && !mate.user_mate_name.isEmpty()){
+                if(mate.user_mate_name !=null && !mate.user_mate_name.isEmpty()) {
                     subtitle.setVisibility(View.VISIBLE);
                     title.setText(mate.user_mate_name);
                     subtitle.setText(mate.mate_name);
-                }else{
+                } else {
                     subtitle.setVisibility(View.GONE);
                     title.setText(mate.mate_name);
+                }
+                if(mate.latitude==null || mate.longitude==null) {
+                    indicator.setTextColor(0xff7f7f7f);
+                } else if (mate.stale) {
+                    indicator.setTextColor(0xffff7f00);
+                } else {
+                    indicator.setTextColor(0xff00ff00);
                 }
             }
         }
@@ -523,12 +532,12 @@ public class ChannelMarkerFragment extends BaseFragment {
                                 if(groupPosition==0 || groupPosition==1){
                                     Mate mate = (Mate) mAdapter.getChild(groupPosition, childPosition);
                                     if(mate!=null) {
-                                        activity.moveToMate(mate);
+                                        activity.moveToMate(mate, true);
                                     }
                                 }else{
                                     Marker marker = (Marker) mAdapter.getChild(groupPosition, childPosition);
                                     if(marker!=null) {
-                                        activity.moveToMaker(marker);
+                                        activity.moveToMarker(marker, true);
                                     }
                                 }
                                 return true;
