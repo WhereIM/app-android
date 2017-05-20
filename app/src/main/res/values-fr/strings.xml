@@ -2,7 +2,7 @@
 <resources>
     <string name="lang">fr</string>
     <string name="google_lang">fr</string>
-    <string name="permission_rationale">Votre position est essentielle pour que cette application fonctionne.</string>
+    <string name="permission_rationale">Votre emplacement sera envoyé continuellement à vos chaînes actives, pour le partage de localisation et d\'autres événements basés sur la localisation à distance.Tant que vous avez des chaînes actives, la mise à jour continue de fonctionner, même si cette application arrive en arrière-plan, afin que vous puissiez utiliser une autre application comme application de navigation ou Facebook ou simplement verrouiller votre téléphone, faire une sieste et garder vos amis ou vos familles au courant où vous vous trouvez pendant ce temps.</string>
     <string name="action_share">Partager</string>
     <string name="action_invite">Inviter</string>
     <string name="action_about">A propos</string>
@@ -19,7 +19,7 @@
     <string name="mock">Moquer</string>
     <string name="channel_name">Nom de la Chaîne</string>
     <string name="user_channel_name">Alias de la Chaîne</string>
-    <string name="display_name">Afficher le Nom</string>
+    <string name="display_name">Nom affiché</string>
     <string name="create_channel">Créer une Chaîne</string>
     <string name="join_channel">Rejoindre la Chaîne</string>
     <string name="edit_channel">Éditer la Chaîne</string>
@@ -28,13 +28,17 @@
     <string name="cancel">Annuler</string>
     <string name="close">Fermer</string>
     <string name="delete">Effacer</string>
+    <string name="open_in_channel">Ouvrir dans la Chaîne</string>
+    <string name="scan_qr_code">Scanner le code QR</string>
+    <string name="generate_qr_code">Générer un code QR</string>
+    <string name="send_invite_link">Envoyer un Lien d\'Invitation</string>
     <string name="open_in">Ouvrir dans</string>
     <string name="share">Partager</string>
     <string name="create_enchantment">Nouvel Enchantement</string>
     <string name="create_marker">Nouveau Marqueur</string>
     <string name="forge_location">Fabriquer une Position</string>
     <string name="radius_m">%1$d m</string>
-    <string name="self">Soi-même</string>
+    <string name="self">Moi-même</string>
     <string name="mate">Ami</string>
     <string name="is_public">Partagé</string>
     <string name="public_enchantment">Enchantement Partagé</string>

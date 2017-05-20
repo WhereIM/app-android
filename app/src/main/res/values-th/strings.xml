@@ -2,7 +2,7 @@
 <resources>
     <string name="lang">th</string>
     <string name="google_lang">th</string>
-    <string name="permission_rationale">ตำแหน่งของคุณเป็นสิ่งสำคัญสำหรับการทำงานของแอปนี้</string>
+    <string name="permission_rationale">ตำแหน่งของคุณจะถูกส่งไปยังแชลแนลที่ใช้งานอยู่อย่างต่อเนื่อง สำหรับการแชร์ตำแหน่งและอีเว้นท์จากตำแหน่งระยะไกลอื่น ๆเมื่อคุณยังคงมีแชลแนลที่ใช้งานอยู่ การอัปเดตตำแหน่งจะยังคงทำงานอยู่แม้ว่าแอปนี้จะเข้าสู่การทำงานเบื้องหลัง ดังนั้นคุณจึงสามารถใช้แอพอื่น ๆ เช่นแอปพลิเคชันการนำทางหรือ facebook หรือเพียงแค่ล็อกโทรศัพท์และนอนพักและทำให้เพื่อนหรือครอบครัวของคุณรู้ว่าตอนนี้คุณอยู่ที่ไหน</string>
     <string name="action_share">แบ่งปัน</string>
     <string name="action_invite">เชิญ</string>
     <string name="action_about">เกี่ยวกับ</string>
@@ -28,6 +28,11 @@
     <string name="cancel">ยกเลิก</string>
     <string name="close">ปิด</string>
     <string name="delete">ลบ</string>
+    <string name="open_in_channel">เปิดในช่องรายการ</string>
+    <string name="scan_qr_code">สแกนQRโค้ด</string>
+    <string name="generate_qr_code">สร้างQRโค้ด</string>
+    <string name="send_invite_link">ส่งลิงก์คำเชิญ</string>
+    <string name="open_in">เปิดใน</string>
     <string name="share">แบ่งปัน</string>
     <string name="create_enchantment">เอนชานต์รูปแบบใหม่</string>
     <string name="create_marker">เครื่องหมายใหม่</string>

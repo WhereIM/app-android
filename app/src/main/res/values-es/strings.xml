@@ -2,7 +2,7 @@
 <resources>
     <string name="lang">es</string>
     <string name="google_lang">es</string>
-    <string name="permission_rationale">Su localización es indispensable para que esta aplicación funcione.</string>
+    <string name="permission_rationale">Su localización será enviada continuamente a sus canales activos, para compartir la localización y otros eventos lejanos basados en la localización.Siempre y cuando tenga cualquier canal activo, la actualización de la localización continua trabajando, incluso cuando esta aplicación esté en segundo plano, así que puede usar otra aplicación como la aplicación de navegación o facebook o simplemente bloquee su teléfono y descanse, y mantenga informados a su familia y amigos de dónde está mientras tanto.</string>
     <string name="action_share">Compartir</string>
     <string name="action_invite">Invitar</string>
     <string name="action_about">Sobre</string>
@@ -28,6 +28,11 @@
     <string name="cancel">Cancelar</string>
     <string name="close">Cerrar</string>
     <string name="delete">Eliminar</string>
+    <string name="open_in_channel">Abrir en Canal</string>
+    <string name="scan_qr_code">Escanear Código QR</string>
+    <string name="generate_qr_code">Generar Código QR</string>
+    <string name="send_invite_link">Enviar vínculo de invitación</string>
+    <string name="open_in">Abrir en</string>
     <string name="share">Compartir</string>
     <string name="create_enchantment">Nuevo Encantamiento</string>
     <string name="create_marker">Nuevo Marcador</string>

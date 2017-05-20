@@ -2,7 +2,7 @@
 <resources>
     <string name="lang">de</string>
     <string name="google_lang">de</string>
-    <string name="permission_rationale">Ihr Standort ist entscheidend, damit die App funktioniert.</string>
+    <string name="permission_rationale">Ihr Standort wird zwecks Standortübermittlung und anderer remote Standort-basierter Veranstaltungen ununterbrochen an Ihre aktiven Kanäle gesandt.So lange irgendwelche Ihrer Kanäle aktiv sind, wird der Standort weiter aktualisiert, auch wenn diese App im Hintergrund arbeitet. So können Sie andere Apps, wie eine Navigations-App oder Facebook, verwenden oder Sie können einfach Ihr Telefon sperren und ein Nickerchen machen und dabei trotzdem Ihre Freunde und Familie wissen lassen, wo Sie sich in der Zwischenzeit aufhalten.</string>
     <string name="action_share">Teilen</string>
     <string name="action_invite">Einladen</string>
     <string name="action_about">Über</string>
@@ -28,6 +28,10 @@
     <string name="cancel">Abbrechen</string>
     <string name="close">Schließen</string>
     <string name="delete">Löschen</string>
+    <string name="open_in_channel">Im Kanal öffnen</string>
+    <string name="scan_qr_code">QR-Code scannen</string>
+    <string name="generate_qr_code">QR-Code generieren</string>
+    <string name="send_invite_link">Einladungs-Link senden</string>
     <string name="open_in">Öffnen in</string>
     <string name="share">Teilen</string>
     <string name="create_enchantment">Neues Enchantment</string>
@@ -56,5 +60,5 @@
     <string name="notification_radius_report">Ein/Aus: %1$s / %2$s (%3$s m)</string>
     <string name="message_limit_active_channel">Die Anzahl aktiver Channels (%1$s) ist erreicht.</string>
     <string name="message_limit_enabled_channel">Die Anzahl verfügbarer Channels (%1$s) ist erreicht., Drücken Sie lange auf die Channelliste und klicken das Schlüsselsymbol, um Channel zu deaktivieren.</string>
-    <string name="google_maps_navigation">Google Maps – Navigation, Bus &amp; Bahn</string>
+    <string name="google_maps_navigation">Google Maps – Navigation, Bus, Bahn &amp; Verkehr</string>
 </resources>

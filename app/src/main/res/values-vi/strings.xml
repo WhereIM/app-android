@@ -2,7 +2,7 @@
 <resources>
     <string name="lang">vi</string>
     <string name="google_lang">vi</string>
-    <string name="permission_rationale">Bắt buộc cần thông tin về địa điểm của bạn để ứng dụng này có thể làm việc.</string>
+    <string name="permission_rationale">Vị trí của bạn sẽ được liên tục gửi đến các kênh đang hoạt động để chia sẻ vị trí cũng như phục vụ cho những sự kiện dựa vào vị trí từ xa khác.Miễn là bạn có một kênh đang bật, tính năng cập nhật vị trí sẽ tiếp tục hoạt động ngay cả khi ứng dụng này chuyển sang chạy ngầm để bạn có thể dùng những ứng dụng khác như ứng dụng định vị hoặc facebook, hoặc đơn giản là khóa điện thoại và làm một giấc mà vẫn bảo đảm cho bạn bè hoặc người thân biết bạn đang ở nơi nào.</string>
     <string name="action_share">Chia sẻ</string>
     <string name="action_invite">Mời</string>
     <string name="action_about">Thông tin</string>
@@ -28,6 +28,11 @@
     <string name="cancel">Hủy</string>
     <string name="close">Đóng</string>
     <string name="delete">Xóa</string>
+    <string name="open_in_channel">Mở trong Kênh</string>
+    <string name="scan_qr_code">Quét mã QR</string>
+    <string name="generate_qr_code">Tạo mã QR</string>
+    <string name="send_invite_link">Gửi Liên kết Mời</string>
+    <string name="open_in">Mở trong</string>
     <string name="share">Chia sẻ</string>
     <string name="create_enchantment">Theo dõi Mới</string>
     <string name="create_marker">Đánh dấu Mới</string>

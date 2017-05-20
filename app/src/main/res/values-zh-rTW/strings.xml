@@ -2,7 +2,7 @@
 <resources>
     <string name="lang">zh-TW</string>
     <string name="google_lang">zh-TW</string>
-    <string name="permission_rationale">本程式需要定位功能才能運作喔</string>
+    <string name="permission_rationale">你的位置會持續傳送到啟用位置傳送的群組，以供位置分享及遠端地利位置事件使用。只要有群組啟用位置傳送，定位功能會持續運作，包含在背景執行時。你可以使用其他導航軟體或社交軟體，或是關上手機休息一下，同時讓你的朋友家人能持續掌握你的位置。</string>
     <string name="action_share">分享</string>
     <string name="action_invite">邀請</string>
     <string name="action_about">關於</string>

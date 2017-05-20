@@ -2,7 +2,7 @@
 <resources>
     <string name="lang">ja</string>
     <string name="google_lang">ja</string>
-    <string name="permission_rationale">あなたの位置情報は、このアプリが動作するために不可欠です。</string>
+    <string name="permission_rationale">位置情報の共有と位置情報に基づく他のリモートイベントのために、あなたの位置情報はアクティブチャンネルに送り続けられます。何らかのチャンネルをアクティブにしている限り、このアプリがバックグランドに隠れても、ナビゲーションアプリや Facebook など他のアプリを利用したり、スマホをロックしてお昼寝したり、そしてその間にあなたの居場所を友人や家族に知らせておくことができるように、位置情報の更新は作動し続けます。</string>
     <string name="action_share">共有</string>
     <string name="action_invite">招待</string>
     <string name="action_about">紹介</string>
@@ -28,7 +28,11 @@
     <string name="cancel">キャンセル</string>
     <string name="close">閉じる</string>
     <string name="delete">削除する</string>
-    <string name="open_in">開いている</string>
+    <string name="open_in_channel">チャンネルで開く</string>
+    <string name="scan_qr_code">QRコードをスキャンする</string>
+    <string name="generate_qr_code">QRコードを生成する</string>
+    <string name="send_invite_link">招待リンクを送信する</string>
+    <string name="open_in">開く</string>
     <string name="share">共有</string>
     <string name="create_enchantment">新しいエンチャントメント</string>
     <string name="create_marker">新しいマーカー</string>

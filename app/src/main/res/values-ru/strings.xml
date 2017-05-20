@@ -2,7 +2,7 @@
 <resources>
     <string name="lang">ru</string>
     <string name="google_lang">ru</string>
-    <string name="permission_rationale">Ваше расположение важно для корректной работы приложения.</string>
+    <string name="permission_rationale">Ваше местоположение будет постоянно передаваться на ваши активные каналы, для совместного использования данных о местоположении и других событий на их основе.До тех пор пока у вас есть активные каналы, будет работать обновление местоположения, даже если приложение находится в фоновом режиме, поэтому вы можете использовать другое приложение, например навигационное или фейсбук, или просто заблокировать телефон и вздремнуть, а ваши друзья или родственники всё равно будут знать, где вы находитесь в это время.</string>
     <string name="action_share">Поделиться</string>
     <string name="action_invite">Пригласить</string>
     <string name="action_about">Информация</string>
@@ -28,6 +28,10 @@
     <string name="cancel">Отменить</string>
     <string name="close">Закрыть</string>
     <string name="delete">Удалить</string>
+    <string name="open_in_channel">Открыть в Канале</string>
+    <string name="scan_qr_code">Сканировать QR-код</string>
+    <string name="generate_qr_code">Сгенерировать QR-код</string>
+    <string name="send_invite_link">Отправить пригласительную ссылку</string>
     <string name="open_in">Открыть в</string>
     <string name="share">Поделиться</string>
     <string name="create_enchantment">Новое волшебство</string>

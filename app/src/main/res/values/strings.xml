@@ -3,7 +3,7 @@
     <string name="app_name">Where.IM</string>
     <string name="lang">en</string>
     <string name="google_lang">en</string>
-    <string name="permission_rationale">Your location is essential for this app to work.</string>
+    <string name="permission_rationale">Your location will be continually sent to your active channels, for location sharing and other remote location-based events. As long as you have any channels active, location update continues to work, even when this app enters background, so you can use other app like navigation app or facebook or just lock your phone and take a nap, and keep your friends or families knowing where you are in the meantime.</string>
     <string name="action_share">Share</string>
     <string name="action_invite">Invite</string>
     <string name="action_about">About</string>
