@@ -153,10 +153,6 @@ public class CoreService extends Service {
         }
 
         public void register_client(final String provider, final String auth_token, final String auth_id, final String name, final RegisterClientCallback callback){
-            if(mOTP==null || mOTP.isEmpty()){
-                callback.onCaptchaRequired();
-                return;
-            }
             new Thread(){
                 @Override
                 public void run() {
@@ -167,7 +163,9 @@ public class CoreService extends Service {
                         payload.put("auth_provider", provider);
                         payload.put("auth_token", auth_token);
                         payload.put("auth_id", auth_id);
-                        payload.put("otp", mOTP);
+                        if(mOTP!=null) {
+                            payload.put("otp", mOTP);
+                        }
 
                         HttpsURLConnection conn;
                         InputStream is;
