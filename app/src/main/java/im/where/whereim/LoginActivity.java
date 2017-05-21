@@ -79,7 +79,6 @@ public class LoginActivity extends BaseActivity {
             }
         });
 
-        FacebookSdk.sdkInitialize(getApplicationContext());
         mCallbackManager = CallbackManager.Factory.create();
 
         LoginButton fbLoginButton = (LoginButton) findViewById(R.id.fb_login_button);
