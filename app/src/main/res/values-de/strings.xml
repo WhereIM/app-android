@@ -14,6 +14,7 @@
     <string name="invitation">Einladung: %1$s</string>
     <string name="object_create_hint">Lange gedrückt halten, um eine Karte zu erstellen</string>
     <string name="mate_invite_hint">Niemand hier, laden Sie jemanden ein um diesen Channel zu nutzen</string>
+    <string name="no_match">Keine Übereinstimmung</string>
     <string name="name">Name</string>
     <string name="icon">Symbol</string>
     <string name="mock">Fälschung</string>

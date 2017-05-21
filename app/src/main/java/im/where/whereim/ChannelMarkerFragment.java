@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import im.where.whereim.models.Channel;
 import im.where.whereim.models.Marker;
 import im.where.whereim.models.Mate;
+import im.where.whereim.views.FilterBar;
 
 public class ChannelMarkerFragment extends BaseFragment {
     public ChannelMarkerFragment() {
@@ -76,7 +77,7 @@ public class ChannelMarkerFragment extends BaseFragment {
             return 0;
         }
 
-        private int viewType[] = {R.layout.mate_item, R.layout.marker_item, R.layout.placeholder_item, R.layout.mate_placeholder_item};
+        private int viewType[] = {R.layout.mate_item, R.layout.marker_item, R.layout.placeholder_item, R.layout.mate_placeholder_item, R.layout.no_match_placeholder_item};
 
         @Override
         public int getChildType(int groupPosition, int childPosition) {
@@ -84,20 +85,28 @@ public class ChannelMarkerFragment extends BaseFragment {
                 if(getChild(groupPosition, childPosition)!=null) {
                     return 0;
                 } else {
-                    return 3;
+                    if(mFilterKeyword ==null){
+                        return 3;
+                    }else {
+                        return 4;
+                    }
                 }
             }else{
                 if(getChild(groupPosition, childPosition)!=null) {
                     return 1;
                 } else {
-                    return 2;
+                    if(mFilterKeyword ==null) {
+                        return 2;
+                    } else {
+                        return 4;
+                    }
                 }
             }
         }
 
         @Override
         public int getChildTypeCount() {
-            return 4;
+            return viewType.length;
         }
 
         @Override
@@ -285,11 +294,11 @@ public class ChannelMarkerFragment extends BaseFragment {
                 Marker m = (Marker) getChild(groupPosition, childPosition);
                 if(m!=null){
                     MarkerViewHolder vh;
-                    if(view==null){
+                    if(view==null) {
                         view = LayoutInflater.from(getActivity()).inflate(viewType[getChildType(groupPosition, childPosition)], parent, false);
                         vh = new MarkerViewHolder(view);
                         view.setTag(vh);
-                    }else{
+                    } else {
                         vh = (MarkerViewHolder) view.getTag();
                     }
                     vh.setItem(m);
@@ -508,11 +517,14 @@ public class ChannelMarkerFragment extends BaseFragment {
         }
     };
 
+    private String mFilterKeyword = null;
+    private FilterBar mFilter;
     private ExpandableListView mListView;
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_channel_marker, container, false);
 
+        mFilter = (FilterBar) view.findViewById(R.id.filter);
         mListView = (ExpandableListView) view.findViewById(R.id.marker);
 
         getChannel(new ChannelActivity.GetChannelCallback() {
@@ -523,6 +535,15 @@ public class ChannelMarkerFragment extends BaseFragment {
                 postBinderTask(new CoreService.BinderTask() {
                     @Override
                     public void onBinderReady(CoreService.CoreBinder binder) {
+                        mFilter.setCallback(new FilterBar.Callback() {
+                            @Override
+                            public void onFilter(String keyword) {
+                                mFilterKeyword = keyword;
+                                mHandler.post(mMateListener);
+                                mHandler.post(mMarkerListener);
+                            }
+                        });
+
                         mAdapter = new MarkerAdapter();
                         mListView.setAdapter(mAdapter);
                         mListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
@@ -606,7 +627,7 @@ public class ChannelMarkerFragment extends BaseFragment {
                         @Override
                         public void run() {
                             ArrayList<Mate> list = new ArrayList<Mate>();
-                            for (Mate mate : binder.getChannelMate(mChannel.id)) {
+                            for (Mate mate : binder.getChannelMates(mChannel.id, mFilterKeyword)) {
                                 if (mate.id.equals(mChannel.mate_id)) {
                                     mSelfMate = mate;
                                 } else {
@@ -631,7 +652,7 @@ public class ChannelMarkerFragment extends BaseFragment {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            mMarkerList = binder.getChannelMarker(mChannel.id);
+                            mMarkerList = binder.getChannelMarkers(mChannel.id, mFilterKeyword);
                             mAdapter.notifyDataSetChanged();
                         }
                     });

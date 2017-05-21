@@ -14,6 +14,7 @@
     <string name="invitation">Uitnodiging: %1$s</string>
     <string name="object_create_hint">Druk wat langer op de kaart voor het aanmaken</string>
     <string name="mate_invite_hint">Niemand aanwezig, nodig anderen voor dit kanaal uit</string>
+    <string name="no_match">Geen overeenkomst</string>
     <string name="name">Naam</string>
     <string name="icon">Icoon</string>
     <string name="mock">Simuleren</string>

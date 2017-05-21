@@ -14,6 +14,7 @@
     <string name="invitation">Invitation : %1$s</string>
     <string name="object_create_hint">Appuyez longuement sur la carte pour créer</string>
     <string name="mate_invite_hint">Il n\'y a personne ici, invitez d\'autres à se joindre à cette chaîne</string>
+    <string name="no_match">Aucune concordance</string>
     <string name="name">Nom</string>
     <string name="icon">Icône</string>
     <string name="mock">Moquer</string>

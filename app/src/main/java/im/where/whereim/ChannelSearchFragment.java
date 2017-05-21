@@ -179,6 +179,7 @@ abstract public class ChannelSearchFragment extends BaseFragment {
             @Override
             public void onClick(View v) {
                 mKeyword.setText("");
+                mKeyword.clearFocus();
                 do_search("");
                 mSearch.setVisibility(View.VISIBLE);
                 mClear.setVisibility(View.GONE);

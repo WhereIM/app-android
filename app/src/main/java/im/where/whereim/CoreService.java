@@ -553,8 +553,8 @@ public class CoreService extends Service {
             }
         }
 
-        public ArrayList<Mate> getChannelMate(String channel_id){
-            return CoreService.this.getChannelMate(channel_id);
+        public ArrayList<Mate> getChannelMates(String channel_id, String filterKeyword){
+            return CoreService.this.getChannelMates(channel_id, filterKeyword);
         }
 
         public Mate getChannelMate(String channel_id, String mate_id){
@@ -754,7 +754,7 @@ public class CoreService extends Service {
             }
         }
 
-        public Enchantment.List getChannelEnchantment(String channel_id){
+        public Enchantment.List getChannelEnchantments(String channel_id, String filterKeyword){
             Enchantment.List ret = new Enchantment.List();
             synchronized (mChannelEnchantment) {
                 HashMap<String, Enchantment> list;
@@ -763,6 +763,17 @@ public class CoreService extends Service {
                     return ret;
                 }
                 for (Enchantment enchantment : list.values()) {
+                    boolean matched = true;
+                    if(filterKeyword!=null){
+                        filterKeyword = filterKeyword.toLowerCase();
+                        matched = false;
+                        if(enchantment.name!=null && enchantment.name.toLowerCase().contains(filterKeyword)){
+                            matched = true;
+                        }
+                    }
+                    if(!matched){
+                        continue;
+                    }
                     if(enchantment.isPublic){
                         ret.public_list.add(enchantment);
                     }else{
@@ -819,7 +830,7 @@ public class CoreService extends Service {
             }
         }
 
-        public Marker.List getChannelMarker(String channel_id){
+        public Marker.List getChannelMarkers(String channel_id, String filterKeyword){
             Marker.List ret = new Marker.List();
             synchronized (mChannelMarker) {
                 HashMap<String, Marker> list;
@@ -828,6 +839,17 @@ public class CoreService extends Service {
                     return ret;
                 }
                 for (Marker marker : list.values()) {
+                    boolean matched = true;
+                    if(filterKeyword!=null){
+                        filterKeyword = filterKeyword.toLowerCase();
+                        matched = false;
+                        if(marker.name!=null && marker.name.toLowerCase().contains(filterKeyword)){
+                            matched = true;
+                        }
+                    }
+                    if(!matched){
+                        continue;
+                    }
                     if(marker.isPublic){
                         ret.public_list.add(marker);
                     }else{
@@ -1800,13 +1822,27 @@ public class CoreService extends Service {
     }
 
     private HashMap<String, HashMap<String, Mate>> mChannelMate = new HashMap<>();
-    private ArrayList<Mate> getChannelMate(String channel_id){
+    private ArrayList<Mate> getChannelMates(String channel_id, String filterKeyword){
         ArrayList<Mate> list = new ArrayList<>();
 
         synchronized (mChannelMate) {
             HashMap<String, Mate> mateMap = mChannelMate.get(channel_id);
             if(mateMap!=null){
                 for (Mate mate : mateMap.values()) {
+                    boolean matched = true;
+                    if(filterKeyword!=null){
+                        filterKeyword = filterKeyword.toLowerCase();
+                        matched = false;
+                        if(mate.mate_name!=null && mate.mate_name.toLowerCase().contains(filterKeyword)){
+                            matched = true;
+                        }
+                        if(mate.user_mate_name!=null && mate.user_mate_name.toLowerCase().contains(filterKeyword)){
+                            matched = true;
+                        }
+                    }
+                    if(!matched){
+                        continue;
+                    }
                     if(!mate.deleted){
                         list.add(mate);
                     }

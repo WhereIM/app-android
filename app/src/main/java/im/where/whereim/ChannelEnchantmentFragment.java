@@ -29,6 +29,7 @@ import java.util.Collections;
 
 import im.where.whereim.models.Channel;
 import im.where.whereim.models.Enchantment;
+import im.where.whereim.views.FilterBar;
 
 public class ChannelEnchantmentFragment extends BaseFragment {
     public ChannelEnchantmentFragment() {
@@ -77,14 +78,18 @@ public class ChannelEnchantmentFragment extends BaseFragment {
                 if(getChild(groupPosition, childPosition)!=null) {
                     return 0;
                 } else {
-                    return 1;
+                    if(mFilterKeyword==null) {
+                        return 1;
+                    } else {
+                        return 2;
+                    }
                 }
             }
         }
 
         @Override
         public int getChildTypeCount() {
-            return 2;
+            return 3;
         }
 
         @Override
@@ -249,8 +254,14 @@ public class ChannelEnchantmentFragment extends BaseFragment {
                     }
                     vh.setItem(e);
                 }else{
-                    if (view == null) {
-                        view = LayoutInflater.from(getActivity()).inflate(R.layout.placeholder_item, parent, false);
+                    if (mFilterKeyword==null) {
+                        if (view == null) {
+                            view = LayoutInflater.from(getActivity()).inflate(R.layout.placeholder_item, parent, false);
+                        }
+                    } else {
+                        if (view == null) {
+                            view = LayoutInflater.from(getActivity()).inflate(R.layout.no_match_placeholder_item, parent, false);
+                        }
                     }
                 }
             }
@@ -457,11 +468,14 @@ public class ChannelEnchantmentFragment extends BaseFragment {
     };
 
     private Enchantment mEditingEnchantment;
+    private String mFilterKeyword = null;
+    private FilterBar mFilter;
     private ExpandableListView mListView;
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_channel_enchantment, container, false);
 
+        mFilter = (FilterBar) view.findViewById(R.id.filter);
         mListView = (ExpandableListView) view.findViewById(R.id.enchantment);
 
         getChannel(new ChannelActivity.GetChannelCallback() {
@@ -472,6 +486,14 @@ public class ChannelEnchantmentFragment extends BaseFragment {
                 postBinderTask(new CoreService.BinderTask() {
                     @Override
                     public void onBinderReady(CoreService.CoreBinder binder) {
+                        mFilter.setCallback(new FilterBar.Callback() {
+                            @Override
+                            public void onFilter(String keyword) {
+                                mFilterKeyword = keyword;
+                                mHandler.post(mEnchantmentListener);
+                            }
+                        });
+
                         mAdapter = new EnchantmentAdapter();
                         mListView.setAdapter(mAdapter);
                         for(int i=0;i<mAdapter.getGroupCount();i+=1){
@@ -552,7 +574,7 @@ public class ChannelEnchantmentFragment extends BaseFragment {
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            mEnchantmentList = binder.getChannelEnchantment(mChannel.id);
+                            mEnchantmentList = binder.getChannelEnchantments(mChannel.id, mFilterKeyword);
                             mAdapter.notifyDataSetChanged();
                         }
                     });

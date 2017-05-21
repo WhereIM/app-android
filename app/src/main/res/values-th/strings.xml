@@ -14,6 +14,7 @@
     <string name="invitation">คำเชิญ: %1$s</string>
     <string name="object_create_hint">กดแผนที่ค้างไว้เพือสร้าง</string>
     <string name="mate_invite_hint">ไม่มีคนอยู่ เชิญคนอื่นมาที่ช่องนี้</string>
+    <string name="no_match">ไม่มีการจับคู่</string>
     <string name="name">ชื่อ</string>
     <string name="icon">ไอคอน</string>
     <string name="mock">จำลอง</string>

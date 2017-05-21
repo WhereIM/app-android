@@ -14,6 +14,7 @@
     <string name="invitation">招待状：%1$s</string>
     <string name="object_create_hint">地図を長押しして作成する</string>
     <string name="mate_invite_hint">誰もこここにいません。このチャンネルに他の人を招待してください。</string>
+    <string name="no_match">一致するものがありません</string>
     <string name="name">名前</string>
     <string name="icon">アイコン</string>
     <string name="mock">モック</string>

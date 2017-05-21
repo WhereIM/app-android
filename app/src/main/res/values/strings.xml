@@ -15,6 +15,7 @@
     <string name="invitation">Invitation: %1$s</string>
     <string name="object_create_hint">Long press on map to create</string>
     <string name="mate_invite_hint">No one here, invite others to this channel</string>
+    <string name="no_match">No match</string>
     <string name="name">Name</string>
     <string name="icon">Icon</string>
     <string name="mock">Mock</string>

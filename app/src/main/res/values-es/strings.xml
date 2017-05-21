@@ -14,6 +14,7 @@
     <string name="invitation">Invitación: %1$s</string>
     <string name="object_create_hint">Pulsación larga en el mapa para crear</string>
     <string name="mate_invite_hint">Nadie por aquí, invite a otros a este canal</string>
+    <string name="no_match">Sin coincidencias</string>
     <string name="name">Nombre</string>
     <string name="icon">Icono</string>
     <string name="mock">Imitación</string>

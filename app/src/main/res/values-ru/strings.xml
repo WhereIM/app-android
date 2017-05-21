@@ -14,6 +14,7 @@
     <string name="invitation">Приглашение: %1$s</string>
     <string name="object_create_hint">Для создания выполните длительное нажатие</string>
     <string name="mate_invite_hint">Здесь никого нет, пригласите других в этот канал</string>
+    <string name="no_match">Нет соответствия</string>
     <string name="name">Имя</string>
     <string name="icon">Иконка</string>
     <string name="mock">Мок объект</string>

@@ -14,6 +14,7 @@
     <string name="invitation">Mời: %1$s</string>
     <string name="object_create_hint">Ấn lâu trên bản đồ để tạo</string>
     <string name="mate_invite_hint">Không có ai ở đây, mời những người khác vào kênh này</string>
+    <string name="no_match">Không tìm thấy phù hợp</string>
     <string name="name">Tên</string>
     <string name="icon">Biểu tượng</string>
     <string name="mock">Thử</string>
