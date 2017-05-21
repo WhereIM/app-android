@@ -17,6 +17,7 @@ import com.facebook.Profile;
 import com.facebook.ProfileTracker;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.google.common.base.Optional;
 
 public class LoginActivity extends BaseActivity {
     private CallbackManager mCallbackManager;
@@ -154,10 +155,10 @@ public class LoginActivity extends BaseActivity {
         if(getBinder().getClientId()==null){
             stopLoading();
             SharedPreferences sp = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
-            mAuthId = sp.getString(Key.ID, null);
-            mToken = sp.getString(Key.TOKEN, null);
-            mName = sp.getString(Key.NAME, null);
-            mProvider = sp.getString(Key.PROVIDER, null);
+            mAuthId = Optional.fromNullable(sp.getString(Key.ID, null)).or(Optional.fromNullable(mAuthId)).orNull();
+            mToken = Optional.fromNullable(sp.getString(Key.TOKEN, null)).or(Optional.fromNullable(mToken)).orNull();
+            mName = Optional.fromNullable(sp.getString(Key.NAME, null)).or(Optional.fromNullable(mName)).orNull();
+            mProvider = Optional.fromNullable(sp.getString(Key.PROVIDER, null)).or(Optional.fromNullable(mProvider)).orNull();
 
             SharedPreferences.Editor e = sp.edit();
             e.remove(Key.ID);
