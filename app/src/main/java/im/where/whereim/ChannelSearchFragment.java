@@ -111,6 +111,7 @@ abstract public class ChannelSearchFragment extends BaseFragment {
                         mSearchHistory.remove(mSearchHistory.size()-1);
                     }
                     mSearchHistoryAdapter.notifyDataSetChanged();
+                    commit();
                 }
             }
         });
@@ -288,13 +289,6 @@ abstract public class ChannelSearchFragment extends BaseFragment {
         super.onResume();
 
         checkout();
-    }
-
-    @Override
-    public void onPause() {
-        commit();
-
-        super.onPause();
     }
 
     private ArrayList<String> mSearchHistory = new ArrayList<>();
