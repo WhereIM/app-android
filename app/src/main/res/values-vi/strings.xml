@@ -5,6 +5,7 @@
     <string name="permission_rationale">Vị trí của bạn sẽ được liên tục gửi đến các kênh đang hoạt động để chia sẻ vị trí cũng như phục vụ cho những sự kiện dựa vào vị trí từ xa khác.Miễn là bạn có một kênh đang bật, tính năng cập nhật vị trí sẽ tiếp tục hoạt động ngay cả khi ứng dụng này chuyển sang chạy ngầm để bạn có thể dùng những ứng dụng khác như ứng dụng định vị hoặc facebook, hoặc đơn giản là khóa điện thoại và làm một giấc mà vẫn bảo đảm cho bạn bè hoặc người thân biết bạn đang ở nơi nào.</string>
     <string name="action_share">Chia sẻ</string>
     <string name="action_invite">Mời</string>
+    <string name="action_settings">Cài đặt</string>
     <string name="action_about">Thông tin</string>
     <string name="action_quit">Thoát</string>
     <string name="active_client">Thiết bị không kích hoạt</string>

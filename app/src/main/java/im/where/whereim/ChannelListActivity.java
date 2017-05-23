@@ -361,14 +361,19 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_quit) {
-            stopService(new Intent(this, CoreService.class));
-            finish();
-            return true;
-        }
         if (id == R.id.action_about) {
             Intent intent = new Intent(this, AboutActivity.class);
             startActivity(intent);
+            return true;
+        }
+        if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
+            return true;
+        }
+        if (id == R.id.action_quit) {
+            stopService(new Intent(this, CoreService.class));
+            finish();
             return true;
         }
 

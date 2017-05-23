@@ -1,5 +1,8 @@
 package im.where.whereim;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
 import com.amazonaws.regions.Regions;
 
 /**
@@ -29,4 +32,19 @@ public class Config {
     public final static int DEFAULT_ENCHANTMENT_RADIUS_INDEX = 2;
 
     public final static int MAP_AD_TTL = 5 * 60 * 1000; //ms
+
+    public enum MapProvider {
+        GOOGLE,
+        MAPBOX
+    }
+    public static MapProvider getMapProvider(Context context){
+        SharedPreferences sp = context.getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+        return MapProvider.valueOf(sp.getString(Key.PROVIDER, MapProvider.GOOGLE.toString()));
+    }
+
+    public static void setMapProvider(Context context, MapProvider provider){
+        SharedPreferences.Editor editor = context.getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
+        editor.putString(Key.PROVIDER, provider.toString());
+        editor.apply();
+    }
 }

@@ -99,6 +99,15 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        switch(Config.getMapProvider(this)){
+            case GOOGLE:
+                mChannelMapFragment = new ChannelGoogleMapFragment();
+                break;
+            case MAPBOX:
+                mChannelMapFragment = new ChannelMapboxFragment();
+                break;
+        }
+
         setContentView(R.layout.activity_channel);
 
         mConnectionStatus = findViewById(R.id.connection_status);
@@ -303,7 +312,7 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
         mChannelMapFragment.onMapAd(ads);
     }
 
-    private ChannelMapFragment mChannelMapFragment = new ChannelGoogleMapFragment();
+    private ChannelMapFragment mChannelMapFragment;
     private ChannelSearchFragment mChannelSearchFragment = new ChannelGoogleSearchFragment();
     private ChannelMessengerFragment mChannelMessengerFragment = new ChannelMessengerFragment();
     private ChannelMarkerFragment mChannelMarkerFragment = new ChannelMarkerFragment();

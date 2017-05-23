@@ -5,6 +5,7 @@
     <string name="permission_rationale">위치 공유 및 기타 원격 위치 기반 작업의 경우, 사용자 위치 정보가 지속적으로 활성 채널에 전송됩니다. 채널이 활성화되어 있는 한, 이 앱이 배경 화면으로 전환될지라도 위치 업데이트는 계속해서 작동합니다. 그러므로, 탐색 앱이나 Facebook과 같은 다른 앱을 사용하거나 휴대폰을 잠그고 휴식을 취할 수 있으며, 그 시간 동안의 사용자 위치를 친구들이나 가족들에게 계속해서 알려줄 수 있습니다.</string>
     <string name="action_share">공유</string>
     <string name="action_invite">초대</string>
+    <string name="action_settings">설정</string>
     <string name="action_about">소개</string>
     <string name="action_quit">끝내기</string>
     <string name="active_client">클라이언트가 활성화되지 않았습니다</string>

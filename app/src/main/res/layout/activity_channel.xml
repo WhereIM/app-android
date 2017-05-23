@@ -74,7 +74,7 @@
         style="@style/CustomTabLayout"
         android:background="@color/colorPrimary" />
 
-    <android.support.v4.view.ViewPager
+    <im.where.whereim.views.ChannelViewPager
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="0dp"

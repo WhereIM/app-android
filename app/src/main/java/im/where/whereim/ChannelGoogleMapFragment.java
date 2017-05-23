@@ -327,6 +327,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                     }
                 }
 
+                marker = null;
                 if(mate.deleted){
                     mMateCircle.remove(mate.id);
                     mMateMarker.remove(mate.id);
@@ -366,7 +367,9 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                 }
 
                 synchronized (mMarkerMap) {
-                    mMarkerMap.put(marker, mate);
+                    if(marker!=null){
+                        mMarkerMap.put(marker, mate);
+                    }
                 }
                 if(focus && mate.latitude!=null && mate.longitude!=null){
                     clickMarker(mate);
@@ -494,6 +497,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                         m.remove();
                     }
                 }
+                m = null;
                 if(marker.deleted){
                     mMarkerMarker.remove(marker.id);
                 }else {
@@ -518,7 +522,9 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                     }
                 }
                 synchronized (mMarkerMap) {
-                    mMarkerMap.put(m, marker);
+                    if(m!=null){
+                        mMarkerMap.put(m, marker);
+                    }
                 }
                 if(focus){
                     clickMarker(marker);
