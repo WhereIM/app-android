@@ -231,10 +231,16 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
 
     final ArrayList<Polyline> lines = new ArrayList<>();
 
+    private CameraPosition mLastCameraPosition = null;
     private void cameraMoved(MapboxMap mapboxMap) {
-        double zoom = mapboxMap.getCameraPosition().zoom - 1;
-        currentLat = mapboxMap.getCameraPosition().target.getLatitude();
-        currentLng = mapboxMap.getCameraPosition().target.getLongitude();
+        CameraPosition cp = mapboxMap.getCameraPosition();
+        if(mLastCameraPosition!=null && mLastCameraPosition.equals(cp)){
+            return;
+        }
+        mLastCameraPosition = cp;
+        double zoom = cp.zoom - 1;
+        currentLat = cp.target.getLatitude();
+        currentLng = cp.target.getLongitude();
         LatLngBounds bounds = mapboxMap.getProjection().getVisibleRegion().latLngBounds;
         String nw = QuadTree.fromLatLng(bounds.getLatNorth(), bounds.getLonWest(), zoom);
         String se = QuadTree.fromLatLng(bounds.getLatSouth(), bounds.getLonEast(), zoom);
