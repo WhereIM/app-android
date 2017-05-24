@@ -123,6 +123,7 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Mapbox.getInstance(getActivity(), "pk.eyJ1Ijoid2hlcmVpbSIsImEiOiJjaXltbmtvbHUwMDM4MzNwZnNsZHVtbHE4In0.n36bMG_LdA9yOu8-fQS2vw");
 
         iconFactory = IconFactory.getInstance(getActivity());
 
@@ -145,8 +146,9 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
                     MarkerViewOptions markerViewOptions = new MarkerViewOptions()
                             .title(poi.name)
                             .position(new LatLng(poi.latitude, poi.longitude))
-                            .icon(iconFactory.fromResource(R.drawable.search_marker));
+                            .icon(iconFactory.fromResource(R.drawable.search_marker)
 //                          .zIndex(0.5f)
+                    );
                     mPendingPOIMarker = mapboxMap.addMarker(markerViewOptions);
                     mPendingPOIMarker.showInfoWindow(mapboxMap, mMapView);
                     mMarkerMap.put(mPendingPOIMarker, poi);
@@ -176,8 +178,6 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Mapbox.getInstance(getActivity(), "pk.eyJ1Ijoid2hlcmVpbSIsImEiOiJjaXltbmtvbHUwMDM4MzNwZnNsZHVtbHE4In0.n36bMG_LdA9yOu8-fQS2vw");
-
         View view = inflater.inflate(R.layout.fragment_channel_mapbox, container, false);
 
         mMapView = (MapView) view.findViewById(R.id.map);
@@ -186,14 +186,10 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
 
         mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
-            public void onMapReady(MapboxMap mapboxMap) {
-
-            }
-        });
-        mMapView.getMapAsync(new OnMapReadyCallback() {
-            @Override
             public void onMapReady(final MapboxMap mapboxMap) {
                 mapboxMap.setMyLocationEnabled(true);
+                mapboxMap.setAllowConcurrentMultipleOpenInfoWindows(false);
+
                 CameraPosition position = new CameraPosition.Builder()
                         .target(new LatLng(defaultLat, defaultLng))
                         .zoom(defaultZoom)
@@ -573,11 +569,12 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
                                 .title(marker.name)
                                 .alpha((marker.enabled == null || marker.enabled) ? 1f: 0.4f)
                                 .position(new LatLng(marker.latitude, marker.longitude))
-                                .icon(iconFactory.fromResource(marker.getIconResId()));
+                                .icon(iconFactory.fromResource(marker.getIconResId())
 //                                .zIndex(0.25f)
+                        );
 
                         m = mapboxMap.addMarker(markerViewOptions);
-//
+
                         synchronized (mMarkerMarker) {
                             mMarkerMarker.put(marker.id, m);
                         }
