@@ -150,7 +150,7 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
 //                          .zIndex(0.5f)
                     );
                     mPendingPOIMarker = mapboxMap.addMarker(markerViewOptions);
-                    mPendingPOIMarker.showInfoWindow(mapboxMap, mMapView);
+                    mapboxMap.selectMarker(mPendingPOIMarker);
                     mMarkerMap.put(mPendingPOIMarker, poi);
                     clickMarker(poi);
                 }
@@ -580,7 +580,7 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
                         }
 
                         if (marker == focusMarker) {
-                            m.showInfoWindow(mapboxMap, mMapView);
+                            mapboxMap.selectMarker(m);
                         }
                     }
                 }
@@ -673,7 +673,7 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
                 mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), MAP_MOVE_ANIMATION_DURATION);
                 MarkerView m = mSearchResultMarkers.get(position);
                 if(m != null){
-                    m.showInfoWindow(mapboxMap, mMapView);
+                    mapboxMap.selectMarker(m);
                 }
                 if (focus) {
                     clickMarker(result);
@@ -781,7 +781,7 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
 //                          .zIndex(1f)
 
                     mEditingMarkerMarker = mapboxMap.addMarker(markerViewOptions);
-                    mEditingMarkerMarker.showInfoWindow(mapboxMap, mMapView);
+                    mapboxMap.selectMarker(mEditingMarkerMarker);
                 }
             });
 
