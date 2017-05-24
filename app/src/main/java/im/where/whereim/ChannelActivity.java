@@ -4,7 +4,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -21,18 +20,20 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Switch;
 import android.widget.TextView;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.MultiFormatWriter;
-import com.google.zxing.WriterException;
-import com.google.zxing.common.BitMatrix;
-import im.where.whereim.dialogs.DialogChannelInvite;
-import im.where.whereim.dialogs.DialogChannelInviteQrCode;
-import im.where.whereim.geo.QuadTree;
-import im.where.whereim.models.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import im.where.whereim.dialogs.DialogChannelInvite;
+import im.where.whereim.dialogs.DialogChannelInviteQrCode;
+import im.where.whereim.geo.QuadTree;
+import im.where.whereim.models.Ad;
+import im.where.whereim.models.Channel;
+import im.where.whereim.models.Enchantment;
+import im.where.whereim.models.Marker;
+import im.where.whereim.models.Mate;
+import im.where.whereim.models.POI;
 
 public class ChannelActivity extends BaseActivity implements CoreService.ConnectionStatusCallback, CoreService.MapDataDelegate {
     private final static int TAB_MAP = 0;
