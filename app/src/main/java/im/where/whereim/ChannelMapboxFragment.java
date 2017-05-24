@@ -3,6 +3,7 @@ package im.where.whereim;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
@@ -404,10 +405,11 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
                         mMarkerView.layout(0, 0, mMarkerView.getMeasuredWidth(), mMarkerView.getMeasuredHeight());
                         mMarkerView.setDrawingCacheEnabled(true);
                         mMarkerView.buildDrawingCache();
+                        Bitmap bm = mMarkerView.getDrawingCache();
 
                         MarkerViewOptions markerViewOptions = new MarkerViewOptions()
                                 .position(new LatLng(mate.latitude, mate.longitude))
-                                .icon(iconFactory.fromBitmap(mMarkerView.getDrawingCache()))
+                                .icon(iconFactory.fromBitmap(bm.copy(bm.getConfig(), true)))
                                 .alpha(mate.stale ? 0.5f : 1f);
 //                              .zIndex(0.75f)
 
