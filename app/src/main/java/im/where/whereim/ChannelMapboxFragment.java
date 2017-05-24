@@ -44,7 +44,7 @@ import im.where.whereim.models.GooglePOI;
 import im.where.whereim.models.Mate;
 import im.where.whereim.models.POI;
 
-public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxMap.OnMapLongClickListener, MapboxMap.OnMapClickListener, MapboxMap.OnMarkerClickListener {
+public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxMap.OnMapLongClickListener, MapboxMap.OnMapClickListener, MapboxMap.OnMarkerViewClickListener {
     private final static int MAP_MOVE_ANIMATION_DURATION = 750; //ms
 
     // https://github.com/mapbox/mapbox-gl-native/issues/2167#issuecomment-200302992
@@ -208,12 +208,11 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
                 });
                 mapboxMap.setOnMapClickListener(ChannelMapboxFragment.this);
                 mapboxMap.setOnMapLongClickListener(ChannelMapboxFragment.this);
-                mapboxMap.setOnMarkerClickListener(ChannelMapboxFragment.this);
+                mapboxMap.getMarkerViewManager().setOnMarkerViewClickListener(ChannelMapboxFragment.this);
             }
         });
 
         processMapTask();
-
 
         return view;
     }
@@ -792,7 +791,7 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
     }
 
     @Override
-    public boolean onMarkerClick(@NonNull Marker marker) {
+    public boolean onMarkerClick(@NonNull Marker marker, @NonNull View view, @NonNull MapboxMap.MarkerViewAdapter adapter) {
         Object obj = mMarkerMap.get(marker);
         clickMarker(obj);
         return false;
