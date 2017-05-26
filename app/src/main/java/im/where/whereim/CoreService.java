@@ -1050,6 +1050,7 @@ public class CoreService extends Service {
                 mChannelMap.put(channel.id, channel);
                 clientChannelHandler(channel);
             }
+            cursor.close();
 
             cursor = Mate.getCursor(mWimDBHelper.getDatabase());
             while (cursor.moveToNext()) {
@@ -1067,6 +1068,7 @@ public class CoreService extends Service {
 
                 channelMateHandler(mate);
             }
+            cursor.close();
 
             cursor = Marker.getCursor(mWimDBHelper.getDatabase());
             while (cursor.moveToNext()) {
@@ -1080,6 +1082,7 @@ public class CoreService extends Service {
 
                 markerHandler(marker);
             }
+            cursor.close();
 
             cursor = Enchantment.getCursor(mWimDBHelper.getDatabase());
             while (cursor.moveToNext()) {
@@ -1093,6 +1096,7 @@ public class CoreService extends Service {
 
                 enchantmentHandler(enchantment);
             }
+            cursor.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
