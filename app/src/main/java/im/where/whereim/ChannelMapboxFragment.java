@@ -141,17 +141,22 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
 
             getMapAsync(new OnMapReadyCallback() {
                 @Override
-                public void onMapReady(MapboxMap mapboxMap) {
-                    MarkerViewOptions markerViewOptions = new MarkerViewOptions()
-                            .title(poi.name)
-                            .position(new LatLng(poi.latitude, poi.longitude))
-                            .icon(iconFactory.fromResource(R.drawable.search_marker)
+                public void onMapReady(final MapboxMap mapboxMap) {
+                    mHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            MarkerViewOptions markerViewOptions = new MarkerViewOptions()
+                                    .title(poi.name)
+                                    .position(new LatLng(poi.latitude, poi.longitude))
+                                    .icon(iconFactory.fromResource(R.drawable.search_marker)
 //                          .zIndex(0.5f)
-                    );
-                    mPendingPOIMarker = mapboxMap.addMarker(markerViewOptions);
-                    mapboxMap.selectMarker(mPendingPOIMarker);
-                    mMarkerMap.put(mPendingPOIMarker, poi);
-                    clickMarker(poi);
+                                    );
+                            mPendingPOIMarker = mapboxMap.addMarker(markerViewOptions);
+                            mapboxMap.selectMarker(mPendingPOIMarker);
+                            mMarkerMap.put(mPendingPOIMarker, poi);
+                            clickMarker(poi);
+                        }
+                    });
                 }
             });
 

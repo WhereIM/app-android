@@ -23,7 +23,15 @@ public class PoiViewerActivity extends BaseActivity {
 
         setContentView(R.layout.activity_poi_viewer);
 
-        Fragment fragment = new GooglePoiViewerFragment();
+        Fragment fragment = null;
+        switch(Config.getMapProvider(this)){
+            case GOOGLE:
+                fragment = new GooglePoiViewerFragment();
+                break;
+            case MAPBOX:
+                fragment = new MapboxPoiViewerFragment();
+                break;
+        }
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.add(R.id.frame, fragment);
