@@ -735,6 +735,9 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
 
     @Override
     public void onMapLongClick(@NonNull LatLng point) {
+        if(mPendingPOIMarker!=null){
+            mPendingPOIMarker.remove();
+        }
         clearAction();
         mEditingLatitude = point.getLatitude();
         mEditingLongitude = point.getLongitude();
@@ -793,6 +796,9 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
 
     @Override
     public boolean onMarkerClick(@NonNull Marker marker, @NonNull View view, @NonNull MapboxMap.MarkerViewAdapter adapter) {
+        if(mPendingPOIMarker!=null){
+            mPendingPOIMarker.remove();
+        }
         Object obj = mMarkerMap.get(marker);
         clickMarker(obj);
         return false;

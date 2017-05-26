@@ -659,6 +659,9 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     private Marker mEditingMarkerMarker = null;
     @Override
     public void onMapLongClick(final LatLng latLng) {
+        if(mPendingPOIMarker!=null){
+            mPendingPOIMarker.remove();
+        }
         clearAction();
         mEditingLatitude = latLng.latitude;
         mEditingLongitude = latLng.longitude;
@@ -727,6 +730,9 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
 
     @Override
     public boolean onMarkerClick(Marker marker) {
+        if(mPendingPOIMarker!=null){
+            mPendingPOIMarker.remove();
+        }
         Object obj = mMarkerMap.get(marker);
         clickMarker(obj);
         return false;
