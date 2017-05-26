@@ -103,9 +103,11 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
         switch(Config.getMapProvider(this)){
             case GOOGLE:
                 mChannelMapFragment = new ChannelGoogleMapFragment();
+                mChannelSearchFragment = new ChannelGoogleSearchFragment();
                 break;
             case MAPBOX:
                 mChannelMapFragment = new ChannelMapboxFragment();
+                mChannelSearchFragment = new ChannelMapboxSearchFragment();
                 break;
         }
 
@@ -314,7 +316,7 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
     }
 
     private ChannelMapFragment mChannelMapFragment;
-    private ChannelSearchFragment mChannelSearchFragment = new ChannelGoogleSearchFragment();
+    private ChannelSearchFragment mChannelSearchFragment;
     private ChannelMessengerFragment mChannelMessengerFragment = new ChannelMessengerFragment();
     private ChannelMarkerFragment mChannelMarkerFragment = new ChannelMarkerFragment();
     private ChannelEnchantmentFragment mChannelEnchantmentFragment = new ChannelEnchantmentFragment();

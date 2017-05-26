@@ -258,7 +258,7 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
         });
     }
 
-    class SearchResultAdapter extends BaseAdapter {
+    private class SearchResultAdapter extends BaseAdapter {
         private class ViewHolder {
             TextView name;
             TextView address;
@@ -307,7 +307,7 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
             View view = convertView;
             ViewHolder vh;
             if(view == null){
-                view = LayoutInflater.from(getActivity()).inflate(R.layout.search_result_item, parent, false);
+                view = LayoutInflater.from(getActivity()).inflate(R.layout.google_search_result_item, parent, false);
                 vh = new ViewHolder(view);
                 view.setTag(vh);
             }else{

@@ -40,7 +40,6 @@ import im.where.whereim.geo.QuadTree;
 import im.where.whereim.models.Ad;
 import im.where.whereim.models.Channel;
 import im.where.whereim.models.Enchantment;
-import im.where.whereim.models.GooglePOI;
 import im.where.whereim.models.Mate;
 import im.where.whereim.models.POI;
 
@@ -123,7 +122,7 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Mapbox.getInstance(getActivity(), "pk.eyJ1Ijoid2hlcmVpbSIsImEiOiJjaXltbmtvbHUwMDM4MzNwZnNsZHVtbHE4In0.n36bMG_LdA9yOu8-fQS2vw");
+        Mapbox.getInstance(getActivity(), Config.API_KEY_MAPBOX);
 
         iconFactory = IconFactory.getInstance(getActivity());
 
@@ -639,8 +638,7 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
             @Override
             public void onMapReady(MapboxMap mapboxMap) {
                 mSearchResults = results;
-                for (POI _result : results) {
-                    GooglePOI result = (GooglePOI) _result;
+                for (POI result : results) {
                     MarkerViewOptions markerViewOptions = new MarkerViewOptions()
                             .title(result.name)
                             .position(new LatLng(result.latitude, result.longitude))
@@ -651,7 +649,7 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
                         mSearchResultMarkers.add(m);
                     }
                     synchronized (mMarkerMap) {
-                        mMarkerMap.put(m, _result);
+                        mMarkerMap.put(m, result);
                     }
                 }
             }

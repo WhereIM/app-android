@@ -33,6 +33,8 @@ public class Config {
 
     public final static int MAP_AD_TTL = 5 * 60 * 1000; //ms
 
+    public final static String API_KEY_MAPBOX = "pk.eyJ1Ijoid2hlcmVpbSIsImEiOiJjaXltbmtvbHUwMDM4MzNwZnNsZHVtbHE4In0.n36bMG_LdA9yOu8-fQS2vw";
+
     public enum MapProvider {
         GOOGLE,
         MAPBOX
