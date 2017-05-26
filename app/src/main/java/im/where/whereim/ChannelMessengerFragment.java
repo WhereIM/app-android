@@ -249,6 +249,9 @@ public class ChannelMessengerFragment extends BaseFragment {
                 }
             }
         });
+        if(mCurrentCursor!=null){
+            mCurrentCursor.cursor.close();
+        }
         super.onDestroyView();
     }
 }
