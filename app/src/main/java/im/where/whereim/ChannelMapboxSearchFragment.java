@@ -63,6 +63,7 @@ public class ChannelMapboxSearchFragment extends ChannelSearchFragment {
                         try {
                             Response response = client.newCall(request).execute();
                             JSONObject ret = new JSONObject(response.body().string());
+                            final String attribution = ret.getString("attribution");
                             JSONArray features = ret.getJSONArray("features");
                             final ArrayList<POI> res = new ArrayList<POI>();
                             for(int i=0;i<features.length();i+=1){
@@ -79,6 +80,7 @@ public class ChannelMapboxSearchFragment extends ChannelSearchFragment {
                             mHandler.post(new Runnable() {
                                 @Override
                                 public void run() {
+                                    setTextAttribution(attribution);
                                     setSearchResult(res);
                                 }
                             });
@@ -124,6 +126,7 @@ public class ChannelMapboxSearchFragment extends ChannelSearchFragment {
                         try {
                             Response response = client.newCall(request).execute();
                             JSONObject ret = new JSONObject(response.body().string());
+                            final String attribution = ret.getString("attribution");
                             JSONArray features = ret.getJSONArray("features");
                             final ArrayList<String> res = new ArrayList<String>();
                             for(int i=0;i<features.length();i+=1){
@@ -135,6 +138,7 @@ public class ChannelMapboxSearchFragment extends ChannelSearchFragment {
                             mHandler.post(new Runnable() {
                                 @Override
                                 public void run() {
+                                    setTextAttribution(attribution);
                                     setAutoComplete(res);
                                 }
                             });

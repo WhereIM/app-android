@@ -110,6 +110,7 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
                                 mHandler.post(new Runnable() {
                                     @Override
                                     public void run() {
+                                        setGoogleAttribution();
                                         setSearchResult(new ArrayList<POI>());
                                     }
                                 });
@@ -153,6 +154,7 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
                                 mHandler.post(new Runnable() {
                                     @Override
                                     public void run() {
+                                        setGoogleAttribution();
                                         setSearchResult(res);
                                     }
                                 });
@@ -227,6 +229,7 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
                                 mHandler.post(new Runnable() {
                                     @Override
                                     public void run() {
+                                        setGoogleAttribution();
                                         setAutoComplete(new ArrayList<String>());
                                     }
                                 });
@@ -244,6 +247,7 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
                                 mHandler.post(new Runnable() {
                                     @Override
                                     public void run() {
+                                        setGoogleAttribution();
                                         setAutoComplete(res);
                                     }
                                 });

@@ -11,7 +11,7 @@
     <string name="action_quit">Quit</string>
     <string name="active_client">Client not active</string>
     <string name="active_client_message">This client is not active, take over from your other client?</string>
-    <string name="map_provider">Map Provider</string>
+    <string name="service_provider">Service Provider (Map &amp; Search)</string>
     <string name="error">Error</string>
     <string name="retry">Retry</string>
     <string name="invitation">Invitation: %1$s</string>

@@ -152,7 +152,24 @@ abstract public class ChannelSearchFragment extends BaseFragment {
         mListView.setAdapter(mAutoCompleteAdapter);
     }
 
+    protected void setGoogleAttribution(){
+        mGoogleAttribution.setVisibility(View.VISIBLE);
+        mTextAttribution.setVisibility(View.GONE);
+    }
+
+    protected void setTextAttribution(String text){
+        mGoogleAttribution.setVisibility(View.GONE);
+        mTextAttribution.setVisibility(View.VISIBLE);
+        mTextAttribution.setText(text);
+    }
+
+    protected void clearAttribution(){
+        mGoogleAttribution.setVisibility(View.GONE);
+        mTextAttribution.setVisibility(View.GONE);
+    }
+
     protected void showHistory(){
+        clearAttribution();
         mAdView.setVisibility(View.GONE);
         mLoading.setVisibility(View.GONE);
         mListView.setAdapter(mSearchHistoryAdapter);
@@ -163,6 +180,8 @@ abstract public class ChannelSearchFragment extends BaseFragment {
     private Button mClear;
     private View mLoading;
     private ListView mListView;
+    private View mGoogleAttribution;
+    private TextView mTextAttribution;
     private View mAdView;
     private BaseAdapter mSearchResultAdapter = getSearchResultAdapter();
     private BaseAdapter mAutoCompleteAdapter = getAutoCompleteAdapter();
@@ -179,6 +198,7 @@ abstract public class ChannelSearchFragment extends BaseFragment {
         mClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                clearAttribution();
                 mKeyword.setText("");
                 mKeyword.clearFocus();
                 do_search("");
@@ -222,6 +242,9 @@ abstract public class ChannelSearchFragment extends BaseFragment {
             }
         });
         mListView.setAdapter(mSearchResultAdapter);
+
+        mGoogleAttribution = view.findViewById(R.id.google_attribution);
+        mTextAttribution = (TextView) view.findViewById(R.id.text_attribution);
 
         mLoading = view.findViewById(R.id.loading);
 

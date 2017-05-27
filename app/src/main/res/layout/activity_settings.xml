@@ -30,7 +30,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:text="@string/map_provider"
+            android:text="@string/service_provider"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:textAppearance="?android:attr/textAppearanceSmall"
