@@ -184,6 +184,23 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_channel_mapbox, container, false);
 
+        view.findViewById(R.id.my_location).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getMapAsync(new OnMapReadyCallback() {
+                    @Override
+                    public void onMapReady(MapboxMap mapboxMap) {
+                        Location location = mapboxMap.getMyLocation();
+                        CameraPosition position = new CameraPosition.Builder()
+                                .target(new LatLng(location.getLatitude(), location.getLongitude()))
+                                .build();
+
+                        mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), MAP_MOVE_ANIMATION_DURATION);
+                    }
+                });
+            }
+        });
+
         mMapView = (MapView) view.findViewById(R.id.map);
 
         mMapView.onCreate(savedInstanceState);

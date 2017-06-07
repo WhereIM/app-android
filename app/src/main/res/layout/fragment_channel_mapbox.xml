@@ -12,6 +12,16 @@
         android:clickable="true"
         android:enabled="true" />
 
+    <ImageButton
+        android:id="@+id/my_location"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="5dp"
+        android:src="@drawable/ic_gps_fixed_black_24dp" />
+
     <include layout="@layout/partial_channel_map"/>
 
 </RelativeLayout>
