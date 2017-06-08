@@ -44,9 +44,6 @@ public class ScannerActivity extends AppCompatActivity {
         surfaceView = new SurfaceView(this);
         surfaceView.setLayoutParams(params);
 
-        RelativeLayout frame = (RelativeLayout) findViewById(R.id.frame);
-        frame.addView(surfaceView);
-
         BarcodeDetector barcodeDetector =
                 new BarcodeDetector.Builder(this)
                         .setBarcodeFormats(Barcode.QR_CODE)
@@ -82,14 +79,6 @@ public class ScannerActivity extends AppCompatActivity {
                 .setRequestedPreviewSize(e, e)
                 .build();
 
-        if (ActivityCompat.checkSelfPermission(ScannerActivity.this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(ScannerActivity.this, new String[]{android.Manifest.permission.CAMERA}, 0);
-        } else {
-            ready();
-        }
-    }
-
-    private void ready(){
         surfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
@@ -109,6 +98,17 @@ public class ScannerActivity extends AppCompatActivity {
                 cameraSource.stop();
             }
         });
+
+        if (ActivityCompat.checkSelfPermission(ScannerActivity.this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(ScannerActivity.this, new String[]{android.Manifest.permission.CAMERA}, 0);
+        } else {
+            ready();
+        }
+    }
+
+    private void ready(){
+        RelativeLayout frame = (RelativeLayout) findViewById(R.id.frame);
+        frame.addView(surfaceView);
     }
 
     @Override
