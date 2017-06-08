@@ -3,6 +3,7 @@ package im.where.whereim;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,6 +43,7 @@ public class MapboxPoiViewerFragment extends BaseFragment {
                 PoiViewerActivity activity = (PoiViewerActivity) getActivity();
                 mapboxMap.setMyLocationEnabled(true);
                 mapboxMap.setAllowConcurrentMultipleOpenInfoWindows(false);
+                mapboxMap.getUiSettings().setCompassGravity(Gravity.LEFT|Gravity.TOP);
 
                 LatLng latlng = new LatLng(activity.poi.latitude, activity.poi.longitude);
 
