@@ -3,6 +3,7 @@ package im.where.whereim;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,6 +19,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -91,11 +94,21 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
         }
     }
 
+    private View mContentRoot;
+    private View mCover;
+    private ImageView mActiveChannelPointer;
+    private View mActiveChannelPointerDesc;
+    private ImageView mInvitePointer;
+    private View mInvitePointerDesc;
+
     private View mConnectionStatus;
     private TextView mChannelTitle;
     private TextView mChannelSubtitle;
     private Switch mActive;
     private View mEnableLoading;
+
+    private int mReady = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,6 +125,32 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
         }
 
         setContentView(R.layout.activity_channel);
+
+        mContentRoot = findViewById(R.id.content_root);
+        mCover = findViewById(R.id.cover);
+        mActiveChannelPointer = (ImageView) findViewById(R.id.active_channel_pointer);
+        mActiveChannelPointerDesc = findViewById(R.id.active_channel_pointer_desc);
+        findViewById(R.id.active_channel_close).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences.Editor editor = ChannelActivity.this.getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
+                editor.putBoolean(Key.GUIDE_ACTIVE_CHANNEL_2, true);
+                editor.apply();
+                checkTips();
+            }
+        });
+
+        mInvitePointer = (ImageView) findViewById(R.id.invite_pointer);
+        mInvitePointerDesc = findViewById(R.id.invite_pointer_desc);
+        findViewById(R.id.invite_close).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences.Editor editor = ChannelActivity.this.getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
+                editor.putBoolean(Key.GUIDE_INVITE_CHANNEL, true);
+                editor.apply();
+                checkTips();
+            }
+        });
 
         mConnectionStatus = findViewById(R.id.connection_status);
 
@@ -197,6 +236,42 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
         });
 
         updateLayout();
+
+        mReady += 1;
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                checkTips();
+            }
+        });
+    }
+
+    private void checkTips() {
+        if(mReady<2){
+            return;
+        }
+        mCover.setVisibility(View.GONE);
+        SharedPreferences sp = ChannelActivity.this.getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+
+        if(!sp.getBoolean(Key.GUIDE_ACTIVE_CHANNEL_2, false)) {
+            mActiveChannelPointer.setVisibility(View.VISIBLE);
+            mActiveChannelPointerDesc.setVisibility(View.VISIBLE);
+            mCover.setVisibility(View.VISIBLE);
+            return;
+        } else {
+            mActiveChannelPointer.setVisibility(View.GONE);
+            mActiveChannelPointerDesc.setVisibility(View.GONE);
+        }
+
+        if(!sp.getBoolean(Key.GUIDE_INVITE_CHANNEL, false)) {
+            mInvitePointer.setVisibility(View.VISIBLE);
+            mInvitePointerDesc.setVisibility(View.VISIBLE);
+            mCover.setVisibility(View.VISIBLE);
+            return;
+        } else {
+            mInvitePointer.setVisibility(View.GONE);
+            mInvitePointerDesc.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -214,9 +289,35 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(final Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_channel, menu);
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                final View invite = findViewById(R.id.action_invite);
+
+                int[] rootOrig = new int[2];
+                mContentRoot.getLocationInWindow(rootOrig);
+
+                int[] ivOrig = new int[2];
+                invite.getLocationInWindow(ivOrig);
+
+                RelativeLayout.LayoutParams params;
+                params = (RelativeLayout.LayoutParams) mInvitePointer.getLayoutParams();
+                params.topMargin = ivOrig[1] - rootOrig[1] + invite.getHeight() - 35;
+                params.leftMargin = ivOrig[0] - rootOrig[0] - mInvitePointer.getDrawable().getIntrinsicWidth() + 35;
+                mInvitePointer.setLayoutParams(params);
+
+                mReady += 1;
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        checkTips();
+                    }
+                });
+            }
+        });
         return true;
     }
 
@@ -391,6 +492,23 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
                 mEnableLoading.setVisibility(View.GONE);
                 mActive.setChecked(active);
             }
+
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    int[] rootOrig = new int[2];
+                    mContentRoot.getLocationInWindow(rootOrig);
+
+                    int[] acOrig = new int[2];
+                    mActive.getLocationInWindow(acOrig);
+
+                    RelativeLayout.LayoutParams params;
+                    params = (RelativeLayout.LayoutParams) mActiveChannelPointer.getLayoutParams();
+                    params.topMargin = acOrig[1] - rootOrig[1] + mActive.getHeight();
+                    params.leftMargin = acOrig[0] - rootOrig[0] + (mActive.getWidth() - mActiveChannelPointer.getDrawable().getIntrinsicWidth())/2;
+                    mActiveChannelPointer.setLayoutParams(params);
+                }
+            });
         }
     };
 

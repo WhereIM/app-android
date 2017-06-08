@@ -10,6 +10,8 @@
     <string name="action_quit">關閉程式</string>
     <string name="active_client">此裝置不是主要裝置</string>
     <string name="active_client_message">取代您的其他裝置成為主要裝置？</string>
+    <string name="misc">其他</string>
+    <string name="got_it">知道了</string>
     <string name="error">錯誤</string>
     <string name="retry">再試一次</string>
     <string name="invitation">邀請：%1$s</string>

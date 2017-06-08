@@ -19,7 +19,7 @@ public class BaseActivity extends AppCompatActivity implements ServiceConnection
 
     private List<CoreService.BinderTask> mPendingTask = new ArrayList<>();
 
-    private Handler mHandler = new Handler();
+    protected Handler mHandler = new Handler();
     protected void postUITask(Runnable r){
         mHandler.post(r);
     }

@@ -2,8 +2,10 @@ package im.where.whereim;
 
 import android.Manifest;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -22,7 +24,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -92,6 +96,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
             TextView mSubtitle;
             Switch mEnable;
             View mLoading;
+            View mLoadingSwitch;
 
             public ViewHolder(View view) {
                 mRoot = view;
@@ -147,6 +152,36 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
 
             Channel channel = (Channel) getItem(position);
             vh.setItem(channel);
+
+            if(position==0){
+                final View sw = vh.mEnable;
+                final View cell = view;
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        int[] rootOrig = new int[2];
+                        mViewRoot.getLocationInWindow(rootOrig);
+
+                        int[] swOrig = new int[2];
+                        sw.getLocationInWindow(swOrig);
+                        RelativeLayout.LayoutParams params;
+                        params = (RelativeLayout.LayoutParams) mActiveChannelPointer.getLayoutParams();
+                        params.topMargin = swOrig[1] - rootOrig[1] + sw.getHeight();
+                        params.leftMargin = swOrig[0] - rootOrig[0] - mActiveChannelPointer.getDrawable().getIntrinsicWidth();
+                        mActiveChannelPointer.setLayoutParams(params);
+
+                        int[] cellOrig = new int[2];
+                        cell.getLocationInWindow(cellOrig);
+                        params = (RelativeLayout.LayoutParams) mEnterChannelPointer.getLayoutParams();
+                        params.topMargin = cellOrig[1] - rootOrig[1] + cell.getHeight() - 45;
+                        params.leftMargin = cellOrig[0] - rootOrig[0] + (cell.getWidth() - mEnterChannelPointer.getDrawable().getIntrinsicWidth())/2;
+                        mEnterChannelPointer.setLayoutParams(params);
+
+                        checkTips();
+                    }
+                });
+            }
+
             return view;
         }
     };
@@ -170,11 +205,21 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
         });
     }
 
+    private View mViewRoot;
+    private View mCover;
+    private ImageView mNewChannelPointer;
+    private View mNewChannelPointerDesc;
+    private ImageView mActiveChannelPointer;
+    private View mActiveChannelPointerDesc;
+    private ImageView mEnterChannelPointer;
+    private View mEnterChannelPointerDesc;
+
     private POI pendingPOI;
     private View mPendingPanel;
     private TextView mPendingTitle;
     private TextView mPendingDesc;
     private View mConnectionStatus;
+    private FloatingActionButton mNewChannel;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -196,6 +241,45 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
         }
 
         setContentView(R.layout.activity_channel_list);
+
+        mViewRoot = findViewById(R.id.root);
+        mCover = findViewById(R.id.cover);
+
+        mNewChannelPointer = (ImageView) findViewById(R.id.new_channel_pointer);
+        mNewChannelPointerDesc = findViewById(R.id.new_channel_pointer_desc);
+        findViewById(R.id.new_channel_close).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences.Editor editor = ChannelListActivity.this.getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
+                editor.putBoolean(Key.GUIDE_NEW_CHANNEL, true);
+                editor.apply();
+                checkTips();
+            }
+        });
+
+        mActiveChannelPointer = (ImageView) findViewById(R.id.active_channel_pointer);
+        mActiveChannelPointerDesc = findViewById(R.id.active_channel_pointer_desc);
+        findViewById(R.id.active_channel_close).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences.Editor editor = ChannelListActivity.this.getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
+                editor.putBoolean(Key.GUIDE_ACTIVE_CHANNEL, true);
+                editor.apply();
+                checkTips();
+            }
+        });
+
+        mEnterChannelPointer = (ImageView) findViewById(R.id.enter_channel_pointer);
+        mEnterChannelPointerDesc = findViewById(R.id.enter_channel_pointer_desc);
+        findViewById(R.id.enter_channel_close).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences.Editor editor = ChannelListActivity.this.getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
+                editor.putBoolean(Key.GUIDE_ENTER_CHANNEL, true);
+                editor.apply();
+                checkTips();
+            }
+        });
 
         mPendingPanel = findViewById(R.id.pending);
         mPendingTitle = (TextView) findViewById(R.id.title);
@@ -323,8 +407,8 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
             }
         });
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        mNewChannel = (FloatingActionButton) findViewById(R.id.fab);
+        mNewChannel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 new DialogChannelNew(ChannelListActivity.this, new DialogChannelNew.Callback() {
@@ -347,7 +431,43 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                 });
             }
         });
+    }
 
+    private void checkTips() {
+        mCover.setVisibility(View.GONE);
+        SharedPreferences sp = ChannelListActivity.this.getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+
+        if(!sp.getBoolean(Key.GUIDE_NEW_CHANNEL, false)) {
+            mNewChannelPointer.setVisibility(View.VISIBLE);
+            mNewChannelPointerDesc.setVisibility(View.VISIBLE);
+            mCover.setVisibility(View.VISIBLE);
+            return;
+        } else {
+            mNewChannelPointer.setVisibility(View.GONE);
+            mNewChannelPointerDesc.setVisibility(View.GONE);
+        }
+
+        if(mAdapter.getCount()>0){
+            if(!sp.getBoolean(Key.GUIDE_ACTIVE_CHANNEL, false)) {
+                mActiveChannelPointer.setVisibility(View.VISIBLE);
+                mActiveChannelPointerDesc.setVisibility(View.VISIBLE);
+                mCover.setVisibility(View.VISIBLE);
+                return;
+            } else {
+                mActiveChannelPointer.setVisibility(View.GONE);
+                mActiveChannelPointerDesc.setVisibility(View.GONE);
+            }
+
+            if(!sp.getBoolean(Key.GUIDE_ENTER_CHANNEL, false)) {
+                mEnterChannelPointer.setVisibility(View.VISIBLE);
+                mEnterChannelPointerDesc.setVisibility(View.VISIBLE);
+                mCover.setVisibility(View.VISIBLE);
+                return;
+            } else {
+                mEnterChannelPointer.setVisibility(View.GONE);
+                mEnterChannelPointerDesc.setVisibility(View.GONE);
+            }
+        }
     }
 
     @Override
@@ -440,6 +560,25 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
         mBinder.setActivity(this);
         mBinder.addChannelListChangedListener(mChannelListChangedListener);
         mBinder.addConnectionStatusChangedListener(this);
+
+        mNewChannel.post(new Runnable() {
+            @Override
+            public void run() {
+                int[] rootOrig = new int[2];
+                mViewRoot.getLocationInWindow(rootOrig);
+
+                int[] ncOrig = new int[2];
+                mNewChannel.getLocationInWindow(ncOrig);
+
+                RelativeLayout.LayoutParams params;
+                params = (RelativeLayout.LayoutParams) mNewChannelPointer.getLayoutParams();
+                params.bottomMargin = mViewRoot.getHeight() - (ncOrig[1] - rootOrig[1]);
+                params.rightMargin = mViewRoot.getWidth() - (ncOrig[0] - rootOrig[0]);
+                mNewChannelPointer.setLayoutParams(params);
+
+                checkTips();
+            }
+        });
     }
 
     private void processLink(String link){

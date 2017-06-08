@@ -1,5 +1,7 @@
 package im.where.whereim;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -9,6 +11,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     private View mMapsGoogleSelected;
     private View mMapsMapboxSelected;
+    private View mResetTips;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +24,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         mMapsGoogleSelected = findViewById(R.id.maps_google_selected);
         mMapsMapboxSelected = findViewById(R.id.maps_mapbox_selected);
+        mResetTips = findViewById(R.id.reset_tips);
 
         findViewById(R.id.maps_google).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -34,6 +38,19 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Config.setMapProvider(SettingsActivity.this, Config.MapProvider.MAPBOX);
+                updateUI();
+            }
+        });
+        mResetTips.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences.Editor editor = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
+                editor.remove(Key.GUIDE_ACTIVE_CHANNEL);
+                editor.remove(Key.GUIDE_ACTIVE_CHANNEL_2);
+                editor.remove(Key.GUIDE_ENTER_CHANNEL);
+                editor.remove(Key.GUIDE_INVITE_CHANNEL);
+                editor.remove(Key.GUIDE_NEW_CHANNEL);
+                editor.apply();
                 updateUI();
             }
         });
@@ -52,5 +69,14 @@ public class SettingsActivity extends AppCompatActivity {
                 mMapsMapboxSelected.setVisibility(View.VISIBLE);
                 break;
         }
+
+        boolean resettable = false;
+        SharedPreferences sp = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+        resettable = resettable || sp.getBoolean(Key.GUIDE_ACTIVE_CHANNEL, false);
+        resettable = resettable || sp.getBoolean(Key.GUIDE_ACTIVE_CHANNEL_2, false);
+        resettable = resettable || sp.getBoolean(Key.GUIDE_ENTER_CHANNEL, false);
+        resettable = resettable || sp.getBoolean(Key.GUIDE_INVITE_CHANNEL, false);
+        resettable = resettable || sp.getBoolean(Key.GUIDE_NEW_CHANNEL, false);
+        mResetTips.setEnabled(resettable);
     }
 }

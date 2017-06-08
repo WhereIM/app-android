@@ -11,7 +11,15 @@
     <string name="action_quit">Quit</string>
     <string name="active_client">Client not active</string>
     <string name="active_client_message">This client is not active, take over from your other client?</string>
+    <string name="reset_tips">Show tips again</string>
     <string name="service_provider">Service Provider (Map &amp; Search)</string>
+    <string name="misc">Miscellaneous</string>
+    <string name="got_it">Got it</string>
+    <string name="new_channel_hint">You haven\'t joined any channel, tap here to create new one or join one with QR code.</string>
+    <string name="enter_channel_hint">Tap to enter channel view</string>
+    <string name="active_channel_hint">Tap to activate/deactivate</string>
+    <string name="active_channel_hint2">Tap to activate/deactivate 2</string>
+    <string name="invite_hint">Tap to invite</string>
     <string name="error">Error</string>
     <string name="retry">Retry</string>
     <string name="invitation">Invitation: %1$s</string>

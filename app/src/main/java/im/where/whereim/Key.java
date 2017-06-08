@@ -28,6 +28,12 @@ public class Key {
 
     public final static String FACEBOOK = "facebook";
 
+    public final static String GUIDE_ACTIVE_CHANNEL = "guide_active_channel";
+    public final static String GUIDE_ACTIVE_CHANNEL_2 = "guide_active_channel_2";
+    public final static String GUIDE_ENTER_CHANNEL = "guide_enter_channel";
+    public final static String GUIDE_INVITE_CHANNEL = "guide_invite_channel";
+    public final static String GUIDE_NEW_CHANNEL = "guide_new_channel";
+
     public final static String GOOGLE_SEARCH = "google_search";
 
     public final static String ID = "id";
@@ -54,6 +60,7 @@ public class Key {
     public final static String ENABLE_RADIUS = "enable_radius";
 
     public final static String SEARCH_HISTORY = "search_history";
+    public final static String SERVICE_PROVIDER = "service_provider";
     public final static String SN = "sn";
     public final static String SPEED = "spd";
     public final static String STALE = "stale";

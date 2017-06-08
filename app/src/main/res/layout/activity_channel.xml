@@ -1,83 +1,164 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/main_content"
+    android:id="@+id/content_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context="im.where.whereim.ChannelActivity">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/colorPrimary">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:orientation="vertical"
-            android:gravity="center_vertical">
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/colorPrimary">
 
-            <TextView
-                android:id="@+id/channel_title"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="@color/colorTextHighlight" />
+                android:layout_gravity="center_vertical"
+                android:orientation="vertical"
+                android:gravity="center_vertical">
 
-            <TextView
-                android:id="@+id/channel_subtitle"
-                android:layout_width="wrap_content"
+                <TextView
+                    android:id="@+id/channel_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="@color/colorTextHighlight" />
+
+                <TextView
+                    android:id="@+id/channel_subtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/colorText" />
+            </LinearLayout>
+
+            <FrameLayout
+                android:layout_width="80dp"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/colorText" />
-        </LinearLayout>
+                android:layout_gravity="center_vertical"
+                android:padding="5dp">
 
-        <FrameLayout
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:padding="5dp">
+                <Switch
+                    android:id="@+id/enable"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:visibility="gone" />
 
-            <Switch
-                android:id="@+id/enable"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:visibility="gone" />
+                <ProgressBar
+                    android:id="@+id/enable_loading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center" />
+
+            </FrameLayout>
 
             <ProgressBar
-                android:id="@+id/enable_loading"
+                android:id="@+id/connection_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center" />
+                android:layout_gravity="right" />
+        </android.support.v7.widget.Toolbar>
 
-        </FrameLayout>
+        <android.support.design.widget.TabLayout
+            android:id="@+id/tabs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:tabTextColor="@color/colorText"
+            app:tabSelectedTextColor="@color/colorTextHighlight"
+            style="@style/CustomTabLayout"
+            android:background="@color/colorPrimary" />
 
-        <ProgressBar
-            android:id="@+id/connection_status"
+        <im.where.whereim.views.ChannelViewPager
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/cover"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        />
+
+    <ImageView
+        android:id="@+id/invite_pointer"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:src="@drawable/pointer_up_right" />
+
+    <LinearLayout
+        android:id="@+id/invite_pointer_desc"
+        android:visibility="gone"
+        android:orientation="vertical"
+        android:background="@drawable/hint_background"
+        android:layout_below="@id/invite_pointer"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="180dp"
+            android:layout_height="wrap_content"
+            android:textColor="#ffffff"
+            android:text="@string/invite_hint" />
+
+        <Button
+            android:id="@+id/invite_close"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="right" />
-    </android.support.v7.widget.Toolbar>
+            android:layout_gravity="right"
+            android:text="@string/got_it" />
 
-    <android.support.design.widget.TabLayout
-        android:id="@+id/tabs"
-        android:layout_width="match_parent"
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/active_channel_pointer"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:tabTextColor="@color/colorText"
-        app:tabSelectedTextColor="@color/colorTextHighlight"
-        style="@style/CustomTabLayout"
-        android:background="@color/colorPrimary" />
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:src="@drawable/pointer_up" />
 
-    <im.where.whereim.views.ChannelViewPager
-        android:id="@+id/container"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+    <LinearLayout
+        android:id="@+id/active_channel_pointer_desc"
+        android:visibility="gone"
+        android:background="@drawable/hint_background"
+        android:orientation="vertical"
+        android:layout_below="@id/active_channel_pointer"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
-</LinearLayout>
+        <TextView
+            android:layout_width="180dp"
+            android:layout_height="wrap_content"
+            android:textColor="#ffffff"
+            android:text="@string/active_channel_hint2" />
+
+        <Button
+            android:id="@+id/active_channel_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:text="@string/got_it" />
+
+    </LinearLayout>
+
+</RelativeLayout>

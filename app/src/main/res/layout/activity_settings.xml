@@ -83,6 +83,23 @@
                 android:padding="5dp"
                 android:text="Mapbox" />
         </LinearLayout>
+
+        <TextView
+            android:text="@string/misc"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@android:color/black"
+            android:background="#dddddd"
+            android:padding="5dp" />
+
+        <TextView
+            android:id="@+id/reset_tips"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="15dp"
+            android:text="@string/reset_tips" />
+
     </LinearLayout>
     
 </LinearLayout>
