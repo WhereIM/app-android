@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -27,8 +28,11 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import im.where.whereim.dialogs.DialogFixedEnchantment;
+import im.where.whereim.dialogs.DialogMobileEnchantment;
 import im.where.whereim.models.Channel;
 import im.where.whereim.models.Enchantment;
+import im.where.whereim.views.EmojiText;
 import im.where.whereim.views.FilterBar;
 
 public class ChannelEnchantmentFragment extends BaseFragment {
@@ -155,7 +159,7 @@ public class ChannelEnchantmentFragment extends BaseFragment {
             }
 
             public void setItem(int title_id){
-                this.name.setText(title_id);
+                this.name.setText(TextUtils.concat(getString(title_id), " ", new EmojiText(getActivity(), "ℹ️")));
             }
         }
         @Override
@@ -536,11 +540,19 @@ public class ChannelEnchantmentFragment extends BaseFragment {
                             }
                         });
 
-                        // disable click-to-collapse
                         mListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
                             @Override
                             public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
-                                return true;
+                                switch (groupPosition){
+                                    case 0:
+                                        new DialogMobileEnchantment(getActivity());
+                                        break;
+                                    case 1:
+                                    case 2:
+                                        new DialogFixedEnchantment(getActivity());
+                                        break;
+                                }
+                                return true; // disable click-to-collapse
                             }
                         });
 

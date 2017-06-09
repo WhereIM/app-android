@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -25,9 +26,11 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import im.where.whereim.dialogs.DialogMatesInfo;
 import im.where.whereim.models.Channel;
 import im.where.whereim.models.Marker;
 import im.where.whereim.models.Mate;
+import im.where.whereim.views.EmojiText;
 import im.where.whereim.views.FilterBar;
 
 public class ChannelMarkerFragment extends BaseFragment {
@@ -181,8 +184,12 @@ public class ChannelMarkerFragment extends BaseFragment {
                 this.name = (TextView) view.findViewById(R.id.name);
             }
 
-            public void setItem(int title_id){
-                this.name.setText(title_id);
+            public void setItem(int title_id, boolean info){
+                if(info){
+                    this.name.setText(TextUtils.concat(getString(title_id), " ", new EmojiText(getActivity(), "ℹ️")));
+                }else{
+                    this.name.setText(title_id);
+                }
             }
         }
         @Override
@@ -195,7 +202,8 @@ public class ChannelMarkerFragment extends BaseFragment {
             }else{
                 vh = (GroupViewHolder) view.getTag();
             }
-            vh.setItem((Integer) getGroup(groupPosition));
+            boolean info = groupPosition == 0 || groupPosition == 1;
+            vh.setItem((Integer) getGroup(groupPosition), info);
             return view;
         }
 
@@ -600,11 +608,16 @@ public class ChannelMarkerFragment extends BaseFragment {
                             mListView.expandGroup(i);
                         }
 
-                        // disable click-to-collapse
                         mListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
                             @Override
                             public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
-                                return true;
+                                switch(groupPosition){
+                                    case 0:
+                                    case 1:
+                                        new DialogMatesInfo(getActivity());
+                                        break;
+                                }
+                                return true; // disable click-to-collapse
                             }
                         });
 
