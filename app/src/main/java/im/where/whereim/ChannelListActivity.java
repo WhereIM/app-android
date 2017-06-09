@@ -251,7 +251,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
             @Override
             public void onClick(View v) {
                 SharedPreferences.Editor editor = ChannelListActivity.this.getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
-                editor.putBoolean(Key.GUIDE_NEW_CHANNEL, true);
+                editor.putBoolean(Key.TIP_NEW_CHANNEL, true);
                 editor.apply();
                 checkTips();
             }
@@ -263,7 +263,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
             @Override
             public void onClick(View v) {
                 SharedPreferences.Editor editor = ChannelListActivity.this.getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
-                editor.putBoolean(Key.GUIDE_ACTIVE_CHANNEL, true);
+                editor.putBoolean(Key.TIP_ACTIVE_CHANNEL, true);
                 editor.apply();
                 checkTips();
             }
@@ -275,7 +275,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
             @Override
             public void onClick(View v) {
                 SharedPreferences.Editor editor = ChannelListActivity.this.getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
-                editor.putBoolean(Key.GUIDE_ENTER_CHANNEL, true);
+                editor.putBoolean(Key.TIP_ENTER_CHANNEL, true);
                 editor.apply();
                 checkTips();
             }
@@ -437,7 +437,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
         mCover.setVisibility(View.GONE);
         SharedPreferences sp = ChannelListActivity.this.getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
 
-        if(!sp.getBoolean(Key.GUIDE_NEW_CHANNEL, false)) {
+        if(!sp.getBoolean(Key.TIP_NEW_CHANNEL, false)) {
             mNewChannelPointer.setVisibility(View.VISIBLE);
             mNewChannelPointerDesc.setVisibility(View.VISIBLE);
             mCover.setVisibility(View.VISIBLE);
@@ -448,7 +448,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
         }
 
         if(mAdapter.getCount()>0){
-            if(!sp.getBoolean(Key.GUIDE_ACTIVE_CHANNEL, false)) {
+            if(!sp.getBoolean(Key.TIP_ACTIVE_CHANNEL, false)) {
                 mActiveChannelPointer.setVisibility(View.VISIBLE);
                 mActiveChannelPointerDesc.setVisibility(View.VISIBLE);
                 mCover.setVisibility(View.VISIBLE);
@@ -458,7 +458,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                 mActiveChannelPointerDesc.setVisibility(View.GONE);
             }
 
-            if(!sp.getBoolean(Key.GUIDE_ENTER_CHANNEL, false)) {
+            if(!sp.getBoolean(Key.TIP_ENTER_CHANNEL, false)) {
                 mEnterChannelPointer.setVisibility(View.VISIBLE);
                 mEnterChannelPointerDesc.setVisibility(View.VISIBLE);
                 mCover.setVisibility(View.VISIBLE);

@@ -28,12 +28,6 @@ public class Key {
 
     public final static String FACEBOOK = "facebook";
 
-    public final static String GUIDE_ACTIVE_CHANNEL = "guide_active_channel";
-    public final static String GUIDE_ACTIVE_CHANNEL_2 = "guide_active_channel_2";
-    public final static String GUIDE_ENTER_CHANNEL = "guide_enter_channel";
-    public final static String GUIDE_INVITE_CHANNEL = "guide_invite_channel";
-    public final static String GUIDE_NEW_CHANNEL = "guide_new_channel";
-
     public final static String GOOGLE_SEARCH = "google_search";
 
     public final static String ID = "id";
@@ -67,6 +61,13 @@ public class Key {
 
     public final static String TILE = "tile";
     public final static String TIME = "time";
+
+    public final static String TIP_ACTIVE_CHANNEL = "tip_active_channel";
+    public final static String TIP_ACTIVE_CHANNEL_2 = "tip_active_channel_2";
+    public final static String TIP_ENTER_CHANNEL = "tip_enter_channel";
+    public final static String TIP_INVITE_CHANNEL = "tip_invite_channel";
+    public final static String TIP_NEW_CHANNEL = "tip_new_channel";
+
     public final static String TOKEN = "token";
     public final static String TS = "ts";
 

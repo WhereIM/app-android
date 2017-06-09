@@ -116,7 +116,7 @@
             android:layout_width="180dp"
             android:layout_height="wrap_content"
             android:textColor="#ffffff"
-            android:text="@string/invite_hint" />
+            android:text="@string/tip_invite" />
 
         <Button
             android:id="@+id/invite_close"
@@ -150,7 +150,7 @@
             android:layout_width="180dp"
             android:layout_height="wrap_content"
             android:textColor="#ffffff"
-            android:text="@string/active_channel_hint2" />
+            android:text="@string/tip_active_channel_2" />
 
         <Button
             android:id="@+id/active_channel_close"

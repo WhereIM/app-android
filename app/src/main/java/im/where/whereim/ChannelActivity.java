@@ -134,7 +134,7 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
             @Override
             public void onClick(View v) {
                 SharedPreferences.Editor editor = ChannelActivity.this.getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
-                editor.putBoolean(Key.GUIDE_ACTIVE_CHANNEL_2, true);
+                editor.putBoolean(Key.TIP_ACTIVE_CHANNEL_2, true);
                 editor.apply();
                 checkTips();
             }
@@ -146,7 +146,7 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
             @Override
             public void onClick(View v) {
                 SharedPreferences.Editor editor = ChannelActivity.this.getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
-                editor.putBoolean(Key.GUIDE_INVITE_CHANNEL, true);
+                editor.putBoolean(Key.TIP_INVITE_CHANNEL, true);
                 editor.apply();
                 checkTips();
             }
@@ -253,7 +253,7 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
         mCover.setVisibility(View.GONE);
         SharedPreferences sp = ChannelActivity.this.getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
 
-        if(!sp.getBoolean(Key.GUIDE_ACTIVE_CHANNEL_2, false)) {
+        if(!sp.getBoolean(Key.TIP_ACTIVE_CHANNEL_2, false)) {
             mActiveChannelPointer.setVisibility(View.VISIBLE);
             mActiveChannelPointerDesc.setVisibility(View.VISIBLE);
             mCover.setVisibility(View.VISIBLE);
@@ -263,7 +263,7 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
             mActiveChannelPointerDesc.setVisibility(View.GONE);
         }
 
-        if(!sp.getBoolean(Key.GUIDE_INVITE_CHANNEL, false)) {
+        if(!sp.getBoolean(Key.TIP_INVITE_CHANNEL, false)) {
             mInvitePointer.setVisibility(View.VISIBLE);
             mInvitePointerDesc.setVisibility(View.VISIBLE);
             mCover.setVisibility(View.VISIBLE);

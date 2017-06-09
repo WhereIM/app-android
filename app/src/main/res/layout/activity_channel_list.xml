@@ -135,7 +135,7 @@
             android:layout_width="180dp"
             android:layout_height="wrap_content"
             android:textColor="#ffffff"
-            android:text="@string/active_channel_hint" />
+            android:text="@string/tip_active_channel" />
 
         <Button
             android:id="@+id/active_channel_close"
@@ -169,7 +169,7 @@
             android:layout_width="180dp"
             android:layout_height="wrap_content"
             android:textColor="#ffffff"
-            android:text="@string/enter_channel_hint" />
+            android:text="@string/tip_enter_channel" />
 
         <Button
             android:id="@+id/enter_channel_close"
@@ -203,7 +203,7 @@
             android:layout_width="180dp"
             android:layout_height="wrap_content"
             android:textColor="#ffffff"
-            android:text="@string/new_channel_hint" />
+            android:text="@string/tip_new_channel" />
 
         <Button
             android:id="@+id/new_channel_close"

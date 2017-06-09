@@ -45,11 +45,11 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 SharedPreferences.Editor editor = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
-                editor.remove(Key.GUIDE_ACTIVE_CHANNEL);
-                editor.remove(Key.GUIDE_ACTIVE_CHANNEL_2);
-                editor.remove(Key.GUIDE_ENTER_CHANNEL);
-                editor.remove(Key.GUIDE_INVITE_CHANNEL);
-                editor.remove(Key.GUIDE_NEW_CHANNEL);
+                editor.remove(Key.TIP_ACTIVE_CHANNEL);
+                editor.remove(Key.TIP_ACTIVE_CHANNEL_2);
+                editor.remove(Key.TIP_ENTER_CHANNEL);
+                editor.remove(Key.TIP_INVITE_CHANNEL);
+                editor.remove(Key.TIP_NEW_CHANNEL);
                 editor.apply();
                 updateUI();
             }
@@ -72,11 +72,11 @@ public class SettingsActivity extends AppCompatActivity {
 
         boolean resettable = false;
         SharedPreferences sp = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
-        resettable = resettable || sp.getBoolean(Key.GUIDE_ACTIVE_CHANNEL, false);
-        resettable = resettable || sp.getBoolean(Key.GUIDE_ACTIVE_CHANNEL_2, false);
-        resettable = resettable || sp.getBoolean(Key.GUIDE_ENTER_CHANNEL, false);
-        resettable = resettable || sp.getBoolean(Key.GUIDE_INVITE_CHANNEL, false);
-        resettable = resettable || sp.getBoolean(Key.GUIDE_NEW_CHANNEL, false);
+        resettable = resettable || sp.getBoolean(Key.TIP_ACTIVE_CHANNEL, false);
+        resettable = resettable || sp.getBoolean(Key.TIP_ACTIVE_CHANNEL_2, false);
+        resettable = resettable || sp.getBoolean(Key.TIP_ENTER_CHANNEL, false);
+        resettable = resettable || sp.getBoolean(Key.TIP_INVITE_CHANNEL, false);
+        resettable = resettable || sp.getBoolean(Key.TIP_NEW_CHANNEL, false);
         mResetTips.setEnabled(resettable);
     }
 }
