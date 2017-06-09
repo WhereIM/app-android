@@ -15,7 +15,7 @@
     <string name="service_provider">Service Provider (Map &amp; Search)</string>
     <string name="misc">Miscellaneous</string>
     <string name="got_it">GOT IT</string>
-    <string name="tip_new_channel">You haven\'t joined any channel, tap here to create new one or join one with QR code.</string>
+    <string name="tip_new_channel">Tap here to create new channel or join with QR code.</string>
     <string name="tip_enter_channel">Tap to enter channel view.</string>
     <string name="tip_active_channel">Tap to activate/deactivate sending location data to this channel.</string>
     <string name="tip_active_channel_2">Same as the switch in channel list, tap to toggle sending location data to this channel.</string>
