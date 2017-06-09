@@ -4,8 +4,18 @@
     android:layout_height="65dp"
     android:descendantFocusability="blocksDescendants"
     android:orientation="horizontal"
-    android:paddingLeft="15dp"
-    android:paddingRight="15dp">
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp">
+
+    <TextView
+        android:id="@+id/unread"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="5dp"
+        android:textSize="25dp"
+        android:text="•"
+        android:textColor="#ff0000" />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -21,6 +31,7 @@
             android:layout_height="wrap_content"
             android:padding="5dp"
             android:text="Title"
+            android:textColor="@android:color/black"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
@@ -29,6 +40,7 @@
             android:layout_height="wrap_content"
             android:padding="3dp"
             android:text="Subtitle"
+            android:textColor="@android:color/black"
             android:textAppearance="?android:attr/textAppearanceSmall" />
 
     </LinearLayout>

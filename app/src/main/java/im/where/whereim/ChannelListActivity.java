@@ -91,7 +91,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
 
         class ViewHolder{
             Channel mChannel;
-            View mRoot;
+            View mUnread;
             TextView mTitle;
             TextView mSubtitle;
             Switch mEnable;
@@ -99,7 +99,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
             View mLoadingSwitch;
 
             public ViewHolder(View view) {
-                mRoot = view;
+                mUnread = view.findViewById(R.id.unread);
                 mTitle = (TextView) view.findViewById(R.id.title);
                 mSubtitle = (TextView) view.findViewById(R.id.subtitle);
                 mEnable = (Switch) view.findViewById(R.id.enable);
@@ -114,7 +114,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
 
             public void setItem(Channel channel){
                 mChannel = channel;
-                mRoot.setBackgroundColor((mChannel.enabled!=null && mChannel.enabled && mChannel.unread) ? ContextCompat.getColor(ChannelListActivity.this, R.color.colorUnreadChannel) : 0);
+                mUnread.setVisibility(mChannel.enabled!=null && mChannel.enabled && mChannel.unread ? View.VISIBLE : View.INVISIBLE);
                 if(channel.user_channel_name !=null && !channel.user_channel_name.isEmpty()){
                     mSubtitle.setVisibility(View.VISIBLE);
                     mTitle.setText(channel.user_channel_name);
