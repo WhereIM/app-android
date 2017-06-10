@@ -751,6 +751,9 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
 
     @Override
     public void onMapClick(@NonNull LatLng point) {
+        if(mEditingType!=null){
+            return;
+        }
         if (mPendingPOIMarker != null) {
             mPendingPOIMarker.remove();
         }
@@ -820,12 +823,14 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
 
     @Override
     public boolean onMarkerClick(@NonNull Marker marker, @NonNull View view, @NonNull MapboxMap.MarkerViewAdapter adapter) {
-        if(mPendingPOIMarker!=null){
-            mPendingPOIMarker.remove();
-        }
-        clearAction(true);
         Object obj = mMarkerMap.get(marker);
-        clickMarker(obj);
+        if(obj!=null) { // non-editting marker
+            if (mPendingPOIMarker != null) {
+                mPendingPOIMarker.remove();
+            }
+            clearAction(true);
+            clickMarker(obj);
+        }
         return false;
     }
 }

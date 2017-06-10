@@ -671,6 +671,9 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
 
     @Override
     public void onMapClick(LatLng latLng) {
+        if(mEditingType!=null){
+            return;
+        }
         if(mPendingPOIMarker!=null){
             mPendingPOIMarker.remove();
         }
@@ -730,12 +733,14 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        if(mPendingPOIMarker!=null){
-            mPendingPOIMarker.remove();
-        }
-        clearAction(true);
         Object obj = mMarkerMap.get(marker);
-        clickMarker(obj);
+        if(obj!=null) { // non-editting marker
+            if (mPendingPOIMarker != null) {
+                mPendingPOIMarker.remove();
+            }
+            clearAction(true);
+            clickMarker(obj);
+        }
         return false;
     }
 }
