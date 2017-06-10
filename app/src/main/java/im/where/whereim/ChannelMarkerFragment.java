@@ -26,6 +26,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import im.where.whereim.dialogs.DialogEditMarker;
+import im.where.whereim.dialogs.DialogEditMate;
+import im.where.whereim.dialogs.DialogEditSelf;
 import im.where.whereim.dialogs.DialogMatesInfo;
 import im.where.whereim.models.Channel;
 import im.where.whereim.models.Marker;
@@ -345,31 +348,18 @@ public class ChannelMarkerFragment extends BaseFragment {
             switch(item.getItemId()) {
                 case ACTION_EDIT:
                     Activity activity = getActivity();
-                    final View dialog_view = LayoutInflater.from(activity).inflate(R.layout.dialog_self_edit,  null);
-                    final EditText et_name = (EditText) dialog_view.findViewById(R.id.name);
-                    et_name.setText(mEditingMate.mate_name);
-                    new AlertDialog.Builder(activity)
-                            .setView(dialog_view)
-                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    new DialogEditSelf(activity, mEditingMate.mate_name, new DialogEditSelf.Callback() {
+                        @Override
+                        public void onEditSelf(final String name) {
+                            postBinderTask(new CoreService.BinderTask() {
                                 @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    final String name = et_name.getText().toString();
-                                    if(name.isEmpty())
-                                        return;
-                                    postBinderTask(new CoreService.BinderTask() {
-                                        @Override
-                                        public void onBinderReady(CoreService.CoreBinder binder) {
-                                            binder.editSelf(mEditingMate, name);
-                                        }
-                                    });
+                                public void onBinderReady(CoreService.CoreBinder binder) {
+                                    binder.editSelf(mEditingMate, name);
                                 }
-                            })
-                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
+                            });
 
-                                }
-                            }).show();
+                        }
+                    });
                     return true;
             }
             return false;
@@ -401,31 +391,17 @@ public class ChannelMarkerFragment extends BaseFragment {
             switch(item.getItemId()) {
                 case ACTION_EDIT:
                     Activity activity = getActivity();
-                    final View dialog_view = LayoutInflater.from(activity).inflate(R.layout.dialog_mate_edit,  null);
-                    final TextView mate_name = (TextView) dialog_view.findViewById(R.id.mate_name);
-                    final EditText et_user_mate_name = (EditText) dialog_view.findViewById(R.id.user_mate_name);
-                    mate_name.setText(mEditingMate.mate_name);
-                    et_user_mate_name.setText(mEditingMate.user_mate_name);
-                    new AlertDialog.Builder(activity)
-                            .setView(dialog_view)
-                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    new DialogEditMate(activity, mEditingMate.mate_name, mEditingMate.user_mate_name, new DialogEditMate.Callback() {
+                        @Override
+                        public void onEditMate(final String name) {
+                            postBinderTask(new CoreService.BinderTask() {
                                 @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    final String user_mate_name = et_user_mate_name.getText().toString();
-                                    postBinderTask(new CoreService.BinderTask() {
-                                        @Override
-                                        public void onBinderReady(CoreService.CoreBinder binder) {
-                                            binder.editMate(mEditingMate, user_mate_name);
-                                        }
-                                    });
+                                public void onBinderReady(CoreService.CoreBinder binder) {
+                                    binder.editMate(mEditingMate, name);
                                 }
-                            })
-                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-
-                                }
-                            }).show();
+                            });
+                        }
+                    });
                     return true;
             }
             return false;
@@ -460,37 +436,25 @@ public class ChannelMarkerFragment extends BaseFragment {
             Activity activity = getActivity();
             switch(item.getItemId()) {
                 case ACTION_EDIT:
-                    final View dialog_view = LayoutInflater.from(activity).inflate(R.layout.dialog_marker_edit,  null);
-                    final EditText et_name = (EditText) dialog_view.findViewById(R.id.name);
-                    et_name.setText(mEditingMarker.name);
-                    new AlertDialog.Builder(activity)
-                            .setView(dialog_view)
-                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    new DialogEditMarker(activity, mEditingMarker.name, mEditingMarker.getIconColor(), mEditingMarker.isPublic, new DialogEditMarker.Callback() {
+                        @Override
+                        public void onEditMarker(final String name, final boolean isPublic, final JSONObject attr) {
+                            postBinderTask(new CoreService.BinderTask() {
                                 @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    final String name = et_name.getText().toString();
-                                    if(name.isEmpty())
-                                        return;
-                                    postBinderTask(new CoreService.BinderTask() {
-                                        @Override
-                                        public void onBinderReady(CoreService.CoreBinder binder) {
-                                            try {
-                                                JSONObject changes = new JSONObject();
-                                                changes.put(Key.NAME, name);
-                                                binder.updateMarker(mEditingMarker, changes);
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-                                        }
-                                    });
+                                public void onBinderReady(CoreService.CoreBinder binder) {
+                                    try {
+                                        JSONObject changes = new JSONObject();
+                                        changes.put(Key.NAME, name);
+                                        changes.put(Key.ATTR, attr);
+                                        mEditingMarker.isPublic = isPublic;
+                                        binder.updateMarker(mEditingMarker, changes);
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
-                            })
-                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-
-                                }
-                            }).show();
+                            });
+                        }
+                    });
                     return true;
                 case ACTION_DELETE:
                     new AlertDialog.Builder(activity)

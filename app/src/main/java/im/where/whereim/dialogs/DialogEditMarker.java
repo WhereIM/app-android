@@ -1,5 +1,9 @@
 package im.where.whereim.dialogs;
 
+/**
+ * Created by buganini on 10/06/17.
+ */
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v4.content.res.ResourcesCompat;
@@ -13,30 +17,30 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Arrays;
 
 import im.where.whereim.Key;
 import im.where.whereim.R;
 import im.where.whereim.models.Marker;
 
-/**
- * Created by buganini on 04/05/17.
- */
-
-public class DialogCreateMarker {
+public class DialogEditMarker {
     public interface Callback {
-        void onCreateMarker(String name, boolean isPublic, JSONObject attr);
+        void onEditMarker(String name, boolean isPublic, JSONObject attr);
     }
-    public DialogCreateMarker(final Context context, String defaultTitle, final Callback callback){
+    public DialogEditMarker(final Context context, String defaultTitle, final String defaultColor, final boolean isShared, final Callback callback){
         final View dialog_view = LayoutInflater.from(context).inflate(R.layout.dialog_marker,  null);
         final EditText et_name = (EditText) dialog_view.findViewById(R.id.name);
         final CheckBox isPublic = (CheckBox) dialog_view.findViewById(R.id.ispublic);
         final Spinner icon = (Spinner) dialog_view.findViewById(R.id.icon);
         et_name.setText(defaultTitle);
+        final String[] iconList = Marker.getIconList();
         icon.setAdapter(new BaseAdapter() {
-            private String[] icon = Marker.getIconList();
-
             class ViewHolder {
                 ImageView icon;
 
@@ -52,12 +56,12 @@ public class DialogCreateMarker {
 
             @Override
             public int getCount() {
-                return icon.length;
+                return iconList.length;
             }
 
             @Override
             public String getItem(int position) {
-                return icon[position];
+                return iconList[position];
             }
 
             @Override
@@ -78,16 +82,26 @@ public class DialogCreateMarker {
                 return view;
             }
         });
+        icon.setSelection(Iterables.indexOf(Arrays.asList(iconList), new Predicate<String>() {
+            @Override
+            public boolean apply(String input) {
+                return input.equals(defaultColor);
+            }
+        }));
+        if(isShared){
+            isPublic.setVisibility(View.GONE);
+        }else{
+            isPublic.setChecked(false);
+        }
         new AlertDialog.Builder(context)
-                .setTitle(R.string.create_marker)
                 .setView(dialog_view)
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        JSONObject attr = new JSONObject();
                         try {
+                            JSONObject attr = new JSONObject();
                             attr.put(Key.COLOR, icon.getSelectedItem());
-                            callback.onCreateMarker(et_name.getText().toString(), isPublic.isChecked(), attr);
+                            callback.onEditMarker(et_name.getText().toString(), isShared || isPublic.isChecked(), attr);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }

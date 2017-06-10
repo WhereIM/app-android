@@ -86,14 +86,6 @@ public class Marker extends BaseModel {
     public Boolean enabled;
     public boolean deleted = false;
 
-    public static int getIconResource(JSONObject attr) {
-        String color = "red";
-        if(attr!=null){
-            color = attr.optString(Key.COLOR, "red");
-        }
-        return getIconResource(color);
-    }
-
     public static int getIconResource(String color){
         switch(color){
             case "azure": return R.drawable.icon_marker_azure;
@@ -111,8 +103,16 @@ public class Marker extends BaseModel {
         return R.drawable.icon_marker_red;
     }
 
+    public String getIconColor() {
+        String color = "red";
+        if(attr!=null){
+            color = attr.optString(Key.COLOR, "red");
+        }
+        return color;
+    }
+
     public int getIconResId(){
-        return getIconResource(attr);
+        return getIconResource(getIconColor());
     }
 
     private final static HashMap<Integer, BitmapDescriptor> mIconBitmapDescriptor = new HashMap<>();
