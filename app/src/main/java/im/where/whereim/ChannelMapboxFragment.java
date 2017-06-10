@@ -754,7 +754,7 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
         if (mPendingPOIMarker != null) {
             mPendingPOIMarker.remove();
         }
-        clearAction();
+        clearAction(false);
     }
 
     @Override
@@ -762,7 +762,7 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
         if(mPendingPOIMarker!=null){
             mPendingPOIMarker.remove();
         }
-        clearAction();
+        clearAction(false);
         mEditingLatitude = point.getLatitude();
         mEditingLongitude = point.getLongitude();
 
@@ -823,6 +823,7 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
         if(mPendingPOIMarker!=null){
             mPendingPOIMarker.remove();
         }
+        clearAction(true);
         Object obj = mMarkerMap.get(marker);
         clickMarker(obj);
         return false;

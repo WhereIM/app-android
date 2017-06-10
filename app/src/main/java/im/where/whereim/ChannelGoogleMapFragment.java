@@ -662,7 +662,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         if(mPendingPOIMarker!=null){
             mPendingPOIMarker.remove();
         }
-        clearAction();
+        clearAction(false);
         mEditingLatitude = latLng.latitude;
         mEditingLongitude = latLng.longitude;
 
@@ -674,7 +674,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         if(mPendingPOIMarker!=null){
             mPendingPOIMarker.remove();
         }
-        clearAction();
+        clearAction(false);
     }
 
     @Override
@@ -733,6 +733,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         if(mPendingPOIMarker!=null){
             mPendingPOIMarker.remove();
         }
+        clearAction(true);
         Object obj = mMarkerMap.get(marker);
         clickMarker(obj);
         return false;

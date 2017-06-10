@@ -276,9 +276,11 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
         mMarkerActionsController.setVisibility(View.VISIBLE);
     }
 
-    protected  void clearAction(){
-        mEditingType = 0;
-        refreshEditing();
+    protected  void clearAction(boolean clearEditing){
+        if(clearEditing) {
+            mEditingType = 0;
+            refreshEditing();
+        }
         mMarkerActionsController.setVisibility(View.GONE);
         mEnchantmentController.setVisibility(View.GONE);
         mMarkerController.setVisibility(View.GONE);
