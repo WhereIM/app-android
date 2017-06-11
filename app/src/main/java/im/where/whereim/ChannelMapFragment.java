@@ -119,6 +119,7 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
             @Override
             public void onClick(View v) {
                 mEditingEnchantment.radius += Config.getRadiusStep(mEditingEnchantment.radius);
+                mEditingEnchantment.radius = Math.min(Config.ENCHANTMENT_RADIUS_MAX, Math.max(Config.ENCHANTMENT_RADIUS_MIN, mEditingEnchantment.radius));
                 mEnchantment_radius.setText(getString(R.string.radius_m, mEditingEnchantment.radius));
                 refreshEditing();
             }
@@ -127,6 +128,7 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
             @Override
             public void onClick(View v) {
                 mEditingEnchantment.radius -= Config.getRadiusStep(mEditingEnchantment.radius);
+                mEditingEnchantment.radius = Math.min(Config.ENCHANTMENT_RADIUS_MAX, Math.max(Config.ENCHANTMENT_RADIUS_MIN, mEditingEnchantment.radius));
                 mEnchantment_radius.setText(getString(R.string.radius_m, mEditingEnchantment.radius));
                 refreshEditing();
             }

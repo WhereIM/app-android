@@ -37,9 +37,6 @@ public class Config {
     public final static String API_KEY_MAPBOX = "pk.eyJ1Ijoid2hlcmVpbSIsImEiOiJjaXltbmtvbHUwMDM4MzNwZnNsZHVtbHE4In0.n36bMG_LdA9yOu8-fQS2vw";
 
     public static int getRadiusStep(int radius){
-        if(radius >= 5000) {
-            return 0;
-        }
         if(radius >= 1000) {
             return 500;
         }
@@ -52,10 +49,7 @@ public class Config {
         if(radius >= 50) {
             return 25;
         }
-        if(radius >= 15) {
-            return 15;
-        }
-        return 0;
+        return 5;
     }
 
     public enum MapProvider {
