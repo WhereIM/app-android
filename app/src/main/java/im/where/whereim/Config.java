@@ -28,12 +28,35 @@ public class Config {
     public final static String WHERE_IM_URL = "https://dev.where.im/%s";
 
     public final static int[] SELF_RADIUS = new int[]{75, 100, 150, 200, 250, 300, 400, 500, 1000, 1500, 2000, 3000};
-    public final static int[] ENCHANTMENT_RADIUS = new int[]{15, 30, 50, 75, 100, 150, 200, 250, 300, 400, 500, 1000, 1500, 2000, 3000};
-    public final static int DEFAULT_ENCHANTMENT_RADIUS_INDEX = 2;
+    public final static int ENCHANTMENT_RADIUS_MAX = 5000;
+    public final static int ENCHANTMENT_RADIUS_MIN = 15;
+    public final static int DEFAULT_ENCHANTMENT_RADIUS = 50;
 
     public final static int MAP_AD_TTL = 5 * 60 * 1000; //ms
 
     public final static String API_KEY_MAPBOX = "pk.eyJ1Ijoid2hlcmVpbSIsImEiOiJjaXltbmtvbHUwMDM4MzNwZnNsZHVtbHE4In0.n36bMG_LdA9yOu8-fQS2vw";
+
+    public static int getRadiusStep(int radius){
+        if(radius >= 5000) {
+            return 0;
+        }
+        if(radius >= 1000) {
+            return 500;
+        }
+        if(radius >= 500) {
+            return 250;
+        }
+        if(radius >= 300) {
+            return 100;
+        }
+        if(radius >= 50) {
+            return 25;
+        }
+        if(radius >= 15) {
+            return 15;
+        }
+        return 0;
+    }
 
     public enum MapProvider {
         GOOGLE,

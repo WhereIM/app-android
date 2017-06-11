@@ -28,6 +28,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import im.where.whereim.dialogs.DialogEditEnchantment;
 import im.where.whereim.dialogs.DialogFixedEnchantment;
 import im.where.whereim.dialogs.DialogMobileEnchantment;
 import im.where.whereim.models.Channel;
@@ -402,41 +403,22 @@ public class ChannelEnchantmentFragment extends BaseFragment {
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             mode.finish();
-            Activity activity = getActivity();
+            final ChannelActivity activity = (ChannelActivity) getActivity();
             switch(item.getItemId()) {
                 case ACTION_EDIT:
-                    final View dialog_view = LayoutInflater.from(activity).inflate(R.layout.dialog_enchantment_edit,  null);
-                    final EditText et_name = (EditText) dialog_view.findViewById(R.id.name);
-                    et_name.setText(mEditingEnchantment.name);
-                    new AlertDialog.Builder(activity)
-                            .setView(dialog_view)
-                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    new DialogEditEnchantment(activity, mEditingEnchantment.name, mEditingEnchantment.isPublic, new DialogEditEnchantment.Callback() {
+                        @Override
+                        public void onEditEnchantment(final String name, final boolean isPublic) {
+                            postBinderTask(new CoreService.BinderTask() {
                                 @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    final String name = et_name.getText().toString();
-                                    if(name.isEmpty())
-                                        return;
-                                    postBinderTask(new CoreService.BinderTask() {
-                                        @Override
-                                        public void onBinderReady(CoreService.CoreBinder binder) {
-                                            try {
-                                                JSONObject changes = new JSONObject();
-                                                changes.put(Key.NAME, name);
-                                                binder.updateEnchantment(mEditingEnchantment, changes);
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
-
-                                        }
-                                    });
+                                public void onBinderReady(CoreService.CoreBinder binder) {
+                                    mEditingEnchantment.name = name;
+                                    mEditingEnchantment.isPublic = isPublic;
+                                    activity.editEnchantment(mEditingEnchantment);
                                 }
-                            })
-                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-
-                                }
-                            }).show();
+                            });
+                        }
+                    });
                     return true;
                 case ACTION_DELETE:
                     new AlertDialog.Builder(activity)

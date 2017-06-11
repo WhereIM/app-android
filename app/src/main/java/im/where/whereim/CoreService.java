@@ -81,6 +81,8 @@ public class CoreService extends Service {
         void moveToEnchantment(Enchantment enchantment);
         void onMarkerData(Marker marker, boolean focus);
         void moveToMarker(Marker marker, boolean focus);
+        void editEnchantment(Enchantment enchantment);
+        void editMarker(Marker marker);
         QuadTree.LatLng getMapCenter();
         void setSearchResult(ArrayList<POI> results);
         void moveToSearchResult(int position, boolean focus);
@@ -581,22 +583,28 @@ public class CoreService extends Service {
             }
         }
 
-        public void createEnchantment(String name, String channel_id, boolean ispublic, double latitude, double longitude, int radius, boolean enable) {
+        public void setEnchantment(Enchantment enchantment) {
+            if(enchantment==null){
+                return;
+            }
             try {
                 JSONObject payload = new JSONObject();
-                payload.put(Key.NAME, name);
-                payload.put(Key.CHANNEL, channel_id);
-                payload.put(Key.LATITUDE, latitude);
-                payload.put(Key.LONGITUDE, longitude);
-                payload.put(Key.RADIUS, radius);
-                payload.put(Key.ENABLED, enable);
-                String topic;
-                if(ispublic){
-                    topic = String.format("channel/%s/data/enchantment/put", channel_id);
-                }else{
-                    topic = String.format("client/%s/enchantment/put", mClientId);
+                if(enchantment.id == null) {
+                    payload.put(Key.CHANNEL, enchantment.channel_id);
+                    payload.put(Key.ENABLED, true);
+                } else {
+                    payload.put(Key.ID, enchantment.id);
                 }
-                publish(topic, payload);
+                payload.put(Key.NAME, enchantment.name);
+                payload.put(Key.LATITUDE, enchantment.latitude);
+                payload.put(Key.LONGITUDE, enchantment.longitude);
+                payload.put(Key.RADIUS, enchantment.radius);
+
+                if(enchantment.isPublic){
+                    publish(String.format("channel/%s/data/enchantment/put", enchantment.channel_id), payload);
+                }else{
+                    publish(String.format("client/%s/enchantment/put", mClientId), payload);
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -627,23 +635,6 @@ public class CoreService extends Service {
             }
         }
 
-        public void updateEnchantment(Enchantment enchantment, JSONObject payload) {
-            if(enchantment==null){
-                return;
-            }
-            try {
-                payload.put(Key.ID, enchantment.id);
-
-                if(enchantment.isPublic){
-                    publish(String.format("channel/%s/data/enchantment/put", enchantment.channel_id), payload);
-                }else{
-                    publish(String.format("client/%s/enchantment/put", mClientId), payload);
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
         public void deleteEnchantment(Enchantment enchantment){
             try {
                 JSONObject payload = new JSONObject();
@@ -661,22 +652,28 @@ public class CoreService extends Service {
             }
         }
 
-        public void createMarker(String name, String channel_id, boolean ispublic, double latitude, double longitude, JSONObject attr, boolean enable) {
+        public void setMarker(Marker marker) {
+            if(marker==null){
+                return;
+            }
             try {
                 JSONObject payload = new JSONObject();
-                payload.put(Key.NAME, name);
-                payload.put(Key.CHANNEL, channel_id);
-                payload.put(Key.LATITUDE, latitude);
-                payload.put(Key.LONGITUDE, longitude);
-                payload.put(Key.ATTR, attr);
-                payload.put(Key.ENABLED, enable);
-                String topic;
-                if(ispublic){
-                    topic = String.format("channel/%s/data/marker/put", channel_id);
-                }else{
-                    topic = String.format("client/%s/marker/put", mClientId);
+                if(marker.id == null) {
+                    payload.put(Key.CHANNEL, marker.channel_id);
+                    payload.put(Key.ENABLED, true);
+                } else {
+                    payload.put(Key.ID, marker.id);
                 }
-                publish(topic, payload);
+                payload.put(Key.NAME, marker.name);
+                payload.put(Key.LATITUDE, marker.latitude);
+                payload.put(Key.LONGITUDE, marker.longitude);
+                payload.put(Key.ATTR, marker.attr);
+
+                if(marker.isPublic){
+                    publish(String.format("channel/%s/data/marker/put", marker.channel_id), payload);
+                }else{
+                    publish(String.format("client/%s/marker/put", mClientId), payload);
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -702,23 +699,6 @@ public class CoreService extends Service {
                 }
                 publish(topic, payload);
                 notifyChannelMarkerListChangedListeners(marker.channel_id);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
-        public void updateMarker(Marker marker, JSONObject payload) {
-            if(marker==null){
-                return;
-            }
-            try {
-                payload.put(Key.ID, marker.id);
-
-                if(marker.isPublic){
-                    publish(String.format("channel/%s/data/marker/put", marker.channel_id), payload);
-                }else{
-                    publish(String.format("client/%s/marker/put", mClientId), payload);
-                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }

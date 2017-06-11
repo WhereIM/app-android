@@ -446,6 +446,9 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                         circle.remove();
                     }
                 }
+                if(mEditingType == Key.MAP_OBJECT.ENCHANTMENT && enchantment.id.equals(mEditingEnchantment.id)){
+                    return;
+                }
                 if(enchantment.deleted){
                     mEnchantmentCircle.remove(enchantment.id);
                 }else {
@@ -496,6 +499,9 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                     if(m!=null){
                         m.remove();
                     }
+                }
+                if(mEditingType == Key.MAP_OBJECT.MARKER && marker.id.equals(mEditingMarker.id)){
+                    return;
                 }
                 m = null;
                 if(marker.deleted){
@@ -682,7 +688,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
 
     @Override
     protected void refreshEditing(){
-        if(mEditingType==R.string.create_enchantment){
+        if(mEditingType== Key.MAP_OBJECT.ENCHANTMENT){
             mEnchantmentController.setVisibility(View.VISIBLE);
             getMapAsync(new OnMapReadyCallback() {
                 @Override
@@ -691,9 +697,9 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                         mEditingEnchantmentCircle.remove();
                     }
                     mEditingEnchantmentCircle = googleMap.addCircle(new CircleOptions()
-                            .center(new LatLng(mEditingLatitude, mEditingLongitude))
-                            .radius(Config.ENCHANTMENT_RADIUS[mEditingEnchantmentRadiusIndex])
-                            .strokeWidth(5)
+                            .center(new LatLng(mEditingEnchantment.latitude, mEditingEnchantment.longitude))
+                            .radius(mEditingEnchantment.radius)
+                            .strokeWidth(3)
                             .strokeColor(mEditingEnchantment.isPublic ? Color.RED : 0xFFFFA500));
                 }
             });
@@ -703,7 +709,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                 mEditingEnchantmentCircle.remove();
             }
         }
-        if(mEditingType==R.string.create_marker){
+        if(mEditingType== Key.MAP_OBJECT.MARKER){
             mMarkerController.setVisibility(View.VISIBLE);
             getMapAsync(new OnMapReadyCallback() {
                 @Override
@@ -714,7 +720,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                     mEditingMarkerMarker = googleMap.addMarker(
                             new MarkerOptions()
                                     .title(mEditingMarker.name)
-                                    .position(new LatLng(mEditingLatitude, mEditingLongitude))
+                                    .position(new LatLng(mEditingMarker.latitude, mEditingMarker.longitude))
                                     .icon(mEditingMarker.getIconBitmapDescriptor())
                                     .anchor(0.5f, 1f)
                                     .zIndex(1f)

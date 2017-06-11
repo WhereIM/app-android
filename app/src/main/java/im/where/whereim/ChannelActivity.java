@@ -397,6 +397,18 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
 
     }
 
+    @Override
+    public void editEnchantment(Enchantment enchantment) {
+        mChannelMapFragment.editEnchantment(enchantment);
+        mTabLayout.getTabAt(TAB_MAP).select();
+    }
+
+    @Override
+    public void editMarker(Marker marker) {
+        mChannelMapFragment.editMarker(marker);
+        mTabLayout.getTabAt(TAB_MAP).select();
+    }
+
     public QuadTree.LatLng getMapCenter() {
         return mChannelMapFragment.getMapCenter();
     }

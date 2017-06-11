@@ -433,7 +433,7 @@ public class ChannelMarkerFragment extends BaseFragment {
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             mode.finish();
-            Activity activity = getActivity();
+            final ChannelActivity activity = (ChannelActivity) getActivity();
             switch(item.getItemId()) {
                 case ACTION_EDIT:
                     new DialogEditMarker(activity, mEditingMarker.name, mEditingMarker.getIconColor(), mEditingMarker.isPublic, new DialogEditMarker.Callback() {
@@ -442,15 +442,10 @@ public class ChannelMarkerFragment extends BaseFragment {
                             postBinderTask(new CoreService.BinderTask() {
                                 @Override
                                 public void onBinderReady(CoreService.CoreBinder binder) {
-                                    try {
-                                        JSONObject changes = new JSONObject();
-                                        changes.put(Key.NAME, name);
-                                        changes.put(Key.ATTR, attr);
-                                        mEditingMarker.isPublic = isPublic;
-                                        binder.updateMarker(mEditingMarker, changes);
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
+                                    mEditingMarker.name = name;
+                                    mEditingMarker.attr = attr;
+                                    mEditingMarker.isPublic = isPublic;
+                                    activity.editMarker(mEditingMarker);
                                 }
                             });
                         }

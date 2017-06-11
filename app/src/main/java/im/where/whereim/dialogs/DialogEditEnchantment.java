@@ -1,5 +1,9 @@
 package im.where.whereim.dialogs;
 
+/**
+ * Created by buganini on 10/06/17.
+ */
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
@@ -10,27 +14,27 @@ import android.widget.EditText;
 
 import im.where.whereim.R;
 
-/**
- * Created by buganini on 04/05/17.
- */
 
-public class DialogCreateEnchantment {
+public class DialogEditEnchantment {
     public interface Callback {
-        void onPositive(String name, boolean isPublic);
+        void onEditEnchantment(String name, boolean isPublic);
     }
-
-    public DialogCreateEnchantment(Context context, final String title, final DialogCreateEnchantment.Callback callback){
+    public DialogEditEnchantment(final Context context, String defaultTitle, final boolean isShared, final Callback callback){
         final View dialog_view = LayoutInflater.from(context).inflate(R.layout.dialog_enchantment,  null);
         final EditText et_name = (EditText) dialog_view.findViewById(R.id.name);
         final CheckBox isPublic = (CheckBox) dialog_view.findViewById(R.id.ispublic);
-        et_name.setText(title);
+        et_name.setText(defaultTitle);
+        if(isShared){
+            isPublic.setVisibility(View.GONE);
+        }else{
+            isPublic.setChecked(false);
+        }
         new AlertDialog.Builder(context)
-                .setTitle(R.string.create_enchantment)
                 .setView(dialog_view)
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        callback.onPositive(et_name.getText().toString(), isPublic.isChecked());
+                        callback.onEditEnchantment(et_name.getText().toString(), isShared || isPublic.isChecked());
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {

@@ -73,4 +73,9 @@ public class Key {
 
     public final static String USER_CHANNEL_NAME = "user_channel_name";
     public final static String USER_MATE_NAME = "user_mate_name";
+
+    public enum MAP_OBJECT {
+        ENCHANTMENT,
+        MARKER
+    }
 }

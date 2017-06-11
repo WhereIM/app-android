@@ -3,6 +3,7 @@ package im.where.whereim;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -43,8 +44,7 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
 
     protected Marker mEditingMarker = new Marker();
     protected Enchantment mEditingEnchantment = new Enchantment();
-    protected int mEditingType = 0;
-    protected int mEditingEnchantmentRadiusIndex = Config.DEFAULT_ENCHANTMENT_RADIUS_INDEX;
+    protected Key.MAP_OBJECT mEditingType = null;
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
@@ -67,7 +67,7 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
                         mEditingMarker.name = name;
                         mEditingMarker.isPublic = isPublic;
                         mEditingMarker.attr = attr;
-                        mEditingType = R.string.create_marker;
+                        mEditingType = Key.MAP_OBJECT.MARKER;
                         refreshEditing();
                     }
                 });
@@ -86,11 +86,11 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
                         mEditingLatitude = focusLat;
                         mEditingLongitude = focusLng;
 
-                        mEditingEnchantmentRadiusIndex = Config.DEFAULT_ENCHANTMENT_RADIUS_INDEX;
-                        mEnchantment_radius.setText(getString(R.string.radius_m, Config.ENCHANTMENT_RADIUS[mEditingEnchantmentRadiusIndex]));
                         mEditingEnchantment.name = name;
+                        mEditingEnchantment.radius = Config.DEFAULT_ENCHANTMENT_RADIUS;
                         mEditingEnchantment.isPublic = isPublic;
-                        mEditingType = R.string.create_enchantment;
+                        mEnchantment_radius.setText(getString(R.string.radius_m, mEditingEnchantment.radius));
+                        mEditingType = Key.MAP_OBJECT.ENCHANTMENT;
                         refreshEditing();
                     }
                 });
@@ -118,29 +118,23 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
         view.findViewById(R.id.enchantment_enlarge).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int n = mEditingEnchantmentRadiusIndex + 1;
-                if(n < Config.ENCHANTMENT_RADIUS.length){
-                    mEditingEnchantmentRadiusIndex = n;
-                    mEnchantment_radius.setText(getString(R.string.radius_m, Config.ENCHANTMENT_RADIUS[mEditingEnchantmentRadiusIndex]));
-                    refreshEditing();
-                }
+                mEditingEnchantment.radius += Config.getRadiusStep(mEditingEnchantment.radius);
+                mEnchantment_radius.setText(getString(R.string.radius_m, mEditingEnchantment.radius));
+                refreshEditing();
             }
         });
         view.findViewById(R.id.enchantment_reduce).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int n = mEditingEnchantmentRadiusIndex - 1;
-                if(n >= 0){
-                    mEditingEnchantmentRadiusIndex = n;
-                    mEnchantment_radius.setText(getString(R.string.radius_m, Config.ENCHANTMENT_RADIUS[mEditingEnchantmentRadiusIndex]));
-                    refreshEditing();
-                }
+                mEditingEnchantment.radius -= Config.getRadiusStep(mEditingEnchantment.radius);
+                mEnchantment_radius.setText(getString(R.string.radius_m, mEditingEnchantment.radius));
+                refreshEditing();
             }
         });
         view.findViewById(R.id.enchantment_cancel).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mEditingType = 0;
+                mEditingType = null;
                 refreshEditing();
             }
         });
@@ -153,8 +147,9 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
                         getChannel(new ChannelActivity.GetChannelCallback() {
                             @Override
                             public void onGetChannel(Channel channel) {
-                                binder.createEnchantment(mEditingEnchantment.name, channel.id, mEditingEnchantment.isPublic, mEditingLatitude, mEditingLongitude, Config.ENCHANTMENT_RADIUS[mEditingEnchantmentRadiusIndex], true);
-                                mEditingType = 0;
+                                mEditingEnchantment.channel_id = channel.id;
+                                binder.setEnchantment(mEditingEnchantment);
+                                mEditingType = null;
                                 refreshEditing();
                             }
                         });
@@ -173,8 +168,9 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
                         getChannel(new ChannelActivity.GetChannelCallback() {
                             @Override
                             public void onGetChannel(Channel channel) {
-                                binder.createMarker(mEditingMarker.name, channel.id, mEditingMarker.isPublic, mEditingLatitude, mEditingLongitude, mEditingMarker.attr, true);
-                                mEditingType = 0;
+                                mEditingMarker.channel_id = channel.id;
+                                binder.setMarker(mEditingMarker);
+                                mEditingType = null;
                                 refreshEditing();
                             }
                         });
@@ -186,7 +182,7 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
         view.findViewById(R.id.marker_cancel).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mEditingType = 0;
+                mEditingType = null;
                 refreshEditing();
             }
         });
@@ -200,7 +196,15 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
     abstract protected void refreshEditing();
 
     protected void startEditing(){
-        if(mEditingType!=0){
+        if(mEditingType!=null){
+            if (mEditingType == Key.MAP_OBJECT.ENCHANTMENT) {
+                mEditingEnchantment.latitude = mEditingLatitude;
+                mEditingEnchantment.longitude = mEditingLongitude;
+            }
+            if (mEditingType == Key.MAP_OBJECT.MARKER) {
+                mEditingMarker.latitude = mEditingLatitude;
+                mEditingMarker.longitude = mEditingLongitude;
+            }
             refreshEditing();
             return;
         }
@@ -221,11 +225,14 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
                     @Override
                     public void onPositive(String name, boolean isPublic) {
                         clearMakerActionsController();
-                        mEditingEnchantmentRadiusIndex = Config.DEFAULT_ENCHANTMENT_RADIUS_INDEX;
-                        mEnchantment_radius.setText(getString(R.string.radius_m, Config.ENCHANTMENT_RADIUS[mEditingEnchantmentRadiusIndex]));
+                        mEditingEnchantment.id = null;
+                        mEditingEnchantment.radius = Config.DEFAULT_ENCHANTMENT_RADIUS;
                         mEditingEnchantment.name = name;
+                        mEditingEnchantment.latitude = mEditingLatitude;
+                        mEditingEnchantment.longitude = mEditingLongitude;
                         mEditingEnchantment.isPublic = isPublic;
-                        mEditingType = R.string.create_enchantment;
+                        mEnchantment_radius.setText(getString(R.string.radius_m, mEditingEnchantment.radius));
+                        mEditingType = Key.MAP_OBJECT.ENCHANTMENT;
                         refreshEditing();
                     }
                 });
@@ -236,10 +243,13 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
                 new DialogCreateMarker(getActivity(), null, new DialogCreateMarker.Callback() {
                     @Override
                     public void onCreateMarker(String name, boolean isPublic, JSONObject attr) {
+                        mEditingMarker.id = null;
                         mEditingMarker.name = name;
+                        mEditingMarker.latitude = mEditingLatitude;
+                        mEditingMarker.longitude = mEditingLongitude;
                         mEditingMarker.isPublic = isPublic;
                         mEditingMarker.attr = attr;
-                        mEditingType = R.string.create_marker;
+                        mEditingType = Key.MAP_OBJECT.MARKER;
                         refreshEditing();
                     }
                 });
@@ -262,6 +272,32 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
         });
     }
 
+    @Override
+    public void editEnchantment(Enchantment enchantment) {
+        mEditingType = Key.MAP_OBJECT.ENCHANTMENT;
+        mEditingEnchantment.id = enchantment.id;
+        mEditingEnchantment.name = enchantment.name;
+        mEditingEnchantment.latitude = enchantment.latitude;
+        mEditingEnchantment.longitude = enchantment.longitude;
+        mEditingEnchantment.radius = enchantment.radius;
+        mEditingEnchantment.isPublic = enchantment.isPublic;
+        moveToEnchantment(enchantment);
+        refreshEditing();
+    }
+
+    @Override
+    public void editMarker(Marker marker) {
+        mEditingType = Key.MAP_OBJECT.MARKER;
+        mEditingMarker.id = marker.id;
+        mEditingMarker.name = marker.name;
+        mEditingMarker.latitude = marker.latitude;
+        mEditingMarker.longitude = marker.longitude;
+        mEditingMarker.attr = marker.attr;
+        mEditingMarker.isPublic = marker.isPublic;
+        moveToMarker(marker, false);
+        refreshEditing();
+    }
+
     private String focusTitle = null;
     private Double focusLat = null;
     private Double focusLng = null;
@@ -278,7 +314,7 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
 
     protected  void clearAction(boolean clearEditing){
         if(clearEditing) {
-            mEditingType = 0;
+            mEditingType = null;
             refreshEditing();
         }
         mMarkerActionsController.setVisibility(View.GONE);

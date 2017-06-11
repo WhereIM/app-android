@@ -528,6 +528,9 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
                         circle.remove();
                     }
                 }
+                if(mEditingType== Key.MAP_OBJECT.ENCHANTMENT && enchantment.id.equals(mEditingEnchantment.id)){
+                    return;
+                }
                 if (enchantment.deleted) {
                     mEnchantmentCircle.remove(enchantment.id);
                 } else {
@@ -582,6 +585,9 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
                     if (m != null) {
                         m.remove();
                     }
+                }
+                if(mEditingType == Key.MAP_OBJECT.MARKER && marker.id.equals(mEditingMarker.id)){
+                    return;
                 }
                 m = null;
                 if (marker.deleted) {
@@ -774,7 +780,7 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
 
     @Override
     protected void refreshEditing() {
-        if (mEditingType == R.string.create_enchantment) {
+        if (mEditingType == Key.MAP_OBJECT.ENCHANTMENT) {
             mEnchantmentController.setVisibility(View.VISIBLE);
             getMapAsync(new OnMapReadyCallback() {
                 @Override
@@ -783,7 +789,7 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
                         mEditingEnchantmentCircle.remove();
                     }
                     mEditingEnchantmentCircle = mapboxMap.addPolygon(new PolygonOptions()
-                            .addAll(polygonCircleForCoordinate(new LatLng(mEditingLatitude, mEditingLongitude), Config.ENCHANTMENT_RADIUS[mEditingEnchantmentRadiusIndex]))
+                            .addAll(polygonCircleForCoordinate(new LatLng(mEditingEnchantment.latitude, mEditingEnchantment.longitude), mEditingEnchantment.radius))
                             .strokeColor(mEditingEnchantment.isPublic ? Color.RED : 0xFFA500)
                     );
                 }
@@ -794,7 +800,7 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
                 mEditingEnchantmentCircle.remove();
             }
         }
-        if (mEditingType == R.string.create_marker) {
+        if (mEditingType == Key.MAP_OBJECT.MARKER) {
             mMarkerController.setVisibility(View.VISIBLE);
             getMapAsync(new OnMapReadyCallback() {
                 @Override
