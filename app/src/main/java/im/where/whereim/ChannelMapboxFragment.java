@@ -537,7 +537,7 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
                     if (enchantment.enabled == null || enchantment.enabled || enchantment == focusEnchantment) {
                         Polyline circle = mapboxMap.addPolyline(new PolylineOptions()
                                 .addAll(polygonCircleForCoordinate(new LatLng(enchantment.latitude, enchantment.longitude), enchantment.radius))
-                                .width(3)
+                                .width(1)
                                 .color((enchantment.enabled == null || enchantment.enabled) ? (enchantment.isPublic ? Color.RED : 0xFFFFA500) : Color.GRAY)
                         );
                         synchronized (mEnchantmentCircle) {
@@ -752,7 +752,7 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
         });
     }
 
-    private Polygon mEditingEnchantmentCircle = null;
+    private Polyline mEditingEnchantmentCircle = null;
     private MarkerView mEditingMarkerMarker = null;
 
     @Override
@@ -788,9 +788,10 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
                     if (mEditingEnchantmentCircle != null) {
                         mEditingEnchantmentCircle.remove();
                     }
-                    mEditingEnchantmentCircle = mapboxMap.addPolygon(new PolygonOptions()
+                    mEditingEnchantmentCircle = mapboxMap.addPolyline(new PolylineOptions()
                             .addAll(polygonCircleForCoordinate(new LatLng(mEditingEnchantment.latitude, mEditingEnchantment.longitude), mEditingEnchantment.radius))
-                            .strokeColor(mEditingEnchantment.isPublic ? Color.RED : 0xFFA500)
+                            .width(1)
+                            .color(mEditingEnchantment.isPublic ? Color.RED : 0xFFA500)
                     );
                 }
             });
