@@ -16,8 +16,8 @@
     <string name="got_it">知道了</string>
     <string name="tip_new_channel">點這裡建立或用QR Code加入群組。</string>
     <string name="tip_enter_channel">點這裡進入群組。</string>
-    <string name="tip_active_channel">點這裡切換是否傳送位置資訊到這個群組。</string>
-    <string name="tip_active_channel_2">跟群組列表的開關一樣，點這裡開關此群組的位置分享。</string>
+    <string name="tip_toggle_channel">點這裡切換是否傳送位置資訊到這個群組。</string>
+    <string name="tip_toggle_channel_2">跟群組列表的開關一樣，點這裡開關此群組的位置分享。</string>
     <string name="tip_invite">點這裡邀請別人加入這個群組。</string>
     <string name="location_status">定位狀態</string>
     <string name="location_status_not_avail">沒有位置資訊</string>

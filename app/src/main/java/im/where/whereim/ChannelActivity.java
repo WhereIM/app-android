@@ -97,9 +97,9 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
     private View mContentRoot;
     private View mCover;
     private ImageView mActiveChannelPointer;
-    private View mActiveChannelPointerDesc;
+    private View mActiveChannelDesc;
     private ImageView mInvitePointer;
-    private View mInvitePointerDesc;
+    private View mInviteDesc;
 
     private View mConnectionStatus;
     private TextView mChannelTitle;
@@ -129,7 +129,7 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
         mContentRoot = findViewById(R.id.content_root);
         mCover = findViewById(R.id.cover);
         mActiveChannelPointer = (ImageView) findViewById(R.id.active_channel_pointer);
-        mActiveChannelPointerDesc = findViewById(R.id.active_channel_pointer_desc);
+        mActiveChannelDesc = findViewById(R.id.active_channel_pointer_desc);
         findViewById(R.id.active_channel_close).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -141,7 +141,7 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
         });
 
         mInvitePointer = (ImageView) findViewById(R.id.invite_pointer);
-        mInvitePointerDesc = findViewById(R.id.invite_pointer_desc);
+        mInviteDesc = findViewById(R.id.invite_pointer_desc);
         findViewById(R.id.invite_close).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -255,22 +255,22 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
 
         if(!sp.getBoolean(Key.TIP_ACTIVE_CHANNEL_2, false)) {
             mActiveChannelPointer.setVisibility(View.VISIBLE);
-            mActiveChannelPointerDesc.setVisibility(View.VISIBLE);
+            mActiveChannelDesc.setVisibility(View.VISIBLE);
             mCover.setVisibility(View.VISIBLE);
             return;
         } else {
             mActiveChannelPointer.setVisibility(View.GONE);
-            mActiveChannelPointerDesc.setVisibility(View.GONE);
+            mActiveChannelDesc.setVisibility(View.GONE);
         }
 
         if(!sp.getBoolean(Key.TIP_INVITE_CHANNEL, false)) {
             mInvitePointer.setVisibility(View.VISIBLE);
-            mInvitePointerDesc.setVisibility(View.VISIBLE);
+            mInviteDesc.setVisibility(View.VISIBLE);
             mCover.setVisibility(View.VISIBLE);
             return;
         } else {
             mInvitePointer.setVisibility(View.GONE);
-            mInvitePointerDesc.setVisibility(View.GONE);
+            mInviteDesc.setVisibility(View.GONE);
         }
     }
 

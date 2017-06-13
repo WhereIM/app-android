@@ -208,11 +208,11 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
     private View mViewRoot;
     private View mCover;
     private ImageView mNewChannelPointer;
-    private View mNewChannelPointerDesc;
+    private View mNewChannelDesc;
     private ImageView mActiveChannelPointer;
-    private View mActiveChannelPointerDesc;
+    private View mActiveChannelDesc;
     private ImageView mEnterChannelPointer;
-    private View mEnterChannelPointerDesc;
+    private View mEnterChannelDesc;
 
     private POI pendingPOI;
     private View mPendingPanel;
@@ -246,7 +246,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
         mCover = findViewById(R.id.cover);
 
         mNewChannelPointer = (ImageView) findViewById(R.id.new_channel_pointer);
-        mNewChannelPointerDesc = findViewById(R.id.new_channel_pointer_desc);
+        mNewChannelDesc = findViewById(R.id.new_channel_pointer_desc);
         findViewById(R.id.new_channel_close).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -258,7 +258,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
         });
 
         mActiveChannelPointer = (ImageView) findViewById(R.id.active_channel_pointer);
-        mActiveChannelPointerDesc = findViewById(R.id.active_channel_pointer_desc);
+        mActiveChannelDesc = findViewById(R.id.active_channel_pointer_desc);
         findViewById(R.id.active_channel_close).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -270,7 +270,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
         });
 
         mEnterChannelPointer = (ImageView) findViewById(R.id.enter_channel_pointer);
-        mEnterChannelPointerDesc = findViewById(R.id.enter_channel_pointer_desc);
+        mEnterChannelDesc = findViewById(R.id.enter_channel_pointer_desc);
         findViewById(R.id.enter_channel_close).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -439,33 +439,33 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
 
         if(!sp.getBoolean(Key.TIP_NEW_CHANNEL, false)) {
             mNewChannelPointer.setVisibility(View.VISIBLE);
-            mNewChannelPointerDesc.setVisibility(View.VISIBLE);
+            mNewChannelDesc.setVisibility(View.VISIBLE);
             mCover.setVisibility(View.VISIBLE);
             return;
         } else {
             mNewChannelPointer.setVisibility(View.GONE);
-            mNewChannelPointerDesc.setVisibility(View.GONE);
+            mNewChannelDesc.setVisibility(View.GONE);
         }
 
         if(mAdapter.getCount()>0){
             if(!sp.getBoolean(Key.TIP_ACTIVE_CHANNEL, false)) {
                 mActiveChannelPointer.setVisibility(View.VISIBLE);
-                mActiveChannelPointerDesc.setVisibility(View.VISIBLE);
+                mActiveChannelDesc.setVisibility(View.VISIBLE);
                 mCover.setVisibility(View.VISIBLE);
                 return;
             } else {
                 mActiveChannelPointer.setVisibility(View.GONE);
-                mActiveChannelPointerDesc.setVisibility(View.GONE);
+                mActiveChannelDesc.setVisibility(View.GONE);
             }
 
             if(!sp.getBoolean(Key.TIP_ENTER_CHANNEL, false)) {
                 mEnterChannelPointer.setVisibility(View.VISIBLE);
-                mEnterChannelPointerDesc.setVisibility(View.VISIBLE);
+                mEnterChannelDesc.setVisibility(View.VISIBLE);
                 mCover.setVisibility(View.VISIBLE);
                 return;
             } else {
                 mEnterChannelPointer.setVisibility(View.GONE);
-                mEnterChannelPointerDesc.setVisibility(View.GONE);
+                mEnterChannelDesc.setVisibility(View.GONE);
             }
         }
     }
