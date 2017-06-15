@@ -42,6 +42,8 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
 
     protected TextView mEnchantment_radius;
 
+    protected Marker mEditingMarkerOrig = null;
+    protected Enchantment mEditingEnchantmentOrig = null;
     protected Marker mEditingMarker = new Marker();
     protected Enchantment mEditingEnchantment = new Enchantment();
     protected Key.MAP_OBJECT mEditingType = null;
@@ -136,8 +138,7 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
         view.findViewById(R.id.enchantment_cancel).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mEditingType = null;
-                refreshEditing();
+                clearAction(true);
             }
         });
         view.findViewById(R.id.enchantment_ok).setOnClickListener(new View.OnClickListener() {
@@ -184,8 +185,7 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
         view.findViewById(R.id.marker_cancel).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mEditingType = null;
-                refreshEditing();
+                clearAction(true);
             }
         });
     }
@@ -276,6 +276,8 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
 
     @Override
     public void editEnchantment(Enchantment enchantment) {
+        clearAction(true);
+        mEditingEnchantmentOrig = enchantment;
         mEditingType = Key.MAP_OBJECT.ENCHANTMENT;
         mEditingEnchantment.id = enchantment.id;
         mEditingEnchantment.name = enchantment.name;
@@ -289,6 +291,8 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
 
     @Override
     public void editMarker(Marker marker) {
+        clearAction(true);
+        mEditingMarkerOrig = marker;
         mEditingType = Key.MAP_OBJECT.MARKER;
         mEditingMarker.id = marker.id;
         mEditingMarker.name = marker.name;
@@ -317,6 +321,12 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
     protected  void clearAction(boolean clearEditing){
         if(clearEditing) {
             mEditingType = null;
+            if(mEditingEnchantmentOrig != null){
+                onEnchantmentData(mEditingEnchantmentOrig);
+            }
+            if(mEditingMarkerOrig != null){
+                onMarkerData(mEditingMarkerOrig, false);
+            }
             refreshEditing();
         }
         mMarkerActionsController.setVisibility(View.GONE);
