@@ -165,10 +165,10 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                         int[] swOrig = new int[2];
                         sw.getLocationInWindow(swOrig);
                         RelativeLayout.LayoutParams params;
-                        params = (RelativeLayout.LayoutParams) mActiveChannelPointer.getLayoutParams();
+                        params = (RelativeLayout.LayoutParams) mToggleChannelPointer.getLayoutParams();
                         params.topMargin = swOrig[1] - rootOrig[1] + sw.getHeight();
-                        params.leftMargin = swOrig[0] - rootOrig[0] - mActiveChannelPointer.getDrawable().getIntrinsicWidth();
-                        mActiveChannelPointer.setLayoutParams(params);
+                        params.leftMargin = swOrig[0] - rootOrig[0] - mToggleChannelPointer.getDrawable().getIntrinsicWidth();
+                        mToggleChannelPointer.setLayoutParams(params);
 
                         int[] cellOrig = new int[2];
                         cell.getLocationInWindow(cellOrig);
@@ -209,8 +209,8 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
     private View mCover;
     private ImageView mNewChannelPointer;
     private View mNewChannelDesc;
-    private ImageView mActiveChannelPointer;
-    private View mActiveChannelDesc;
+    private ImageView mToggleChannelPointer;
+    private View mToggleChannelDesc;
     private ImageView mEnterChannelPointer;
     private View mEnterChannelDesc;
 
@@ -257,8 +257,8 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
             }
         });
 
-        mActiveChannelPointer = (ImageView) findViewById(R.id.active_channel_pointer);
-        mActiveChannelDesc = findViewById(R.id.active_channel_pointer_desc);
+        mToggleChannelPointer = (ImageView) findViewById(R.id.active_channel_pointer);
+        mToggleChannelDesc = findViewById(R.id.active_channel_pointer_desc);
         findViewById(R.id.active_channel_close).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -449,13 +449,13 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
 
         if(mAdapter.getCount()>0){
             if(!sp.getBoolean(Key.TIP_ACTIVE_CHANNEL, false)) {
-                mActiveChannelPointer.setVisibility(View.VISIBLE);
-                mActiveChannelDesc.setVisibility(View.VISIBLE);
+                mToggleChannelPointer.setVisibility(View.VISIBLE);
+                mToggleChannelDesc.setVisibility(View.VISIBLE);
                 mCover.setVisibility(View.VISIBLE);
                 return;
             } else {
-                mActiveChannelPointer.setVisibility(View.GONE);
-                mActiveChannelDesc.setVisibility(View.GONE);
+                mToggleChannelPointer.setVisibility(View.GONE);
+                mToggleChannelDesc.setVisibility(View.GONE);
             }
 
             if(!sp.getBoolean(Key.TIP_ENTER_CHANNEL, false)) {

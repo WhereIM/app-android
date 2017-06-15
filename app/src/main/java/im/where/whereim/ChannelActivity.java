@@ -128,9 +128,9 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
 
         mContentRoot = findViewById(R.id.content_root);
         mCover = findViewById(R.id.cover);
-        mActiveChannelPointer = (ImageView) findViewById(R.id.active_channel_pointer);
-        mActiveChannelDesc = findViewById(R.id.active_channel_pointer_desc);
-        findViewById(R.id.active_channel_close).setOnClickListener(new View.OnClickListener() {
+        mActiveChannelPointer = (ImageView) findViewById(R.id.toggle_channel_pointer);
+        mActiveChannelDesc = findViewById(R.id.toggle_channel_pointer_desc);
+        findViewById(R.id.toggle_channel_close).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 SharedPreferences.Editor editor = ChannelActivity.this.getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
