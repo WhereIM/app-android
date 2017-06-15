@@ -811,15 +811,13 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
                     }
                     MarkerViewOptions markerViewOptions = new MarkerViewOptions()
                             .title(mEditingMarker.name)
-                            .position(new LatLng(mEditingLatitude, mEditingLongitude))
+                            .position(new LatLng(mEditingMarker.latitude, mEditingMarker.longitude))
                             .icon(iconFactory.fromResource(mEditingMarker.getIconResId()));
 //                          .zIndex(1f)
-
                     mEditingMarkerMarker = mapboxMap.addMarker(markerViewOptions);
                     mapboxMap.selectMarker(mEditingMarkerMarker);
                 }
             });
-
         } else {
             mMarkerController.setVisibility(View.GONE);
             if (mEditingMarkerMarker != null) {
