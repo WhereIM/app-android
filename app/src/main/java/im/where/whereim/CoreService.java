@@ -1107,9 +1107,6 @@ public class CoreService extends Service {
                         break;
                     default:
                         Log.e(TAG, "MQTT Disconnected");
-                        synchronized (mSubscribedTopics) {
-                            mSubscribedTopics.clear();
-                        }
                         synchronized (mChannelMessageSync) {
                             mChannelMessageSync.clear();
                         }
