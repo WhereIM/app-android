@@ -24,6 +24,7 @@ public class Channel extends BaseModel {
     private final static String COL_ENABLE_RADIUS = "enable_radius";
     private final static String COL_RADIUS = "radius";
     private final static String COL_UNREAD = "unread";
+    private final static String COL_PUBLIC = "public";
 
     public static void createTable(SQLiteDatabase db){
         String sql;
@@ -36,6 +37,7 @@ public class Channel extends BaseModel {
                 COL_ENABLED + " BOOLEAN, " +
                 COL_ENABLE_RADIUS + " BOOLEAN, " +
                 COL_RADIUS + " INTEGER, " +
+                COL_PUBLIC + " BOOLEAN, " +
                 COL_UNREAD + " BOOLEAN" +
                 ")";
         db.execSQL(sql);
@@ -49,6 +51,12 @@ public class Channel extends BaseModel {
 
             currVersion = 3;
         }
+        if (currVersion < 4) {
+            sql = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + COL_PUBLIC + " BOOLEAN NOT NULL DEFAULT 0";
+            db.execSQL(sql);
+
+            currVersion = 4;
+        }
     }
 
     public String id;
@@ -59,6 +67,7 @@ public class Channel extends BaseModel {
     public Boolean enabled;
     public Boolean enable_radius;
     public int radius;
+    public boolean is_public = false;
     public boolean deleted = false;
     public boolean unread = false;
 
@@ -86,6 +95,7 @@ public class Channel extends BaseModel {
         channel.enabled = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ENABLED))!=0;
         channel.enable_radius = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ENABLE_RADIUS))!=0;
         channel.radius = cursor.getInt(cursor.getColumnIndexOrThrow(COL_RADIUS));
+        channel.is_public = cursor.getInt(cursor.getColumnIndexOrThrow(COL_PUBLIC))!=0;
         channel.unread = cursor.getInt(cursor.getColumnIndexOrThrow(COL_UNREAD))!=0;
         return channel;
     }
@@ -112,6 +122,7 @@ public class Channel extends BaseModel {
             cv.put(COL_ENABLE_RADIUS, enable_radius ? 1 : 0);
         }
         cv.put(COL_RADIUS, radius);
+        cv.put(COL_PUBLIC, is_public ? 1 : 0);
         cv.put(COL_UNREAD, unread ? 1 : 0);
         return cv;
     }

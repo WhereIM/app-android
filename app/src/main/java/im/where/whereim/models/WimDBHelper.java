@@ -11,7 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class WimDBHelper extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "whereim.db";
-    public static final int VERSION = 3;
+    public static final int VERSION = 4;
     private static SQLiteDatabase mDatabase;
 
     public WimDBHelper(Context context) {

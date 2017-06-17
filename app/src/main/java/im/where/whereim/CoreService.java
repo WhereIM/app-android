@@ -491,7 +491,7 @@ public class CoreService extends Service {
                 }
             }
             receiver.onMapAd(mapAds);
-            subscribeChannelMap(channel.id);
+            subscribeChannelMap(channel);
             return true;
         }
 
@@ -504,7 +504,7 @@ public class CoreService extends Service {
                     mMapDataReceiver.get(channel.id).remove(receiver);
                 }
             }
-            unsubscribeChannelMap(channel.id);
+            unsubscribeChannelMap(channel);
         }
 
         public void forgeLocation(Channel channel, double latitude, double longitude) {
@@ -2079,13 +2079,13 @@ public class CoreService extends Service {
         ShortcutBadger.applyCount(this, unread);
     }
 
-    private void subscribeChannelMap(String channel_id){
-        String topic = String.format("channel/%s/map/+/get", channel_id);
+    private void subscribeChannelMap(Channel channel){
+        String topic = String.format("channel/%s/map/+/get", channel.id);
         subscribe(topic);
     }
 
-    private void unsubscribeChannelMap(String channel_id){
-        String topic = String.format("channel/%s/map/+/get", channel_id);
+    private void unsubscribeChannelMap(Channel channel){
+        String topic = String.format("channel/%s/map/+/get", channel.id);
         unsubscribe(topic);
     }
 
@@ -2115,10 +2115,11 @@ public class CoreService extends Service {
             @Override
             public void run() {
                 try{
-                    Log.e(TAG, "Unsubscribe "+topic);
-                    mqttManager.unsubscribeTopic(topic);
                     synchronized (mSubscribedTopics) {
-                        mSubscribedTopics.remove(topic);
+                        if(mSubscribedTopics.remove(topic)){
+                            Log.e(TAG, "Unsubscribe "+topic);
+                            mqttManager.unsubscribeTopic(topic);
+                        }
                     }
                 }catch(Exception e){
                     e.printStackTrace();

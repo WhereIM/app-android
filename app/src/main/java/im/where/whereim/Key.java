@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 
 public class Key {
     public final static String ACCURACY = "acc";
+    public final static String ACTION = "act";
     public final static String ACTIVE = "active";
     public final static String ALTITUDE = "alt";
     public final static String API = "api";
@@ -58,10 +59,12 @@ public class Key {
     public final static String SN = "sn";
     public final static String SPEED = "spd";
     public final static String STALE = "stale";
+    public final static String SUBSCRIBE = "subscribe";
 
     public final static String TILE = "tile";
     public final static String TIME = "time";
     public final static String TOKEN = "token";
+    public final static String TOPIC = "topic";
     public final static String TS = "ts";
 
     public final static String TIP_ACTIVE_CHANNEL = "tip_active_channel";
@@ -70,6 +73,7 @@ public class Key {
     public final static String TIP_INVITE_CHANNEL = "tip_invite_channel";
     public final static String TIP_NEW_CHANNEL = "tip_new_channel";
 
+    public final static String UNSUBSCRIBE = "unsub";
     public final static String USER_CHANNEL_NAME = "user_channel_name";
     public final static String USER_MATE_NAME = "user_mate_name";
 
