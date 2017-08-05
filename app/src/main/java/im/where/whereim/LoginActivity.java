@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -17,10 +19,20 @@ import com.facebook.Profile;
 import com.facebook.ProfileTracker;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.common.base.Optional;
 
 public class LoginActivity extends BaseActivity {
     private CallbackManager mCallbackManager;
+
+    private final static int RC_GOOGLE_SIGN_IN = 2;
 
     private Handler mHandler = new Handler();
     private View mLogin;
@@ -59,6 +71,7 @@ public class LoginActivity extends BaseActivity {
         }
     };
 
+    private GoogleApiClient mGoogleApiClient;
     private String mProvider;
     private String mToken;
     private String mAuthId;
@@ -67,7 +80,41 @@ public class LoginActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_login);
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(Config.SERVER_KEY_GOOGLE)
+                .build();
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, new GoogleApiClient.OnConnectionFailedListener() {
+                    @Override
+                    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+                        Toast.makeText(LoginActivity.this, connectionResult.getErrorMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
+                    @Override
+                    public void onConnected(@Nullable Bundle bundle) {
+                        Auth.GoogleSignInApi.signOut(mGoogleApiClient);
+                    }
+
+                    @Override
+                    public void onConnectionSuspended(int i) {
+
+                    }
+                })
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
+
+        findViewById(R.id.google_login_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
+                startActivityForResult(signInIntent, RC_GOOGLE_SIGN_IN);
+            }
+        });
 
         mLoading = findViewById(R.id.loading);
         mLogin = findViewById(R.id.login);
@@ -202,6 +249,18 @@ public class LoginActivity extends BaseActivity {
         if(requestCode==0){
             postBinderTask(mTask);
             return;
+        }
+
+        if (requestCode == RC_GOOGLE_SIGN_IN) {
+            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            if (result.isSuccess()) {
+                GoogleSignInAccount acct = result.getSignInAccount();
+                mAuthId = acct.getId();
+                mToken = acct.getIdToken();
+                mName = acct.getDisplayName();
+                mProvider = Key.GOOGLE;
+                postBinderTask(mTask);
+            }
         }
 
         if(FacebookSdk.isFacebookRequestCode(requestCode)) {

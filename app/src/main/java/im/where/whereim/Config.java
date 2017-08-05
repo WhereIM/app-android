@@ -34,6 +34,7 @@ public class Config {
 
     public final static int MAP_AD_TTL = 5 * 60 * 1000; //ms
 
+    public final static String SERVER_KEY_GOOGLE = "737200913386-n4c1mvkcik92n3slo8p2s7smkgs1ue7f.apps.googleusercontent.com";
     public final static String API_KEY_MAPBOX = "pk.eyJ1Ijoid2hlcmVpbSIsImEiOiJjaXltbmtvbHUwMDM4MzNwZnNsZHVtbHE4In0.n36bMG_LdA9yOu8-fQS2vw";
 
     public static int getRadiusStep(int radius){

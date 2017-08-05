@@ -3,7 +3,6 @@ package im.where.whereim;
 import android.content.Intent;
 import android.support.multidex.MultiDexApplication;
 
-import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
 import com.facebook.login.LoginManager;
 
