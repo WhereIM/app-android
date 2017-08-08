@@ -1702,7 +1702,11 @@ public class CoreService extends Service {
             channel.delete(mWimDBHelper.getDatabase());
         }else{
             if(channel.enabled!=null && channel.enabled){
-                subscribe(topic);
+                if(channel.is_public){
+                    subscribe(topic);
+                }else{
+                    unsubscribe(topic);
+                }
                 syncChannelData(channel);
                 syncChannelMessage(channel);
             }
