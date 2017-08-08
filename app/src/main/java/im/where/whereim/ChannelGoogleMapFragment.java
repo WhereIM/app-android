@@ -388,26 +388,31 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
             return;
         getMapAsync(new OnMapReadyCallback() {
             @Override
-            public void onMapReady(GoogleMap googleMap) {
-                if(mRadiusCircle!=null){
-                    mRadiusCircle.remove();
-                    mRadiusCircle = null;
-                }
-                if(selfMate.latitude!=null && selfMate.longitude!=null){
-                    if(mChannel.enable_radius!=null && mChannel.enable_radius) {
-                        int color;
-                        if (mChannel.active) {
-                            color = Color.MAGENTA;
-                        } else {
-                            color = Color.GRAY;
+            public void onMapReady(final GoogleMap googleMap) {
+                getChannel(new ChannelActivity.GetChannelCallback() {
+                    @Override
+                    public void onGetChannel(Channel channel) {
+                        if(mRadiusCircle!=null){
+                            mRadiusCircle.remove();
+                            mRadiusCircle = null;
                         }
-                        mRadiusCircle = googleMap.addCircle(new CircleOptions()
-                                .center(new LatLng(selfMate.latitude, selfMate.longitude))
-                                .radius(mChannel.radius)
-                                .strokeWidth(5)
-                                .strokeColor(color));
+                        if(selfMate.latitude!=null && selfMate.longitude!=null){
+                            if(channel.enable_radius!=null && channel.enable_radius) {
+                                int color;
+                                if (channel.active) {
+                                    color = Color.MAGENTA;
+                                } else {
+                                    color = Color.GRAY;
+                                }
+                                mRadiusCircle = googleMap.addCircle(new CircleOptions()
+                                        .center(new LatLng(selfMate.latitude, selfMate.longitude))
+                                        .radius(channel.radius)
+                                        .strokeWidth(5)
+                                        .strokeColor(color));
+                            }
+                        }
                     }
-                }
+                });
             }
         });
     }

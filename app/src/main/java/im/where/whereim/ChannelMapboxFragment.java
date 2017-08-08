@@ -467,25 +467,30 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
             return;
         getMapAsync(new OnMapReadyCallback() {
             @Override
-            public void onMapReady(MapboxMap mapboxMap) {
-                if (mRadiusCircle != null) {
-                    mRadiusCircle.remove();
-                    mRadiusCircle = null;
-                }
-                if (selfMate.latitude != null && selfMate.longitude != null) {
-                    if (mChannel.enable_radius != null && mChannel.enable_radius) {
-                        int color;
-                        if (mChannel.active) {
-                            color = Color.MAGENTA;
-                        } else {
-                            color = Color.GRAY;
+            public void onMapReady(final MapboxMap mapboxMap) {
+                getChannel(new ChannelActivity.GetChannelCallback() {
+                    @Override
+                    public void onGetChannel(Channel channel) {
+                        if (mRadiusCircle != null) {
+                            mRadiusCircle.remove();
+                            mRadiusCircle = null;
                         }
-                        mRadiusCircle = mapboxMap.addPolygon(new PolygonOptions()
-                                .addAll(polygonCircleForCoordinate(new LatLng(selfMate.latitude, selfMate.longitude), mChannel.radius))
-                                .strokeColor(color)
-                        );
+                        if (selfMate.latitude != null && selfMate.longitude != null) {
+                            if (channel.enable_radius != null && channel.enable_radius) {
+                                int color;
+                                if (channel.active) {
+                                    color = Color.MAGENTA;
+                                } else {
+                                    color = Color.GRAY;
+                                }
+                                mRadiusCircle = mapboxMap.addPolygon(new PolygonOptions()
+                                        .addAll(polygonCircleForCoordinate(new LatLng(selfMate.latitude, selfMate.longitude), channel.radius))
+                                        .strokeColor(color)
+                                );
+                            }
+                        }
                     }
-                }
+                });
             }
         });
     }
