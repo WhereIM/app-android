@@ -324,10 +324,10 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                         channel = (Channel) mAdapter.getItem(position);
                         menu.add(0, ACTION_EDIT, 0, "✏️");
-                        if(channel.enabled !=null && !channel.enabled)
-                            menu.add(0, ACTION_TOGGLE_ENABLED, 0, "\uD83D\uDD13");
-                        if(channel.enabled !=null && channel.enabled)
-                            menu.add(0, ACTION_TOGGLE_ENABLED, 0, "\uD83D\uDD12");
+//                        if(channel.enabled !=null && !channel.enabled)
+//                            menu.add(0, ACTION_TOGGLE_ENABLED, 0, "\uD83D\uDD13");
+//                        if(channel.enabled !=null && channel.enabled)
+//                            menu.add(0, ACTION_TOGGLE_ENABLED, 0, "\uD83D\uDD12");
                         menu.add(0, ACTION_DELETE, 0, "❌️");
                         return true;
                     }
