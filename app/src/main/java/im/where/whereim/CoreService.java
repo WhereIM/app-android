@@ -162,6 +162,7 @@ public class CoreService extends Service {
                         mUserName = name;
 
                         JSONObject payload = new JSONObject();
+                        payload.put("platform", "android");
                         payload.put("auth_provider", provider);
                         payload.put("auth_token", auth_token);
                         payload.put("auth_id", auth_id);
