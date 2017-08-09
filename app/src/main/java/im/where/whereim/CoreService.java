@@ -1175,6 +1175,13 @@ public class CoreService extends Service {
         return getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).getLong(key, 0);
     }
 
+    private void clearTS(String channel_id){
+        String key = String.format("%s/%s", Key.TS, channel_id);
+        SharedPreferences.Editor editor = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
+        editor.remove(key);
+        editor.apply();
+    }
+
     private void notifyChannelListChangedListeners(){
         synchronized (mChannelListChangedListener){
             for (Runnable runnable : mChannelListChangedListener) {
@@ -1699,6 +1706,7 @@ public class CoreService extends Service {
             unsubscribe(topic);
             mChannelMap.remove(channel.id);
             mChannelList.remove(channel);
+            clearTS(channel.id);
             channel.delete(mWimDBHelper.getDatabase());
         }else{
             if(channel.enabled!=null && channel.enabled){
