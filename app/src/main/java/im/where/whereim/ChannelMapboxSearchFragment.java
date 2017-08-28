@@ -52,7 +52,6 @@ public class ChannelMapboxSearchFragment extends ChannelSearchFragment {
                                 .addPathSegment("mapbox.places")
                                 .addPathSegment(keyword+".json")
                                 .addQueryParameter("access_token", api_key)
-                                .addQueryParameter("autocomplete", "false")
                                 .addQueryParameter("proximity", String.format(Locale.ENGLISH, "%f,%f", latlng.longitude, latlng.latitude))
                                 .build();
                         OkHttpClient client = new OkHttpClient();
