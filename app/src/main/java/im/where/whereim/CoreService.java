@@ -13,11 +13,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.location.LocationProvider;
 import android.os.Binder;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
@@ -35,6 +31,11 @@ import com.amazonaws.mobileconnectors.iot.AWSIotMqttNewMessageCallback;
 import com.amazonaws.mobileconnectors.iot.AWSIotMqttQos;
 import com.amazonaws.regions.Region;
 import com.amazonaws.util.IOUtils;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -960,6 +961,11 @@ public class CoreService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         init();
         return START_STICKY;
     }
@@ -2159,9 +2165,19 @@ public class CoreService extends Service {
 
     // ================ Location Service ================
 
-    private LocationManager mLocationManager;
+    private LocationCallback mLocationCallback = new LocationCallback() {
+        @Override
+        public void onLocationResult(LocationResult locationResult) {
+            List<Location> locations = locationResult.getLocations();
+            if(locations.size()>0){
+                processLocation("Fused", locations.get(locations.size()-1));
+            }
+        };
+    };
 
     private boolean mLocationServiceRunning = false;
+    private FusedLocationProviderClient mFusedLocationClient;
+    private LocationRequest mLocationRequest = new LocationRequest();
     private void startLocationService() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
@@ -2170,9 +2186,9 @@ public class CoreService extends Service {
             return;
         mLocationServiceRunning = true;
         Log.e(TAG, "startLocationService");
-        mLocationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        startGPSListener();
-        startNetworkListener();
+        mFusedLocationClient.requestLocationUpdates(mLocationRequest,
+                mLocationCallback,
+                null /* Looper */);
     }
 
     private void stopLocationService(){
@@ -2183,73 +2199,7 @@ public class CoreService extends Service {
             return;
         mLocationServiceRunning = false;
         Log.e(TAG, "stopLocationService");
-        mLocationManager.removeUpdates(mGpsLocationListener);
-        mLocationManager.removeUpdates(mNetworkLocationListener);
-    }
-
-    private LocationListener mGpsLocationListener = new LocationListener() {
-        @Override
-        public void onLocationChanged(Location location) {
-            processLocation("GPS", location);
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-            if (LocationProvider.OUT_OF_SERVICE == status) {
-                Log.e(TAG, "GPS provider out of service");
-            }
-
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-        }
-    };
-
-    private LocationListener mNetworkLocationListener = new LocationListener() {
-        @Override
-        public void onLocationChanged(Location location) {
-            processLocation("NETWORK", location);
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-            if (LocationProvider.OUT_OF_SERVICE == status) {
-                Log.e(TAG, "Network provider out of service");
-            }
-
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-        }
-    };
-
-    private final static int UPDATE_MIN_TIME = 10000; //10s
-    private final static int UPDATE_MIN_DISTANCE = 5; //5m
-
-    private void startGPSListener() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, UPDATE_MIN_TIME, UPDATE_MIN_DISTANCE, mGpsLocationListener);
-    }
-
-    private void startNetworkListener(){
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, UPDATE_MIN_TIME, UPDATE_MIN_DISTANCE, mNetworkLocationListener);
+        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
     }
 
     private void processLocation(String provider, Location newLocation){
