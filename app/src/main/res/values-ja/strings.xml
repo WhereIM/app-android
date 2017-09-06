@@ -60,8 +60,8 @@
     <string name="self">自分</string>
     <string name="mate">メイト</string>
     <string name="is_public">共有</string>
-    <string name="public_enchantment">共有された ジオフェンス</string>
-    <string name="private_enchantment">パーソナル ジオフェンス</string>
+    <string name="public_enchantment">共有ジオフェンス</string>
+    <string name="private_enchantment">個人用 ジオフェンス</string>
     <string name="public_marker">共有マーカー</string>
     <string name="private_marker">個人用マーカー</string>
     <string name="error_exhausted">クライアントの容量がなくなりました。後で試してください。</string>
