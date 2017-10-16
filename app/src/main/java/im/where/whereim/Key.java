@@ -42,6 +42,7 @@ public class Key {
     public final static String LINK = "link";
     public final static String LONGITUDE = "lng";
 
+    public final static String MAPZEN = "mapzen";
     public final static String MATE = "mate";
     public final static String MATE_NAME = "mate_name";
     public final static String MESSAGE = "msg";
