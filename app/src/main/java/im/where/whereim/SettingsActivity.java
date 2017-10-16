@@ -11,6 +11,9 @@ public class SettingsActivity extends AppCompatActivity {
 
     private View mMapsGoogleSelected;
     private View mMapsMapboxSelected;
+    private View mSearchGoogleSelected;
+    private View mSearchMapboxSelected;
+    private View mSearchMapzenSelected;
     private View mResetTips;
 
     @Override
@@ -24,6 +27,9 @@ public class SettingsActivity extends AppCompatActivity {
 
         mMapsGoogleSelected = findViewById(R.id.maps_google_selected);
         mMapsMapboxSelected = findViewById(R.id.maps_mapbox_selected);
+        mSearchGoogleSelected = findViewById(R.id.search_google_selected);
+        mSearchMapboxSelected = findViewById(R.id.search_mapbox_selected);
+        mSearchMapzenSelected = findViewById(R.id.search_mapzen_selected);
         mResetTips = findViewById(R.id.reset_tips);
 
         findViewById(R.id.maps_google).setOnClickListener(new View.OnClickListener() {
@@ -38,9 +44,36 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Config.setMapProvider(SettingsActivity.this, Config.MapProvider.MAPBOX);
+                Config.setSearchProvider(SettingsActivity.this, Config.SearchProvider.MAPZEN);
                 updateUI();
             }
         });
+
+        findViewById(R.id.search_google).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Config.setSearchProvider(SettingsActivity.this, Config.SearchProvider.GOOGLE);
+                Config.setMapProvider(SettingsActivity.this, Config.MapProvider.GOOGLE);
+                updateUI();
+            }
+        });
+
+        findViewById(R.id.search_mapbox).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Config.setSearchProvider(SettingsActivity.this, Config.SearchProvider.MAPBOX);
+                updateUI();
+            }
+        });
+
+        findViewById(R.id.search_mapzen).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Config.setSearchProvider(SettingsActivity.this, Config.SearchProvider.MAPZEN);
+                updateUI();
+            }
+        });
+
         mResetTips.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -67,6 +100,24 @@ public class SettingsActivity extends AppCompatActivity {
             case MAPBOX:
                 mMapsGoogleSelected.setVisibility(View.INVISIBLE);
                 mMapsMapboxSelected.setVisibility(View.VISIBLE);
+                break;
+        }
+
+        switch(Config.getSearchProvider(this)){
+            case GOOGLE:
+                mSearchGoogleSelected.setVisibility(View.VISIBLE);
+                mSearchMapboxSelected.setVisibility(View.INVISIBLE);
+                mSearchMapzenSelected.setVisibility(View.INVISIBLE);
+                break;
+            case MAPBOX:
+                mSearchGoogleSelected.setVisibility(View.INVISIBLE);
+                mSearchMapboxSelected.setVisibility(View.VISIBLE);
+                mSearchMapzenSelected.setVisibility(View.INVISIBLE);
+                break;
+            case MAPZEN:
+                mSearchGoogleSelected.setVisibility(View.INVISIBLE);
+                mSearchMapboxSelected.setVisibility(View.INVISIBLE);
+                mSearchMapzenSelected.setVisibility(View.VISIBLE);
                 break;
         }
 

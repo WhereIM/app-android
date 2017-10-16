@@ -30,7 +30,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:text="@string/service_provider"
+            android:text="@string/map_service_provider"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:textAppearance="?android:attr/textAppearanceSmall"
@@ -82,6 +82,84 @@
                 android:layout_gravity="center_vertical"
                 android:padding="5dp"
                 android:text="Mapbox" />
+        </LinearLayout>
+
+        <TextView
+            android:text="@string/search_service_provider"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@android:color/black"
+            android:background="#dddddd"
+            android:padding="5dp" />
+
+        <LinearLayout
+            android:id="@+id/search_google"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/search_google_selected"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:padding="5dp"
+                android:text="✔" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="center_vertical"
+                android:padding="5dp"
+                android:text="Google Maps" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/search_mapbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/search_mapbox_selected"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:padding="5dp"
+                android:text="✔" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="center_vertical"
+                android:padding="5dp"
+                android:text="Mapbox" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/search_mapzen"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/search_mapzen_selected"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:padding="5dp"
+                android:text="✔" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="center_vertical"
+                android:padding="5dp"
+                android:text="Mapzen" />
         </LinearLayout>
 
         <TextView

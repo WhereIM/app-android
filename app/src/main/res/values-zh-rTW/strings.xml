@@ -12,6 +12,8 @@
     <string name="active_client_message">取代您的其他裝置成為主要裝置？</string>
     <string name="reset_tips">再次顯示使用提示</string>
     <string name="service_provider">資料來源 (地圖與搜尋)</string>
+    <string name="map_service_provider">地圖資料來源</string>
+    <string name="search_service_provider">搜尋資料來源</string>
     <string name="misc">其他</string>
     <string name="got_it">知道了</string>
     <string name="tip_new_channel">點這裡建立或用QR Code加入群組。</string>
