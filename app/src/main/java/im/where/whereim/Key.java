@@ -42,7 +42,6 @@ public class Key {
     public final static String LINK = "link";
     public final static String LONGITUDE = "lng";
 
-    public final static String MAP_PROVIDER = "map_provider";
     public final static String MAPZEN = "mapzen";
     public final static String MATE = "mate";
     public final static String MATE_NAME = "mate_name";
@@ -58,7 +57,7 @@ public class Key {
     public final static String ENABLE_RADIUS = "enable_radius";
 
     public final static String SEARCH_HISTORY = "search_history";
-    public final static String SEARCH_PROVIDER = "search_provider";
+    public final static String SERVICE_PROVIDER = "service_provider";
     public final static String SN = "sn";
     public final static String SPEED = "spd";
     public final static String STALE = "stale";

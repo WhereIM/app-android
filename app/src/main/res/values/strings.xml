@@ -13,8 +13,6 @@
     <string name="active_client_message">This client is not active, take over from your other client?</string>
     <string name="reset_tips">Show tips again</string>
     <string name="service_provider">Service Provider (Map &amp; Search)</string>
-    <string name="map_service_provider">Map Service Provider</string>
-    <string name="search_service_provider">Search Service Provider</string>
     <string name="misc">Miscellaneous</string>
     <string name="got_it">GOT IT</string>
     <string name="tip_new_channel">Tap here to create new channel or join with QR code.</string>

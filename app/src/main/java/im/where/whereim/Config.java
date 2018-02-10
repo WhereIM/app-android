@@ -59,29 +59,12 @@ public class Config {
     }
     public static MapProvider getMapProvider(Context context){
         SharedPreferences sp = context.getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
-        return MapProvider.valueOf(sp.getString(Key.MAP_PROVIDER, MapProvider.GOOGLE.toString()));
+        return MapProvider.valueOf(sp.getString(Key.SERVICE_PROVIDER, MapProvider.GOOGLE.toString()));
     }
 
     public static void setMapProvider(Context context, MapProvider provider){
         SharedPreferences.Editor editor = context.getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
-        editor.putString(Key.MAP_PROVIDER, provider.toString());
-        editor.apply();
-    }
-
-
-    public enum SearchProvider {
-        GOOGLE,
-        MAPBOX,
-        MAPZEN
-    }
-    public static SearchProvider getSearchProvider(Context context){
-        SharedPreferences sp = context.getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
-        return SearchProvider.valueOf(sp.getString(Key.SEARCH_PROVIDER, SearchProvider.GOOGLE.toString()));
-    }
-
-    public static void setSearchProvider(Context context, SearchProvider provider){
-        SharedPreferences.Editor editor = context.getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
-        editor.putString(Key.SEARCH_PROVIDER, provider.toString());
+        editor.putString(Key.SERVICE_PROVIDER, provider.toString());
         editor.apply();
     }
 }

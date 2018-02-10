@@ -116,21 +116,11 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
         switch(Config.getMapProvider(this)){
             case GOOGLE:
                 mChannelMapFragment = new ChannelGoogleMapFragment();
-                break;
-            case MAPBOX:
-                mChannelMapFragment = new ChannelMapboxFragment();
-                break;
-        }
-
-        switch(Config.getSearchProvider(this)){
-            case GOOGLE:
                 mChannelSearchFragment = new ChannelGoogleSearchFragment();
                 break;
             case MAPBOX:
+                mChannelMapFragment = new ChannelMapboxFragment();
                 mChannelSearchFragment = new ChannelMapboxSearchFragment();
-                break;
-            case MAPZEN:
-                mChannelSearchFragment = new ChannelMapzenSearchFragment();
                 break;
         }
 
