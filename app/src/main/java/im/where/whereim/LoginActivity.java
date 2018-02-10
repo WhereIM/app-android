@@ -58,7 +58,12 @@ public class LoginActivity extends BaseActivity {
                         @Override
                         public void run() {
                             Toast.makeText(LoginActivity.this, R.string.error_exhausted, Toast.LENGTH_LONG).show();
-                            checkLogin();
+                            postBinderTask(new CoreService.BinderTask() {
+                                @Override
+                                public void onBinderReady(CoreService.CoreBinder binder) {
+                                    checkLogin();
+                                }
+                            });
                         }
                     }, 1500);
                 }
