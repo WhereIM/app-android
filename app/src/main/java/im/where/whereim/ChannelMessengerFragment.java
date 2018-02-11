@@ -27,10 +27,29 @@ public class ChannelMessengerFragment extends BaseFragment {
 
     @Override
     public void onShow() {
+        getChannel(new ChannelActivity.GetChannelCallback() {
+            @Override
+            public void onGetChannel(final Channel channel) {
+                postBinderTask(new CoreService.BinderTask() {
+                    @Override
+                    public void onBinderReady(CoreService.CoreBinder binder) {
+                        binder.addMessageListener(channel, mMessageListener);
+                        binder.setRead(mChannel);
+                    }
+                });
+            }
+        });
+
+    }
+
+    @Override
+    public void onHide() {
         postBinderTask(new CoreService.BinderTask() {
             @Override
             public void onBinderReady(CoreService.CoreBinder binder) {
-                binder.setRead(mChannel);
+                if(mChannel!=null){
+                    binder.removeMessageListener(mChannel, mMessageListener);
+                }
             }
         });
     }
@@ -214,8 +233,6 @@ public class ChannelMessengerFragment extends BaseFragment {
                         mCurrentCursor = binder.getMessageCursor(mChannel);
                         mAdapter = new MessageCursorAdapter(getActivity(), mCurrentCursor);
                         mListView.setAdapter(mAdapter);
-
-                        binder.addMessageListener(channel, mMessageListener);
                     }
                 });
             }
@@ -241,14 +258,6 @@ public class ChannelMessengerFragment extends BaseFragment {
 
     @Override
     public void onDestroyView() {
-        postBinderTask(new CoreService.BinderTask() {
-            @Override
-            public void onBinderReady(CoreService.CoreBinder binder) {
-                if(mChannel!=null){
-                    binder.removeMessageListener(mChannel, mMessageListener);
-                }
-            }
-        });
         if(mCurrentCursor!=null){
             mCurrentCursor.cursor.close();
         }
