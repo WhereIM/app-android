@@ -1512,7 +1512,7 @@ public class CoreService extends Service {
     }
 
     private void mqttClientProfileHandler(JSONObject data) {
-        String activeDevice = data.optString(Key.ACTIVE);
+        String activeDevice = data.optString(Key.ACTIVE, null);
         if(activeDevice!=null){
             boolean active = activeDevice.equals(mClientId);
             if((mIsActiveDevice==null || active!=mIsActiveDevice) && !active){
@@ -1527,7 +1527,7 @@ public class CoreService extends Service {
                 }
             });
         }
-        String token = data.optString(Key.FCM_TOKEN);
+        String token = data.optString(Key.FCM_TOKEN, null);
         if(token != null && token.equals(pendingPushToken)){
             pendingPushToken = null;
         }
