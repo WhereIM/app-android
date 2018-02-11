@@ -904,6 +904,7 @@ public class CoreService extends Service {
                 }
             }
             list.add(r);
+            mHandler.post(r);
         }
 
         public void removeMessageListener(Channel channel, Runnable r){

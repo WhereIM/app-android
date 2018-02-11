@@ -226,15 +226,6 @@ public class ChannelMessengerFragment extends BaseFragment {
             @Override
             public void onGetChannel(final Channel channel) {
                 mChannel = channel;
-
-                postBinderTask(new CoreService.BinderTask() {
-                    @Override
-                    public void onBinderReady(CoreService.CoreBinder binder) {
-                        mCurrentCursor = binder.getMessageCursor(mChannel);
-                        mAdapter = new MessageCursorAdapter(getActivity(), mCurrentCursor);
-                        mListView.setAdapter(mAdapter);
-                    }
-                });
             }
         });
         return view;
@@ -247,7 +238,12 @@ public class ChannelMessengerFragment extends BaseFragment {
                 @Override
                 public void onBinderReady(CoreService.CoreBinder binder) {
                     mCurrentCursor = binder.getMessageCursor(mChannel);
-                    mAdapter.changeCursor(mCurrentCursor);
+                    if(mAdapter==null){
+                        mAdapter = new MessageCursorAdapter(getActivity(), mCurrentCursor);
+                        mListView.setAdapter(mAdapter);
+                    }else{
+                        mAdapter.changeCursor(mCurrentCursor);
+                    }
                     if(isShowed()) {
                         binder.setRead(mChannel);
                     }
