@@ -96,7 +96,6 @@ abstract public class ChannelSearchFragment extends BaseFragment {
         }
 
         if(keyword.isEmpty()){
-            mAdView.setVisibility(View.VISIBLE);
             setSearchResult(new ArrayList<POI>());
             return;
         }
@@ -115,8 +114,6 @@ abstract public class ChannelSearchFragment extends BaseFragment {
                 }
             }
         });
-
-        mAdView.setVisibility(View.GONE);
 
         mLoading.setVisibility(View.VISIBLE);
         mListView.setAdapter(null);
@@ -145,7 +142,6 @@ abstract public class ChannelSearchFragment extends BaseFragment {
 
     protected ArrayList<String> mPredictions = new ArrayList<>();
     protected void setAutoComplete(final ArrayList<String> predictions){
-        mAdView.setVisibility(View.GONE);
         mLoading.setVisibility(View.GONE);
         mPredictions = predictions;
         mAutoCompleteAdapter.notifyDataSetChanged();
@@ -170,7 +166,6 @@ abstract public class ChannelSearchFragment extends BaseFragment {
 
     protected void showHistory(){
         clearAttribution();
-        mAdView.setVisibility(View.GONE);
         mLoading.setVisibility(View.GONE);
         mListView.setAdapter(mSearchHistoryAdapter);
     }
@@ -182,7 +177,6 @@ abstract public class ChannelSearchFragment extends BaseFragment {
     private ListView mListView;
     private View mGoogleAttribution;
     private TextView mTextAttribution;
-    private View mAdView;
     private BaseAdapter mSearchResultAdapter = getSearchResultAdapter();
     private BaseAdapter mAutoCompleteAdapter = getAutoCompleteAdapter();
     private BaseAdapter mSearchHistoryAdapter = new SearchHistoryAdapter();
@@ -191,8 +185,6 @@ abstract public class ChannelSearchFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_channel_search, container, false);
-
-        mAdView = view.findViewById(R.id.adView);
 
         mClear = (Button) view.findViewById(R.id.clear);
         mClear.setOnClickListener(new View.OnClickListener() {
@@ -304,6 +296,7 @@ abstract public class ChannelSearchFragment extends BaseFragment {
             }
         });
 
+        showHistory();
         return view;
     }
 
