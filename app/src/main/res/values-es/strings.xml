@@ -78,12 +78,6 @@
     <string name="fcm_enchantment_out">%1$s: Ha salido de la geovalla %2$s.</string>
     <string name="fcm_marker_create">%1$s: El marcador %2$s ha sido creado.</string>
     <string name="fcm_radius_report">Dentro/Fuera: %1$s / %2$s (%3$s m)</string>
-    <string name="notification_enchantment_create">Se crea una geovalla %1$s.</string>
-    <string name="notification_enchantment_emerge">Ha surgido en la geovalla %1$s.</string>
-    <string name="notification_enchantment_in">Ha ingresado en la geovalla %1$s.</string>
-    <string name="notification_enchantment_out">Ha salido de la geovalla %1$s.</string>
-    <string name="notification_marker_create">El marcador %1$s ha sido creado.</string>
-    <string name="notification_radius_report">Dentro/Fuera: %1$s / %2$s (%3$s m)</string>
     <string name="message_limit_active_channel">Límite en el número de canales activos (%1$s) ha sido alcanzado.</string>
     <string name="message_limit_enabled_channel">Límite en el número de canales activados (%1$s) ha sido alcanzado., Pulsación larga en la lista de canales y pulsación en el icono de bloqueo para desactivar algunos canales..</string>
     <string name="google_maps_navigation">Google Maps: Navegación y tránsito</string>

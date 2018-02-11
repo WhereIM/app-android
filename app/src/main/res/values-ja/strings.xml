@@ -78,12 +78,6 @@
     <string name="fcm_enchantment_out">%1$s：ジオフェンスから出ました%2$s。</string>
     <string name="fcm_marker_create">%1$s：マーカー %2$s が作成されます。</string>
     <string name="fcm_radius_report">イン/アウト：%1$s / %2$s (%3$s m)</string>
-    <string name="notification_enchantment_create">ジオフェンス%1$sが作られました。</string>
-    <string name="notification_enchantment_emerge">ジオフェンスが登場しました%1$s。</string>
-    <string name="notification_enchantment_in">ジオフェンスに入りました%1$s。</string>
-    <string name="notification_enchantment_out">ジオフェンスから出ました%1$s。</string>
-    <string name="notification_marker_create">マーカー %1$s が作成されます。</string>
-    <string name="notification_radius_report">イン/アウト：%1$s / %2$s (%3$s m)</string>
     <string name="message_limit_active_channel">アクティブなチャネル数の制限 (%1$s) に達しました。</string>
     <string name="message_limit_enabled_channel">有効なチャンネル数の制限 (%1$s) に達しました。チャンネルリストを長押ししてロックアイコンをタップすると、一部のチャンネルが無効になります。</string>
     <string name="google_maps">Google マップ</string>

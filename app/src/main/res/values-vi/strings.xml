@@ -78,12 +78,6 @@
     <string name="fcm_enchantment_out">%1$s: Đã ra khỏi hàng rào địa lý %2$s.</string>
     <string name="fcm_marker_create">%1$s: Đánh dấu %2$s đã được tạo.</string>
     <string name="fcm_radius_report">Vào/Ra: %1$s / %2$s (%3$s m)</string>
-    <string name="notification_enchantment_create">Hàng rào địa lý %1$s được tạo ra.</string>
-    <string name="notification_enchantment_emerge">Đã xuất hiện trong hàng rào địa lý %1$s.</string>
-    <string name="notification_enchantment_in">Đã vào hàng rào địa lý %1$s.</string>
-    <string name="notification_enchantment_out">Đã ra khỏi hàng rào địa lý %1$s.</string>
-    <string name="notification_marker_create">Đánh dấu %1$s đã được tạo.</string>
-    <string name="notification_radius_report">Vào/Ra: %1$s / %2$s (%3$s m)</string>
     <string name="message_limit_active_channel">Đã đạt tới hạn mức số kênh hoạt động (%1$s).</string>
     <string name="message_limit_enabled_channel">Đã đạt tới hạn mức số kênh được kích hoạt (%1$s), ấn thật lâu lên danh sách các kênh và bấm vào biểu tượng khóa để khóa kích hoạt một số kênh.</string>
     <string name="google_maps_navigation">Google Map - Bản đồ</string>

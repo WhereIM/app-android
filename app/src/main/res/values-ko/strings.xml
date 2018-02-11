@@ -78,12 +78,6 @@
     <string name="fcm_enchantment_out">%1$s: (이)가 지오 펜스%2$s(을)를 떠났습니다.</string>
     <string name="fcm_marker_create">%1$s: 마커가 %2$s 생성되었습니다.</string>
     <string name="fcm_radius_report">들어옴/나감: %1$s / %2$s (%3$s m)</string>
-    <string name="notification_enchantment_create">지오 펜스%1$s(이)가 생성되었습니다.</string>
-    <string name="notification_enchantment_emerge">(이)가 지오 펜스%1$s에 등장했습니다.</string>
-    <string name="notification_enchantment_in">(이)가 지오 펜스%1$s에 입장했습니다.</string>
-    <string name="notification_enchantment_out">(이)가 지오 펜스%1$s(을)를 떠났습니다.</string>
-    <string name="notification_marker_create">마커가 %1$s 생성되었습니다.</string>
-    <string name="notification_radius_report">들어옴/나감: %1$s / %2$s (%3$s m)</string>
     <string name="message_limit_active_channel">활성화된 채널 개수 한도를 (%1$s) 초과하였습니다.</string>
     <string name="message_limit_enabled_channel">사용할 수 있는 채널 개수 한도를 (%1$s) 초과하였습니다.일부 채널을 비활성화 하려면 채널 목록을 길게 누른 다음 자물쇠 아이콘을 누르세요.</string>
     <string name="google_maps">Google 지도</string>

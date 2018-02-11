@@ -78,12 +78,6 @@
     <string name="fcm_enchantment_out">%1$s: Hat das Geofencing %2$s verlassen.</string>
     <string name="fcm_marker_create">%1$s: Marker %2$s wurde erstellt.</string>
     <string name="fcm_radius_report">Ein/Aus: %1$s / %2$s (%3$s m)</string>
-    <string name="notification_enchantment_create">Geofencing %1$s wurde erstellt.</string>
-    <string name="notification_enchantment_emerge">Ist im Geofencing %1$s aufgetaucht.</string>
-    <string name="notification_enchantment_in">Ist im Geofencing %1$s eingetreten.</string>
-    <string name="notification_enchantment_out">Hat das Geofencing %1$s verlassen.</string>
-    <string name="notification_marker_create">Marker %1$s wurde erstellt.</string>
-    <string name="notification_radius_report">Ein/Aus: %1$s / %2$s (%3$s m)</string>
     <string name="message_limit_active_channel">Die Anzahl aktiver Channels (%1$s) ist erreicht.</string>
     <string name="message_limit_enabled_channel">Die Anzahl verfügbarer Channels (%1$s) ist erreicht., Drücken Sie lange auf die Channelliste und klicken das Schlüsselsymbol, um Channel zu deaktivieren.</string>
     <string name="google_maps_navigation">Google Maps – Navigation, Bus, Bahn &amp; Verkehr</string>

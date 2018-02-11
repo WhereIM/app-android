@@ -157,41 +157,6 @@ public class Message extends BaseModel {
         return null;
     }
 
-    public String getNotificationText(Context context, CoreService.CoreBinder binder){
-        if("text".equals(this.type)){
-            return this.message;
-        }
-        try {
-            SpannableString ret;
-            JSONObject json = new JSONObject(this.message);
-            JSONObject j;
-            Drawable d;
-            ImageSpan span;
-            switch (this.type) {
-                case "enchantment_create":
-                    return context.getResources().getString(R.string.notification_enchantment_create, json.optString("name", ""));
-
-                case "enchantment_emerge":
-                    return context.getResources().getString(R.string.notification_enchantment_emerge, json.optString("name", ""));
-
-                case "enchantment_in":
-                    return context.getResources().getString(R.string.notification_enchantment_in, json.optString("name", ""));
-
-                case "enchantment_out":
-                    return context.getResources().getString(R.string.notification_enchantment_out, json.optString("name", ""));
-
-                case "marker_create":
-                    return context.getResources().getString(R.string.notification_marker_create, json.optString("name", ""));
-
-                case "radius_report":
-                    return context.getResources().getString(R.string.notification_radius_report, json.optString("in", ""), json.optString("out", ""), json.optString(Key.RADIUS, ""));
-            }
-        }catch(JSONException e){
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     @Override
     public String getTableName() {
         return TABLE_NAME;

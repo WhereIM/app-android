@@ -78,12 +78,6 @@
     <string name="fcm_enchantment_out">%1$s: Вышел из геозоны %2$s.</string>
     <string name="fcm_marker_create">%1$s: Маркер %2$s создан</string>
     <string name="fcm_radius_report">В/Из: %1$s / %2$s (%3$s м)</string>
-    <string name="notification_enchantment_create">Геозона %1$s создана.</string>
-    <string name="notification_enchantment_emerge">Появился в геозоне %1$s.</string>
-    <string name="notification_enchantment_in">Вошел в геозону %1$s.</string>
-    <string name="notification_enchantment_out">Вышел из геозоны %1$s.</string>
-    <string name="notification_marker_create">Маркер %1$s создан</string>
-    <string name="notification_radius_report">В/Из: %1$s / %2$s (%3$s м)</string>
     <string name="message_limit_active_channel">Достигнут предел количества активных каналов (%1$s).</string>
     <string name="message_limit_enabled_channel">Достигнут предел количества включенных каналов (%1$s)., Выполните длительное нажатие на списке каналов и нажмите на иконку замка для закрытия некоторых каналов.</string>
     <string name="google_maps">Google Карты</string>

@@ -78,12 +78,6 @@
     <string name="fcm_enchantment_out">%1$s: Heeft geofence %2$s verlaten.</string>
     <string name="fcm_marker_create">%1$s: Marker %2$s is aangemaakt.</string>
     <string name="fcm_radius_report">In / Uit: %1$s / %2$s (%3$s m)</string>
-    <string name="notification_enchantment_create">Geofence %1$s is gecreëerd.</string>
-    <string name="notification_enchantment_emerge">Is tevoorschijn gekomen in geofence %1$s.</string>
-    <string name="notification_enchantment_in">Is binnen gekomen in geofence %1$s.</string>
-    <string name="notification_enchantment_out">Heeft geofence %1$s verlaten.</string>
-    <string name="notification_marker_create">Marker %1$s is aangemaakt.</string>
-    <string name="notification_radius_report">In / Uit: %1$s / %2$s (%3$s m)</string>
     <string name="message_limit_active_channel">Grens van het aantal actieve kanalen (%1$s) is bereikt.</string>
     <string name="message_limit_enabled_channel">Grens van het aantal geactiveerde kanalen (%1$s) is bereikt, Druk lang op de kanaallijst en tik op het vergrendelingspictogram om sommige kanalen uit te schakelen.</string>
     <string name="google_maps_navigation">Google Maps: Navigatie en OV</string>

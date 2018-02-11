@@ -78,12 +78,6 @@
     <string name="fcm_enchantment_out">%1$s: ออกจาก geofence %2$s แล้ว</string>
     <string name="fcm_marker_create">%1$s: เครื่องหมาย %2$s ถูกสร้างขึ้น</string>
     <string name="fcm_radius_report">เข้า / ออก: %1$s / %2$s (%3$s ม.)</string>
-    <string name="notification_enchantment_create">สร้าง geofence %1$s แล้ว</string>
-    <string name="notification_enchantment_emerge">ได้เกิดขึ้นใน geofence %1$s</string>
-    <string name="notification_enchantment_in">เข้ามา geofence %1$s แล้ว</string>
-    <string name="notification_enchantment_out">ออกจาก geofence %1$s แล้ว</string>
-    <string name="notification_marker_create">เครื่องหมาย %1$s ถูกสร้างขึ้น</string>
-    <string name="notification_radius_report">เข้า / ออก: %1$s / %2$s (%3$s ม.)</string>
     <string name="message_limit_active_channel">จำนวนช่องที่ใช้งานอยู่ (%1$s) ถึงขีดจำกัดแล้ว</string>
     <string name="message_limit_enabled_channel">จำนวนช่องที่เปิดใช้งานถึงขีดจำกัดแล้ว (%1$s), กดค้างไว้ที่รายการช่องแล้วแตะไอคอนล็อคเพื่อปิดการใช้งานช่องต่าง ๆ</string>
     <string name="google_maps_navigation">Google Maps - การนำทางและการขนส่ง</string>

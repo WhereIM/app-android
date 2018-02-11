@@ -23,7 +23,6 @@ import im.where.whereim.R;
 
 public class DialogOpenIn {
     public DialogOpenIn(final Context context, final String title, final double lat, final double lng){
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         final LinearLayout dialog_view = new LinearLayout(context);
         dialog_view.setOrientation(LinearLayout.VERTICAL);
         Resources r = context.getResources();
