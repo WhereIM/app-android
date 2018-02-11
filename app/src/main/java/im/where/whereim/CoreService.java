@@ -58,6 +58,7 @@ import java.util.regex.Pattern;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import im.where.whereim.dialogs.DialogSendSharingNotification;
 import im.where.whereim.geo.QuadTree;
 import im.where.whereim.models.Ad;
 import im.where.whereim.models.Channel;
@@ -344,13 +345,14 @@ public class CoreService extends Service {
             }
         }
 
-        public void toggleChannelActive(Channel channel){
+        public void toggleChannelActive(Activity activity, final Channel channel){
             if(channel==null){
                 return;
             }
             if(channel.active ==null){
                 return;
             }
+            boolean wasActive = channel.active;
             try {
                 JSONObject payload = new JSONObject();
                 payload.put(Key.CHANNEL, channel.id);
@@ -361,6 +363,14 @@ public class CoreService extends Service {
                 notifyChannelListChangedListeners();
             } catch (JSONException e) {
                 e.printStackTrace();
+            }
+            if(!wasActive){
+                new DialogSendSharingNotification(activity, new Runnable() {
+                    @Override
+                    public void run() {
+                        sendNotification(channel, "begin_sharing");
+                    }
+                });
             }
         }
 
@@ -921,6 +931,17 @@ public class CoreService extends Service {
             try {
                 JSONObject payload = new JSONObject();
                 payload.put(Key.MESSAGE, s);
+                String topic = String.format("channel/%s/data/message/put", channel.id);
+                publish(topic, payload);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void sendNotification(Channel channel, String type) {
+            try {
+                JSONObject payload = new JSONObject();
+                payload.put(Key.TYPE, type);
                 String topic = String.format("channel/%s/data/message/put", channel.id);
                 publish(topic, payload);
             } catch (JSONException e) {

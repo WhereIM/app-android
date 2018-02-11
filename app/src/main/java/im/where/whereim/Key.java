@@ -70,6 +70,7 @@ public class Key {
     public final static String TOKEN = "token";
     public final static String TOPIC = "topic";
     public final static String TS = "ts";
+    public final static String TYPE = "type";
 
     public final static String TIP_ACTIVE_CHANNEL = "tip_active_channel";
     public final static String TIP_ACTIVE_CHANNEL_2 = "tip_active_channel_2";

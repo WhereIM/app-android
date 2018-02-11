@@ -107,7 +107,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                 mEnable.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        mBinder.toggleChannelActive(mChannel);
+                        mBinder.toggleChannelActive(ChannelListActivity.this, mChannel);
                     }
                 });
             }

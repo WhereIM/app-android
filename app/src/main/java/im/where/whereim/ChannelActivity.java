@@ -165,7 +165,7 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
                 postBinderTask(new CoreService.BinderTask() {
                     @Override
                     public void onBinderReady(CoreService.CoreBinder binder) {
-                        binder.toggleChannelActive(mChannel);
+                        binder.toggleChannelActive(ChannelActivity.this, mChannel);
                     }
                 });
             }
