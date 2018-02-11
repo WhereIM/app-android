@@ -36,6 +36,7 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -963,12 +964,43 @@ public class CoreService extends Service {
     private static int LOCATION_UPDATE_INTERVAL = 10000;
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        mLocationRequest.setInterval(LOCATION_UPDATE_INTERVAL);
-        mLocationRequest.setFastestInterval(LOCATION_UPDATE_INTERVAL);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         init();
+
+        if(intent != null){
+            String fcm_token = intent.getStringExtra(Key.TOKEN);
+            if(fcm_token != null){
+                setPushToken(fcm_token);
+            }
+
+            String fcm_key = intent.getStringExtra(Key.KEY);
+            String fcm_channel = intent.getStringExtra(Key.CHANNEL);
+            String fcm_title = intent.getStringExtra(Key.TITLE);
+            String fcm_args = intent.getStringExtra(Key.ARGS);
+            if(fcm_key != null && fcm_channel != null && fcm_title != null && fcm_args != null){
+                boolean notify = true;
+                synchronized (mMessageListener){
+                    List<Runnable> list = mMessageListener.get(fcm_channel);
+                    if(list!=null && list.size()>0){
+                        notify = false;
+                    }
+                }
+
+                if(notify){
+                    try {
+                        JSONArray jargs = new JSONArray(fcm_args);
+                        Object[] args = new Object[jargs.length()];
+                        for(int i=0;i<jargs.length();i+=1){
+                            args[i] = jargs.get(i);
+                        }
+                        String template = getString(getResources().getIdentifier("fcm_"+fcm_key, "string", getPackageName()));
+                        setupNotification("text".equals(fcm_key)?"message":"map", fcm_channel, fcm_title, String.format(template, args));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+
         return START_STICKY;
     }
 
@@ -1001,9 +1033,17 @@ public class CoreService extends Service {
         synchronized (mutex) {
             if(!mInited) {
                 mInited = true;
+                mLocationRequest.setInterval(LOCATION_UPDATE_INTERVAL);
+                mLocationRequest.setFastestInterval(LOCATION_UPDATE_INTERVAL);
+                mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+                mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
                 mWimDBHelper = new WimDBHelper(this);
 
                 keyStorePath = getFilesDir().getAbsolutePath();
+
+                setPushToken(FirebaseInstanceId.getInstance().getToken());
 
                 SharedPreferences settings = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
                 mClientId = settings.getString(Key.CLIENT_ID, null);
@@ -1101,8 +1141,8 @@ public class CoreService extends Service {
                 switch (status){
                     case Connected:
                         Log.e(TAG, "MQTT Connected");
-                        mqttOnConnected();
                         mMqttConnected = true;
+                        mqttOnConnected();
                         mHandler.post(new Runnable() {
                             @Override
                             public void run() {
@@ -1154,6 +1194,26 @@ public class CoreService extends Service {
 
     private boolean mMqttConnected = false;
     private boolean mIsForeground = false;
+
+    private String pendingPushToken;
+    private void setPushToken(String token){
+        Log.e(TAG, "setPushToken: "+token);
+        pendingPushToken = token;
+        sendPushToken();
+    }
+
+    private void sendPushToken(){
+        if(pendingPushToken != null && mMqttConnected){
+            try {
+                JSONObject data = new JSONObject();
+                data.put(Key.FCM_TOKEN, pendingPushToken);
+                String topic = String.format("client/%s/profile/put", mClientId);
+                publish(topic, data);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     private void setTS(long ts){
         long ots = getTS();
@@ -1305,6 +1365,8 @@ public class CoreService extends Service {
         }catch(Exception e){
             e.printStackTrace();
         }
+
+        sendPushToken();
 
         try {
             JSONObject sync = new JSONObject();
@@ -1462,6 +1524,10 @@ public class CoreService extends Service {
                     _checkLocationService();
                 }
             });
+        }
+        String token = data.optString(Key.FCM_TOKEN);
+        if(token != null && token.equals(pendingPushToken)){
+            pendingPushToken = null;
         }
     }
 
@@ -1705,7 +1771,6 @@ public class CoreService extends Service {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
     }
 
     private void clientChannelHandler(Channel channel){
@@ -1921,38 +1986,30 @@ public class CoreService extends Service {
                 }
             }
         }
-        Channel channel = mChannelMap.get(channel_id);
-        if(!fromSync && (channel==null || !channel.mate_id.equals(message.mate_id) || !message.type.equals("text"))){
-            Intent intent = new Intent(this, ChannelActivity.class);
-            intent.putExtra("channel", channel_id);
-            intent.putExtra("tab", "message");
+    }
 
-            PendingIntent pendingIntent =
-                    TaskStackBuilder.create(this)
-                            .addParentStack(ChannelActivity.class)
-                            .addNextIntent(intent)
-                            .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+    private int notificationId = 0;
+    private void setupNotification(String tab, String channel_id, String title, String message){
+        Intent intent = new Intent(this, ChannelActivity.class);
+        intent.putExtra("channel", channel_id);
+        intent.putExtra("tab", tab);
 
-            String channel_text = "";
-            String sender_text = "";
-            if(channel!=null){
-                channel_text = " - "+channel.getDisplayName();
-                Mate mate = getChannelMate(channel_id, message.mate_id);
-                if(mate!=null){
-                    sender_text = mate.getDisplayName()+"\n";
-                }
-            }
-            NotificationCompat.Builder mBuilder =
-                    new NotificationCompat.Builder(this)
-                            .setSmallIcon(R.drawable.ic_stat_logo)
-                            .setContentTitle(getString(R.string.app_name)+channel_text)
-                            .setContentText(TextUtils.concat(sender_text, message.getNotificationText(this, mBinder)))
-                            .setDefaults(Notification.DEFAULT_SOUND)
-                            .setContentIntent(pendingIntent)
-                            .setAutoCancel(true);
-            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.notify((int)message.id, mBuilder.build());
-        }
+        PendingIntent pendingIntent =
+                TaskStackBuilder.create(this)
+                        .addParentStack(ChannelActivity.class)
+                        .addNextIntent(intent)
+                        .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.ic_stat_logo)
+                        .setContentTitle(title)
+                        .setContentText(message)
+                        .setDefaults(Notification.DEFAULT_SOUND)
+                        .setContentIntent(pendingIntent)
+                        .setAutoCancel(true);
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(notificationId++, mBuilder.build());
     }
 
     // ================ Channel Location ================

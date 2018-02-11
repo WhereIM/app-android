@@ -71,6 +71,13 @@
     <string name="message_enchantment_out">ออกจาก geofence %1$s แล้ว</string>
     <string name="message_marker_create">เครื่องหมาย %1$s ถูกสร้างขึ้น {icon}</string>
     <string name="message_radius_report">เข้า / ออก: %1$s / %2$s (%3$s ม.)</string>
+    <string name="fcm_text">%1$s：%2$s</string>
+    <string name="fcm_enchantment_create">%1$s: สร้าง geofence %2$s แล้ว</string>
+    <string name="fcm_enchantment_emerge">%1$s: ได้เกิดขึ้นใน geofence %2$s</string>
+    <string name="fcm_enchantment_in">%1$s: เข้ามา geofence %2$s แล้ว</string>
+    <string name="fcm_enchantment_out">%1$s: ออกจาก geofence %2$s แล้ว</string>
+    <string name="fcm_marker_create">%1$s: เครื่องหมาย %2$s ถูกสร้างขึ้น</string>
+    <string name="fcm_radius_report">เข้า / ออก: %1$s / %2$s (%3$s ม.)</string>
     <string name="notification_enchantment_create">สร้าง geofence %1$s แล้ว</string>
     <string name="notification_enchantment_emerge">ได้เกิดขึ้นใน geofence %1$s</string>
     <string name="notification_enchantment_in">เข้ามา geofence %1$s แล้ว</string>

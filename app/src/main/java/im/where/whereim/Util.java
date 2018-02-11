@@ -1,5 +1,7 @@
 package im.where.whereim;
 
+import android.content.Context;
+
 import org.json.JSONObject;
 
 /**

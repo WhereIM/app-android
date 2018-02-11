@@ -71,6 +71,13 @@
     <string name="message_enchantment_out">ジオフェンスから出ました%1$s。</string>
     <string name="message_marker_create">マーカー %1$s が作成されます。 {icon}</string>
     <string name="message_radius_report">イン/アウト：%1$s / %2$s (%3$s m)</string>
+    <string name="fcm_text">%1$s：%2$s</string>
+    <string name="fcm_enchantment_create">%1$s：ジオフェンス%2$sが作られました。</string>
+    <string name="fcm_enchantment_emerge">%1$s：ジオフェンスが登場しました%2$s。</string>
+    <string name="fcm_enchantment_in">%1$s：ジオフェンスに入りました%2$s。</string>
+    <string name="fcm_enchantment_out">%1$s：ジオフェンスから出ました%2$s。</string>
+    <string name="fcm_marker_create">%1$s：マーカー %2$s が作成されます。</string>
+    <string name="fcm_radius_report">イン/アウト：%1$s / %2$s (%3$s m)</string>
     <string name="notification_enchantment_create">ジオフェンス%1$sが作られました。</string>
     <string name="notification_enchantment_emerge">ジオフェンスが登場しました%1$s。</string>
     <string name="notification_enchantment_in">ジオフェンスに入りました%1$s。</string>

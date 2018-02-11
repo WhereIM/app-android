@@ -13,6 +13,8 @@
     <string name="active_client_message">This client is not active, take over from your other client?</string>
     <string name="reset_tips">Show tips again</string>
     <string name="service_provider">Service Provider (Map &amp; Search)</string>
+    <string name="map_service_provider">Map Service Provider</string>
+    <string name="search_service_provider">Search Service Provider</string>
     <string name="misc">Miscellaneous</string>
     <string name="got_it">GOT IT</string>
     <string name="tip_new_channel">Tap here to create new channel or join with QR code.</string>
@@ -72,6 +74,14 @@
     <string name="message_enchantment_out">Left geofence %1$s.</string>
     <string name="message_marker_create">Marker %1$s is created. {icon}</string>
     <string name="message_radius_report">In/Out: %1$s / %2$s (%3$s m)</string>
+    <string name="fcm_text">%1$s: %2$s</string>
+    <string name="fcm_enchantment_create">%1$s: Geofence %2$s is created.</string>
+    <string name="fcm_enchantment_emerge">%1$s: Emerged in geofence %2$s.</string>
+    <string name="fcm_enchantment_in">%1$s: Entered geofence %2$s.</string>
+    <string name="fcm_enchantment_out">%1$s: Left geofence %2$s.</string>
+    <string name="fcm_marker_create">%1$s: Marker %2$s is created.</string>
+    <string name="fcm_radius_report">In/Out: %1$s / %2$s (%3$s m)</string>
+    <string name="fcm_begin_sharing">%1$s just begins sharing location with you !</string>
     <string name="notification_enchantment_create">Geofence %1$s is created.</string>
     <string name="notification_enchantment_emerge">Emerged in geofence %1$s.</string>
     <string name="notification_enchantment_in">Entered geofence %1$s.</string>

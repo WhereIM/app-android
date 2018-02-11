@@ -227,6 +227,9 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
                 String tab = intent.getStringExtra("tab");
                 if(tab != null){
                     switch (tab){
+                        case "map":
+                            mTabLayout.getTabAt(TAB_MAP).select();
+                            break;
                         case "message":
                             mTabLayout.getTabAt(TAB_MESSAGE).select();
                             break;

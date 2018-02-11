@@ -1,16 +1,17 @@
 package im.where.whereim;
 
-import android.app.Service;
 import android.content.Intent;
-import android.os.IBinder;
 
-public class FCMIdService extends Service {
-    public FCMIdService() {
-    }
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.FirebaseInstanceIdService;
 
+public class FCMIdService extends FirebaseInstanceIdService {
     @Override
-    public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
-        throw new UnsupportedOperationException("Not yet implemented");
+    public void onTokenRefresh() {
+        super.onTokenRefresh();
+
+        Intent intent = new Intent(FCMIdService.this, CoreService.class);
+        intent.putExtra(Key.TOKEN, FirebaseInstanceId.getInstance().getToken());
+        startService(intent);
     }
 }

@@ -14,6 +14,7 @@ public class Key {
     public final static String API = "api";
     public final static String API_PREFIX = "api_";
     public final static String ATTR = "attr";
+    public final static String ARGS = "args";
 
     public final static String BEARING = "bear";
 
@@ -28,6 +29,7 @@ public class Key {
     public final static String ENABLED = "enabled";
 
     public final static String FACEBOOK = "facebook";
+    public final static String FCM_TOKEN = "fcm_token";
 
     public final static String GOOGLE = "google";
     public final static String GOOGLE_SEARCH = "google_search";
@@ -64,6 +66,7 @@ public class Key {
 
     public final static String TILE = "tile";
     public final static String TIME = "time";
+    public final static String TITLE = "title";
     public final static String TOKEN = "token";
     public final static String TOPIC = "topic";
     public final static String TS = "ts";

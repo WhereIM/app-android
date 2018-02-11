@@ -71,6 +71,13 @@
     <string name="message_enchantment_out">Hat das Geofencing %1$s verlassen.</string>
     <string name="message_marker_create">Marker %1$s wurde erstellt. {icon}</string>
     <string name="message_radius_report">Ein/Aus: %1$s / %2$s (%3$s m)</string>
+    <string name="fcm_text">%1$s：%2$s</string>
+    <string name="fcm_enchantment_create">%1$s: Geofencing %2$s wurde erstellt.</string>
+    <string name="fcm_enchantment_emerge">%1$s: Ist im Geofencing %2$s aufgetaucht.</string>
+    <string name="fcm_enchantment_in">%1$s: Ist im Geofencing %2$s eingetreten.</string>
+    <string name="fcm_enchantment_out">%1$s: Hat das Geofencing %2$s verlassen.</string>
+    <string name="fcm_marker_create">%1$s: Marker %2$s wurde erstellt.</string>
+    <string name="fcm_radius_report">Ein/Aus: %1$s / %2$s (%3$s m)</string>
     <string name="notification_enchantment_create">Geofencing %1$s wurde erstellt.</string>
     <string name="notification_enchantment_emerge">Ist im Geofencing %1$s aufgetaucht.</string>
     <string name="notification_enchantment_in">Ist im Geofencing %1$s eingetreten.</string>

@@ -20,11 +20,11 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <service
             android:name=".CoreService"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true">
+        </service>
 
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
@@ -35,13 +35,15 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDz9vrIpEVzN7EtQo7mClEIsARpHagJjHI" />
+        <meta-data
+            android:name="io.branch.sdk.BranchKey"
+            android:value="key_live_aayb4b97WVkvLOgKbltUBogaFBg655VB" />
 
-        <meta-data android:name="io.branch.sdk.BranchKey" android:value="key_live_aayb4b97WVkvLOgKbltUBogaFBg655VB" />
-
-        <activity android:name=".ChannelListActivity"
-            android:theme="@style/AppTheme.NoActionBar"
+        <activity
+            android:name=".ChannelListActivity"
             android:configChanges="keyboard|keyboardHidden|orientation"
-            android:launchMode="singleTask">
+            android:launchMode="singleTask"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -49,47 +51,41 @@
             </intent-filter>
             <intent-filter>
                 <data android:scheme="whereim" />
+
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".PoiViewerActivity"
-            android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden"
             android:configChanges="keyboard|keyboardHidden|orientation"
-            android:parentActivityName=".ChannelListActivity" />
-
+            android:label="@string/app_name"
+            android:parentActivityName=".ChannelListActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".ChannelActivity"
-            android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden"
             android:configChanges="keyboard|keyboardHidden|orientation"
-            android:parentActivityName=".ChannelListActivity" />
-
+            android:label="@string/app_name"
+            android:parentActivityName=".ChannelListActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden" />
         <activity android:name=".LoginActivity" />
-
         <activity android:name=".CaptchaActivity" />
-
         <activity
             android:name=".AboutActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name=".ScannerActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name=".SettingsActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name="com.facebook.CustomTabActivity"
             android:exported="true">
@@ -103,11 +99,34 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name="io.branch.referral.InstallListener" android:exported="true">
+        <receiver
+            android:name="io.branch.referral.InstallListener"
+            android:exported="true">
             <intent-filter>
                 <action android:name="com.android.vending.INSTALL_REFERRER" />
             </intent-filter>
         </receiver>
+
+        <service
+            android:name=".FCMIdService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".FCMReceiverService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_stat_logo" />
+
     </application>
 
 </manifest>

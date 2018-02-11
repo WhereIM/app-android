@@ -71,6 +71,13 @@
     <string name="message_enchantment_out">Est parti du géorepérage %1$s.</string>
     <string name="message_marker_create">Le marqueur %1$s a été créé. {icon}</string>
     <string name="message_radius_report">Dedans/Dehors : %1$s / %2$s (%3$s m)</string>
+    <string name="fcm_text">%1$s：%2$s</string>
+    <string name="fcm_enchantment_create">%1$s: Le géorepérage %2$s a été créé.</string>
+    <string name="fcm_enchantment_emerge">%1$s: A émergé dans le géorepérage %2$s.</string>
+    <string name="fcm_enchantment_in">%1$s: Est entré dans le géorepérage %2$s.</string>
+    <string name="fcm_enchantment_out">%1$s: Est parti du géorepérage %2$s.</string>
+    <string name="fcm_marker_create">%1$s: Le marqueur %2$s a été créé.</string>
+    <string name="fcm_radius_report">Dedans/Dehors : %1$s / %2$s (%3$s m)</string>
     <string name="notification_enchantment_create">Le géorepérage %1$s a été créé.</string>
     <string name="notification_enchantment_emerge">A émergé dans le géorepérage %1$s.</string>
     <string name="notification_enchantment_in">Est entré dans le géorepérage %1$s.</string>

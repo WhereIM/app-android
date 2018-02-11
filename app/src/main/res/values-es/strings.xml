@@ -71,6 +71,13 @@
     <string name="message_enchantment_out">Ha salido de la geovalla %1$s.</string>
     <string name="message_marker_create">El marcador %1$s ha sido creado. {icon}</string>
     <string name="message_radius_report">Dentro/Fuera: %1$s / %2$s (%3$s m)</string>
+    <string name="fcm_text">%1$s：%2$s</string>
+    <string name="fcm_enchantment_create">%1$s: Se crea una geovalla %2$s.</string>
+    <string name="fcm_enchantment_emerge">%1$s: Ha surgido en la geovalla %2$s.</string>
+    <string name="fcm_enchantment_in">%1$s: Ha ingresado en la geovalla %2$s.</string>
+    <string name="fcm_enchantment_out">%1$s: Ha salido de la geovalla %2$s.</string>
+    <string name="fcm_marker_create">%1$s: El marcador %2$s ha sido creado.</string>
+    <string name="fcm_radius_report">Dentro/Fuera: %1$s / %2$s (%3$s m)</string>
     <string name="notification_enchantment_create">Se crea una geovalla %1$s.</string>
     <string name="notification_enchantment_emerge">Ha surgido en la geovalla %1$s.</string>
     <string name="notification_enchantment_in">Ha ingresado en la geovalla %1$s.</string>

@@ -71,6 +71,13 @@
     <string name="message_enchantment_out">Вышел из геозоны %1$s.</string>
     <string name="message_marker_create">Маркер %1$s создан {icon}</string>
     <string name="message_radius_report">В/Из: %1$s / %2$s (%3$s м)</string>
+    <string name="fcm_text">%1$s：%2$s</string>
+    <string name="fcm_enchantment_create">%1$s: Геозона %2$s создана.</string>
+    <string name="fcm_enchantment_emerge">%1$s: Появился в геозоне %2$s.</string>
+    <string name="fcm_enchantment_in">%1$s: Вошел в геозону %2$s.</string>
+    <string name="fcm_enchantment_out">%1$s: Вышел из геозоны %2$s.</string>
+    <string name="fcm_marker_create">%1$s: Маркер %2$s создан</string>
+    <string name="fcm_radius_report">В/Из: %1$s / %2$s (%3$s м)</string>
     <string name="notification_enchantment_create">Геозона %1$s создана.</string>
     <string name="notification_enchantment_emerge">Появился в геозоне %1$s.</string>
     <string name="notification_enchantment_in">Вошел в геозону %1$s.</string>
