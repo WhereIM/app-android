@@ -978,10 +978,12 @@ public class CoreService extends Service {
             String fcm_args = intent.getStringExtra(Key.ARGS);
             if(fcm_key != null && fcm_channel != null && fcm_title != null && fcm_args != null){
                 boolean notify = true;
-                synchronized (mMessageListener){
-                    List<Runnable> list = mMessageListener.get(fcm_channel);
-                    if(list!=null && list.size()>0){
-                        notify = false;
+                if(fcm_key.equals("text")){
+                    synchronized (mMessageListener){
+                        List<Runnable> list = mMessageListener.get(fcm_channel);
+                        if(list!=null && list.size()>0){
+                            notify = false;
+                        }
                     }
                 }
 
