@@ -265,7 +265,7 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
                         postBinderTask(new CoreService.BinderTask() {
                             @Override
                             public void onBinderReady(CoreService.CoreBinder binder) {
-                                binder.forgeLocation(channel, mEditingLatitude, mEditingLongitude);
+                                binder.forgeLocation(getActivity(), channel, mEditingLatitude, mEditingLongitude);
                             }
                         });
                     }

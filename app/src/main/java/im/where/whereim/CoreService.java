@@ -520,7 +520,7 @@ public class CoreService extends Service {
             unsubscribeChannelMap(channel);
         }
 
-        public void forgeLocation(Channel channel, double latitude, double longitude) {
+        public void forgeLocation(Activity activity, final Channel channel, double latitude, double longitude) {
             try {
                 JSONObject payload = new JSONObject();
                 payload.put(Key.CHANNEL, channel.id);
@@ -532,6 +532,13 @@ public class CoreService extends Service {
                 String topic = String.format("client/%s/channel/put", mClientId);
                 publish(topic, payload);
                 notifyChannelListChangedListeners();
+
+                new DialogSendSharingNotification(activity, new Runnable() {
+                    @Override
+                    public void run() {
+                        sendNotification(channel, "begin_sharing");
+                    }
+                });
             } catch (JSONException e) {
                 e.printStackTrace();
             }
