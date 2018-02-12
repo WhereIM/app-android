@@ -1,6 +1,7 @@
 package im.where.whereim;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -41,6 +42,7 @@ public class SettingsActivity extends AppCompatActivity {
                 updateUI();
             }
         });
+
         mResetTips.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -52,6 +54,14 @@ public class SettingsActivity extends AppCompatActivity {
                 editor.remove(Key.TIP_NEW_CHANNEL);
                 editor.apply();
                 updateUI();
+            }
+        });
+
+        findViewById(R.id.about).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(SettingsActivity.this, AboutActivity.class);
+                startActivity(intent);
             }
         });
 
