@@ -996,6 +996,26 @@ public class CoreService extends Service {
         init();
 
         if(intent != null){
+            String action = intent.getStringExtra(Key.ACTION);
+            if(action != null){
+                switch (action){
+                    case "logout":
+                        deleteDatabase(WimDBHelper.DATABASE_NAME);
+
+                        SharedPreferences settings = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = settings.edit();
+                        editor.clear();
+                        editor.apply();
+
+                        AWSIotKeystoreHelper.deleteKeystoreAlias(Config.CERT_ID, keyStorePath, Config.KEY_STORE_NAME, Config.KEY_STORE_PASSWORD);
+                        File keyStoreFile = new File(keyStorePath, Config.KEY_STORE_NAME);
+                        if (keyStoreFile.exists()) {
+                            keyStoreFile.delete();
+                        }
+                        break;
+                }
+            }
+
             String fcm_token = intent.getStringExtra(Key.TOKEN);
             if(fcm_token != null){
                 setPushToken(fcm_token);

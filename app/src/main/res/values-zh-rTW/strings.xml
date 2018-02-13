@@ -10,6 +10,8 @@
     <string name="action_quit">關閉程式</string>
     <string name="active_client">此裝置不是主要裝置</string>
     <string name="active_client_message">取代您的其他裝置成為主要裝置？</string>
+    <string name="account">帳戶</string>
+    <string name="logout">登出</string>
     <string name="reset_tips">再次顯示使用提示</string>
     <string name="service_provider">資料來源 (地圖與搜尋)</string>
     <string name="map_service_provider">地圖資料來源</string>
