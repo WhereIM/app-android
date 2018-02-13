@@ -1,7 +1,5 @@
 package im.where.whereim;
 
-import java.util.regex.Pattern;
-
 /**
  * Created by buganini on 04/01/17.
  */
@@ -62,13 +60,10 @@ public class Key {
     public final static String SN = "sn";
     public final static String SPEED = "spd";
     public final static String STALE = "stale";
-    public final static String SUBSCRIBE = "subscribe";
 
     public final static String TILE = "tile";
-    public final static String TIME = "time";
     public final static String TITLE = "title";
     public final static String TOKEN = "token";
-    public final static String TOPIC = "topic";
     public final static String TS = "ts";
     public final static String TYPE = "type";
 
@@ -78,7 +73,6 @@ public class Key {
     public final static String TIP_INVITE_CHANNEL = "tip_invite_channel";
     public final static String TIP_NEW_CHANNEL = "tip_new_channel";
 
-    public final static String UNSUBSCRIBE = "unsub";
     public final static String USER_CHANNEL_NAME = "user_channel_name";
     public final static String USER_MATE_NAME = "user_mate_name";
 
