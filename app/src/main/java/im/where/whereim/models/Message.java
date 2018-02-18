@@ -15,6 +15,7 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -194,6 +195,7 @@ public class Message extends BaseModel {
         public long lastId;
         public boolean loadMoreChannelData;
         public boolean loadMoreUserData;
+        public HashMap<Long, Integer> positionMap = new HashMap<>();
     }
 
     public static BundledCursor getCursor(SQLiteDatabase db, Channel channel){
@@ -216,6 +218,9 @@ public class Message extends BaseModel {
                 long sn = bc.cursor.getLong(1);
                 boolean isPublic = 0 != bc.cursor.getInt(2);
                 String channel_id = bc.cursor.getString(3);
+
+                bc.positionMap.put(id, bc.cursor.getPosition());
+
                 if(channel_id==null){
                     continue;
                 }

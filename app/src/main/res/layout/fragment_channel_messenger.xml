@@ -7,15 +7,32 @@
     android:orientation="vertical"
     tools:context="im.where.whereim.ChannelActivity">
 
-    <ListView
-        android:id="@+id/message"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:divider="@null"
-        android:dividerHeight="0dp"
-        android:transcriptMode="alwaysScroll"
-        android:stackFromBottom="true" />
+        android:layout_weight="1">
+
+        <ListView
+            android:id="@+id/message"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:divider="@null"
+            android:dividerHeight="0dp"
+            android:stackFromBottom="true" />
+
+        <TextView
+            android:id="@+id/unread"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/unread_background"
+            android:textColor="#FFFFFFFF"
+            android:padding="10dp"
+            android:text="@string/unread" />
+
+    </RelativeLayout>
 
     <LinearLayout
         android:background="#cccccc"

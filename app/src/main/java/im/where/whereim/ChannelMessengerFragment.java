@@ -3,6 +3,7 @@ package im.where.whereim;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -58,6 +59,8 @@ public class ChannelMessengerFragment extends BaseFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
+
+    private Handler mHandler = new Handler();
 
     private Channel mChannel;
     private MessageCursorAdapter mAdapter;
@@ -165,11 +168,24 @@ public class ChannelMessengerFragment extends BaseFragment {
         }
     };
 
+    private boolean messageViewEnd = true;
+    private long maxMessageId = 0;
     private Message.BundledCursor mCurrentCursor;
     private ListView mListView;
+    private View mUnread;
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_channel_messenger, container, false);
+
+        mUnread = view.findViewById(R.id.unread);
+        mUnread.setVisibility(View.GONE);
+        mUnread.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mListView.setSelection(mAdapter.getCount() - 1);
+                messageViewEnd = true;
+            }
+        });
 
         final EditText input = (EditText) view.findViewById(R.id.input);
         view.findViewById(R.id.send).setOnClickListener(new View.OnClickListener() {
@@ -207,6 +223,11 @@ public class ChannelMessengerFragment extends BaseFragment {
                 if(mCurrentCursor==null){
                     return;
                 }
+                messageViewEnd = view.getLastVisiblePosition() == view.getAdapter().getCount() - 1 &&
+                        view.getChildAt(view.getChildCount() - 1).getBottom() <= view.getHeight();
+                if(messageViewEnd){
+                    mUnread.setVisibility(View.GONE);
+                }
                 if(firstVisibleItem==0){
                     postBinderTask(new CoreService.BinderTask() {
                         @Override
@@ -231,18 +252,52 @@ public class ChannelMessengerFragment extends BaseFragment {
         return view;
     }
 
+    private boolean inited = false;
     private Runnable mMessageListener = new Runnable() {
+        @Override
+        public void run() {
+            if(!inited){
+                inited = true;
+                reloadData.run();
+            }else{
+                mHandler.removeCallbacks(reloadData);
+                mHandler.postDelayed(reloadData, 1500);
+            }
+        }
+    };
+
+    private Runnable reloadData = new Runnable() {
         @Override
         public void run() {
             postBinderTask(new CoreService.BinderTask() {
                 @Override
                 public void onBinderReady(CoreService.CoreBinder binder) {
+                    final boolean origMessageViewEnd = messageViewEnd;
                     mCurrentCursor = binder.getMessageCursor(mChannel);
                     if(mAdapter==null){
                         mAdapter = new MessageCursorAdapter(getActivity(), mCurrentCursor);
                         mListView.setAdapter(mAdapter);
+                        maxMessageId = mCurrentCursor.lastId;
                     }else{
+                        int originPosition = mListView.getFirstVisiblePosition();
+                        long originId = mAdapter.getItemId(originPosition);
+                        Integer newPosition = mCurrentCursor.positionMap.get(originId);
+                        if(newPosition == null){
+                            newPosition = originPosition;
+                        }
+                        View v = mListView.getChildAt(0);
+                        int originTop = (v == null) ? 0 : (v.getTop() - mListView.getPaddingTop());
                         mAdapter.changeCursor(mCurrentCursor);
+                        mListView.setSelectionFromTop(newPosition, originTop);
+                        if(origMessageViewEnd){
+                            mListView.smoothScrollToPosition(mAdapter.getCount() - 1);
+                            messageViewEnd = origMessageViewEnd;
+                        }else{
+                            if(mCurrentCursor.lastId > maxMessageId) {
+                                mUnread.setVisibility(View.VISIBLE);
+                            }
+                            maxMessageId = mCurrentCursor.lastId;
+                        }
                     }
                     if(isShowed()) {
                         binder.setRead(mChannel);
