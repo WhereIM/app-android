@@ -70,6 +70,7 @@
     <string name="private_marker">個人圖釘</string>
     <string name="error_exhausted">可註冊數量已滿，請稍後再試。</string>
     <string name="begin_sharing">通知其他人你開始分享定位了</string>
+    <string name="message_not_implemented">需要更新版本才能讀取此則訊息</string>
     <string name="message_enchantment_create">%1$s 地界已設立</string>
     <string name="message_enchantment_emerge">出現在 %1$s 地界</string>
     <string name="message_enchantment_in">進入 %1$s 地界</string>

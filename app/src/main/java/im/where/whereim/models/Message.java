@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.res.ResourcesCompat;
+import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ImageSpan;
@@ -115,7 +116,12 @@ public class Message extends BaseModel {
         }
         try {
             SpannableString ret;
-            JSONObject json = new JSONObject(this.message);
+            JSONObject json = null;
+            try {
+                json = new JSONObject(this.message);
+            } catch (Exception e) {
+                // noop
+            }
             JSONObject j;
             Drawable d;
             ImageSpan span;
@@ -150,6 +156,9 @@ public class Message extends BaseModel {
 
                 case "radius_report":
                     return new SpannableString(context.getResources().getString(R.string.message_radius_report, json.optString("in", ""), json.optString("out", ""), json.optString(Key.RADIUS, "")));
+
+                default:
+                    return new SpannableString(Html.fromHtml(String.format("<font color=\"gray\"><i>%s</i></font>", context.getResources().getString(R.string.message_not_implemented))));
             }
         }catch(JSONException e){
             e.printStackTrace();

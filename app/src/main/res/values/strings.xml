@@ -71,6 +71,7 @@
     <string name="private_marker">Personal Marker</string>
     <string name="error_exhausted">Client capacity is exhausted, please try later.</string>
     <string name="begin_sharing">Notify others you have begun sharing location</string>
+    <string name="message_not_implemented">Require new version to display this message</string>
     <string name="message_enchantment_create">Geofence %1$s is created.</string>
     <string name="message_enchantment_emerge">Emerged in geofence %1$s.</string>
     <string name="message_enchantment_in">Entered geofence %1$s.</string>
