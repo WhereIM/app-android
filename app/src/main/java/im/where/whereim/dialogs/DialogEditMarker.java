@@ -17,9 +17,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -82,12 +79,7 @@ public class DialogEditMarker {
                 return view;
             }
         });
-        icon.setSelection(Iterables.indexOf(Arrays.asList(iconList), new Predicate<String>() {
-            @Override
-            public boolean apply(String input) {
-                return input.equals(defaultColor);
-            }
-        }));
+        icon.setSelection(Arrays.asList(iconList).indexOf(defaultColor));
         if(isShared){
             isPublic.setVisibility(View.GONE);
         }else{
