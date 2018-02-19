@@ -38,7 +38,7 @@ import im.where.whereim.models.Marker;
 import im.where.whereim.models.Mate;
 import im.where.whereim.models.POI;
 
-public class ChannelActivity extends BaseActivity implements CoreService.ConnectionStatusCallback, CoreService.MapDataDelegate {
+public class ChannelActivity extends BaseChannelActivity implements CoreService.ConnectionStatusCallback, CoreService.MapDataDelegate {
     private final static int TAB_MAP = 0;
     private final static int TAB_SEARCH = 1;
     private final static int TAB_MESSAGE = 2;
@@ -61,37 +61,11 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
 
-    private Channel mChannel;
-
     private Handler mHandler = new Handler();
 
     @Override
     public void onConnectionStatusChanged(boolean connected) {
         mConnectionStatus.setVisibility(connected?View.GONE:View.VISIBLE);
-    }
-
-    interface GetChannelCallback{
-        public void onGetChannel(Channel channel);
-    }
-
-    private final List<GetChannelCallback> mGetChannelCallback = new ArrayList<>();
-    public void getChannel(GetChannelCallback callback){
-        synchronized (mGetChannelCallback) {
-            mGetChannelCallback.add(callback);
-        }
-        processGetChannelCallback();
-    }
-
-    private void processGetChannelCallback(){
-        if(mChannel==null){
-            return;
-        }
-        synchronized (mGetChannelCallback) {
-            while(mGetChannelCallback.size()>0){
-                GetChannelCallback callback = mGetChannelCallback.remove(0);
-                callback.onGetChannel(mChannel);
-            }
-        }
     }
 
     private View mContentRoot;
@@ -210,18 +184,6 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
             public void onBinderReady(CoreService.CoreBinder binder) {
                 Intent intent = getIntent();
 
-                String channel_id = intent.getStringExtra("channel");
-                if(channel_id!=null){
-                    mChannelId = channel_id;
-                }
-
-                mChannel = mBinder.getChannelById(mChannelId);
-                if(mChannel.enabled!=null && !mChannel.enabled){
-                    finish();
-                    return;
-                }
-
-                processGetChannelCallback();
                 mTabLayout.setupWithViewPager(mViewPager);
 
                 String tab = intent.getStringExtra("tab");
@@ -526,8 +488,6 @@ public class ChannelActivity extends BaseActivity implements CoreService.Connect
             });
         }
     };
-
-    String mChannelId;
 
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {

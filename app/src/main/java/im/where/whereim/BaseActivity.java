@@ -17,7 +17,7 @@ import java.util.List;
 
 public class BaseActivity extends AppCompatActivity implements ServiceConnection {
 
-    private List<CoreService.BinderTask> mPendingTask = new ArrayList<>();
+    final private List<CoreService.BinderTask> mPendingTask = new ArrayList<>();
 
     protected Handler mHandler = new Handler();
     protected void postUITask(Runnable r){
