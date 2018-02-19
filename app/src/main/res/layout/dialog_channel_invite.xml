@@ -22,4 +22,11 @@
         android:textAllCaps="false"
         android:text="@string/send_invite_link"/>
 
+    <Button
+        android:id="@+id/guest_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAllCaps="false"
+        android:text="@string/guest_view"/>
+
 </LinearLayout>

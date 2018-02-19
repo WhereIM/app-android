@@ -306,22 +306,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         getChannel(new GetChannelCallback() {
             @Override
             public void onGetChannel(final Channel channel) {
-                new DialogChannelInvite(ChannelActivity.this, new DialogChannelInvite.Callback(){
-
-                    @Override
-                    public void onSelectGenerateQRCode() {
-                        new DialogChannelInviteQrCode(ChannelActivity.this, channel);
-                    }
-
-                    @Override
-                    public void onSelectSendInviteLink() {
-                        Intent i = new Intent(Intent.ACTION_SEND);
-                        i.setType("text/plain");
-                        i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.action_invite));
-                        i.putExtra(Intent.EXTRA_TEXT, getString(R.string.invitation, channel.channel_name)+"\n"+channel.getLink());
-                        startActivity(Intent.createChooser(i, getString(R.string.action_invite)));
-                    }
-                });
+                new DialogChannelInvite(ChannelActivity.this, channel);
             }
         });
     }

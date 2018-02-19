@@ -5,6 +5,7 @@
     <string name="permission_rationale">你的定位會持續傳送到啟用位置傳送的群組，以供定位分享及遠端定位事件使用。只要有群組啟用定位分享，定位功能會持續運作，包含在背景執行時。你可以使用其他導航軟體或社交軟體，或是關上手機休息一下，同時讓你的朋友家人能持續掌握你的位置。</string>
     <string name="action_share">分享</string>
     <string name="action_invite">邀請</string>
+    <string name="action_guest_view">訪客檢視</string>
     <string name="action_settings">設定</string>
     <string name="action_about">關於</string>
     <string name="action_quit">關閉程式</string>
@@ -14,8 +15,6 @@
     <string name="logout">登出</string>
     <string name="reset_tips">再次顯示使用提示</string>
     <string name="service_provider">資料來源 (地圖與搜尋)</string>
-    <string name="map_service_provider">地圖資料來源</string>
-    <string name="search_service_provider">搜尋資料來源</string>
     <string name="misc">其他</string>
     <string name="got_it">知道了</string>
     <string name="tip_new_channel">點這裡建立或用QR Code加入群組。</string>
@@ -34,6 +33,7 @@
     <string name="error">錯誤</string>
     <string name="retry">再試一次</string>
     <string name="invitation">邀請：%1$s</string>
+    <string name="guest_view_link_for">訪客檢視連結：%1$s</string>
     <string name="object_create_hint">在地圖上長按即可建立</string>
     <string name="mate_invite_hint">沒有人，邀請別人進來吧</string>
     <string name="no_match">找不到</string>
@@ -69,6 +69,9 @@
     <string name="public_marker">共用圖釘</string>
     <string name="private_marker">個人圖釘</string>
     <string name="error_exhausted">可註冊數量已滿，請稍後再試。</string>
+    <string name="guest_view">訪客檢視</string>
+    <string name="access_settings">存取設定</string>
+    <string name="message">訊息</string>
     <string name="unread">未讀訊息</string>
     <string name="begin_sharing">通知其他人你開始分享定位了</string>
     <string name="message_not_implemented">需要更新版本才能讀取此則訊息</string>
@@ -78,7 +81,7 @@
     <string name="message_enchantment_out">離開 %1$s 地界</string>
     <string name="message_marker_create">放了 %1$s 圖釘 {icon}</string>
     <string name="message_radius_report">圈內/外：%1$s / %2$s (%3$s m)</string>
-    <string name="fcm_begin_sharing">%1$s開始與你分享定位！</string>
+    <string name="fcm_begin_sharing">%1$s 開始與你分享定位！</string>
     <string name="fcm_text">%1$s：%2$s</string>
     <string name="fcm_enchantment_create">%1$s：%2$s 地界已設立</string>
     <string name="fcm_enchantment_emerge">%1$s：出現在 %2$s 地界</string>

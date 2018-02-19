@@ -21,6 +21,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.amazonaws.mobileconnectors.iot.AWSIotKeystoreHelper;
@@ -61,6 +62,7 @@ import im.where.whereim.dialogs.DialogSendSharingNotification;
 import im.where.whereim.geo.QuadTree;
 import im.where.whereim.models.Ad;
 import im.where.whereim.models.Channel;
+import im.where.whereim.models.ChannelView;
 import im.where.whereim.models.Enchantment;
 import im.where.whereim.models.Marker;
 import im.where.whereim.models.Mate;
@@ -89,6 +91,10 @@ public class CoreService extends Service {
         void setSearchResult(ArrayList<POI> results);
         void moveToSearchResult(int position, boolean focus);
         void onMapAd(HashMap<String, Ad> ads);
+    };
+
+    public interface ChannelViewDelegate {
+        void onChannelView(ChannelView view);
     };
 
     public interface RegisterClientCallback {
@@ -964,6 +970,30 @@ public class CoreService extends Service {
         public Message.BundledCursor getMessageCursor(Channel channel){
             return Message.getCursor(mWimDBHelper.getDatabase(), channel);
         }
+
+        public boolean openChannelView(Channel channel, ChannelViewDelegate receiver){
+            if(channel==null)
+                return false;
+            synchronized (mChannelViewReceiver){
+                if(!mChannelViewReceiver.containsKey(channel.id)){
+                    mChannelViewReceiver.put(channel.id, new ArrayList<ChannelViewDelegate>());
+                }
+                mChannelViewReceiver.get(channel.id).add(receiver);
+            }
+            subscribeChannelView(channel);
+            return true;
+        }
+
+        public void closeChannelView(Channel channel, ChannelViewDelegate receiver){
+            if(channel==null)
+                return;
+            synchronized (mChannelViewReceiver){
+                if(mChannelViewReceiver.containsKey(channel.id)){
+                    mChannelViewReceiver.get(channel.id).remove(receiver);
+                }
+            }
+            unsubscribeChannelView(channel);
+        }
     }
 
     private Activity mCurrentActivity = null;
@@ -981,6 +1011,7 @@ public class CoreService extends Service {
     private final CoreBinder mBinder = new CoreBinder();
 
     final private HashMap<String, List<MapDataDelegate>> mMapDataReceiver = new HashMap<>();
+    final private HashMap<String, List<ChannelViewDelegate>> mChannelViewReceiver = new HashMap<>();
 
     public CoreService() {
 
@@ -1456,6 +1487,7 @@ public class CoreService extends Service {
     private Pattern mClientGetPattern = Pattern.compile("^client/[A-Fa-f0-9]{32}/([^/]+)/get$");
     private Pattern mChannelDataPattern = Pattern.compile("^channel/([a-f0-9]{32})/data/([^/]+)/get$");
     private Pattern mChannelLocationPattern = Pattern.compile("^channel/([a-f0-9]{32})/map/location/get$");
+    private Pattern mChannelViewPattern = Pattern.compile("^channel/([a-f0-9]{32})/view/settings/get$");
     private Pattern mMapAdPattern = Pattern.compile("^system/map_ad/get/([0-3]*)$");
     private Pattern mSystemKeyPattern = Pattern.compile("^system/key/get$");
     private Pattern mSystemMessagePattern = Pattern.compile("^system/message/get$");
@@ -1509,6 +1541,11 @@ public class CoreService extends Service {
                         mqttChannelMessageHandler(channel_id, msg);
                         break;
                 }
+                return;
+            }
+            m = mChannelViewPattern.matcher(topic);
+            if(m.matches()){
+                mqttChannelViewHandler(m.group(1), msg);
                 return;
             }
             m = mMapAdPattern.matcher(topic);
@@ -1851,7 +1888,7 @@ public class CoreService extends Service {
         updateBadge();
     }
 
-    // ================ Channel Data ================
+    // Channel: Data
     private void syncChannelData(final Channel channel){
         if(!mChannelDataSync.containsKey(channel.id)){
             mChannelDataSync.put(channel.id, true);
@@ -1894,7 +1931,7 @@ public class CoreService extends Service {
         }
     }
 
-    // ================ Channel Data - Mate ================
+    // Channel: Data - Mate
     private void mqttChannelMateHandler(String channel_id, JSONObject data){
         String mate_id;
         try {
@@ -2001,7 +2038,7 @@ public class CoreService extends Service {
         return mate;
     }
 
-    // ================ Channel Data - Message ================
+    // Channel: Data - Message
 
     private void mqttChannelMessageHandler(String channel_id, JSONObject payload){
         Message message = Message.parse(payload);
@@ -2062,7 +2099,7 @@ public class CoreService extends Service {
         notificationManager.notify(notificationId++, mBuilder.build());
     }
 
-    // ================ Channel Location ================
+    // Channel: Location
 
     private void mqttChannelLocationHandler(final String channel_id, final JSONObject data){
         String mate_id;
@@ -2098,6 +2135,38 @@ public class CoreService extends Service {
             }
         });
     }
+
+    // Channel: View
+    private void mqttChannelViewHandler(final String channel_id, final JSONObject data){
+        Log.e(TAG, "mqttChannelViewHandler");
+        final ChannelView view = new ChannelView();
+
+        try {
+            view.id = data.getString("id");
+            view.name = data.getString("name");
+            view.enable_message = data.getBoolean("enable_message");
+            view.admin = data.getBoolean("admin");
+            view.deleted = Util.JsonOptBoolean(data, Key.DELETED, false);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (mChannelViewReceiver){
+                    if(mChannelViewReceiver.containsKey(channel_id)){
+                        for (ChannelViewDelegate delegate : mChannelViewReceiver.get(channel_id)) {
+                            delegate.onChannelView(view);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Channel: Others
 
     private final HashMap<String, Long> mapAdTileHistory = new HashMap();
     private final ArrayList<String> subscribedTiles = new ArrayList<>();
@@ -2214,6 +2283,16 @@ public class CoreService extends Service {
 
     private void unsubscribeChannelMap(Channel channel){
         String topic = String.format("channel/%s/map/+/get", channel.id);
+        unsubscribe(topic);
+    }
+
+    private void subscribeChannelView(Channel channel){
+        String topic = String.format("channel/%s/view/settings/get", channel.id);
+        subscribe(topic);
+    }
+
+    private void unsubscribeChannelView(Channel channel){
+        String topic = String.format("channel/%s/view/settings/get", channel.id);
         unsubscribe(topic);
     }
 
