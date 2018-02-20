@@ -8,6 +8,7 @@ public class Key {
     public final static String ACCURACY = "acc";
     public final static String ACTION = "act";
     public final static String ACTIVE = "active";
+    public final static String ADMIN = "admin";
     public final static String ALTITUDE = "alt";
     public final static String API = "api";
     public final static String API_PREFIX = "api_";
@@ -25,6 +26,7 @@ public class Key {
     public final static String DESC = "desc";
 
     public final static String ENABLED = "enabled";
+    public final static String ENABLE_MESSAGE = "enable_message";
 
     public final static String FACEBOOK = "facebook";
     public final static String FCM_TOKEN = "fcm_token";

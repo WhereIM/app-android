@@ -1,6 +1,9 @@
 package im.where.whereim;
 
+import android.app.Activity;
 import android.content.Context;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import org.json.JSONObject;
 
@@ -54,15 +57,20 @@ public class Util {
         }
     }
 
-    static public Boolean JsonOptBoolean(JSONObject jsObj, String key, Boolean fallback){
+    static public Boolean JsonOptBoolean(JSONObject jsObj, String key, Boolean fallback) {
         try {
             if (!jsObj.has(key)) {
                 return fallback;
             } else {
                 return jsObj.getBoolean(key);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             return fallback;
         }
+    }
+
+    static public void closeKeyboard(Activity activity){
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
     }
 }

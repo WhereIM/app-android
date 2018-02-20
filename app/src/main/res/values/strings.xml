@@ -72,7 +72,7 @@
     <string name="error_exhausted">Client capacity is exhausted, please try later.</string>
     <string name="guest_view">Guest View</string>
     <string name="access_settings">Access Settings</string>
-    <string name="message">Messages</string>
+    <string name="messages">Messages</string>
     <string name="unread">Unread</string>
     <string name="begin_sharing">Notify others you have begun sharing location</string>
     <string name="message_not_implemented">Require new version to display this message</string>

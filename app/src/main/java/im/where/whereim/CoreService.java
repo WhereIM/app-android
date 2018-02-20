@@ -994,6 +994,38 @@ public class CoreService extends Service {
             }
             unsubscribeChannelView(channel);
         }
+
+        public void putChannelView(Channel channel, ChannelView channelView){
+            try {
+                JSONObject payload = new JSONObject();
+                if(channelView.id != null){
+                    payload.put(Key.ID, channelView.id);
+                }
+                payload.put(Key.NAME, channelView.name);
+                payload.put(Key.ENABLE_MESSAGE, channelView.enable_message);
+                String topic = String.format("channel/%s/view/settings/put", channel.id);
+                publish(topic, payload);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        public void deleteChannelView(Channel channel, ChannelView channelView){
+            try {
+                if(channelView==null || channelView.id == null){
+                    return;
+                }
+                JSONObject payload = new JSONObject();
+                payload.put(Key.ID, channelView.id);
+                payload.put(Key.DELETED, true);
+                String topic = String.format("channel/%s/view/settings/put", channel.id);
+                publish(topic, payload);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 
     private Activity mCurrentActivity = null;
@@ -2138,14 +2170,13 @@ public class CoreService extends Service {
 
     // Channel: View
     private void mqttChannelViewHandler(final String channel_id, final JSONObject data){
-        Log.e(TAG, "mqttChannelViewHandler");
         final ChannelView view = new ChannelView();
 
         try {
-            view.id = data.getString("id");
-            view.name = data.getString("name");
-            view.enable_message = data.getBoolean("enable_message");
-            view.admin = data.getBoolean("admin");
+            view.id = data.getString(Key.ID);
+            view.name = data.getString(Key.NAME);
+            view.enable_message = data.getBoolean(Key.ENABLE_MESSAGE);
+            view.admin = data.getBoolean(Key.ADMIN);
             view.deleted = Util.JsonOptBoolean(data, Key.DELETED, false);
         } catch (JSONException e) {
             e.printStackTrace();

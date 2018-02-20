@@ -17,10 +17,18 @@
 
     <Button
         android:id="@+id/edit"
-        android:layout_width="80dp"
+        android:layout_width="35dp"
         android:layout_height="match_parent"
         android:gravity="center"
         android:background="@null"
         android:text="✏" />
+
+    <Button
+        android:id="@+id/delete"
+        android:layout_width="35dp"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:background="@null"
+        android:text="❌" />
 
 </LinearLayout>
