@@ -228,8 +228,12 @@ public class GuestViewMgmtActivity extends BaseChannelActivity {
             });
             pendingViewsList = list;
 
-            mHandler.removeCallbacks(updateView);
-            mHandler.postDelayed(updateView, 500);
+            if(mLoading.getVisibility() == View.VISIBLE){
+                mHandler.removeCallbacks(updateView);
+                mHandler.postDelayed(updateView, 500);
+            }else{
+                updateView.run();
+            }
         }
     };
 
