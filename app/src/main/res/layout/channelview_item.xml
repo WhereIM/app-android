@@ -20,7 +20,7 @@
         android:layout_width="35dp"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:background="@null"
+        android:background="?android:attr/selectableItemBackground"
         android:text="✏" />
 
     <Button
@@ -28,7 +28,7 @@
         android:layout_width="35dp"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:background="@null"
+        android:background="?android:attr/selectableItemBackground"
         android:text="❌" />
 
 </LinearLayout>
