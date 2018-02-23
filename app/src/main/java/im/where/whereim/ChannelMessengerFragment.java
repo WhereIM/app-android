@@ -223,7 +223,7 @@ public class ChannelMessengerFragment extends BaseFragment {
                 if(mCurrentCursor==null){
                     return;
                 }
-                messageViewEnd = view.getLastVisiblePosition() == view.getAdapter().getCount() - 1 &&
+                messageViewEnd = view.getChildCount() == 0 || view.getLastVisiblePosition() == view.getAdapter().getCount() - 1 &&
                         view.getChildAt(view.getChildCount() - 1).getBottom() <= view.getHeight();
                 if(messageViewEnd){
                     mUnread.setVisibility(View.GONE);
