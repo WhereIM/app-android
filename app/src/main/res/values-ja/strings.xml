@@ -31,6 +31,7 @@
     <string name="fixed_enchantment_desc">メイトがエリアから離れた時、または入ってきたときに通知します。</string>
     <string name="error">エラー</string>
     <string name="retry">リトライ</string>
+    <string name="date_format">%2$s (%1$s)</string>
     <string name="invitation">招待状：%1$s</string>
     <string name="object_create_hint">地図を長押しして作成する</string>
     <string name="mate_invite_hint">誰もこここにいません。このチャンネルに他の人を招待してください。</string>

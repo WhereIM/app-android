@@ -31,6 +31,7 @@
     <string name="fixed_enchantment_desc">Notificar cuando un amigo entre o salga de una zona particular</string>
     <string name="error">Error</string>
     <string name="retry">Reintentar</string>
+    <string name="date_format">%1$s %2$s</string>
     <string name="invitation">Invitación: %1$s</string>
     <string name="object_create_hint">Pulsación larga en el mapa para crear</string>
     <string name="mate_invite_hint">Nadie por aquí, invite a otros a este canal</string>

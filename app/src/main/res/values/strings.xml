@@ -33,6 +33,7 @@
     <string name="fixed_enchantment_desc">Notify when mates enter or leave a particular area.</string>
     <string name="error">Error</string>
     <string name="retry">Retry</string>
+    <string name="date_format">%1$s %2$s</string>
     <string name="invitation">Invitation: %1$s</string>
     <string name="guest_view_link_for">Guest view link for %1$s</string>
     <string name="object_create_hint">Long press on map to create</string>

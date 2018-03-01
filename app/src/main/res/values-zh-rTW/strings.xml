@@ -32,6 +32,7 @@
     <string name="fixed_enchantment_desc">當夥伴進入或離開指定的區域時發送通知。</string>
     <string name="error">錯誤</string>
     <string name="retry">再試一次</string>
+    <string name="date_format">%2$s (%1$s)</string>
     <string name="invitation">邀請：%1$s</string>
     <string name="guest_view_link_for">訪客檢視連結：%1$s</string>
     <string name="object_create_hint">在地圖上長按即可建立</string>

@@ -31,6 +31,7 @@
     <string name="fixed_enchantment_desc">แจ้งเตือนเมื่อเพื่อนของคุณเข้าสู่หรือออกจากบริเวณใด ๆ</string>
     <string name="error">ข้อผิดพลาด</string>
     <string name="retry">ลองอีกครั้ง</string>
+    <string name="date_format">%2$s (%1$s)</string>
     <string name="invitation">คำเชิญ: %1$s</string>
     <string name="object_create_hint">กดแผนที่ค้างไว้เพือสร้าง</string>
     <string name="mate_invite_hint">ไม่มีคนอยู่ เชิญคนอื่นมาที่ช่องนี้</string>

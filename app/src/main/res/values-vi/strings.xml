@@ -31,6 +31,7 @@
     <string name="fixed_enchantment_desc">Thông báo khi bạn bè vào hoặc rời một địa điểm cụ thể.</string>
     <string name="error">Lỗi</string>
     <string name="retry">Thử lại</string>
+    <string name="date_format">%2$s (%1$s)</string>
     <string name="invitation">Mời: %1$s</string>
     <string name="object_create_hint">Ấn lâu trên bản đồ để tạo</string>
     <string name="mate_invite_hint">Không có ai ở đây, mời những người khác vào kênh này</string>

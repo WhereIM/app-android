@@ -31,6 +31,7 @@
     <string name="fixed_enchantment_desc">상대방이 특정 지역을 출입할 때 알려줍니다.</string>
     <string name="error">오류</string>
     <string name="retry">다시 시도</string>
+    <string name="date_format">%2$s (%1$s)</string>
     <string name="invitation">초대: %1$s</string>
     <string name="object_create_hint">지도를 길게 눌러 생성하세요</string>
     <string name="mate_invite_hint">아무도 없습니다. 현재 채널로 다른 사람들을 초대하세요</string>

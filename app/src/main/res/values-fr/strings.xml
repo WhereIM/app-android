@@ -31,6 +31,7 @@
     <string name="fixed_enchantment_desc">Envoyer une notification quand des amis entrent ou quittent une zone particulière.</string>
     <string name="error">Erreur</string>
     <string name="retry">Réessayer</string>
+    <string name="date_format">%1$s %2$s</string>
     <string name="invitation">Invitation : %1$s</string>
     <string name="object_create_hint">Appuyez longuement sur la carte pour créer</string>
     <string name="mate_invite_hint">Il n\'y a personne ici, invitez d\'autres à se joindre à cette chaîne</string>

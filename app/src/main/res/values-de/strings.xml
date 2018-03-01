@@ -31,6 +31,7 @@
     <string name="fixed_enchantment_desc">Mitteilung, wenn Kumpel einen bestimmten Bereich betreten oder verlassen.</string>
     <string name="error">Fehler</string>
     <string name="retry">Erneut versuchen</string>
+    <string name="date_format">%1$s %2$s</string>
     <string name="invitation">Einladung: %1$s</string>
     <string name="object_create_hint">Lange gedrückt halten, um eine Karte zu erstellen</string>
     <string name="mate_invite_hint">Niemand hier, laden Sie jemanden ein um diesen Channel zu nutzen</string>

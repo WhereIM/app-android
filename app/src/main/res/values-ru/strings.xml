@@ -31,6 +31,7 @@
     <string name="fixed_enchantment_desc">Уведомлять, когда приятели входят или покидают определенную область.</string>
     <string name="error">Ошибка</string>
     <string name="retry">Повтор</string>
+    <string name="date_format">%1$s %2$s</string>
     <string name="invitation">Приглашение: %1$s</string>
     <string name="object_create_hint">Для создания выполните длительное нажатие</string>
     <string name="mate_invite_hint">Здесь никого нет, пригласите других в этот канал</string>
