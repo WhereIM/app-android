@@ -201,7 +201,9 @@ public class GuestViewMgmtActivity extends BaseChannelActivity {
             mLoading.setVisibility(View.GONE);
             mViewsListView.setVisibility(View.VISIBLE);
 
-            viewsList = pendingViewsList;
+            if(pendingViewsList != null){
+                viewsList = pendingViewsList;
+            }
             mAdapter.notifyDataSetChanged();
         }
     };
@@ -249,6 +251,7 @@ public class GuestViewMgmtActivity extends BaseChannelActivity {
                         binder.openChannelView(channel, delegate);
                     }
                 });
+                mHandler.postDelayed(updateView, 1500);
             }
         });
     }
