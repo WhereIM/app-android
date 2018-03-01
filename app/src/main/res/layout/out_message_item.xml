@@ -2,44 +2,61 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:layout_margin="5dp"
+        android:background="#efefef" />
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:layout_gravity="center_vertical"
-        android:orientation="vertical"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp">
+        android:orientation="horizontal">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp">
 
-            <TextView
-                android:id="@+id/time"
-                android:text="2017-01-17 16:56:33"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:padding="5dp" />
+                android:layout_gravity="end"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:padding="5dp"
+                    android:text="16:56"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:layout_marginLeft="50dp"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:id="@+id/message"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="20dp"
+                    android:autoLink="web|email"
+                    android:background="@drawable/out_message_background"
+                    android:padding="7dp"
+                    android:text="message https://where.im test"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="@android:color/black"
+                    android:textColorLink="@color/textColorLink" />
+
+            </LinearLayout>
 
         </LinearLayout>
-
-        <TextView
-            android:text="message https://where.im test"
-            android:background="@drawable/out_message_background"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:id="@+id/message"
-            android:autoLink="web|email"
-            android:textColor="@android:color/black"
-            android:textColorLink="@color/textColorLink"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:padding="7dp"
-            android:layout_marginRight="30dp" />
 
     </LinearLayout>
 

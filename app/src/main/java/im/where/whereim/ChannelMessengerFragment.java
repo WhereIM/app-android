@@ -15,6 +15,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import im.where.whereim.models.Channel;
@@ -97,12 +98,14 @@ public class ChannelMessengerFragment extends BaseFragment {
         }
 
         class InViewHolder {
+            TextView date;
             TextView sender;
             TextView time;
             TextView message;
         }
 
         class OutViewHolder {
+            TextView date;
             TextView time;
             TextView message;
         }
@@ -119,6 +122,7 @@ public class ChannelMessengerFragment extends BaseFragment {
                 case 0:
                     view = LayoutInflater.from(context).inflate(R.layout.in_message_item, parent, false);
                     InViewHolder ivh = new InViewHolder();
+                    ivh.date = (TextView) view.findViewById(R.id.date);
                     ivh.sender = (TextView) view.findViewById(R.id.sender);
                     ivh.time = (TextView) view.findViewById(R.id.time);
                     ivh.message = (TextView) view.findViewById(R.id.message);
@@ -127,6 +131,7 @@ public class ChannelMessengerFragment extends BaseFragment {
                 case 1:
                     view = LayoutInflater.from(context).inflate(R.layout.out_message_item, parent, false);
                     OutViewHolder ovh = new OutViewHolder();
+                    ovh.date = (TextView) view.findViewById(R.id.date);
                     ovh.time = (TextView) view.findViewById(R.id.time);
                     ovh.message = (TextView) view.findViewById(R.id.message);
                     view.setTag(ovh);
@@ -139,11 +144,15 @@ public class ChannelMessengerFragment extends BaseFragment {
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
             CoreService.CoreBinder binder = getBinder();
+            final int position = cursor.getPosition();
+            boolean showDate = false;
             Message m = Message.parse(cursor);
             switch(getItemViewType(cursor)){
                 case 0:
                     InViewHolder ivh = (InViewHolder) view.getTag();
+
                     if(binder==null){
+                        ivh.date.setVisibility(View.GONE);
                         ivh.sender.setText(null);
                         ivh.message.setText(null);
                         ivh.time.setText(null);
@@ -152,17 +161,46 @@ public class ChannelMessengerFragment extends BaseFragment {
                     Mate mate = binder.getChannelMate(mChannel.id, m.mate_id);
                     ivh.sender.setText(mate==null?"":mate.getDisplayName());
                     ivh.message.setText(m.getText(getActivity(), binder));
-                    ivh.time.setText(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Timestamp(m.time*1000)));
+                    ivh.time.setText(new SimpleDateFormat("HH:mm").format(new Timestamp(m.time*1000)));
+                    if(position==0){
+                        showDate = true;
+                    }else{
+                        cursor.moveToPosition(position-1);
+                        Message prev = Message.parse(cursor);
+                        if(!new SimpleDateFormat("yyyy-MM-dd").format(new Timestamp(m.time*1000)).equals(new SimpleDateFormat("yyyy-MM-dd").format(new Timestamp(prev.time*1000)))){
+                            showDate = true;
+                        }
+                        cursor.moveToPosition(position);
+                    }
+                    ivh.date.setVisibility(showDate ? View.VISIBLE : View.GONE);
+                    if(showDate){
+                        ivh.date.setText(new SimpleDateFormat("yyyy-MM-dd").format(new Timestamp(m.time*1000)));
+                    }
                     return;
                 case 1:
                     OutViewHolder ovh = (OutViewHolder) view.getTag();
                     if(binder==null){
+                        ovh.date.setVisibility(View.GONE);
                         ovh.message.setText(null);
                         ovh.time.setText(null);
                         return;
                     }
                     ovh.message.setText(m.getText(getActivity(), binder));
-                    ovh.time.setText(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Timestamp(m.time*1000)));
+                    ovh.time.setText(new SimpleDateFormat("HH:mm").format(new Timestamp(m.time*1000)));
+                    if(position==0){
+                        showDate = true;
+                    }else{
+                        cursor.moveToPosition(position-1);
+                        Message prev = Message.parse(cursor);
+                        if(!new SimpleDateFormat("yyyy-MM-dd").format(new Timestamp(m.time*1000)).equals(new SimpleDateFormat("yyyy-MM-dd").format(new Timestamp(prev.time*1000)))){
+                            showDate = true;
+                        }
+                        cursor.moveToPosition(position);
+                    }
+                    ovh.date.setVisibility(showDate ? View.VISIBLE : View.GONE);
+                    if(showDate){
+                        ovh.date.setText(DateFormat.getDateInstance().format(new Timestamp(m.time*1000)));
+                    }
                     return;
             }
         }
