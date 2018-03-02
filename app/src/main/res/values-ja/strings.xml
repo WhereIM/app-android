@@ -78,7 +78,7 @@
     <string name="message_enchantment_emerge">ジオフェンスが登場しました%1$s。</string>
     <string name="message_enchantment_in">ジオフェンスに入りました%1$s。</string>
     <string name="message_enchantment_out">ジオフェンスから出ました%1$s。</string>
-    <string name="message_marker_create">マーカー %1$s が作成されます。 {icon}</string>
+    <string name="message_marker_create">マーカー %1$s が作成されます。</string>
     <string name="message_radius_report">イン/アウト：%1$s / %2$s (%3$s m)</string>
     <string name="fcm_begin_sharing">%1$sの位置情報が共有されました！</string>
     <string name="fcm_text">%1$s：%2$s</string>

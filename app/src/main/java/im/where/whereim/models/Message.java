@@ -9,6 +9,8 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.TextUtils;
 import android.text.style.ImageSpan;
 import android.util.Log;
 
@@ -110,7 +112,6 @@ public class Message extends BaseModel {
         return m;
     }
 
-    private final Pattern iconPattern = Pattern.compile("\\{icon\\}");
     public SpannableString getText(Context context, CoreService.CoreBinder binder){
         if("text".equals(this.type)){
             return new SpannableString(this.message);
@@ -140,20 +141,22 @@ public class Message extends BaseModel {
                     return new SpannableString(context.getResources().getString(R.string.message_enchantment_out, json.optString("name", "")));
 
                 case "marker_create":
-                    ret = new SpannableString(context.getResources().getString(R.string.message_marker_create, json.optString("name", "")));
+                    SpannableStringBuilder b = new SpannableStringBuilder();
                     if(json.has(Key.ATTR)) {
                         j = json.getJSONObject(Key.ATTR);
                         if(j.has(Key.COLOR)){
+                            SpannableString icon = new SpannableString("@");
                             d = ResourcesCompat.getDrawable(context.getResources(), Marker.getIconResource(j.getString(Key.COLOR)), null);
                             d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
-                            Matcher m = iconPattern.matcher(ret);
-                            if(m.find()) {
-                                span = new ImageSpan(d, ImageSpan.ALIGN_BASELINE);
-                                ret.setSpan(span, m.start(), m.end(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
-                            }
+                            span = new ImageSpan(d, ImageSpan.ALIGN_BASELINE);
+                            icon.setSpan(span, 0, 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+                            b.append(icon);
+                            b.append("\n");
                         }
                     }
-                    return ret;
+                    SpannableString text = new SpannableString(context.getResources().getString(R.string.message_marker_create, json.optString("name", "")));
+                    b.append(text);
+                    return SpannableString.valueOf(b);
 
                 case "radius_report":
                     return new SpannableString(context.getResources().getString(R.string.message_radius_report, json.optString("in", ""), json.optString("out", ""), json.optString(Key.RADIUS, "")));

@@ -78,7 +78,7 @@
     <string name="message_enchantment_emerge">Ist im Geofencing %1$s aufgetaucht.</string>
     <string name="message_enchantment_in">Ist im Geofencing %1$s eingetreten.</string>
     <string name="message_enchantment_out">Hat das Geofencing %1$s verlassen.</string>
-    <string name="message_marker_create">Marker %1$s wurde erstellt. {icon}</string>
+    <string name="message_marker_create">Marker %1$s wurde erstellt.</string>
     <string name="message_radius_report">Ein/Aus: %1$s / %2$s (%3$s m)</string>
     <string name="fcm_begin_sharing">%1$s hat gerade begonnen, seinen Standort mit Ihnen zu teilen!</string>
     <string name="fcm_text">%1$s：%2$s</string>

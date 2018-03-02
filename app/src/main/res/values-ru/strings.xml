@@ -78,7 +78,7 @@
     <string name="message_enchantment_emerge">Появился в геозоне %1$s.</string>
     <string name="message_enchantment_in">Вошел в геозону %1$s.</string>
     <string name="message_enchantment_out">Вышел из геозоны %1$s.</string>
-    <string name="message_marker_create">Маркер %1$s создан {icon}</string>
+    <string name="message_marker_create">Маркер %1$s создан</string>
     <string name="message_radius_report">В/Из: %1$s / %2$s (%3$s м)</string>
     <string name="fcm_begin_sharing">%1$s начал делится с вами местоположением!</string>
     <string name="fcm_text">%1$s：%2$s</string>

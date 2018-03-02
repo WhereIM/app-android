@@ -78,7 +78,7 @@
     <string name="message_enchantment_emerge">(이)가 지오 펜스%1$s에 등장했습니다.</string>
     <string name="message_enchantment_in">(이)가 지오 펜스%1$s에 입장했습니다.</string>
     <string name="message_enchantment_out">(이)가 지오 펜스%1$s(을)를 떠났습니다.</string>
-    <string name="message_marker_create">마커가 %1$s 생성되었습니다. {icon}</string>
+    <string name="message_marker_create">마커가 %1$s 생성되었습니다.</string>
     <string name="message_radius_report">들어옴/나감: %1$s / %2$s (%3$s m)</string>
     <string name="fcm_begin_sharing">%1$s(이)가 당신과 위치 공유를 시작했습니다!</string>
     <string name="fcm_text">%1$s: %2$s</string>
