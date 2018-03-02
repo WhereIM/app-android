@@ -1107,7 +1107,11 @@ public class CoreService extends Service {
                             args[i] = jargs.get(i);
                         }
                         String template = getString(getResources().getIdentifier("fcm_"+fcm_key, "string", getPackageName()));
-                        setupNotification("text".equals(fcm_key)?"message":"map", fcm_channel, fcm_title, String.format(template, args));
+                        String tab = "message";
+                        if("begin_sharing".equals(fcm_key)){
+                            tab = "map";
+                        }
+                        setupNotification(tab, fcm_channel, fcm_title, String.format(template, args));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

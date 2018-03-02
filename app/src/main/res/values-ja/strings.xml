@@ -82,6 +82,7 @@
     <string name="message_radius_report">イン/アウト：%1$s / %2$s (%3$s m)</string>
     <string name="fcm_begin_sharing">%1$sの位置情報が共有されました！</string>
     <string name="fcm_text">%1$s：%2$s</string>
+    <string name="fcm_rich">%1$s：%2$s</string>
     <string name="fcm_enchantment_create">%1$s：ジオフェンス%2$sが作られました。</string>
     <string name="fcm_enchantment_emerge">%1$s：ジオフェンスが登場しました%2$s。</string>
     <string name="fcm_enchantment_in">%1$s：ジオフェンスに入りました%2$s。</string>

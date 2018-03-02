@@ -82,6 +82,7 @@
     <string name="message_radius_report">เข้า / ออก: %1$s / %2$s (%3$s ม.)</string>
     <string name="fcm_begin_sharing">%1$s เพิ่งเริ่มแบ่งปันตำแหน่งกับคุณ!</string>
     <string name="fcm_text">%1$s：%2$s</string>
+    <string name="fcm_rich">%1$s：%2$s</string>
     <string name="fcm_enchantment_create">%1$s: สร้าง geofence %2$s แล้ว</string>
     <string name="fcm_enchantment_emerge">%1$s: ได้เกิดขึ้นใน geofence %2$s</string>
     <string name="fcm_enchantment_in">%1$s: เข้ามา geofence %2$s แล้ว</string>

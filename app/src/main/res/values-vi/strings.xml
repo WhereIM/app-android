@@ -82,6 +82,7 @@
     <string name="message_radius_report">Vào/Ra: %1$s / %2$s (%3$s m)</string>
     <string name="fcm_begin_sharing">%1$s vừa bắt đầu chia sẻ địa điểm với bạn!</string>
     <string name="fcm_text">%1$s：%2$s</string>
+    <string name="fcm_rich">%1$s：%2$s</string>
     <string name="fcm_enchantment_create">%1$s: Hàng rào địa lý %2$s được tạo ra.</string>
     <string name="fcm_enchantment_emerge">%1$s: Đã xuất hiện trong hàng rào địa lý %2$s.</string>
     <string name="fcm_enchantment_in">%1$s: Đã vào hàng rào địa lý %2$s.</string>

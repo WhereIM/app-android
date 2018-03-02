@@ -82,6 +82,7 @@
     <string name="message_radius_report">들어옴/나감: %1$s / %2$s (%3$s m)</string>
     <string name="fcm_begin_sharing">%1$s(이)가 당신과 위치 공유를 시작했습니다!</string>
     <string name="fcm_text">%1$s: %2$s</string>
+    <string name="fcm_rich">%1$s: %2$s</string>
     <string name="fcm_enchantment_create">%1$s: 지오 펜스%2$s(이)가 생성되었습니다.</string>
     <string name="fcm_enchantment_emerge">%1$s: (이)가 지오 펜스%2$s에 등장했습니다.</string>
     <string name="fcm_enchantment_in">%1$s: (이)가 지오 펜스%2$s에 입장했습니다.</string>

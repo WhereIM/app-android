@@ -82,6 +82,7 @@
     <string name="message_radius_report">В/Из: %1$s / %2$s (%3$s м)</string>
     <string name="fcm_begin_sharing">%1$s начал делится с вами местоположением!</string>
     <string name="fcm_text">%1$s：%2$s</string>
+    <string name="fcm_rich">%1$s：%2$s</string>
     <string name="fcm_enchantment_create">%1$s: Геозона %2$s создана.</string>
     <string name="fcm_enchantment_emerge">%1$s: Появился в геозоне %2$s.</string>
     <string name="fcm_enchantment_in">%1$s: Вошел в геозону %2$s.</string>

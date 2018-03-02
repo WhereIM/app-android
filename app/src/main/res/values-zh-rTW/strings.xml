@@ -84,6 +84,7 @@
     <string name="message_radius_report">圈內/外：%1$s / %2$s (%3$s m)</string>
     <string name="fcm_begin_sharing">%1$s 開始與你分享定位！</string>
     <string name="fcm_text">%1$s：%2$s</string>
+    <string name="fcm_rich">%1$s：%2$s</string>
     <string name="fcm_enchantment_create">%1$s：%2$s 地界已設立</string>
     <string name="fcm_enchantment_emerge">%1$s：出現在 %2$s 地界</string>
     <string name="fcm_enchantment_in">%1$s：進入 %2$s 地界</string>
