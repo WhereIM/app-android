@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,8 +20,10 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import im.where.whereim.models.Channel;
+import im.where.whereim.models.Marker;
 import im.where.whereim.models.Mate;
 import im.where.whereim.models.Message;
+import im.where.whereim.views.WimSpan;
 
 public class ChannelMessengerFragment extends BaseFragment {
     public ChannelMessengerFragment() {
@@ -164,7 +167,7 @@ public class ChannelMessengerFragment extends BaseFragment {
                     }
                     Mate mate = binder.getChannelMate(mChannel.id, m.mate_id);
                     ivh.sender.setText(mate==null?"":mate.getDisplayName());
-                    ivh.message.setText(m.getText(getActivity(), binder));
+                    ivh.message.setText(m.getText(getActivity(), binder, clickedListener));
                     ivh.time.setText(hm);
                     if(position==0){
                         showDate = true;
@@ -189,7 +192,7 @@ public class ChannelMessengerFragment extends BaseFragment {
                         ovh.time.setText(null);
                         return;
                     }
-                    ovh.message.setText(m.getText(getActivity(), binder));
+                    ovh.message.setText(m.getText(getActivity(), binder, clickedListener));
                     ovh.time.setText(hm);
                     if(position==0){
                         showDate = true;
@@ -206,6 +209,30 @@ public class ChannelMessengerFragment extends BaseFragment {
                         ovh.date.setText(getString(R.string.date_format, eee, lymd));
                     }
                     return;
+            }
+        }
+    };
+
+    private WimSpan.OnClickedListener clickedListener = new WimSpan.OnClickedListener(){
+
+        @Override
+        public void onClick(String url) {
+            final ChannelActivity activity = (ChannelActivity) getActivity();
+            final String[] args = url.split("/");
+            switch(args[0]){
+                case "marker":
+                    postBinderTask(new CoreService.BinderTask() {
+                        @Override
+                        public void onBinderReady(CoreService.CoreBinder binder) {
+                            Marker m = binder.getChannelMarker(mChannel.id, args[1]);
+                            if(m != null){
+                                activity.moveToMarker(m, true);
+                            } else {
+
+                            }
+                        }
+                    });
+                    break;
             }
         }
     };

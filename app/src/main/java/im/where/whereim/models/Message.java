@@ -10,7 +10,6 @@ import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
-import android.text.TextUtils;
 import android.text.style.ImageSpan;
 import android.util.Log;
 
@@ -18,13 +17,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Locale;
 
 import im.where.whereim.CoreService;
 import im.where.whereim.Key;
 import im.where.whereim.R;
 import im.where.whereim.Util;
+import im.where.whereim.views.WimSpan;
 
 /**
  * Created by buganini on 17/01/17.
@@ -112,7 +111,7 @@ public class Message extends BaseModel {
         return m;
     }
 
-    public SpannableString getText(Context context, CoreService.CoreBinder binder){
+    public SpannableString getText(Context context, CoreService.CoreBinder binder, WimSpan.OnClickedListener clickedListener){
         if("text".equals(this.type)){
             return new SpannableString(this.message);
         }
@@ -150,6 +149,9 @@ public class Message extends BaseModel {
                             d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
                             span = new ImageSpan(d, ImageSpan.ALIGN_BASELINE);
                             icon.setSpan(span, 0, 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+                            if(json.has(Key.ID) && json.has(Key.LATITUDE) && json.has(Key.LONGITUDE)){
+                                icon.setSpan(new WimSpan(String.format(Locale.ENGLISH, "marker/%s/%f/%f", json.getString(Key.ID), json.getDouble(Key.LATITUDE), json.getDouble(Key.LONGITUDE)), clickedListener), 0, 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+                            }
                             b.append(icon);
                             b.append("\n");
                         }
