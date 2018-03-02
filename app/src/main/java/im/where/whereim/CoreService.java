@@ -1063,6 +1063,9 @@ public class CoreService extends Service {
             if(action != null){
                 switch (action){
                     case "logout":
+                        mIsActiveDevice = null;
+                        _checkLocationService();
+
                         deleteDatabase(WimDBHelper.DATABASE_NAME);
 
                         SharedPreferences settings = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
