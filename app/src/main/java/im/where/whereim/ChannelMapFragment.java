@@ -14,6 +14,7 @@ import im.where.whereim.dialogs.DialogMapMenu;
 import im.where.whereim.dialogs.DialogCreateMarker;
 import im.where.whereim.dialogs.DialogOpenIn;
 import im.where.whereim.dialogs.DialogShareLocation;
+import im.where.whereim.geo.QuadTree;
 import im.where.whereim.models.Channel;
 import im.where.whereim.models.Enchantment;
 import im.where.whereim.models.Marker;
@@ -377,6 +378,16 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
             title = poi.name;
             latitude = poi.latitude;
             longitude = poi.longitude;
+
+            mCreateMarker = true;
+            mCreateEnchantment = true;
+            mShare = true;
+            mOpenIn = true;
+        } else if (obj instanceof QuadTree.LatLng) {
+            QuadTree.LatLng location = (QuadTree.LatLng) obj;
+            title = "";
+            latitude = location.latitude;
+            longitude = location.longitude;
 
             mCreateMarker = true;
             mCreateEnchantment = true;

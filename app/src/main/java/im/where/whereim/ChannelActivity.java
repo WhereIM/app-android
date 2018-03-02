@@ -312,6 +312,12 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     }
 
     @Override
+    public void moveToPin(QuadTree.LatLng latLng) {
+        mChannelMapFragment.moveToPin(latLng);
+        mTabLayout.getTabAt(TAB_MAP).select();
+    }
+
+    @Override
     public void onMateData(Mate mate, boolean focus) {
         mChannelMapFragment.onMateData(mate, focus);
     }

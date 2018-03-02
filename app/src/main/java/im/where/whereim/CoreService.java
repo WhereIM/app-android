@@ -79,6 +79,7 @@ public class CoreService extends Service {
     };
 
     public interface MapDataDelegate {
+        void moveToPin(QuadTree.LatLng location);
         void onMateData(Mate mate, boolean focus);
         void moveToMate(Mate mate, boolean focus);
         void onEnchantmentData(Enchantment enchantment);

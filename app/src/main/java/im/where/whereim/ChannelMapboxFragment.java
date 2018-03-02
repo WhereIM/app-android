@@ -146,6 +146,9 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
                     mHandler.post(new Runnable() {
                         @Override
                         public void run() {
+                            if (mPendingPOIMarker != null) {
+                                mPendingPOIMarker.remove();
+                            }
                             MarkerViewOptions markerViewOptions = new MarkerViewOptions()
                                     .title(poi.name)
                                     .position(new LatLng(poi.latitude, poi.longitude))
@@ -385,6 +388,32 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
     private Polygon mRadiusCircle = null;
     private HashMap<String, Polygon> mMateCircle = new HashMap<>();
     private HashMap<String, MarkerView> mMateMarker = new HashMap<>();
+
+    @Override
+    public void moveToPin(final QuadTree.LatLng location) {
+        if (mPendingPOIMarker != null) {
+            mPendingPOIMarker.remove();
+        }
+        getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(MapboxMap mapboxMap) {
+                MarkerViewOptions markerViewOptions = new MarkerViewOptions()
+                        .position(new LatLng(location.latitude, location.longitude))
+                        .icon(iconFactory.fromResource(R.drawable.icon_pin)
+//                          .zIndex(0.5f)
+                        );
+                mPendingPOIMarker = mapboxMap.addMarker(markerViewOptions);
+                mapboxMap.selectMarker(mPendingPOIMarker);
+                mMarkerMap.put(mPendingPOIMarker, location);
+                clickMarker(location);
+
+                CameraPosition position = new CameraPosition.Builder()
+                        .target(new LatLng(location.latitude, location.longitude))
+                        .build();
+                mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), MAP_MOVE_ANIMATION_DURATION);
+            }
+        });
+    }
 
     @Override
     public void onMateData(final Mate mate, final boolean focus) {

@@ -127,6 +127,29 @@ public class Message extends BaseModel {
             Drawable d;
             ImageSpan span;
             switch (this.type) {
+                case "rich": {
+                    SpannableStringBuilder b = new SpannableStringBuilder();
+                    Double lat = null;
+                    Double lng = null;
+                    try {
+                        lat = json.optDouble(Key.LATITUDE);
+                        lng = json.getDouble(Key.LONGITUDE);
+                    } catch (Exception e) {
+                        //noop
+                    }
+                    if (lat != null && lng != null) {
+                        SpannableString icon = new SpannableString("@");
+                        d = ResourcesCompat.getDrawable(context.getResources(), R.drawable.icon_pin, null);
+                        d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
+                        span = new ImageSpan(d, ImageSpan.ALIGN_BASELINE);
+                        icon.setSpan(span, 0, 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+                        icon.setSpan(new WimSpan(String.format(Locale.ENGLISH, "pin/%f/%f", lat, lng), clickedListener), 0, 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+                        b.append(icon);
+                        b.append("\n");
+                    }
+                    b.append(new SpannableString(json.optString("text")));
+                    return SpannableString.valueOf(b);
+                }
                 case "enchantment_create":
                     return new SpannableString(context.getResources().getString(R.string.message_enchantment_create, json.optString("name", "")));
 
@@ -139,27 +162,26 @@ public class Message extends BaseModel {
                 case "enchantment_out":
                     return new SpannableString(context.getResources().getString(R.string.message_enchantment_out, json.optString("name", "")));
 
-                case "marker_create":
+                case "marker_create": {
                     SpannableStringBuilder b = new SpannableStringBuilder();
-                    if(json.has(Key.ATTR)) {
+                    if (json.has(Key.ATTR)) {
                         j = json.getJSONObject(Key.ATTR);
-                        if(j.has(Key.COLOR)){
+                        if (j.has(Key.COLOR)) {
                             SpannableString icon = new SpannableString("@");
                             d = ResourcesCompat.getDrawable(context.getResources(), Marker.getIconResource(j.getString(Key.COLOR)), null);
                             d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
                             span = new ImageSpan(d, ImageSpan.ALIGN_BASELINE);
                             icon.setSpan(span, 0, 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
-                            if(json.has(Key.ID) && json.has(Key.LATITUDE) && json.has(Key.LONGITUDE)){
+                            if (json.has(Key.ID) && json.has(Key.LATITUDE) && json.has(Key.LONGITUDE)) {
                                 icon.setSpan(new WimSpan(String.format(Locale.ENGLISH, "marker/%s/%f/%f", json.getString(Key.ID), json.getDouble(Key.LATITUDE), json.getDouble(Key.LONGITUDE)), clickedListener), 0, 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
                             }
                             b.append(icon);
                             b.append("\n");
                         }
                     }
-                    SpannableString text = new SpannableString(context.getResources().getString(R.string.message_marker_create, json.optString("name", "")));
-                    b.append(text);
+                    b.append(new SpannableString(context.getResources().getString(R.string.message_marker_create, json.optString("name", ""))));
                     return SpannableString.valueOf(b);
-
+                }
                 case "radius_report":
                     return new SpannableString(context.getResources().getString(R.string.message_radius_report, json.optString("in", ""), json.optString("out", ""), json.optString(Key.RADIUS, "")));
 

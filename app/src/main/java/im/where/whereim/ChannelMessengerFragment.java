@@ -19,6 +19,7 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
+import im.where.whereim.geo.QuadTree;
 import im.where.whereim.models.Channel;
 import im.where.whereim.models.Marker;
 import im.where.whereim.models.Mate;
@@ -228,10 +229,13 @@ public class ChannelMessengerFragment extends BaseFragment {
                             if(m != null){
                                 activity.moveToMarker(m, true);
                             } else {
-
+                                activity.moveToPin(new QuadTree.LatLng(Double.valueOf(args[2]), Double.valueOf(args[3])));
                             }
                         }
                     });
+                    break;
+                case "pin":
+                    activity.moveToPin(new QuadTree.LatLng(Double.valueOf(args[1]), Double.valueOf(args[2])));
                     break;
             }
         }
