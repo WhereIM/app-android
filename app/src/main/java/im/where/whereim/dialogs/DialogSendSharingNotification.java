@@ -3,6 +3,7 @@ package im.where.whereim.dialogs;
 import android.app.Activity;
 import android.support.design.widget.Snackbar;
 import android.view.View;
+import android.widget.TextView;
 
 import im.where.whereim.CoreService;
 import im.where.whereim.R;
@@ -21,6 +22,9 @@ public class DialogSendSharingNotification {
                 binder.sendNotification(channel, "begin_sharing");
             }
         });
+        View snackbarView = snackbar.getView();
+        TextView textView = (TextView) snackbarView.findViewById(android.support.design.R.id.snackbar_text);
+        textView.setMaxLines(5);
         snackbar.getView().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
