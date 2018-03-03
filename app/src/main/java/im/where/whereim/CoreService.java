@@ -116,7 +116,7 @@ public class CoreService extends Service {
         public void setActivity(Activity activity){
             mCurrentActivity = activity;
             if(mCurrentActivity!=null) {
-                requestActiveClient(false);
+                requestActiveClient(false, null);
             }
         }
 
@@ -351,7 +351,7 @@ public class CoreService extends Service {
             }
         }
 
-        public void toggleChannelActive(Activity activity, final Channel channel){
+        public void toggleChannelActive(final Activity activity, final Channel channel){
             if(channel==null){
                 return;
             }
@@ -371,14 +371,15 @@ public class CoreService extends Service {
                 e.printStackTrace();
             }
             if(!wasActive){
-                new DialogSendSharingNotification(activity, new Runnable() {
-                    @Override
-                    public void run() {
-                        sendNotification(channel, "begin_sharing");
-                    }
-                });
-                if(!mIsActiveDevice){
-                    requestActiveClient(true);
+                if(mIsActiveDevice) {
+                    new DialogSendSharingNotification(activity, channel, this);
+                } else {
+                    requestActiveClient(true, new Runnable(){
+                        @Override
+                        public void run() {
+                            new DialogSendSharingNotification(activity, channel, CoreBinder.this);
+                        }
+                    });
                 }
             }
         }
@@ -542,12 +543,7 @@ public class CoreService extends Service {
                 publish(topic, payload);
                 notifyChannelListChangedListeners();
 
-                new DialogSendSharingNotification(activity, new Runnable() {
-                    @Override
-                    public void run() {
-                        sendNotification(channel, "begin_sharing");
-                    }
-                });
+                new DialogSendSharingNotification(activity, channel, CoreBinder.this);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -1650,7 +1646,7 @@ public class CoreService extends Service {
             boolean active = activeDevice.equals(mClientId);
             if((mIsActiveDevice==null || active!=mIsActiveDevice) && !active){
                 mRequestActiveDevice = true;
-                requestActiveClient(false);
+                requestActiveClient(false, null);
             }
             mIsActiveDevice = active;
             mHandler.post(new Runnable() {
@@ -1666,7 +1662,7 @@ public class CoreService extends Service {
         }
     }
 
-    private void requestActiveClient(boolean force){
+    private void requestActiveClient(boolean force, final Runnable endCallback){
         if(!mRequestActiveDevice && !force)
             return;
         mHandler.post(new Runnable() {
@@ -1682,11 +1678,16 @@ public class CoreService extends Service {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     setActiveClient();
-                                }
+                                    if(endCallback != null){
+                                        endCallback.run();
+                                    }                                }
                             })
                             .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
+                                    if(endCallback != null){
+                                        endCallback.run();
+                                    }
                                 }
                             }).show();
                 }
