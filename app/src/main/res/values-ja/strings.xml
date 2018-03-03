@@ -71,6 +71,7 @@
     <string name="guest_view">ゲストビュー</string>
     <string name="access_settings">アクセス設定</string>
     <string name="messages">メッセージ</string>
+    <string name="send">送信</string>
     <string name="unread">未読</string>
     <string name="begin_sharing">位置情報を家族や知人に知らせる</string>
     <string name="message_not_implemented">このメッセージを表示するには、新しいバージョンが必要です</string>

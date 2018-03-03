@@ -71,6 +71,7 @@
     <string name="guest_view">Gastweergave</string>
     <string name="access_settings">Toegang tot instellingen</string>
     <string name="messages">Berichten</string>
+    <string name="send">Stuur</string>
     <string name="unread">Ongelezen</string>
     <string name="begin_sharing">Stel anderen op de hoogte dat u de locatie deelt</string>
     <string name="message_not_implemented">Vereist nieuwe versie om dit bericht weer te geven</string>

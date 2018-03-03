@@ -19,6 +19,7 @@ public class DialogMapMenu {
     public interface Callback {
         void onOpenIn();
         void onShareLocation();
+        void onSendPin();
         void onCreateEnchantment();
         void onCreateMarker();
         void onForgeLocation();
@@ -49,6 +50,15 @@ public class DialogMapMenu {
             public void onClick(View v) {
                 dialog.dismiss();
                 callback.onShareLocation();
+            }
+        });
+        Button send_pin = (Button) dialog_view.findViewById(R.id.send_pin);
+        send_pin.setText(TextUtils.concat(send_pin.getText(), " ", new EmojiText(context, "\uD83D\uDCAC")));
+        send_pin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                callback.onSendPin();
             }
         });
         Button create_enchantment = (Button) dialog_view.findViewById(R.id.create_enchantment);

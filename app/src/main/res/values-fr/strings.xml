@@ -71,6 +71,7 @@
     <string name="guest_view">Vue des Visiteurs</string>
     <string name="access_settings">Paramètres d\'Accès</string>
     <string name="messages">Messages</string>
+    <string name="send">Envoyer</string>
     <string name="unread">Non lu</string>
     <string name="begin_sharing">Avertissez les autres utilisateurs que vous avez commencé le partage de position</string>
     <string name="message_not_implemented">Nouvelle version requise pour afficher ce message</string>

@@ -940,10 +940,15 @@ public class CoreService extends Service {
             }
         }
 
-        public void sendMessage(Channel channel, String s) {
+        public void sendMessage(Channel channel, String s, QuadTree.LatLng location) {
             try {
                 JSONObject payload = new JSONObject();
                 payload.put(Key.MESSAGE, s);
+                if(location != null){
+                    payload.put(Key.TYPE, "rich");
+                    payload.put(Key.LATITUDE, location.latitude);
+                    payload.put(Key.LONGITUDE, location.longitude);
+                }
                 String topic = String.format("channel/%s/data/message/put", channel.id);
                 publish(topic, payload);
             } catch (JSONException e) {

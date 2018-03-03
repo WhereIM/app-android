@@ -5,7 +5,6 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +32,7 @@ public class ChannelMessengerFragment extends BaseFragment {
 
     @Override
     public void onShow() {
+        updateUI();
         getChannel(new ChannelActivity.GetChannelCallback() {
             @Override
             public void onGetChannel(final Channel channel) {
@@ -246,9 +246,14 @@ public class ChannelMessengerFragment extends BaseFragment {
     private Message.BundledCursor mCurrentCursor;
     private ListView mListView;
     private View mUnread;
+    private View mPin;
+    public QuadTree.LatLng pinLocation;
+
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_channel_messenger, container, false);
+
+        mPin = view.findViewById(R.id.pin);
 
         mUnread = view.findViewById(R.id.unread);
         mUnread.setVisibility(View.GONE);
@@ -265,17 +270,20 @@ public class ChannelMessengerFragment extends BaseFragment {
             @Override
             public void onClick(View v) {
                 final String message = input.getEditableText().toString();
+                final QuadTree.LatLng location = pinLocation;
                 if(message.isEmpty()){
                     return;
                 }
                 input.setText(null);
+                pinLocation = null;
+                updateUI();
                 postBinderTask(new CoreService.BinderTask() {
                     @Override
                     public void onBinderReady(final CoreService.CoreBinder binder) {
                         getChannel(new ChannelActivity.GetChannelCallback() {
                             @Override
                             public void onGetChannel(Channel channel) {
-                                binder.sendMessage(channel, message);
+                                binder.sendMessage(channel, message, location);
                             }
                         });
                     }
@@ -323,6 +331,10 @@ public class ChannelMessengerFragment extends BaseFragment {
             }
         });
         return view;
+    }
+
+    private void updateUI(){
+        mPin.setVisibility(pinLocation==null ? View.GONE : View.VISIBLE);
     }
 
     private boolean inited = false;

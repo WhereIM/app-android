@@ -71,6 +71,7 @@
     <string name="guest_view">มุมมองจากคนอื่น</string>
     <string name="access_settings">การตั้งค่าการเข้าถึง</string>
     <string name="messages">ข้อความ</string>
+    <string name="send">ส่ง</string>
     <string name="unread">ไม่ได้อ่าน</string>
     <string name="begin_sharing">แจ้งคนอื่น ๆ ที่คุณเริ่มแบ่งปันตำแหน่ง</string>
     <string name="message_not_implemented">ต้องการให้เวอร์ชันใหม่แสดงข้อความนี้</string>

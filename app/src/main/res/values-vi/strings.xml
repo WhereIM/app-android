@@ -71,6 +71,7 @@
     <string name="guest_view">Giao diện dành cho khách</string>
     <string name="access_settings">Cài đặt truy cập</string>
     <string name="messages">Tin nhắn</string>
+    <string name="send">Gửi</string>
     <string name="unread">Chưa đọc</string>
     <string name="begin_sharing">Thông báo cho những người khác là bạn đã bắt đầu chia sẻ địa điểm</string>
     <string name="message_not_implemented">Yêu cầu dùng phiên bản mới để hiển thị tin nhắn này</string>

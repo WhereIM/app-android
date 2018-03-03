@@ -23,6 +23,13 @@
         android:text="@string/share"/>
 
     <Button
+        android:id="@+id/send_pin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAllCaps="false"
+        android:text="@string/send"/>
+
+    <Button
         android:id="@+id/create_enchantment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

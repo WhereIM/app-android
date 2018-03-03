@@ -71,6 +71,7 @@
     <string name="guest_view">게스트 보기</string>
     <string name="access_settings">액세스 설정</string>
     <string name="messages">메시지</string>
+    <string name="send">전송</string>
     <string name="unread">읽지 않음</string>
     <string name="begin_sharing">위치 공유 시작을 다른 사용자에게 알림</string>
     <string name="message_not_implemented">이 메시지를 표시하려면 새 버전 필요</string>

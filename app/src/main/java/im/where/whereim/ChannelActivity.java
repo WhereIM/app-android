@@ -311,6 +311,11 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         });
     }
 
+    public void sendPin(QuadTree.LatLng location){
+        mChannelMessengerFragment.pinLocation = location;
+        mTabLayout.getTabAt(TAB_MESSAGE).select();
+    }
+
     @Override
     public void moveToPin(QuadTree.LatLng latLng) {
         mChannelMapFragment.moveToPin(latLng);

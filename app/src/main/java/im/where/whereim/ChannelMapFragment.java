@@ -223,6 +223,22 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
             }
 
             @Override
+            public void onSendPin() {
+                getChannel(new ChannelActivity.GetChannelCallback() {
+                    @Override
+                    public void onGetChannel(final Channel channel) {
+                        postBinderTask(new CoreService.BinderTask() {
+                            @Override
+                            public void onBinderReady(CoreService.CoreBinder binder) {
+                                ChannelActivity activity = (ChannelActivity) getActivity();
+                                activity.sendPin(new QuadTree.LatLng(mEditingLatitude, mEditingLongitude));
+                            }
+                        });
+                    }
+                });
+            }
+
+            @Override
             public void onCreateEnchantment() {
                 new DialogCreateEnchantment(getActivity(), null, new DialogCreateEnchantment.Callback() {
                     @Override

@@ -73,6 +73,7 @@
     <string name="guest_view">訪客檢視</string>
     <string name="access_settings">存取設定</string>
     <string name="messages">訊息</string>
+    <string name="send">傳送</string>
     <string name="unread">未讀訊息</string>
     <string name="begin_sharing">通知其他人你開始分享定位了</string>
     <string name="message_not_implemented">需要更新版本才能讀取此則訊息</string>
