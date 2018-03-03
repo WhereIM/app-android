@@ -236,7 +236,7 @@ public class Message extends BaseModel {
         long userDataSn = 0;
         long userDataId = 0;
 
-        bc.cursor = db.rawQuery("SELECT "+COL_ID+","+COL_SN+","+COL_PUBLIC+","+COL_CHANNEL+","+COL_MATE+","+COL_TYPE+","+COL_MESSAGE+","+COL_TIME+" FROM "+TABLE_NAME+" WHERE "+COL_CHANNEL+"=? OR "+COL_CHANNEL+" IS NULL ORDER BY "+COL_TIME+" ASC,"+COL_ID+" ASC", new String[]{channel.id});
+        bc.cursor = db.rawQuery("SELECT "+COL_ID+","+COL_SN+","+COL_PUBLIC+","+COL_CHANNEL+","+COL_MATE+","+COL_TYPE+","+COL_MESSAGE+","+COL_TIME+" FROM "+TABLE_NAME+" WHERE "+COL_CHANNEL+"=? OR "+COL_CHANNEL+" IS NULL ORDER BY "+COL_ID+" ASC", new String[]{channel.id});
         bc.count = 0;
         if(bc.cursor.moveToLast()) {
             do {
