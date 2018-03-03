@@ -1,34 +1,30 @@
 package im.where.whereim.dialogs;
 
-import android.content.Context;
-import android.content.DialogInterface;
-import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
+import android.app.Activity;
+import android.support.design.widget.Snackbar;
+import android.view.View;
 
 import im.where.whereim.R;
-import im.where.whereim.views.EmojiText;
 
 /**
  * Created by buganini on 04/05/17.
  */
 
 public class DialogSendSharingNotification {
-    public DialogSendSharingNotification(Context context, final Runnable callback){
-        final AlertDialog dialog = new AlertDialog.Builder(context)
-                .setMessage(R.string.begin_sharing)
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        callback.run();
-                    }
-                })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                }).create();
-        dialog.show();
+    public DialogSendSharingNotification(Activity activity, final Runnable callback){
+        final Snackbar snackbar = Snackbar.make(activity.findViewById(android.R.id.content), R.string.begin_sharing, Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction(R.string.send, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callback.run();
+            }
+        });
+        snackbar.getView().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                snackbar.dismiss();
+            }
+        });
+        snackbar.show();
     }
 }

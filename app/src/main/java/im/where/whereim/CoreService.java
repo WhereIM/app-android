@@ -371,14 +371,13 @@ public class CoreService extends Service {
                 e.printStackTrace();
             }
             if(!wasActive){
-                if(mIsActiveDevice){
-                    new DialogSendSharingNotification(activity, new Runnable() {
-                        @Override
-                        public void run() {
-                            sendNotification(channel, "begin_sharing");
-                        }
-                    });
-                }else{
+                new DialogSendSharingNotification(activity, new Runnable() {
+                    @Override
+                    public void run() {
+                        sendNotification(channel, "begin_sharing");
+                    }
+                });
+                if(!mIsActiveDevice){
                     requestActiveClient(true);
                 }
             }
