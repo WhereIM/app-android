@@ -107,7 +107,12 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                 mEnable.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        mBinder.toggleChannelActive(ChannelListActivity.this, mChannel);
+                        postBinderTask(new CoreService.BinderTask() {
+                            @Override
+                            public void onBinderReady(CoreService.CoreBinder binder) {
+                                binder.toggleChannelActive(ChannelListActivity.this, mChannel);
+                            }
+                        });
                     }
                 });
             }
@@ -420,11 +425,16 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
 
                     @Override
                     public void onSelectCreateChannel() {
-                        new DialogCreateChannel(ChannelListActivity.this, mBinder.getUserName(), new DialogCreateChannel.Callback() {
-
+                        postBinderTask(new CoreService.BinderTask() {
                             @Override
-                            public void onDone(String channel_name, String mate_name) {
-                                mBinder.createChannel(channel_name, mate_name);
+                            public void onBinderReady(final CoreService.CoreBinder binder) {
+                                new DialogCreateChannel(ChannelListActivity.this, binder.getUserName(), new DialogCreateChannel.Callback() {
+
+                                    @Override
+                                    public void onDone(String channel_name, String mate_name) {
+                                        binder.createChannel(channel_name, mate_name);
+                                    }
+                                });
                             }
                         });
                     }
