@@ -1,5 +1,6 @@
 package im.where.whereim;
 
+import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.CursorAdapter;
 import android.widget.EditText;
@@ -269,6 +271,10 @@ public class ChannelMessengerFragment extends BaseFragment {
         view.findViewById(R.id.send).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Activity activity = getActivity();
+                InputMethodManager inputManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+
+                inputManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
                 final String message = input.getEditableText().toString();
                 final QuadTree.LatLng location = pinLocation;
                 if(message.isEmpty()){
