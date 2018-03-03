@@ -31,6 +31,12 @@ public class DialogSendSharingNotification {
                 snackbar.dismiss();
             }
         });
+        snackbarView.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                snackbar.dismiss();
+            }
+        }, 5000);
         snackbar.show();
     }
 }
