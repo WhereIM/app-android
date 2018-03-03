@@ -116,7 +116,7 @@ public class CoreService extends Service {
         public void setActivity(Activity activity){
             mCurrentActivity = activity;
             if(mCurrentActivity!=null) {
-                requestActiveClient();
+                requestActiveClient(false);
             }
         }
 
@@ -371,12 +371,16 @@ public class CoreService extends Service {
                 e.printStackTrace();
             }
             if(!wasActive){
-                new DialogSendSharingNotification(activity, new Runnable() {
-                    @Override
-                    public void run() {
-                        sendNotification(channel, "begin_sharing");
-                    }
-                });
+                if(mIsActiveDevice){
+                    new DialogSendSharingNotification(activity, new Runnable() {
+                        @Override
+                        public void run() {
+                            sendNotification(channel, "begin_sharing");
+                        }
+                    });
+                }else{
+                    requestActiveClient(true);
+                }
             }
         }
 
@@ -1647,7 +1651,7 @@ public class CoreService extends Service {
             boolean active = activeDevice.equals(mClientId);
             if((mIsActiveDevice==null || active!=mIsActiveDevice) && !active){
                 mRequestActiveDevice = true;
-                requestActiveClient();
+                requestActiveClient(false);
             }
             mIsActiveDevice = active;
             mHandler.post(new Runnable() {
@@ -1663,8 +1667,8 @@ public class CoreService extends Service {
         }
     }
 
-    private void requestActiveClient(){
-        if(!mRequestActiveDevice)
+    private void requestActiveClient(boolean force){
+        if(!mRequestActiveDevice && !force)
             return;
         mHandler.post(new Runnable() {
             @Override
