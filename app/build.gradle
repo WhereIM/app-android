@@ -46,6 +46,7 @@ dependencies {
     }
     compile 'com.amazonaws:aws-android-sdk-core:2.4.7'
     compile 'com.amazonaws:aws-android-sdk-iot:2.4.7'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.google.android.gms:play-services-auth:11.8.0'
     compile 'com.google.android.gms:play-services-location:11.8.0'
     compile 'com.google.android.gms:play-services-maps:11.8.0'
