@@ -56,6 +56,7 @@
                         android:autoLink="web|email"
                         android:background="@drawable/in_message_background"
                         android:padding="7dp"
+                        android:textIsSelectable="true"
                         android:text="message"
                         android:textAppearance="?android:attr/textAppearanceMedium"
                         android:textColor="@android:color/black"
