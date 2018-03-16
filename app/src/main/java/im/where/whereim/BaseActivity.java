@@ -46,7 +46,9 @@ public class BaseActivity extends AppCompatActivity implements ServiceConnection
             if(task==null){
                 break;
             }else{
-                task.onBinderReady(mBinder);
+                if(mBinder != null){
+                    task.onBinderReady(mBinder);
+                }
             }
         }
     }

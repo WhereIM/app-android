@@ -352,7 +352,7 @@ public class CoreService extends Service {
         }
 
         public void toggleChannelActive(final Activity activity, final Channel channel){
-            if(channel==null){
+            if(channel==null || mIsActiveDevice==null){
                 return;
             }
             if(channel.active ==null){

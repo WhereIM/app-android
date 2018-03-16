@@ -58,12 +58,7 @@ public class LoginActivity extends BaseActivity {
                         @Override
                         public void run() {
                             Toast.makeText(LoginActivity.this, R.string.error_exhausted, Toast.LENGTH_LONG).show();
-                            postBinderTask(new CoreService.BinderTask() {
-                                @Override
-                                public void onBinderReady(CoreService.CoreBinder binder) {
-                                    checkLogin();
-                                }
-                            });
+                            checkLogin();
                         }
                     }, 1500);
                 }
@@ -194,47 +189,47 @@ public class LoginActivity extends BaseActivity {
             }
         });
 
-        postBinderTask(new CoreService.BinderTask() {
-            @Override
-            public void onBinderReady(CoreService.CoreBinder binder) {
-                checkLogin();
-            }
-        });
+        checkLogin();
     }
 
     boolean mTrial = false;
     private void checkLogin(){
-        if(getBinder().getClientId()==null){
-            stopLoading();
-            SharedPreferences sp = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
-            mAuthId = Optional.fromNullable(sp.getString(Key.ID, null)).or(Optional.fromNullable(mAuthId)).orNull();
-            mToken = Optional.fromNullable(sp.getString(Key.TOKEN, null)).or(Optional.fromNullable(mToken)).orNull();
-            mName = Optional.fromNullable(sp.getString(Key.NAME, null)).or(Optional.fromNullable(mName)).orNull();
-            mProvider = Optional.fromNullable(sp.getString(Key.PROVIDER, null)).or(Optional.fromNullable(mProvider)).orNull();
+        postBinderTask(new CoreService.BinderTask() {
+            @Override
+            public void onBinderReady(CoreService.CoreBinder binder) {
+                if(binder.getClientId()==null){
+                    stopLoading();
+                    SharedPreferences sp = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+                    mAuthId = Optional.fromNullable(sp.getString(Key.ID, null)).or(Optional.fromNullable(mAuthId)).orNull();
+                    mToken = Optional.fromNullable(sp.getString(Key.TOKEN, null)).or(Optional.fromNullable(mToken)).orNull();
+                    mName = Optional.fromNullable(sp.getString(Key.NAME, null)).or(Optional.fromNullable(mName)).orNull();
+                    mProvider = Optional.fromNullable(sp.getString(Key.PROVIDER, null)).or(Optional.fromNullable(mProvider)).orNull();
 
-            SharedPreferences.Editor e = sp.edit();
-            e.remove(Key.ID);
-            e.remove(Key.TOKEN);
-            e.remove(Key.NAME);
-            e.remove(Key.PROVIDER);
-            e.apply();
-            if(mAuthId==null){
-                mLogin.setVisibility(View.VISIBLE);
-            }else{
-                mLogin.setVisibility(View.GONE);
-                if(!mTrial){
-                    mTrial = true;
-                    postBinderTask(mTask);
+                    SharedPreferences.Editor e = sp.edit();
+                    e.remove(Key.ID);
+                    e.remove(Key.TOKEN);
+                    e.remove(Key.NAME);
+                    e.remove(Key.PROVIDER);
+                    e.apply();
+                    if(mAuthId==null){
+                        mLogin.setVisibility(View.VISIBLE);
+                    }else{
+                        mLogin.setVisibility(View.GONE);
+                        if(!mTrial){
+                            mTrial = true;
+                            postBinderTask(mTask);
+                        }else{
+                            mRetry.setVisibility(View.VISIBLE);
+                        }
+                    }
                 }else{
-                    mRetry.setVisibility(View.VISIBLE);
+                    Log.e("LoginActivity", "start ChannelListActivity");
+                    Intent intent = new Intent(LoginActivity.this, ChannelListActivity.class);
+                    startActivity(intent);
+                    finish();
                 }
             }
-        }else{
-            Log.e("LoginActivity", "start ChannelListActivity");
-            Intent intent = new Intent(LoginActivity.this, ChannelListActivity.class);
-            startActivity(intent);
-            finish();
-        }
+        });
     }
 
     private void startLoading(){
