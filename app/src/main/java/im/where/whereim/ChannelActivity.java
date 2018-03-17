@@ -144,6 +144,20 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                 });
             }
         });
+        View.OnLongClickListener deactivate = new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                postBinderTask(new CoreService.BinderTask() {
+                    @Override
+                    public void onBinderReady(CoreService.CoreBinder binder) {
+                        binder.deactivateChannel(mChannel);
+                    }
+                });
+                return true;
+            }
+        };
+        mActive.setOnLongClickListener(deactivate);
+        mEnableLoading.setOnLongClickListener(deactivate);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

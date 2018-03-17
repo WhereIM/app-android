@@ -96,7 +96,6 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
             TextView mSubtitle;
             Switch mEnable;
             View mLoading;
-            View mLoadingSwitch;
 
             public ViewHolder(View view) {
                 mUnread = view.findViewById(R.id.unread);
@@ -115,6 +114,20 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                         });
                     }
                 });
+                View.OnLongClickListener deactivate = new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        postBinderTask(new CoreService.BinderTask() {
+                            @Override
+                            public void onBinderReady(CoreService.CoreBinder binder) {
+                                binder.deactivateChannel(mChannel);
+                            }
+                        });
+                        return true;
+                    }
+                };
+                mLoading.setOnLongClickListener(deactivate);
+                mEnable.setOnLongClickListener(deactivate);
             }
 
             public void setItem(Channel channel){

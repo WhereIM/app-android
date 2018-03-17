@@ -384,6 +384,20 @@ public class CoreService extends Service {
             }
         }
 
+        public void deactivateChannel(Channel channel){
+            try {
+                JSONObject payload = new JSONObject();
+                payload.put(Key.CHANNEL, channel.id);
+                payload.put(Key.ACTIVE, false);
+                channel.active = null;
+                String topic = String.format("client/%s/channel/put", mClientId);
+                publish(topic, payload);
+                notifyChannelListChangedListeners();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
         public void toggleChannelEnabled(Channel channel){
             if(channel==null){
                 return;
