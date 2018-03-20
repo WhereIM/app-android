@@ -67,4 +67,8 @@ public class Config {
         editor.putString(Key.SERVICE_PROVIDER, provider.toString());
         editor.apply();
     }
+
+    public static String getThumbnail(String objkey){
+        return "https://s3-ap-northeast-1.amazonaws.com/whereim-thumbnail/"+objkey;
+    }
 }

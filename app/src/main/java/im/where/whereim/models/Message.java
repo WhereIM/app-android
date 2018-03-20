@@ -111,6 +111,27 @@ public class Message extends BaseModel {
         return m;
     }
 
+    public String getPayload() {
+        JSONObject json = null;
+        try {
+            json = new JSONObject(this.message);
+        } catch (Exception e) {
+            return null;
+        }
+        try {
+            switch (this.type) {
+                case "image": {
+                        if(!json.has(Key.IMAGE)){
+                            return null;
+                        }
+                        return json.getString(Key.IMAGE);
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
     public SpannableString getText(Context context, CoreService.CoreBinder binder, WimSpan.OnClickedListener clickedListener){
         if("text".equals(this.type)){
             return new SpannableString(this.message);

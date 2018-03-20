@@ -21,7 +21,6 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import com.amazonaws.mobileconnectors.iot.AWSIotKeystoreHelper;
@@ -43,6 +42,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
@@ -52,7 +52,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -70,6 +72,12 @@ import im.where.whereim.models.Message;
 import im.where.whereim.models.POI;
 import im.where.whereim.models.WimDBHelper;
 import me.leolin.shortcutbadger.ShortcutBadger;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class CoreService extends Service {
     private final static String TAG = "CoreService";
@@ -77,6 +85,9 @@ public class CoreService extends Service {
     public interface BinderTask{
         void onBinderReady(CoreService.CoreBinder binder);
     };
+    public interface OnUploadLink{
+        void onUploadLinkReady(String uid, String url, HashMap<String, String> data);
+    }
 
     public interface MapDataDelegate {
         void moveToPin(QuadTree.LatLng location);
@@ -969,6 +980,63 @@ public class CoreService extends Service {
             }
         }
 
+        public void sendImage(final Context context, final Channel channel, final String filename, final File file, final boolean deleteLater) {
+            getUploadLink("image", filename, new OnUploadLink(){
+
+                @Override
+                public void onUploadLinkReady(final String uid, final String url, final HashMap<String, String> data) {
+                    new Thread(){
+                        @Override
+                        public void run() {
+                            MultipartBody.Builder b = new MultipartBody.Builder()
+                                    .setType(MultipartBody.FORM);
+                            for(String k: data.keySet()){
+                                b.addFormDataPart(k, data.get(k));
+                            }
+                            b.addFormDataPart("file", filename, RequestBody.create(MediaType.parse("application/octet-stream"), file));
+                            Request request = new Request.Builder().url(url).post(b.build()).build();
+                            OkHttpClient client = new OkHttpClient();
+                            try {
+                                Response response = client.newCall(request).execute();
+                                if(response.isSuccessful()){
+                                    try {
+                                        JSONObject payload = new JSONObject();
+                                        payload.put(Key.TYPE, "image");
+                                        payload.put(Key.IMAGE, uid);
+                                        String topic = String.format("channel/%s/data/message/put", channel.id);
+                                        publish(topic, payload);
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                    if(deleteLater){
+                                        file.delete();
+                                    }
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }.start();
+                }
+            });
+        }
+
+        public void getUploadLink(String type, String filename, OnUploadLink callback){
+            String uuid = UUID.randomUUID().toString();
+            synchronized (mUploadCallback) {
+                mUploadCallback.put(uuid, callback);
+            }
+            try {
+                JSONObject data = new JSONObject();
+                data.put(Key.TOKEN, uuid);
+                data.put(Key.TYPE, type);
+                data.put("file", filename);
+                publish("system/upload/get", data);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
         public void sendNotification(Channel channel, String type) {
             try {
                 JSONObject payload = new JSONObject();
@@ -1059,6 +1127,7 @@ public class CoreService extends Service {
     private final HashMap<String, List<Runnable>> mEnchantmentListener = new HashMap<>();
     private final HashMap<String, List<Runnable>> mMarkerListener = new HashMap<>();
     private final HashMap<String, List<Runnable>> mMessageListener = new HashMap<>();
+    private final HashMap<String, OnUploadLink> mUploadCallback = new HashMap<>();
     private final CoreBinder mBinder = new CoreBinder();
 
     final private HashMap<String, List<MapDataDelegate>> mMapDataReceiver = new HashMap<>();
@@ -1214,6 +1283,9 @@ public class CoreService extends Service {
             cursor = Channel.getCursor(mWimDBHelper.getDatabase());
             while (cursor.moveToNext()) {
                 Channel channel = Channel.parse(cursor);
+                if(channel.deleted){
+                    continue;
+                }
                 mChannelList.add(channel);
                 mChannelMap.put(channel.id, channel);
                 clientChannelHandler(channel);
@@ -1548,6 +1620,7 @@ public class CoreService extends Service {
     private Pattern mChannelViewPattern = Pattern.compile("^channel/([a-f0-9]{32})/view/settings/get$");
     private Pattern mMapAdPattern = Pattern.compile("^system/map_ad/get/([0-3]*)$");
     private Pattern mSystemKeyPattern = Pattern.compile("^system/key/get$");
+    private Pattern mSystemUploadPattern = Pattern.compile("^system/upload/get$");
     private Pattern mSystemMessagePattern = Pattern.compile("^system/message/get$");
     private void mqttMessageHandler(String topic, JSONObject msg){
         try {
@@ -1614,6 +1687,11 @@ public class CoreService extends Service {
             m = mSystemKeyPattern.matcher(topic);
             if(m.matches()){
                 mqttSystemKeyHandler(msg);
+                return;
+            }
+            m = mSystemUploadPattern.matcher(topic);
+            if(m.matches()){
+                mqttSystemUploadHandler(msg);
                 return;
             }
             m = mSystemMessagePattern.matcher(topic);
@@ -2312,6 +2390,35 @@ public class CoreService extends Service {
                 }
             });
 
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void mqttSystemUploadHandler(JSONObject msg){
+        try {
+            final String uid = msg.getString(Key.ID);
+            final String token = msg.getString(Key.TOKEN);
+            final String url = msg.getString("url");
+            final JSONObject jdata = msg.getJSONObject("data");
+            final HashMap<String, String> data = new HashMap<>();
+            for (Iterator<String> it = jdata.keys(); it.hasNext(); ) {
+                String k = it.next();
+
+                data.put(k, jdata.getString(k));
+            }
+
+            OnUploadLink cb = null;
+            synchronized (mUploadCallback) {
+                try {
+                    cb = mUploadCallback.remove(token);
+                } catch (Exception e) {
+                    // noop
+                }
+            }
+            if(cb != null){
+                cb.onUploadLinkReady(uid, url, data);
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }

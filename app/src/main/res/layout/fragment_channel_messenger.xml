@@ -47,6 +47,24 @@
             android:layout_gravity="center"
             android:src="@drawable/icon_pin" />
 
+        <ImageButton
+            android:id="@+id/picker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@null"
+            android:padding="5dp"
+            android:src="@drawable/ic_insert_photo_black_24dp" />
+
+        <ImageButton
+            android:id="@+id/camera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@null"
+            android:padding="5dp"
+            android:src="@drawable/ic_photo_camera_black_24dp" />
+
         <EditText
             android:id="@+id/input"
             android:layout_width="0dp"

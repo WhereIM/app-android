@@ -35,6 +35,7 @@ public class Key {
     public final static String GOOGLE_SEARCH = "google_search";
 
     public final static String ID = "id";
+    public final static String IMAGE = "img";
 
     public final static String KEY = "key";
 

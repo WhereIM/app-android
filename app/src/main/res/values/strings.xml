@@ -87,6 +87,7 @@
     <string name="fcm_begin_sharing">%1$s just begins sharing location with you !</string>
     <string name="fcm_text">%1$s: %2$s</string>
     <string name="fcm_rich">%1$s: %2$s</string>
+    <string name="fcm_image">%1$s has uploaded an image</string>
     <string name="fcm_enchantment_create">%1$s: Geofence %2$s is created.</string>
     <string name="fcm_enchantment_emerge">%1$s: Emerged in geofence %2$s.</string>
     <string name="fcm_enchantment_in">%1$s: Entered geofence %2$s.</string>
