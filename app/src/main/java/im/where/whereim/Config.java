@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.amazonaws.regions.Regions;
+import com.google.common.io.Files;
+
+import java.util.Locale;
 
 /**
  * Created by buganini on 07/01/17.
@@ -69,6 +72,10 @@ public class Config {
     }
 
     public static String getThumbnail(String objkey){
-        return "https://s3-ap-northeast-1.amazonaws.com/whereim-thumbnail/"+objkey;
+        return "https://s3-ap-northeast-1.amazonaws.com/whereim-thumbnail/"+Files.getNameWithoutExtension(objkey)+".jpg";
+    }
+
+    public static String getPreview(String objkey){
+        return "https://s3-ap-northeast-1.amazonaws.com/whereim-preview/"+Files.getNameWithoutExtension(objkey)+".jpg";
     }
 }

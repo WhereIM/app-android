@@ -23,7 +23,7 @@
         <service
             android:name=".CoreService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
 
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
@@ -71,6 +71,10 @@
             android:parentActivityName=".ChannelListActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".ImageViewerActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
             android:name=".GuestViewMgmtActivity"
             android:configChanges="keyboard|keyboardHidden|orientation"
@@ -127,6 +131,7 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="im.where.whereim.fileprovider"
@@ -136,6 +141,7 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/ic_stat_logo" />

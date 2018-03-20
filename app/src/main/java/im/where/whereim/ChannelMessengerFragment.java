@@ -154,12 +154,14 @@ public class ChannelMessengerFragment extends BaseFragment {
             TextView sender;
             TextView time;
             ImageView image;
+            Message msg;
         }
 
         class OutImageViewHolder {
             TextView date;
             TextView time;
             ImageView image;
+            Message msg;
         }
 
         @Override
@@ -193,20 +195,54 @@ public class ChannelMessengerFragment extends BaseFragment {
                 }
                 case 2: {
                     view = LayoutInflater.from(context).inflate(R.layout.in_image_item, parent, false);
-                    InImageViewHolder ivh = new InImageViewHolder();
+                    final InImageViewHolder ivh = new InImageViewHolder();
                     ivh.date = (TextView) view.findViewById(R.id.date);
                     ivh.sender = (TextView) view.findViewById(R.id.sender);
                     ivh.time = (TextView) view.findViewById(R.id.time);
                     ivh.image = (ImageView) view.findViewById(R.id.image);
+                    ivh.image.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            postBinderTask(new CoreService.BinderTask() {
+                                @Override
+                                public void onBinderReady(CoreService.CoreBinder binder) {
+                                    Mate mate = binder.getChannelMate(mChannel.id, ivh.msg.mate_id);
+
+                                    Intent intent = new Intent(getContext(), ImageViewerActivity.class);
+                                    intent.putExtra(Key.MATE_NAME, mate == null ? "" : mate.getDisplayName());
+                                    intent.putExtra(Key.TIME, ivh.msg.time);
+                                    intent.putExtra(Key.IMAGE, ivh.msg.getPayload());
+                                    startActivity(intent);
+                                }
+                            });
+                        }
+                    });
                     view.setTag(ivh);
                     return view;
                 }
                 case 3: {
                     view = LayoutInflater.from(context).inflate(R.layout.out_image_item, parent, false);
-                    OutImageViewHolder ovh = new OutImageViewHolder();
+                    final OutImageViewHolder ovh = new OutImageViewHolder();
                     ovh.date = (TextView) view.findViewById(R.id.date);
                     ovh.time = (TextView) view.findViewById(R.id.time);
                     ovh.image = (ImageView) view.findViewById(R.id.image);
+                    ovh.image.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            postBinderTask(new CoreService.BinderTask() {
+                                @Override
+                                public void onBinderReady(CoreService.CoreBinder binder) {
+                                    Mate mate = binder.getChannelMate(mChannel.id, ovh.msg.mate_id);
+
+                                    Intent intent = new Intent(getContext(), ImageViewerActivity.class);
+                                    intent.putExtra(Key.IMAGE, ovh.msg.getPayload());
+                                    intent.putExtra(Key.MATE_NAME, mate == null ? "" : mate.getDisplayName());
+                                    intent.putExtra(Key.TIME, ovh.msg.time);
+                                    startActivity(intent);
+                                }
+                            });
+                        }
+                    });
                     view.setTag(ovh);
 
                     return view;
@@ -274,6 +310,7 @@ public class ChannelMessengerFragment extends BaseFragment {
                 }
                 case 2: {
                     InImageViewHolder ivh = (InImageViewHolder) view.getTag();
+                    ivh.msg = m;
                     Glide.with(ChannelMessengerFragment.this).clear(ivh.image);
                     if (binder == null) {
                         ivh.date.setVisibility(View.GONE);
@@ -293,6 +330,7 @@ public class ChannelMessengerFragment extends BaseFragment {
                 }
                 case 3: {
                     OutImageViewHolder ovh = (OutImageViewHolder) view.getTag();
+                    ovh.msg = m;
                     Glide.with(ChannelMessengerFragment.this).clear(ovh.image);
                     if (binder == null) {
                         ovh.date.setVisibility(View.GONE);

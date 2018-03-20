@@ -65,6 +65,7 @@ public class Key {
     public final static String STALE = "stale";
 
     public final static String TILE = "tile";
+    public final static String TIME = "time";
     public final static String TITLE = "title";
     public final static String TOKEN = "token";
     public final static String TS = "ts";
