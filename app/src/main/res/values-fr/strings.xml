@@ -38,6 +38,7 @@
     <string name="no_match">Aucune concordance</string>
     <string name="name">Nom</string>
     <string name="icon">Icône</string>
+    <string name="desc">Description</string>
     <string name="mock">Moquer</string>
     <string name="channel_name">Nom de la Chaîne</string>
     <string name="user_channel_name">Alias de la Chaîne</string>

@@ -41,6 +41,7 @@
     <string name="no_match">No match</string>
     <string name="name">Name</string>
     <string name="icon">Icon</string>
+    <string name="desc">Description</string>
     <string name="mock">Mock</string>
     <string name="channel_name">Channel Name</string>
     <string name="user_channel_name">Channel Alias</string>

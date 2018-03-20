@@ -38,6 +38,7 @@
     <string name="no_match">Geen overeenkomst</string>
     <string name="name">Naam</string>
     <string name="icon">Icoon</string>
+    <string name="desc">Beschrijving</string>
     <string name="mock">Simuleren</string>
     <string name="channel_name">Naam kanaal</string>
     <string name="user_channel_name">Alias kanaal</string>

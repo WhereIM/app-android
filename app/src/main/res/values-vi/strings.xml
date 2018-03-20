@@ -38,6 +38,7 @@
     <string name="no_match">Không tìm thấy phù hợp</string>
     <string name="name">Tên</string>
     <string name="icon">Biểu tượng</string>
+    <string name="desc">Mô tả</string>
     <string name="mock">Thử</string>
     <string name="channel_name">Tên Kênh</string>
     <string name="user_channel_name">Biệt danh của Kênh</string>

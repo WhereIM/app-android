@@ -38,6 +38,7 @@
     <string name="no_match">Нет соответствия</string>
     <string name="name">Имя</string>
     <string name="icon">Иконка</string>
+    <string name="desc">Описание</string>
     <string name="mock">Мок объект</string>
     <string name="channel_name">Имя канала</string>
     <string name="user_channel_name">Псевдоним канала</string>

@@ -38,6 +38,7 @@
     <string name="no_match">ไม่มีการจับคู่</string>
     <string name="name">ชื่อ</string>
     <string name="icon">ไอคอน</string>
+    <string name="desc">ลักษณะ</string>
     <string name="mock">จำลอง</string>
     <string name="channel_name">ชื่อช่อง</string>
     <string name="user_channel_name">ชื่อย่อของช่อง</string>

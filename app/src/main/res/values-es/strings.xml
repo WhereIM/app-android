@@ -38,6 +38,7 @@
     <string name="no_match">Sin coincidencias</string>
     <string name="name">Nombre</string>
     <string name="icon">Icono</string>
+    <string name="desc">Descripción</string>
     <string name="mock">Imitación</string>
     <string name="channel_name">Nombre del Canal</string>
     <string name="user_channel_name">Alías del Canal</string>

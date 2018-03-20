@@ -38,6 +38,7 @@
     <string name="no_match">Keine Übereinstimmung</string>
     <string name="name">Name</string>
     <string name="icon">Symbol</string>
+    <string name="desc">Beschreibung</string>
     <string name="mock">Fälschung</string>
     <string name="channel_name">Channel Name</string>
     <string name="user_channel_name">Channel Alias</string>

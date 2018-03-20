@@ -40,6 +40,7 @@
     <string name="no_match">找不到</string>
     <string name="name">名稱</string>
     <string name="icon">圖示</string>
+    <string name="desc">描述</string>
     <string name="mock">假資料</string>
     <string name="channel_name">群組名稱</string>
     <string name="user_channel_name">群組別稱</string>

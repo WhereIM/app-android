@@ -38,6 +38,7 @@
     <string name="no_match">一致するものがありません</string>
     <string name="name">名前</string>
     <string name="icon">アイコン</string>
+    <string name="desc">説明</string>
     <string name="mock">モック</string>
     <string name="channel_name">チャンネル名</string>
     <string name="user_channel_name">チャンネル別名</string>
