@@ -30,6 +30,9 @@ public class Config {
 
     public final static String WHERE_IM_URL = "https://dev.where.im/%s";
 
+    public final static String THUMBNAIL_URL = "https://s3-ap-northeast-1.amazonaws.com/whereim-thumbnail/%s";
+    public final static String PREVIEW_URL = "https://s3-ap-northeast-1.amazonaws.com/whereim-preview/%s";
+
     public final static int[] SELF_RADIUS = new int[]{75, 100, 150, 200, 250, 300, 400, 500, 1000, 1500, 2000, 3000};
     public final static int ENCHANTMENT_RADIUS_MAX = 5000;
     public final static int ENCHANTMENT_RADIUS_MIN = 15;
@@ -72,10 +75,10 @@ public class Config {
     }
 
     public static String getThumbnail(String objkey){
-        return "https://s3-ap-northeast-1.amazonaws.com/whereim-thumbnail/"+Files.getNameWithoutExtension(objkey)+".jpg";
+        return String.format(Locale.ENGLISH, Config.THUMBNAIL_URL, Files.getNameWithoutExtension(objkey)+".jpg");
     }
 
     public static String getPreview(String objkey){
-        return "https://s3-ap-northeast-1.amazonaws.com/whereim-preview/"+Files.getNameWithoutExtension(objkey)+".jpg";
+        return String.format(Locale.ENGLISH, Config.PREVIEW_URL, Files.getNameWithoutExtension(objkey)+".jpg");
     }
 }
