@@ -252,7 +252,6 @@ public class Message extends BaseModel {
         public long lastId;
         public boolean loadMoreChannelData;
         public boolean loadMoreUserData;
-        public HashMap<Long, Integer> positionMap = new HashMap<>();
     }
 
     public static BundledCursor getCursor(SQLiteDatabase db, Channel channel){
@@ -275,8 +274,6 @@ public class Message extends BaseModel {
                 long sn = bc.cursor.getLong(1);
                 boolean isPublic = 0 != bc.cursor.getInt(2);
                 String channel_id = bc.cursor.getString(3);
-
-                bc.positionMap.put(id, bc.cursor.getPosition());
 
                 if(channel_id==null){
                     continue;
@@ -328,6 +325,7 @@ public class Message extends BaseModel {
         }else{
             bc.firstId = -1;
         }
+        /*
         Log.e("lala", "===========================");
         Log.e("lala", "loadMoreBefore="+bc.loadMoreBefore);
         Log.e("lala", "loadMoreAfter="+bc.loadMoreAfter);
@@ -337,6 +335,7 @@ public class Message extends BaseModel {
         Log.e("lala", "lastId="+bc.lastId);
         Log.e("lala", "count="+bc.count);
         Log.e("lala", "----------------------------");
+        */
         return bc;
     }
 }

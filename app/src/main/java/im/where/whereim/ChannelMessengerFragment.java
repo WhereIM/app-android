@@ -20,7 +20,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.CursorAdapter;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -569,7 +568,15 @@ public class ChannelMessengerFragment extends BaseFragment {
                     }else{
                         int originPosition = mListView.getFirstVisiblePosition();
                         long originId = mAdapter.getItemId(originPosition);
-                        Integer newPosition = mCurrentCursor.positionMap.get(originId);
+                        mCurrentCursor.cursor.moveToFirst();
+                        Integer newPosition = 0;
+                        do{
+                            long id = mCurrentCursor.cursor.getLong(0);
+                            newPosition = mCurrentCursor.cursor.getPosition();
+                            if(id >= originId){
+                                break;
+                            }
+                        }while(mCurrentCursor.cursor.moveToNext());
                         if(newPosition == null){
                             newPosition = originPosition;
                         }
