@@ -111,28 +111,37 @@ public class Message extends BaseModel {
         return m;
     }
 
-    public String getPayload() {
+    public Image getImage() {
         JSONObject json = null;
         try {
             json = new JSONObject(this.message);
         } catch (Exception e) {
             return null;
         }
+        if(!"image".equals(this.type)){
+            return null;
+        }
+        if(!json.has(Key.IMAGE)){
+            return null;
+        }
         try {
-            switch (this.type) {
-                case "image": {
-                        if(!json.has(Key.IMAGE)){
-                            return null;
-                        }
-                        return json.getString(Key.IMAGE);
-                }
+            Image img = new Image();
+            img.url = json.getString(Key.IMAGE);
+            if(json.has(Key.WIDTH) && json.has(Key.HEIGHT)){
+                img.width = json.getInt(Key.WIDTH);
+                img.height = json.getInt(Key.HEIGHT);
+            }else{
+                img.width = -1;
+                img.height = -1;
             }
+            return img;
         } catch (JSONException e) {
             e.printStackTrace();
         }
         return null;
     }
-    public SpannableString getText(Context context, CoreService.CoreBinder binder, WimSpan.OnClickedListener clickedListener){
+
+    public SpannableString getText(Context context, WimSpan.OnClickedListener clickedListener){
         if("text".equals(this.type)){
             return new SpannableString(this.message);
         }

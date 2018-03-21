@@ -34,6 +34,9 @@ public class Key {
     public final static String GOOGLE = "google";
     public final static String GOOGLE_SEARCH = "google_search";
 
+    public final static String HASH = "hash";
+    public final static String HEIGHT = "h";
+
     public final static String ID = "id";
     public final static String IMAGE = "img";
 
@@ -79,6 +82,8 @@ public class Key {
 
     public final static String USER_CHANNEL_NAME = "user_channel_name";
     public final static String USER_MATE_NAME = "user_mate_name";
+
+    public final static String WIDTH = "w";
 
     public enum MAP_OBJECT {
         ENCHANTMENT,

@@ -38,7 +38,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <ImageView
+                <im.where.whereim.views.WimImageView
                     android:id="@+id/image"
                     android:layout_width="160dp"
                     android:layout_height="wrap_content"

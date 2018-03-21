@@ -12,7 +12,6 @@ import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.content.FileProvider;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -37,13 +36,13 @@ import java.io.OutputStream;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 
 import im.where.whereim.geo.QuadTree;
 import im.where.whereim.models.Channel;
 import im.where.whereim.models.Marker;
 import im.where.whereim.models.Mate;
 import im.where.whereim.models.Message;
+import im.where.whereim.views.WimImageView;
 import im.where.whereim.views.WimSpan;
 
 import static android.app.Activity.RESULT_OK;
@@ -153,14 +152,14 @@ public class ChannelMessengerFragment extends BaseFragment {
             TextView date;
             TextView sender;
             TextView time;
-            ImageView image;
+            WimImageView image;
             Message msg;
         }
 
         class OutImageViewHolder {
             TextView date;
             TextView time;
-            ImageView image;
+            WimImageView image;
             Message msg;
         }
 
@@ -199,7 +198,7 @@ public class ChannelMessengerFragment extends BaseFragment {
                     ivh.date = (TextView) view.findViewById(R.id.date);
                     ivh.sender = (TextView) view.findViewById(R.id.sender);
                     ivh.time = (TextView) view.findViewById(R.id.time);
-                    ivh.image = (ImageView) view.findViewById(R.id.image);
+                    ivh.image = (WimImageView) view.findViewById(R.id.image);
                     ivh.image.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -211,7 +210,7 @@ public class ChannelMessengerFragment extends BaseFragment {
                                     Intent intent = new Intent(getContext(), ImageViewerActivity.class);
                                     intent.putExtra(Key.MATE_NAME, mate == null ? "" : mate.getDisplayName());
                                     intent.putExtra(Key.TIME, ivh.msg.time);
-                                    intent.putExtra(Key.IMAGE, ivh.msg.getPayload());
+                                    intent.putExtra(Key.IMAGE, ivh.msg.getImage().url);
                                     startActivity(intent);
                                 }
                             });
@@ -225,7 +224,7 @@ public class ChannelMessengerFragment extends BaseFragment {
                     final OutImageViewHolder ovh = new OutImageViewHolder();
                     ovh.date = (TextView) view.findViewById(R.id.date);
                     ovh.time = (TextView) view.findViewById(R.id.time);
-                    ovh.image = (ImageView) view.findViewById(R.id.image);
+                    ovh.image = (WimImageView) view.findViewById(R.id.image);
                     ovh.image.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -235,7 +234,7 @@ public class ChannelMessengerFragment extends BaseFragment {
                                     Mate mate = binder.getChannelMate(mChannel.id, ovh.msg.mate_id);
 
                                     Intent intent = new Intent(getContext(), ImageViewerActivity.class);
-                                    intent.putExtra(Key.IMAGE, ovh.msg.getPayload());
+                                    intent.putExtra(Key.IMAGE, ovh.msg.getImage().url);
                                     intent.putExtra(Key.MATE_NAME, mate == null ? "" : mate.getDisplayName());
                                     intent.putExtra(Key.TIME, ovh.msg.time);
                                     startActivity(intent);
@@ -284,7 +283,7 @@ public class ChannelMessengerFragment extends BaseFragment {
                     }
                     Mate mate = binder.getChannelMate(mChannel.id, m.mate_id);
                     ivh.sender.setText(mate == null ? "" : mate.getDisplayName());
-                    ivh.message.setText(m.getText(getActivity(), binder, clickedListener));
+                    ivh.message.setText(m.getText(getActivity(), clickedListener));
                     ivh.time.setText(hm);
                     ivh.date.setVisibility(showDate ? View.VISIBLE : View.GONE);
                     if (showDate) {
@@ -300,7 +299,7 @@ public class ChannelMessengerFragment extends BaseFragment {
                         ovh.time.setText(null);
                         return;
                     }
-                    ovh.message.setText(m.getText(getActivity(), binder, clickedListener));
+                    ovh.message.setText(m.getText(getActivity(), clickedListener));
                     ovh.time.setText(hm);
                     ovh.date.setVisibility(showDate ? View.VISIBLE : View.GONE);
                     if (showDate) {
@@ -320,7 +319,7 @@ public class ChannelMessengerFragment extends BaseFragment {
                     }
                     Mate mate = binder.getChannelMate(mChannel.id, m.mate_id);
                     ivh.sender.setText(mate == null ? "" : mate.getDisplayName());
-                    Glide.with(ChannelMessengerFragment.this).load(Config.getThumbnail(m.getPayload())).into(ivh.image);
+                    ivh.image.setImage(m.getImage());
                     ivh.time.setText(hm);
                     ivh.date.setVisibility(showDate ? View.VISIBLE : View.GONE);
                     if (showDate) {
@@ -337,7 +336,7 @@ public class ChannelMessengerFragment extends BaseFragment {
                         ovh.time.setText(null);
                         return;
                     }
-                    Glide.with(ChannelMessengerFragment.this).load(Config.getThumbnail(m.getPayload())).into(ovh.image);
+                    ovh.image.setImage(m.getImage());
                     ovh.time.setText(hm);
                     ovh.date.setVisibility(showDate ? View.VISIBLE : View.GONE);
                     if (showDate) {
