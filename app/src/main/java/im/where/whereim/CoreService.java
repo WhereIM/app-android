@@ -13,6 +13,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -42,6 +43,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -70,6 +73,7 @@ import im.where.whereim.models.Marker;
 import im.where.whereim.models.Mate;
 import im.where.whereim.models.Message;
 import im.where.whereim.models.POI;
+import im.where.whereim.models.PendingMessage;
 import im.where.whereim.models.WimDBHelper;
 import me.leolin.shortcutbadger.ShortcutBadger;
 import okhttp3.MediaType;
@@ -965,76 +969,48 @@ public class CoreService extends Service {
         }
 
         public void sendMessage(Channel channel, String s, QuadTree.LatLng location) {
+            PendingMessage m = new PendingMessage();
+            m.channel_id = channel.id;
+            m.type = "text";
             try {
-                JSONObject payload = new JSONObject();
-                payload.put(Key.MESSAGE, s);
+                m.payload.put(Key.MESSAGE, s);
                 if(location != null){
-                    payload.put(Key.TYPE, "rich");
-                    payload.put(Key.LATITUDE, location.latitude);
-                    payload.put(Key.LONGITUDE, location.longitude);
+                    m.payload.put(Key.TYPE, "rich");
+                    m.type = "rich";
+                    m.payload.put(Key.LATITUDE, location.latitude);
+                    m.payload.put(Key.LONGITUDE, location.longitude);
                 }
-                String topic = String.format("channel/%s/data/message/put", channel.id);
-                publish(topic, payload);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            mWimDBHelper.insert(m);
+            mHandler.post(deliverPendingMessage);
         }
 
-        public void sendImage(final Context context, final Channel channel, final String filename, final File file, final boolean deleteLater) {
-            getUploadLink("image", filename, new OnUploadLink(){
-
-                @Override
-                public void onUploadLinkReady(final String uid, final String url, final HashMap<String, String> data) {
-                    new Thread(){
-                        @Override
-                        public void run() {
-                            MultipartBody.Builder b = new MultipartBody.Builder()
-                                    .setType(MultipartBody.FORM);
-                            for(String k: data.keySet()){
-                                b.addFormDataPart(k, data.get(k));
-                            }
-                            b.addFormDataPart("file", filename, RequestBody.create(MediaType.parse("application/octet-stream"), file));
-                            Request request = new Request.Builder().url(url).post(b.build()).build();
-                            OkHttpClient client = new OkHttpClient();
-                            try {
-                                Response response = client.newCall(request).execute();
-                                if(response.isSuccessful()){
-                                    try {
-                                        JSONObject payload = new JSONObject();
-                                        payload.put(Key.TYPE, "image");
-                                        payload.put(Key.IMAGE, uid);
-                                        String topic = String.format("channel/%s/data/message/put", channel.id);
-                                        publish(topic, payload);
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                    if(deleteLater){
-                                        file.delete();
-                                    }
-                                }
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }.start();
-                }
-            });
-        }
-
-        public void getUploadLink(String type, String filename, OnUploadLink callback){
-            String uuid = UUID.randomUUID().toString();
-            synchronized (mUploadCallback) {
-                mUploadCallback.put(uuid, callback);
-            }
+        public void sendImage(final Channel channel, final Uri uri) {
+            PendingMessage m = new PendingMessage();
+            m.channel_id = channel.id;
+            m.type = "img_uri";
             try {
-                JSONObject data = new JSONObject();
-                data.put(Key.TOKEN, uuid);
-                data.put(Key.TYPE, type);
-                data.put("file", filename);
-                publish("system/upload/get", data);
+                m.payload.put("uri", uri.toString());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            mWimDBHelper.insert(m);
+            mHandler.post(deliverPendingMessage);
+        }
+
+        public void sendImage(final Channel channel, final File file) {
+            PendingMessage m = new PendingMessage();
+            m.channel_id = channel.id;
+            m.type = "img_file";
+            try {
+                m.payload.put("file", file.getAbsolutePath());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            mWimDBHelper.insert(m);
+            mHandler.post(deliverPendingMessage);
         }
 
         public void sendNotification(Channel channel, String type) {
@@ -1141,6 +1117,149 @@ public class CoreService extends Service {
 
 
     private static int LOCATION_UPDATE_INTERVAL = 10000;
+
+    private void getUploadLink(String type, String filename, OnUploadLink callback){
+        String uuid = UUID.randomUUID().toString();
+        synchronized (mUploadCallback) {
+            mUploadCallback.put(uuid, callback);
+        }
+        try {
+            JSONObject data = new JSONObject();
+            data.put(Key.TOKEN, uuid);
+            data.put(Key.TYPE, type);
+            data.put("file", filename);
+            publish("system/upload/get", data);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Runnable deliverPendingMessage = new Runnable() {
+        @Override
+        public void run() {
+            int delay = 5000;
+            mHandler.removeCallbacks(this);
+            if(!mMqttConnected){
+                return;
+            }
+            final PendingMessage m = PendingMessage.pop(mWimDBHelper.getDatabase());
+            try{
+                if(m != null){
+                    switch(m.type){
+                        case "rich":
+                        case "text": {
+                            String topic = String.format("channel/%s/data/message/put", m.channel_id);
+                            m.payload.put(Key.HASH, m.hash);
+                            publish(topic, m.payload);
+                            break;
+                        }
+                        case "img_uri": {
+                            delay = 15000;
+                            Uri uri = Uri.parse(m.payload.getString("uri"));
+                            final String filename = Util.getFileName(CoreService.this, uri);
+                            if (filename == null) {
+                                throw new Exception("Filename is null");
+                            }
+                            InputStream is = getContentResolver().openInputStream(uri);
+                            if (is == null) {
+                                throw new Exception("Uri not available");
+                            }
+                            final File temp = new File(getCacheDir(), filename);
+                            OutputStream os = new FileOutputStream(temp);
+                            IOUtils.copy(is, os);
+                            is.close();
+                            os.close();
+                            temp.deleteOnExit();
+                            getUploadLink("image", filename, new OnUploadLink() {
+
+                                @Override
+                                public void onUploadLinkReady(final String uid, final String url, final HashMap<String, String> data) {
+                                    new Thread() {
+                                        @Override
+                                        public void run() {
+                                            MultipartBody.Builder b = new MultipartBody.Builder()
+                                                    .setType(MultipartBody.FORM);
+                                            for (String k : data.keySet()) {
+                                                b.addFormDataPart(k, data.get(k));
+                                            }
+                                            b.addFormDataPart("file", filename, RequestBody.create(MediaType.parse("application/octet-stream"), temp));
+                                            Request request = new Request.Builder().url(url).post(b.build()).build();
+                                            OkHttpClient client = new OkHttpClient();
+                                            try {
+                                                Response response = client.newCall(request).execute();
+                                                if (response.isSuccessful()) {
+                                                    try {
+                                                        JSONObject payload = new JSONObject();
+                                                        payload.put(Key.TYPE, "image");
+                                                        payload.put(Key.IMAGE, uid);
+                                                        payload.put(Key.HASH, m.hash);
+                                                        String topic = String.format("channel/%s/data/message/put", m.channel_id);
+                                                        publish(topic, payload);
+                                                    } catch (JSONException e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                    temp.delete();
+                                                }
+                                            } catch (IOException e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    }.start();
+                                }
+                            });
+                            break;
+                        }
+                        case "img_file": {
+                            delay = 15000;
+                            final File file = new File(m.payload.getString("file"));
+                            getUploadLink("image", file.getName(), new OnUploadLink() {
+
+                                @Override
+                                public void onUploadLinkReady(final String uid, final String url, final HashMap<String, String> data) {
+                                    new Thread() {
+                                        @Override
+                                        public void run() {
+                                            MultipartBody.Builder b = new MultipartBody.Builder()
+                                                    .setType(MultipartBody.FORM);
+                                            for (String k : data.keySet()) {
+                                                b.addFormDataPart(k, data.get(k));
+                                            }
+                                            b.addFormDataPart("file", file.getName(), RequestBody.create(MediaType.parse("application/octet-stream"), file));
+                                            Request request = new Request.Builder().url(url).post(b.build()).build();
+                                            OkHttpClient client = new OkHttpClient();
+                                            try {
+                                                Response response = client.newCall(request).execute();
+                                                if (response.isSuccessful()) {
+                                                    try {
+                                                        JSONObject payload = new JSONObject();
+                                                        payload.put(Key.TYPE, "image");
+                                                        payload.put(Key.IMAGE, uid);
+                                                        payload.put(Key.HASH, m.hash);
+                                                        String topic = String.format("channel/%s/data/message/put", m.channel_id);
+                                                        publish(topic, payload);
+                                                    } catch (JSONException e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                    file.delete();
+                                                }
+                                            } catch (IOException e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    }.start();
+                                }
+                            });
+                            break;
+                        }
+                    }
+                    mHandler.postDelayed(this, delay);
+                }
+            }catch (Exception e){
+                PendingMessage.delete(mWimDBHelper.getDatabase(), m.hash);
+            }
+        }
+    };
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         init();
@@ -1366,6 +1485,7 @@ public class CoreService extends Service {
                         });
                         break;
                     default:
+                        mHandler.removeCallbacks(deliverPendingMessage);
                         Log.e(TAG, "MQTT Disconnected");
                         synchronized (mChannelMessageSync) {
                             mChannelMessageSync.clear();
@@ -1593,6 +1713,7 @@ public class CoreService extends Service {
                 syncChannelMessage(channel);
             }
         }
+        mHandler.post(deliverPendingMessage);
     }
 
     final AWSIotMqttNewMessageCallback mAwsIotMqttNewMessageCallback = new AWSIotMqttNewMessageCallback() {
@@ -2182,6 +2303,15 @@ public class CoreService extends Service {
     // Channel: Data - Message
 
     private void mqttChannelMessageHandler(String channel_id, JSONObject payload){
+        if(payload.has(Key.HASH)){
+            try {
+                String hash = payload.getString(Key.HASH);
+                PendingMessage.delete(mWimDBHelper.getDatabase(), hash);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        mHandler.post(deliverPendingMessage);
         Message message = Message.parse(payload);
         mWimDBHelper.replace(message);
         boolean fromSync = Util.JsonOptBoolean(payload, "sync", false);

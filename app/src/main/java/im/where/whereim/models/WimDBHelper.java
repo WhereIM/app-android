@@ -11,7 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class WimDBHelper extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "whereim.db";
-    public static final int VERSION = 4;
+    public static final int VERSION = 5;
     private static SQLiteDatabase mDatabase;
 
     public WimDBHelper(Context context) {
@@ -23,6 +23,7 @@ public class WimDBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         Channel.createTable(db);
         Message.createTable(db);
+        PendingMessage.createTable(db);
         Mate.createTable(db);
         Marker.createTable(db);
         Enchantment.createTable(db);
@@ -32,6 +33,7 @@ public class WimDBHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Mate.upgradeTable(db, oldVersion);
         Channel.upgradeTable(db, oldVersion);
+        PendingMessage.upgradeTable(db, oldVersion);
     }
 
     public SQLiteDatabase getDatabase(){

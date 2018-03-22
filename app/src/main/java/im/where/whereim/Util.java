@@ -89,13 +89,6 @@ public class Util {
                 cursor.close();
             }
         }
-        if (result == null) {
-            result = uri.getPath();
-            int cut = result.lastIndexOf('/');
-            if (cut != -1) {
-                result = result.substring(cut + 1);
-            }
-        }
         return result;
     }
 }

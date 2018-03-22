@@ -284,11 +284,11 @@ public class Message extends BaseModel {
                         channelDataSn = sn;
                     } else {
                         if (sn == channelDataSn - 1) {
-                            Log.e("lala", "sn="+sn+", channelDataSn="+channelDataSn);
+//                            Log.e("lala", "sn="+sn+", channelDataSn="+channelDataSn);
                             channelDataSn = sn;
                             channelDataId = id;
                         } else {
-                            Log.e("lala", "!! sn="+sn+", channelDataSn="+channelDataSn);
+//                            Log.e("lala", "!! sn="+sn+", channelDataSn="+channelDataSn);
                             bc.loadMoreBefore = channelDataId;
                             bc.loadMoreAfter = id;
                             bc.loadMoreChannelData = true;
@@ -301,11 +301,11 @@ public class Message extends BaseModel {
                         userDataSn = sn;
                     } else {
                         if (sn == userDataSn - 1) {
-                            Log.e("lala", "sn="+sn+", userDataSn="+userDataSn);
+//                            Log.e("lala", "sn="+sn+", userDataSn="+userDataSn);
                             userDataSn = sn;
                             userDataId = id;
                         } else {
-                            Log.e("lala", "!! sn="+sn+", userDataSn="+userDataSn);
+//                            Log.e("lala", "!! sn="+sn+", userDataSn="+userDataSn);
                             bc.loadMoreBefore = userDataId;
                             bc.loadMoreAfter = id;
                             bc.loadMoreUserData = true;

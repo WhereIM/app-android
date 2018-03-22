@@ -627,23 +627,7 @@ public class ChannelMessengerFragment extends BaseFragment {
                                 for (int i = 0; i < clipData.getItemCount(); i++) {
                                     ClipData.Item item = clipData.getItemAt(i);
                                     Uri uri = item.getUri();
-                                    String filename = Util.getFileName(getContext(), uri);
-
-                                    try {
-                                        File temp = new File(getContext().getCacheDir(), filename);
-                                        InputStream is = getContext().getContentResolver().openInputStream(uri);
-                                        OutputStream os = new FileOutputStream(temp);
-                                        IOUtils.copy(is, os);
-                                        is.close();
-                                        os.close();
-                                        temp.deleteOnExit();
-                                        binder.sendImage(getContext(), channel, filename, temp, true);
-                                    } catch (FileNotFoundException e) {
-                                        e.printStackTrace();
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-
+                                    binder.sendImage(channel, uri);
                                 }
                             }
                         });
@@ -659,7 +643,7 @@ public class ChannelMessengerFragment extends BaseFragment {
                             @Override
                             public void onGetChannel(Channel channel) {
                                 File file = new File(mCurrentPhotoPath);
-                                binder.sendImage(getContext(), channel, file.getName(), file, false);
+                                binder.sendImage(channel, file);
                             }
                         });
                     }
