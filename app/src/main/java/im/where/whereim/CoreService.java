@@ -2311,6 +2311,9 @@ public class CoreService extends Service {
                 e.printStackTrace();
             }
         }
+        if(!payload.has(Key.TYPE)){
+            return;
+        }
         mHandler.post(deliverPendingMessage);
         Message message = Message.parse(payload);
         mWimDBHelper.replace(message);
