@@ -1134,12 +1134,17 @@ public class CoreService extends Service {
         }
     }
 
+    private final static int DELIVERY_INTERVAL = 5000;
+    private boolean uploading = false;
     private Runnable deliverPendingMessage = new Runnable() {
         @Override
         public void run() {
-            int delay = 5000;
             mHandler.removeCallbacks(this);
             if(!mMqttConnected){
+                return;
+            }
+            if(uploading){
+                mHandler.postDelayed(this, DELIVERY_INTERVAL);
                 return;
             }
             final PendingMessage m = PendingMessage.pop(mWimDBHelper.getDatabase());
@@ -1154,7 +1159,6 @@ public class CoreService extends Service {
                             break;
                         }
                         case "img_uri": {
-                            delay = 15000;
                             Uri uri = Uri.parse(m.payload.getString("uri"));
                             final String filename = Util.getFileName(CoreService.this, uri);
                             if (filename == null) {
@@ -1174,6 +1178,7 @@ public class CoreService extends Service {
 
                                 @Override
                                 public void onUploadLinkReady(final String uid, final String url, final HashMap<String, String> data) {
+                                    uploading = true;
                                     new Thread() {
                                         @Override
                                         public void run() {
@@ -1203,6 +1208,7 @@ public class CoreService extends Service {
                                             } catch (IOException e) {
                                                 e.printStackTrace();
                                             }
+                                            uploading = false;
                                         }
                                     }.start();
                                 }
@@ -1210,12 +1216,12 @@ public class CoreService extends Service {
                             break;
                         }
                         case "img_file": {
-                            delay = 15000;
                             final File file = new File(m.payload.getString("file"));
                             getUploadLink("image", file.getName(), new OnUploadLink() {
 
                                 @Override
                                 public void onUploadLinkReady(final String uid, final String url, final HashMap<String, String> data) {
+                                    uploading = true;
                                     new Thread() {
                                         @Override
                                         public void run() {
@@ -1245,6 +1251,7 @@ public class CoreService extends Service {
                                             } catch (IOException e) {
                                                 e.printStackTrace();
                                             }
+                                            uploading = false;
                                         }
                                     }.start();
                                 }
@@ -1252,7 +1259,7 @@ public class CoreService extends Service {
                             break;
                         }
                     }
-                    mHandler.postDelayed(this, delay);
+                    mHandler.postDelayed(this, DELIVERY_INTERVAL);
                 }
             }catch (Exception e){
                 PendingMessage.delete(mWimDBHelper.getDatabase(), m.hash);
