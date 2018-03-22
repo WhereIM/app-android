@@ -283,6 +283,7 @@ public class ChannelMessengerFragment extends BaseFragment {
                     Mate mate = binder.getChannelMate(mChannel.id, m.mate_id);
                     ivh.sender.setText(mate == null ? "" : mate.getDisplayName());
                     ivh.message.setText(m.getText(getActivity(), clickedListener));
+                    ivh.message.requestLayout();
                     ivh.time.setText(hm);
                     ivh.date.setVisibility(showDate ? View.VISIBLE : View.GONE);
                     if (showDate) {
@@ -299,6 +300,7 @@ public class ChannelMessengerFragment extends BaseFragment {
                         return;
                     }
                     ovh.message.setText(m.getText(getActivity(), clickedListener));
+                    ovh.message.requestLayout();
                     ovh.time.setText(hm);
                     ovh.date.setVisibility(showDate ? View.VISIBLE : View.GONE);
                     if (showDate) {
