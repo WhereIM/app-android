@@ -589,11 +589,11 @@ public class ChannelMessengerFragment extends BaseFragment {
                         if(origMessageViewEnd){
                             mListView.smoothScrollToPosition(mAdapter.getCount() - 1);
                             messageViewEnd = origMessageViewEnd;
+                            maxMessageId = mCurrentCursor.lastId;
                         }else{
                             if(mCurrentCursor.lastId > maxMessageId) {
                                 mUnread.setVisibility(View.VISIBLE);
                             }
-                            maxMessageId = mCurrentCursor.lastId;
                         }
                     }
                     if(isShowed()) {
