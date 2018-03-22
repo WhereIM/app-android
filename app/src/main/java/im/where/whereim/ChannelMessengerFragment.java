@@ -12,26 +12,20 @@ import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.content.FileProvider;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AbsListView;
-import android.widget.CursorAdapter;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
 
-import com.amazonaws.util.IOUtils;
 import com.bumptech.glide.Glide;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -94,20 +88,113 @@ public class ChannelMessengerFragment extends BaseFragment {
 
     private Channel mChannel;
     private MessageCursorAdapter mAdapter;
-    private class MessageCursorAdapter extends CursorAdapter {
+    private class MessageCursorAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+        class InMessageViewHolder extends RecyclerView.ViewHolder {
+            TextView date;
+            TextView sender;
+            TextView time;
+            TextView message;
+
+            public InMessageViewHolder(View itemView) {
+                super(itemView);
+                date = (TextView) itemView.findViewById(R.id.date);
+                sender = (TextView) itemView.findViewById(R.id.sender);
+                time = (TextView) itemView.findViewById(R.id.time);
+                message = (TextView) itemView.findViewById(R.id.message);
+            }
+        }
+
+        class OutMesageViewHolder extends RecyclerView.ViewHolder {
+            TextView date;
+            TextView time;
+            TextView message;
+
+            public OutMesageViewHolder(View itemView) {
+                super(itemView);
+                date = (TextView) itemView.findViewById(R.id.date);
+                time = (TextView) itemView.findViewById(R.id.time);
+                message = (TextView) itemView.findViewById(R.id.message);
+            }
+        }
+
+        class InImageViewHolder extends RecyclerView.ViewHolder {
+            TextView date;
+            TextView sender;
+            TextView time;
+            WimImageView image;
+            Message msg;
+
+            public InImageViewHolder(View itemView) {
+                super(itemView);
+                date = (TextView) itemView.findViewById(R.id.date);
+                sender = (TextView) itemView.findViewById(R.id.sender);
+                time = (TextView) itemView.findViewById(R.id.time);
+                image = (WimImageView) itemView.findViewById(R.id.image);
+                image.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        postBinderTask(new CoreService.BinderTask() {
+                            @Override
+                            public void onBinderReady(CoreService.CoreBinder binder) {
+                                Mate mate = binder.getChannelMate(mChannel.id, msg.mate_id);
+
+                                Intent intent = new Intent(getContext(), ImageViewerActivity.class);
+                                intent.putExtra(Key.MATE_NAME, mate == null ? "" : mate.getDisplayName());
+                                intent.putExtra(Key.TIME, msg.time);
+                                intent.putExtra(Key.IMAGE, msg.getImage().url);
+                                startActivity(intent);
+                            }
+                        });
+                    }
+                });
+            }
+        }
+
+        class OutImageViewHolder extends RecyclerView.ViewHolder {
+            TextView date;
+            TextView time;
+            WimImageView image;
+            Message msg;
+
+            public OutImageViewHolder(View itemView) {
+                super(itemView);
+                date = (TextView) itemView.findViewById(R.id.date);
+                time = (TextView) itemView.findViewById(R.id.time);
+                image = (WimImageView) itemView.findViewById(R.id.image);
+                image.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        postBinderTask(new CoreService.BinderTask() {
+                            @Override
+                            public void onBinderReady(CoreService.CoreBinder binder) {
+                                Mate mate = binder.getChannelMate(mChannel.id, msg.mate_id);
+
+                                Intent intent = new Intent(getContext(), ImageViewerActivity.class);
+                                intent.putExtra(Key.IMAGE, msg.getImage().url);
+                                intent.putExtra(Key.MATE_NAME, mate == null ? "" : mate.getDisplayName());
+                                intent.putExtra(Key.TIME, msg.time);
+                                startActivity(intent);
+                            }
+                        });
+                    }
+                });
+            }
+        }
+
         private Message.BundledCursor mBundledCursor;
         public MessageCursorAdapter(Context context, Message.BundledCursor bc) {
-            super(context, bc.cursor, true);
             mBundledCursor = bc;
         }
 
         public void changeCursor(Message.BundledCursor bc) {
+            mBundledCursor.cursor.close();
             mBundledCursor = bc;
-            super.changeCursor(bc.cursor);
         }
 
-        private int getItemViewType(Cursor cursor) {
-            Message m = Message.parse(cursor);
+        @Override
+        public int getItemViewType(int position) {
+            mBundledCursor.cursor.moveToPosition(position);
+            Message m = Message.parse(mBundledCursor.cursor);
             if("image".equals(m.type)){
                 if(mChannel.mate_id.equals(m.mate_id)){
                     return 3; // out
@@ -124,135 +211,36 @@ public class ChannelMessengerFragment extends BaseFragment {
         }
 
         @Override
-        public int getItemViewType(int position) {
-            Cursor cursor = (Cursor) getItem(position);
-            return getItemViewType(cursor);
-        }
-
-        @Override
-        public int getViewTypeCount() {
-            return 4;
-        }
-
-        class InMessageViewHolder {
-            TextView date;
-            TextView sender;
-            TextView time;
-            TextView message;
-        }
-
-        class OutMesageViewHolder {
-            TextView date;
-            TextView time;
-            TextView message;
-        }
-
-        class InImageViewHolder {
-            TextView date;
-            TextView sender;
-            TextView time;
-            WimImageView image;
-            Message msg;
-        }
-
-        class OutImageViewHolder {
-            TextView date;
-            TextView time;
-            WimImageView image;
-            Message msg;
-        }
-
-        @Override
-        public int getCount() {
+        public int getItemCount() {
             return mBundledCursor.count;
         }
 
         @Override
-        public View newView(Context context, Cursor cursor, ViewGroup parent) {
-            View view = null;
-            switch(getItemViewType(cursor)){
-                case 0: {
-                    view = LayoutInflater.from(context).inflate(R.layout.in_message_item, parent, false);
-                    InMessageViewHolder ivh = new InMessageViewHolder();
-                    ivh.date = (TextView) view.findViewById(R.id.date);
-                    ivh.sender = (TextView) view.findViewById(R.id.sender);
-                    ivh.time = (TextView) view.findViewById(R.id.time);
-                    ivh.message = (TextView) view.findViewById(R.id.message);
-                    view.setTag(ivh);
-                    return view;
-                }
-                case 1: {
-                    view = LayoutInflater.from(context).inflate(R.layout.out_message_item, parent, false);
-                    OutMesageViewHolder ovh = new OutMesageViewHolder();
-                    ovh.date = (TextView) view.findViewById(R.id.date);
-                    ovh.time = (TextView) view.findViewById(R.id.time);
-                    ovh.message = (TextView) view.findViewById(R.id.message);
-                    view.setTag(ovh);
-
-                    return view;
-                }
-                case 2: {
-                    view = LayoutInflater.from(context).inflate(R.layout.in_image_item, parent, false);
-                    final InImageViewHolder ivh = new InImageViewHolder();
-                    ivh.date = (TextView) view.findViewById(R.id.date);
-                    ivh.sender = (TextView) view.findViewById(R.id.sender);
-                    ivh.time = (TextView) view.findViewById(R.id.time);
-                    ivh.image = (WimImageView) view.findViewById(R.id.image);
-                    ivh.image.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            postBinderTask(new CoreService.BinderTask() {
-                                @Override
-                                public void onBinderReady(CoreService.CoreBinder binder) {
-                                    Mate mate = binder.getChannelMate(mChannel.id, ivh.msg.mate_id);
-
-                                    Intent intent = new Intent(getContext(), ImageViewerActivity.class);
-                                    intent.putExtra(Key.MATE_NAME, mate == null ? "" : mate.getDisplayName());
-                                    intent.putExtra(Key.TIME, ivh.msg.time);
-                                    intent.putExtra(Key.IMAGE, ivh.msg.getImage().url);
-                                    startActivity(intent);
-                                }
-                            });
-                        }
-                    });
-                    view.setTag(ivh);
-                    return view;
-                }
-                case 3: {
-                    view = LayoutInflater.from(context).inflate(R.layout.out_image_item, parent, false);
-                    final OutImageViewHolder ovh = new OutImageViewHolder();
-                    ovh.date = (TextView) view.findViewById(R.id.date);
-                    ovh.time = (TextView) view.findViewById(R.id.time);
-                    ovh.image = (WimImageView) view.findViewById(R.id.image);
-                    ovh.image.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            postBinderTask(new CoreService.BinderTask() {
-                                @Override
-                                public void onBinderReady(CoreService.CoreBinder binder) {
-                                    Mate mate = binder.getChannelMate(mChannel.id, ovh.msg.mate_id);
-
-                                    Intent intent = new Intent(getContext(), ImageViewerActivity.class);
-                                    intent.putExtra(Key.IMAGE, ovh.msg.getImage().url);
-                                    intent.putExtra(Key.MATE_NAME, mate == null ? "" : mate.getDisplayName());
-                                    intent.putExtra(Key.TIME, ovh.msg.time);
-                                    startActivity(intent);
-                                }
-                            });
-                        }
-                    });
-                    view.setTag(ovh);
-
-                    return view;
-                }
-            }
-            return view;
+        public long getItemId(int position) {
+            mCurrentCursor.cursor.moveToPosition(position);
+            return mCurrentCursor.cursor.getLong(0);
         }
 
         @Override
-        public void bindView(View view, Context context, Cursor cursor) {
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            switch(viewType){
+                case 0:
+                    return new InMessageViewHolder(LayoutInflater.from(getContext()).inflate(R.layout.in_message_item, parent, false));
+                case 1:
+                    return new OutMesageViewHolder(LayoutInflater.from(getContext()).inflate(R.layout.out_message_item, parent, false));
+                case 2:
+                    return new InImageViewHolder(LayoutInflater.from(getContext()).inflate(R.layout.in_image_item, parent, false));
+                case 3:
+                    return new OutImageViewHolder(LayoutInflater.from(getContext()).inflate(R.layout.out_image_item, parent, false));
+            }
+            return null;
+        }
+
+        @Override
+        public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
+            Cursor cursor = mBundledCursor.cursor;
+            cursor.moveToPosition(position);
             CoreService.CoreBinder binder = getBinder();
-            final int position = cursor.getPosition();
             boolean showDate = false;
             Message m = Message.parse(cursor);
             Timestamp time = new Timestamp(m.time*1000);
@@ -269,9 +257,9 @@ public class ChannelMessengerFragment extends BaseFragment {
                 }
                 cursor.moveToPosition(position);
             }
-            switch(getItemViewType(cursor)){
+            switch(getItemViewType(position)){
                 case 0: {
-                    InMessageViewHolder ivh = (InMessageViewHolder) view.getTag();
+                    InMessageViewHolder ivh = (InMessageViewHolder) holder;
 
                     if (binder == null) {
                         ivh.date.setVisibility(View.GONE);
@@ -292,7 +280,7 @@ public class ChannelMessengerFragment extends BaseFragment {
                     return;
                 }
                 case 1: {
-                    OutMesageViewHolder ovh = (OutMesageViewHolder) view.getTag();
+                    OutMesageViewHolder ovh = (OutMesageViewHolder) holder;
                     if (binder == null) {
                         ovh.date.setVisibility(View.GONE);
                         ovh.message.setText(null);
@@ -309,7 +297,7 @@ public class ChannelMessengerFragment extends BaseFragment {
                     return;
                 }
                 case 2: {
-                    InImageViewHolder ivh = (InImageViewHolder) view.getTag();
+                    InImageViewHolder ivh = (InImageViewHolder) holder;
                     ivh.msg = m;
                     Glide.with(ChannelMessengerFragment.this).clear(ivh.image);
                     if (binder == null) {
@@ -329,7 +317,7 @@ public class ChannelMessengerFragment extends BaseFragment {
                     return;
                 }
                 case 3: {
-                    OutImageViewHolder ovh = (OutImageViewHolder) view.getTag();
+                    OutImageViewHolder ovh = (OutImageViewHolder) holder;
                     ovh.msg = m;
                     Glide.with(ChannelMessengerFragment.this).clear(ovh.image);
                     if (binder == null) {
@@ -379,7 +367,8 @@ public class ChannelMessengerFragment extends BaseFragment {
     private boolean messageViewEnd = true;
     private long maxMessageId = 0;
     private Message.BundledCursor mCurrentCursor;
-    private ListView mListView;
+    private RecyclerView mListView;
+    private LinearLayoutManager layoutManager;
     private View mUnread;
     private View mPin;
     private View mPicker;
@@ -399,7 +388,7 @@ public class ChannelMessengerFragment extends BaseFragment {
         mUnread.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mListView.setSelection(mAdapter.getCount() - 1);
+                mListView.scrollToPosition(mAdapter.getItemCount() - 1);
                 messageViewEnd = true;
             }
         });
@@ -478,25 +467,27 @@ public class ChannelMessengerFragment extends BaseFragment {
             }
         });
 
-        mListView = (ListView) view.findViewById(R.id.message);
-
-        mListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+        mListView = (RecyclerView) view.findViewById(R.id.message);
+        layoutManager = new LinearLayoutManager(getContext());
+        layoutManager.setStackFromEnd(true);
+        mListView.setLayoutManager(layoutManager);
+        mListView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
+            public void onScrollStateChanged(RecyclerView view, int scrollState) {
 
             }
 
             @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+            public void onScrolled(RecyclerView view, int dx, int dy) {
                 if(mCurrentCursor==null){
                     return;
                 }
-                messageViewEnd = view.getChildCount() == 0 || view.getLastVisiblePosition() == view.getAdapter().getCount() - 1 &&
+                messageViewEnd = view.getChildCount() == 0 || layoutManager.findLastVisibleItemPosition() == view.getAdapter().getItemCount() - 1 &&
                         view.getChildAt(view.getChildCount() - 1).getBottom() <= view.getHeight();
                 if(messageViewEnd){
                     mUnread.setVisibility(View.GONE);
                 }
-                if(firstVisibleItem==0){
+                if(layoutManager.findFirstVisibleItemPosition()==0){
                     postBinderTask(new CoreService.BinderTask() {
                         @Override
                         public void onBinderReady(CoreService.CoreBinder binder) {
@@ -514,7 +505,10 @@ public class ChannelMessengerFragment extends BaseFragment {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                View focus = getActivity().getCurrentFocus();
+                if(focus != null){
+                    inputManager.hideSoftInputFromWindow(focus.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                }
                 mInput.clearFocus();
                 return false;
             }
@@ -568,14 +562,14 @@ public class ChannelMessengerFragment extends BaseFragment {
                         mListView.setAdapter(mAdapter);
                         maxMessageId = mCurrentCursor.lastId;
                     }else{
-                        int originPosition = mListView.getFirstVisiblePosition();
+                        int originPosition = layoutManager.findFirstVisibleItemPosition();
                         long originId = mAdapter.getItemId(originPosition);
                         mCurrentCursor.cursor.moveToFirst();
-                        Integer newPosition = 0;
+                        Integer newPosition = null;
                         do{
                             long id = mCurrentCursor.cursor.getLong(0);
-                            newPosition = mCurrentCursor.cursor.getPosition();
                             if(id >= originId){
+                                newPosition = mCurrentCursor.cursor.getPosition();
                                 break;
                             }
                         }while(mCurrentCursor.cursor.moveToNext());
@@ -585,9 +579,14 @@ public class ChannelMessengerFragment extends BaseFragment {
                         View v = mListView.getChildAt(0);
                         int originTop = (v == null) ? 0 : (v.getTop() - mListView.getPaddingTop());
                         mAdapter.changeCursor(mCurrentCursor);
-                        mListView.setSelectionFromTop(newPosition, originTop);
+                        layoutManager.scrollToPositionWithOffset(newPosition, originTop);
                         if(origMessageViewEnd){
-                            mListView.smoothScrollToPosition(mAdapter.getCount() - 1);
+                            mHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mListView.smoothScrollToPosition(mAdapter.getItemCount() - 1);
+                                }
+                            });
                             messageViewEnd = origMessageViewEnd;
                             maxMessageId = mCurrentCursor.lastId;
                         }else{
