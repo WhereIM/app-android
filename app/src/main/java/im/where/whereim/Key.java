@@ -67,6 +67,7 @@ public class Key {
     public final static String SPEED = "spd";
     public final static String STALE = "stale";
 
+    public final static String TEXT = "text";
     public final static String TILE = "tile";
     public final static String TIME = "time";
     public final static String TITLE = "title";

@@ -36,21 +36,23 @@ public class WimImageView extends android.support.v7.widget.AppCompatImageView {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        final int widthSpecMode = MeasureSpec.getMode(widthMeasureSpec);
-        final int heightSpecMode = MeasureSpec.getMode(heightMeasureSpec);
-        boolean fixedWidth = widthSpecMode == MeasureSpec.EXACTLY;
-        boolean fixedHeight = heightSpecMode == MeasureSpec.EXACTLY;
 
-        if(fixedWidth && !fixedHeight){
-            int width =  MeasureSpec.getSize(widthMeasureSpec);
-            int height = (int)(width*(mH/mW));
-            setMeasuredDimension(width, height);
-            return;
-        }else if(fixedHeight && !fixedWidth){
-            int height =  MeasureSpec.getSize(heightMeasureSpec);
-            int width = (int)(height*(mW/mH));
-            setMeasuredDimension(width, height);
-            return;
+        if(mW!=-1 && mH!=-1){
+            final int widthSpecMode = MeasureSpec.getMode(widthMeasureSpec);
+            final int heightSpecMode = MeasureSpec.getMode(heightMeasureSpec);
+            boolean fixedWidth = widthSpecMode == MeasureSpec.EXACTLY;
+            boolean fixedHeight = heightSpecMode == MeasureSpec.EXACTLY;
+            if(fixedWidth && !fixedHeight){
+                int width =  MeasureSpec.getSize(widthMeasureSpec);
+                int height = (int)(width*(mH/mW));
+                setMeasuredDimension(width, height);
+                return;
+            }else if(fixedHeight && !fixedWidth){
+                int height =  MeasureSpec.getSize(heightMeasureSpec);
+                int width = (int)(height*(mW/mH));
+                setMeasuredDimension(width, height);
+                return;
+            }
         }
 
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);

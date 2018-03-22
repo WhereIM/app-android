@@ -16,6 +16,9 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.sql.SQLInput;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -112,6 +115,20 @@ public class PendingMessage extends BaseModel {
 
     public static void delete(SQLiteDatabase db, String hash){
         db.execSQL("DELETE FROM "+TABLE_NAME+" WHERE "+COL_HASH+"=?", new String[]{hash});
+    }
+
+    public static List<PendingMessage> getAll(SQLiteDatabase db, String channel_id){
+        ArrayList<PendingMessage> ret = new ArrayList<>();
+        Cursor cursor = db.rawQuery("SELECT * FROM "+TABLE_NAME+" WHERE "+COL_CHANNEL+"=? ORDER BY "+COL_ID+" ASC", new String[]{channel_id});
+        if(cursor.moveToFirst()){
+            do{
+                PendingMessage m = PendingMessage.parse(cursor);
+                if(m != null){
+                    ret.add(m);
+                }
+            }while(cursor.moveToNext());
+        }
+        return ret;
     }
 }
 

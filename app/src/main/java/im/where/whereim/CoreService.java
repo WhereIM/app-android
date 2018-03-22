@@ -971,12 +971,11 @@ public class CoreService extends Service {
         public void sendMessage(Channel channel, String s, QuadTree.LatLng location) {
             PendingMessage m = new PendingMessage();
             m.channel_id = channel.id;
-            m.type = "text";
+            m.type = "rich";
             try {
-                m.payload.put(Key.MESSAGE, s);
+                m.payload.put(Key.TEXT, s);
                 if(location != null){
                     m.payload.put(Key.TYPE, "rich");
-                    m.type = "rich";
                     m.payload.put(Key.LATITUDE, location.latitude);
                     m.payload.put(Key.LONGITUDE, location.longitude);
                 }
@@ -984,32 +983,21 @@ public class CoreService extends Service {
                 e.printStackTrace();
             }
             mWimDBHelper.insert(m);
-            mHandler.post(deliverPendingMessage);
-        }
-
-        public void sendImage(final Channel channel, final Uri uri) {
-            PendingMessage m = new PendingMessage();
-            m.channel_id = channel.id;
-            m.type = "img_uri";
-            try {
-                m.payload.put("uri", uri.toString());
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            mWimDBHelper.insert(m);
+            notifyMessageListener(channel.id);
             mHandler.post(deliverPendingMessage);
         }
 
         public void sendImage(final Channel channel, final File file) {
             PendingMessage m = new PendingMessage();
             m.channel_id = channel.id;
-            m.type = "img_file";
+            m.type = "image";
             try {
                 m.payload.put("file", file.getAbsolutePath());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
             mWimDBHelper.insert(m);
+            notifyMessageListener(channel.id);
             mHandler.post(deliverPendingMessage);
         }
 
@@ -1148,8 +1136,8 @@ public class CoreService extends Service {
                 return;
             }
             final PendingMessage m = PendingMessage.pop(mWimDBHelper.getDatabase());
-            try{
-                if(m != null){
+            if(m != null){
+                try{
                     switch(m.type){
                         case "rich":
                         case "text": {
@@ -1158,64 +1146,7 @@ public class CoreService extends Service {
                             publish(topic, m.payload);
                             break;
                         }
-                        case "img_uri": {
-                            Uri uri = Uri.parse(m.payload.getString("uri"));
-                            final String filename = Util.getFileName(CoreService.this, uri);
-                            if (filename == null) {
-                                throw new Exception("Filename is null");
-                            }
-                            InputStream is = getContentResolver().openInputStream(uri);
-                            if (is == null) {
-                                throw new Exception("Uri not available");
-                            }
-                            final File temp = new File(getCacheDir(), filename);
-                            OutputStream os = new FileOutputStream(temp);
-                            IOUtils.copy(is, os);
-                            is.close();
-                            os.close();
-                            temp.deleteOnExit();
-                            getUploadLink("image", filename, new OnUploadLink() {
-
-                                @Override
-                                public void onUploadLinkReady(final String uid, final String url, final HashMap<String, String> data) {
-                                    uploading = true;
-                                    new Thread() {
-                                        @Override
-                                        public void run() {
-                                            MultipartBody.Builder b = new MultipartBody.Builder()
-                                                    .setType(MultipartBody.FORM);
-                                            for (String k : data.keySet()) {
-                                                b.addFormDataPart(k, data.get(k));
-                                            }
-                                            b.addFormDataPart("file", filename, RequestBody.create(MediaType.parse("application/octet-stream"), temp));
-                                            Request request = new Request.Builder().url(url).post(b.build()).build();
-                                            OkHttpClient client = new OkHttpClient();
-                                            try {
-                                                Response response = client.newCall(request).execute();
-                                                if (response.isSuccessful()) {
-                                                    try {
-                                                        JSONObject payload = new JSONObject();
-                                                        payload.put(Key.TYPE, "image");
-                                                        payload.put(Key.IMAGE, uid);
-                                                        payload.put(Key.HASH, m.hash);
-                                                        String topic = String.format("channel/%s/data/message/put", m.channel_id);
-                                                        publish(topic, payload);
-                                                    } catch (JSONException e) {
-                                                        e.printStackTrace();
-                                                    }
-                                                    temp.delete();
-                                                }
-                                            } catch (IOException e) {
-                                                e.printStackTrace();
-                                            }
-                                            uploading = false;
-                                        }
-                                    }.start();
-                                }
-                            });
-                            break;
-                        }
-                        case "img_file": {
+                        case "image": {
                             final File file = new File(m.payload.getString("file"));
                             getUploadLink("image", file.getName(), new OnUploadLink() {
 
@@ -1259,10 +1190,12 @@ public class CoreService extends Service {
                             break;
                         }
                     }
-                    mHandler.postDelayed(this, DELIVERY_INTERVAL);
+                }catch (Exception e){
+                    e.printStackTrace();
+                    PendingMessage.delete(mWimDBHelper.getDatabase(), m.hash);
+                    notifyMessageListener(m.channel_id);
                 }
-            }catch (Exception e){
-                PendingMessage.delete(mWimDBHelper.getDatabase(), m.hash);
+                mHandler.postDelayed(this, DELIVERY_INTERVAL);
             }
         }
     };
@@ -2318,14 +2251,13 @@ public class CoreService extends Service {
                 e.printStackTrace();
             }
         }
+        mHandler.post(deliverPendingMessage);
         if(!payload.has(Key.TYPE)){
             return;
         }
-        mHandler.post(deliverPendingMessage);
         Message message = Message.parse(payload);
         mWimDBHelper.replace(message);
-        boolean fromSync = Util.JsonOptBoolean(payload, "sync", false);
-        notifyMessageListener(channel_id, message, fromSync);
+        notifyMessageListener(channel_id);
         Channel channel = mChannelMap.get(channel_id);
         if(channel!=null){
             channel.unread = true;
@@ -2335,12 +2267,12 @@ public class CoreService extends Service {
         }
     }
 
-    private void notifyMessageListener(String channel_id, Message message, boolean fromSync){
+    private void notifyMessageListener(String channel_id){
         if(channel_id==null){
             synchronized (mMessageListener) {
                 for (List<Runnable> runnables : mMessageListener.values()) {
                     for (Runnable runnable : runnables) {
-                        mHandler.post(runnable);
+                        mHandler.postAtFrontOfQueue(runnable);
                     }
                 }
             }
@@ -2349,7 +2281,7 @@ public class CoreService extends Service {
                 List<Runnable> list = mMessageListener.get(channel_id);
                 if(list!=null){
                     for (Runnable runnable : list) {
-                        mHandler.post(runnable);
+                        mHandler.postAtFrontOfQueue(runnable);
                     }
                 }
             }

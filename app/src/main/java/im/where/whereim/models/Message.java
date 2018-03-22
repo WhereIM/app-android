@@ -17,6 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 import im.where.whereim.CoreService;
@@ -141,22 +142,29 @@ public class Message extends BaseModel {
         return null;
     }
 
-    public SpannableString getText(Context context, WimSpan.OnClickedListener clickedListener){
-        if("text".equals(this.type)){
-            return new SpannableString(this.message);
+    public SpannableString getText(Context context, WimSpan.OnClickedListener clickedListener) {
+        return getText(context, this.type, this.message, clickedListener);
+    }
+
+    public static SpannableString getText(Context context, String type, Object message, WimSpan.OnClickedListener clickedListener){
+        if("text".equals(type)){
+            return new SpannableString((String) message);
         }
         try {
-            SpannableString ret;
             JSONObject json = null;
-            try {
-                json = new JSONObject(this.message);
-            } catch (Exception e) {
-                // noop
+            if(message instanceof  JSONObject){
+                json = (JSONObject) message;
+            }else if(message instanceof String){
+                try {
+                    json = new JSONObject((String)message);
+                } catch (Exception e) {
+                    // noop
+                }
             }
             JSONObject j;
             Drawable d;
             ImageSpan span;
-            switch (this.type) {
+            switch (type) {
                 case "rich": {
                     SpannableStringBuilder b = new SpannableStringBuilder();
                     Double lat = null;
@@ -177,7 +185,7 @@ public class Message extends BaseModel {
                         b.append(icon);
                         b.append("\n");
                     }
-                    b.append(new SpannableString(json.optString("text")));
+                    b.append(new SpannableString(json.optString(Key.TEXT)));
                     return SpannableString.valueOf(b);
                 }
                 case "enchantment_create":
@@ -252,6 +260,7 @@ public class Message extends BaseModel {
         public long lastId;
         public boolean loadMoreChannelData;
         public boolean loadMoreUserData;
+        public List<PendingMessage> pending;
     }
 
     public static BundledCursor getCursor(SQLiteDatabase db, Channel channel){
@@ -325,6 +334,7 @@ public class Message extends BaseModel {
         }else{
             bc.firstId = -1;
         }
+        bc.pending = PendingMessage.getAll(db, channel.id);
         /*
         Log.e("lala", "===========================");
         Log.e("lala", "loadMoreBefore="+bc.loadMoreBefore);
