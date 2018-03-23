@@ -1013,8 +1013,7 @@ public class CoreService extends Service {
                 e.printStackTrace();
             }
             mWimDBHelper.insert(m);
-            message.hidden = true;
-            mWimDBHelper.replace(message);
+            Message.setHidden(mWimDBHelper.getDatabase(), message.channel_id, message.id);
             notifyMessageListener(message.channel_id);
             mHandler.post(deliverPendingMessage);
         }
@@ -2299,7 +2298,7 @@ public class CoreService extends Service {
         if("ctrl".equals(message.type)){
             try {
                 JSONObject d = new JSONObject(message.message);
-                int id = d.getInt(Key.ID);
+                long id = d.getLong(Key.ID);
                 switch (d.getString(Key.ACTION)){
                     case "delete":
                         Message.setDeleted(mWimDBHelper.getDatabase(), message.channel_id, id);

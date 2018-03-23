@@ -311,11 +311,11 @@ public class Message extends BaseModel {
         public List<PendingMessage> pending;
     }
 
-    public static void setDeleted(SQLiteDatabase db, String channel_id, int id){
+    public static void setDeleted(SQLiteDatabase db, String channel_id, long id){
         db.execSQL("UPDATE "+TABLE_NAME+" SET "+COL_DELETED+"=1, "+COL_MESSAGE+"='' WHERE "+COL_CHANNEL+"=? AND "+COL_ID+"="+id, new String[]{channel_id});
     }
 
-    public static void setHidden(SQLiteDatabase db, String channel_id, int id){
+    public static void setHidden(SQLiteDatabase db, String channel_id, long id){
         db.execSQL("UPDATE "+TABLE_NAME+" SET "+COL_HIDDEN+"=1, "+COL_MESSAGE+"='' WHERE "+COL_CHANNEL+"=? AND "+COL_ID+"="+id, new String[]{channel_id});
     }
 
