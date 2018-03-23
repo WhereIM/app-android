@@ -5,6 +5,7 @@
     <string name="permission_rationale">位置情報の共有と位置情報に基づく他のリモートイベントのために、あなたの位置情報はアクティブチャンネルに送り続けられます。何らかのチャンネルをアクティブにしている限り、このアプリがバックグランドに隠れても、ナビゲーションアプリや Facebook など他のアプリを利用したり、スマホをロックしてお昼寝したり、そしてその間にあなたの居場所を友人や家族に知らせておくことができるように、位置情報の更新は作動し続けます。</string>
     <string name="action_share">共有</string>
     <string name="action_invite">招待</string>
+    <string name="action_guest_view">ゲストビュー</string>
     <string name="action_settings">設定</string>
     <string name="action_about">紹介</string>
     <string name="action_quit">終了</string>

@@ -11,16 +11,13 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.ImageSpan;
-import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import im.where.whereim.CoreService;
 import im.where.whereim.Key;
 import im.where.whereim.R;
 import im.where.whereim.Util;
@@ -33,14 +30,16 @@ import im.where.whereim.views.WimSpan;
 public class Message extends BaseModel {
     public static final String TABLE_NAME = "message";
 
-    private final static String COL_ID = "_id";
-    private final static String COL_SN = "sn";
-    private final static String COL_CHANNEL = "channel";
-    private final static String COL_PUBLIC = "public";
-    private final static String COL_MATE = "mate";
-    private final static String COL_TYPE = "type";
-    private final static String COL_MESSAGE = "message";
-    private final static String COL_TIME = "time";
+    final static String COL_ID = "_id";
+    final static String COL_SN = "sn";
+    final static String COL_CHANNEL = "channel";
+    final static String COL_PUBLIC = "public";
+    final static String COL_MATE = "mate";
+    final static String COL_TYPE = "type";
+    final static String COL_MESSAGE = "message";
+    final static String COL_TIME = "time";
+    final static String COL_DELETED = "deleted";
+    final static String COL_HIDDEN = "hidden";
 
     public static void createTable(SQLiteDatabase db){
         String sql;
@@ -52,11 +51,25 @@ public class Message extends BaseModel {
                 COL_MATE + " TEXT, " +
                 COL_TYPE + " TEXT, " +
                 COL_MESSAGE + " TEXT, " +
+                COL_DELETED + " BOOLEAN, " +
+                COL_HIDDEN + " BOOLEAN, " +
                 COL_TIME + " INTEGER)";
         db.execSQL(sql);
 
         sql = "CREATE INDEX message_index ON "+TABLE_NAME+" ("+COL_CHANNEL+")";
         db.execSQL(sql);
+    }
+
+    public static void upgradeTable(SQLiteDatabase db, int currVersion){
+        String sql;
+        if (currVersion < 6) {
+            sql = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + COL_DELETED + " BOOLEAN NOT NULL DEFAULT 0";
+            db.execSQL(sql);
+            sql = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + COL_HIDDEN + " BOOLEAN NOT NULL DEFAULT 0";
+            db.execSQL(sql);
+
+            currVersion = 6;
+        }
     }
 
     public long id;
@@ -66,8 +79,9 @@ public class Message extends BaseModel {
     public String type;
     public String message;
     public long time;
-    public int notify;
     public boolean isPublic;
+    public boolean deleted;
+    public boolean hidden;
 
     public static Message parse(JSONObject json){
         try {
@@ -88,8 +102,11 @@ public class Message extends BaseModel {
             m.message = json.getString("message");
             m.isPublic = json.getBoolean(Key.PUBLIC);
             m.time = json.getLong("time");
-            if(json.has("notify")){
-                m.notify = json.getInt("notify");
+            if(json.has(Key.DELETED)){
+                m.deleted = json.getBoolean(Key.DELETED);
+            }
+            if(json.has(Key.HIDDEN)){
+                m.hidden = json.getBoolean(Key.HIDDEN);
             }
             return m;
         } catch (JSONException e) {
@@ -109,6 +126,8 @@ public class Message extends BaseModel {
         m.message = cursor.getString(cursor.getColumnIndexOrThrow(COL_MESSAGE));
         m.time = cursor.getLong(cursor.getColumnIndexOrThrow(COL_TIME));
         m.isPublic = 0 != cursor.getInt(cursor.getColumnIndexOrThrow(COL_PUBLIC));
+        m.deleted = 0 != cursor.getInt(cursor.getColumnIndexOrThrow(COL_DELETED));
+        m.hidden = 0 != cursor.getInt(cursor.getColumnIndexOrThrow(COL_HIDDEN));
         return m;
     }
 
@@ -143,6 +162,12 @@ public class Message extends BaseModel {
     }
 
     public SpannableString getText(Context context, WimSpan.OnClickedListener clickedListener) {
+        if(deleted){
+            return new SpannableString(Html.fromHtml(String.format("<font color=\"gray\"><i>%s</i></font>", context.getResources().getString(R.string.message_deleted))));
+        }
+        if(hidden){
+            return new SpannableString(Html.fromHtml(String.format("<font color=\"gray\"><i>%s</i></font>", context.getResources().getString(R.string.message_hidden))));
+        }
         return getText(context, this.type, this.message, clickedListener);
     }
 
@@ -232,6 +257,27 @@ public class Message extends BaseModel {
         return null;
     }
 
+    public String getPlainText(){
+        if("text".equals(type)){
+            return this.message;
+        }
+        JSONObject json = null;
+        try {
+            json = new JSONObject(message);
+        } catch (Exception e) {
+            return null;
+        }
+        JSONObject j;
+        Drawable d;
+        ImageSpan span;
+        switch (type) {
+            case "rich": {
+                return json.optString(Key.TEXT);
+            }
+        }
+        return null;
+    }
+
     @Override
     public String getTableName() {
         return TABLE_NAME;
@@ -248,6 +294,8 @@ public class Message extends BaseModel {
         cv.put(COL_MESSAGE, message);
         cv.put(COL_TIME, time);
         cv.put(COL_PUBLIC, isPublic?1:0);
+        cv.put(COL_DELETED, deleted?1:0);
+        cv.put(COL_HIDDEN, hidden?1:0);
         return cv;
     }
 
@@ -263,89 +311,35 @@ public class Message extends BaseModel {
         public List<PendingMessage> pending;
     }
 
+    public static void setDeleted(SQLiteDatabase db, String channel_id, int id){
+        db.execSQL("UPDATE "+TABLE_NAME+" SET "+COL_DELETED+"=1, "+COL_MESSAGE+"='' WHERE "+COL_CHANNEL+"=? AND "+COL_ID+"="+id, new String[]{channel_id});
+    }
+
+    public static void setHidden(SQLiteDatabase db, String channel_id, int id){
+        db.execSQL("UPDATE "+TABLE_NAME+" SET "+COL_HIDDEN+"=1, "+COL_MESSAGE+"='' WHERE "+COL_CHANNEL+"=? AND "+COL_ID+"="+id, new String[]{channel_id});
+    }
+
     public static BundledCursor getCursor(SQLiteDatabase db, Channel channel){
+        MessageBlock mb = MessageBlock.get(db, channel);
+
         BundledCursor bc = new BundledCursor();
-        bc.loadMoreChannelData = false;
-        bc.loadMoreUserData = false;
-        boolean hasChannelData = false;
-        boolean hasUserData = false;
-        long channelDataSn = 0;
-        long channelDataId = 0;
-        long userDataSn = 0;
-        long userDataId = 0;
-
-        bc.cursor = db.rawQuery("SELECT "+COL_ID+","+COL_SN+","+COL_PUBLIC+","+COL_CHANNEL+","+COL_MATE+","+COL_TYPE+","+COL_MESSAGE+","+COL_TIME+" FROM "+TABLE_NAME+" WHERE "+COL_CHANNEL+"=? OR "+COL_CHANNEL+" IS NULL ORDER BY "+COL_ID+" ASC", new String[]{channel.id});
-        bc.count = 0;
-        if(bc.cursor.moveToLast()) {
-            do {
-                bc.count += 1;
-                long id = bc.cursor.getLong(0);
-                long sn = bc.cursor.getLong(1);
-                boolean isPublic = 0 != bc.cursor.getInt(2);
-                String channel_id = bc.cursor.getString(3);
-
-                if(channel_id==null){
-                    continue;
-                }
-                if (isPublic) {
-                    if (!hasChannelData) {
-                        hasChannelData = true;
-                        channelDataSn = sn;
-                    } else {
-                        if (sn == channelDataSn - 1) {
-//                            Log.e("lala", "sn="+sn+", channelDataSn="+channelDataSn);
-                            channelDataSn = sn;
-                            channelDataId = id;
-                        } else {
-//                            Log.e("lala", "!! sn="+sn+", channelDataSn="+channelDataSn);
-                            bc.loadMoreBefore = channelDataId;
-                            bc.loadMoreAfter = id;
-                            bc.loadMoreChannelData = true;
-                            break;
-                        }
-                    }
-                } else {
-                    if (!hasUserData) {
-                        hasUserData = true;
-                        userDataSn = sn;
-                    } else {
-                        if (sn == userDataSn - 1) {
-//                            Log.e("lala", "sn="+sn+", userDataSn="+userDataSn);
-                            userDataSn = sn;
-                            userDataId = id;
-                        } else {
-//                            Log.e("lala", "!! sn="+sn+", userDataSn="+userDataSn);
-                            bc.loadMoreBefore = userDataId;
-                            bc.loadMoreAfter = id;
-                            bc.loadMoreUserData = true;
-                            break;
-                        }
-                    }
-                }
-            } while (bc.cursor.moveToPrevious());
-        }
+        bc.cursor = db.rawQuery("SELECT * FROM "+TABLE_NAME+" WHERE "+COL_ID+">="+mb.firstId+" AND "+COL_ID+"<="+mb.lastId+" AND "+COL_TYPE+"!='ctrl' AND ("+COL_CHANNEL+"=? OR "+COL_CHANNEL+" IS NULL) ORDER BY "+COL_ID+" ASC", new String[]{channel.id});
+        bc.count = bc.cursor.getCount();
+        bc.loadMoreBefore = mb.loadMoreBefore;
+        bc.loadMoreAfter = mb.loadMoreAfter;
         if(bc.cursor.moveToLast()){
-            bc.lastId = bc.cursor.getLong(0);
+            mb.lastId = bc.cursor.getLong(bc.cursor.getColumnIndexOrThrow(COL_ID));
         }else{
-            bc.lastId = -1;
+            mb.lastId = -1;
         }
         if(bc.cursor.moveToFirst()){
-            bc.firstId = bc.cursor.getLong(0);
+            mb.firstId = bc.cursor.getLong(bc.cursor.getColumnIndexOrThrow(COL_ID));
         }else{
-            bc.firstId = -1;
+            mb.firstId = -1;
         }
-        bc.pending = PendingMessage.getAll(db, channel.id);
-        /*
-        Log.e("lala", "===========================");
-        Log.e("lala", "loadMoreBefore="+bc.loadMoreBefore);
-        Log.e("lala", "loadMoreAfter="+bc.loadMoreAfter);
-        Log.e("lala", "loadMoreUserData="+bc.loadMoreUserData);
-        Log.e("lala", "loadMoreChannelData="+bc.loadMoreChannelData);
-        Log.e("lala", "firstId="+bc.firstId);
-        Log.e("lala", "lastId="+bc.lastId);
-        Log.e("lala", "count="+bc.count);
-        Log.e("lala", "----------------------------");
-        */
+        bc.loadMoreChannelData = mb.loadMoreChannelData;
+        bc.loadMoreUserData = mb.loadMoreUserData;
+        bc.pending = PendingMessage.getMessage(db, channel.id);
         return bc;
     }
 }

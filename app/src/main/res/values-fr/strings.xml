@@ -5,6 +5,7 @@
     <string name="permission_rationale">Votre emplacement sera envoyé continuellement à vos chaînes actives, pour le partage de localisation et d\'autres événements basés sur la localisation à distance.Tant que vous avez des chaînes actives, la mise à jour continue de fonctionner, même si cette application arrive en arrière-plan, afin que vous puissiez utiliser une autre application comme application de navigation ou Facebook ou simplement verrouiller votre téléphone, faire une sieste et garder vos amis ou vos familles au courant où vous vous trouvez pendant ce temps.</string>
     <string name="action_share">Partager</string>
     <string name="action_invite">Inviter</string>
+    <string name="action_guest_view">Vue des Visiteurs</string>
     <string name="action_settings">Paramètres</string>
     <string name="action_about">A propos</string>
     <string name="action_quit">Quitter</string>

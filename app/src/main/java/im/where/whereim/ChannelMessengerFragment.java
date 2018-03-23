@@ -4,13 +4,16 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -39,6 +42,7 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.UUID;
 
+import im.where.whereim.dialogs.DialogMessage;
 import im.where.whereim.geo.QuadTree;
 import im.where.whereim.models.Channel;
 import im.where.whereim.models.Marker;
@@ -130,6 +134,7 @@ public class ChannelMessengerFragment extends BaseFragment {
             TextView sender;
             TextView time;
             TextView message;
+            Message msg;
 
             public InMessageViewHolder(View itemView) {
                 super(itemView);
@@ -137,6 +142,18 @@ public class ChannelMessengerFragment extends BaseFragment {
                 sender = (TextView) itemView.findViewById(R.id.sender);
                 time = (TextView) itemView.findViewById(R.id.time);
                 message = (TextView) itemView.findViewById(R.id.message);
+                message.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        postBinderTask(new CoreService.BinderTask() {
+                            @Override
+                            public void onBinderReady(CoreService.CoreBinder binder) {
+                                DialogMessage.show(getContext(), true, msg, binder);
+                            }
+                        });
+                        return true;
+                    }
+                });
             }
         }
 
@@ -144,12 +161,25 @@ public class ChannelMessengerFragment extends BaseFragment {
             TextView date;
             TextView time;
             TextView message;
+            Message msg;
 
             public OutMessageViewHolder(View itemView) {
                 super(itemView);
                 date = (TextView) itemView.findViewById(R.id.date);
                 time = (TextView) itemView.findViewById(R.id.time);
                 message = (TextView) itemView.findViewById(R.id.message);
+                message.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        postBinderTask(new CoreService.BinderTask() {
+                            @Override
+                            public void onBinderReady(CoreService.CoreBinder binder) {
+                                DialogMessage.show(getContext(), false, msg, binder);
+                            }
+                        });
+                        return true;
+                    }
+                });
             }
         }
 
@@ -183,6 +213,18 @@ public class ChannelMessengerFragment extends BaseFragment {
                         });
                     }
                 });
+                image.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        postBinderTask(new CoreService.BinderTask() {
+                            @Override
+                            public void onBinderReady(CoreService.CoreBinder binder) {
+                                DialogMessage.show(getContext(), true, msg, binder);
+                            }
+                        });
+                        return true;
+                    }
+                });
             }
         }
 
@@ -214,6 +256,18 @@ public class ChannelMessengerFragment extends BaseFragment {
                         });
                     }
                 });
+                image.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        postBinderTask(new CoreService.BinderTask() {
+                            @Override
+                            public void onBinderReady(CoreService.CoreBinder binder) {
+                                DialogMessage.show(getContext(), false, msg, binder);
+                            }
+                        });
+                        return true;
+                    }
+                });
             }
         }
 
@@ -225,6 +279,7 @@ public class ChannelMessengerFragment extends BaseFragment {
         public void changeCursor(Message.BundledCursor bc) {
             mBundledCursor.cursor.close();
             mBundledCursor = bc;
+            notifyDataSetChanged();
         }
 
         public Message.BundledCursor getCursor(){
@@ -236,6 +291,13 @@ public class ChannelMessengerFragment extends BaseFragment {
             if(position < mBundledCursor.count) {
                 mBundledCursor.cursor.moveToPosition(position);
                 Message m = Message.parse(mBundledCursor.cursor);
+                if(m.deleted || m.hidden){
+                    if (mChannel.mate_id.equals(m.mate_id)) {
+                        return TYPE_OUT_TEXT;
+                    } else {
+                        return TYPE_IN_TEXT;
+                    }
+                }
                 if ("image".equals(m.type)) {
                     if (mChannel.mate_id.equals(m.mate_id)) {
                         return TYPE_OUT_IMAGE;
@@ -344,7 +406,7 @@ public class ChannelMessengerFragment extends BaseFragment {
                 }
                 case TYPE_IN_TEXT: {
                     InMessageViewHolder ivh = (InMessageViewHolder) holder;
-
+                    ivh.msg = message;
                     if (binder == null) {
                         ivh.date.setVisibility(View.GONE);
                         ivh.sender.setText(null);
@@ -365,6 +427,7 @@ public class ChannelMessengerFragment extends BaseFragment {
                 }
                 case TYPE_OUT_TEXT: {
                     OutMessageViewHolder ovh = (OutMessageViewHolder) holder;
+                    ovh.msg = message;
                     if (binder == null) {
                         ovh.date.setVisibility(View.GONE);
                         ovh.message.setText(null);
@@ -647,6 +710,10 @@ public class ChannelMessengerFragment extends BaseFragment {
                         mListView.setAdapter(mAdapter);
                         maxMessageId = mCurrentCursor.lastId;
                     }else{
+                        if(mAdapter.getCursor().count == 0){
+                            mAdapter.changeCursor(mCurrentCursor);
+                            return;
+                        }
                         int originPosition = layoutManager.findFirstVisibleItemPosition();
                         long originId = mAdapter.getItemId(originPosition);
                         Integer newPosition = null;

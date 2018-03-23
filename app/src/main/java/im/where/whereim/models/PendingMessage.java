@@ -117,9 +117,9 @@ public class PendingMessage extends BaseModel {
         db.execSQL("DELETE FROM "+TABLE_NAME+" WHERE "+COL_HASH+"=?", new String[]{hash});
     }
 
-    public static List<PendingMessage> getAll(SQLiteDatabase db, String channel_id){
+    public static List<PendingMessage> getMessage(SQLiteDatabase db, String channel_id){
         ArrayList<PendingMessage> ret = new ArrayList<>();
-        Cursor cursor = db.rawQuery("SELECT * FROM "+TABLE_NAME+" WHERE "+COL_CHANNEL+"=? ORDER BY "+COL_ID+" ASC", new String[]{channel_id});
+        Cursor cursor = db.rawQuery("SELECT * FROM "+TABLE_NAME+" WHERE "+COL_CHANNEL+"=? AND "+COL_TYPE+"!='ctrl' ORDER BY "+COL_ID+" ASC", new String[]{channel_id});
         if(cursor.moveToFirst()){
             do{
                 PendingMessage m = PendingMessage.parse(cursor);

@@ -5,6 +5,7 @@
     <string name="permission_rationale">Ihr Standort wird zwecks Standortübermittlung und anderer remote Standort-basierter Veranstaltungen ununterbrochen an Ihre aktiven Kanäle gesandt.So lange irgendwelche Ihrer Kanäle aktiv sind, wird der Standort weiter aktualisiert, auch wenn diese App im Hintergrund arbeitet. So können Sie andere Apps, wie eine Navigations-App oder Facebook, verwenden oder Sie können einfach Ihr Telefon sperren und ein Nickerchen machen und dabei trotzdem Ihre Freunde und Familie wissen lassen, wo Sie sich in der Zwischenzeit aufhalten.</string>
     <string name="action_share">Teilen</string>
     <string name="action_invite">Einladen</string>
+    <string name="action_guest_view">Besucheransicht</string>
     <string name="action_settings">Einstellungen</string>
     <string name="action_about">Über</string>
     <string name="action_quit">Abbrechen</string>

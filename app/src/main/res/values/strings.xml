@@ -72,6 +72,12 @@
     <string name="public_marker">Shared Marker</string>
     <string name="private_marker">Personal Marker</string>
     <string name="error_exhausted">Client capacity is exhausted, please try later.</string>
+    <string name="confirm">Confirm</string>
+    <string name="copy">Copy</string>
+    <string name="report_inappropriate">Report inappropriate content</string>
+    <string name="report">Report</string>
+    <string name="message_deleted">This message has been deleted</string>
+    <string name="message_hidden">This message has been hidden</string>
     <string name="guest_view">Guest View</string>
     <string name="access_settings">Access Settings</string>
     <string name="messages">Messages</string>

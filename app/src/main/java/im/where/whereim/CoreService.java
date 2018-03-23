@@ -72,6 +72,7 @@ import im.where.whereim.models.Enchantment;
 import im.where.whereim.models.Marker;
 import im.where.whereim.models.Mate;
 import im.where.whereim.models.Message;
+import im.where.whereim.models.MessageBlock;
 import im.where.whereim.models.POI;
 import im.where.whereim.models.PendingMessage;
 import im.where.whereim.models.WimDBHelper;
@@ -1001,6 +1002,37 @@ public class CoreService extends Service {
             mHandler.post(deliverPendingMessage);
         }
 
+        public void report(Message message){
+            PendingMessage m = new PendingMessage();
+            m.channel_id = message.channel_id;
+            m.type = "ctrl";
+            try {
+                m.payload.put(Key.ACTION, "report");
+                m.payload.put("id", message.id);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            mWimDBHelper.insert(m);
+            message.hidden = true;
+            mWimDBHelper.replace(message);
+            notifyMessageListener(message.channel_id);
+            mHandler.post(deliverPendingMessage);
+        }
+
+        public void delete(Message message){
+            PendingMessage m = new PendingMessage();
+            m.channel_id = message.channel_id;
+            m.type = "ctrl";
+            try {
+                m.payload.put(Key.ACTION, "delete");
+                m.payload.put("id", message.id);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            mWimDBHelper.insert(m);
+            mHandler.post(deliverPendingMessage);
+        }
+
         public void sendNotification(Channel channel, String type) {
             try {
                 JSONObject payload = new JSONObject();
@@ -1189,6 +1221,15 @@ public class CoreService extends Service {
                             });
                             break;
                         }
+                        case "ctrl": {
+                            String topic = String.format("channel/%s/data/message/put", m.channel_id);
+                            m.payload.put(Key.TYPE, "ctrl");
+                            m.payload.put(Key.HASH, m.hash);
+                            publish(topic, m.payload);
+                            break;
+                        }
+                        default:
+                            throw new Exception("Unsupported Pending Message Type "+m.type);
                     }
                 }catch (Exception e){
                     e.printStackTrace();
@@ -2117,12 +2158,11 @@ public class CoreService extends Service {
             new Thread(){
                 @Override
                 public void run() {
-                    Message.BundledCursor bc = Message.getCursor(mWimDBHelper.getDatabase(), channel);
-                    bc.cursor.close();
+                    MessageBlock mb = MessageBlock.get(mWimDBHelper.getDatabase(), channel);
                     JSONObject data = new JSONObject();
                     try {
                         data.put(Key.CHANNEL, channel.id);
-                        data.put("after", bc.lastId);
+                        data.put("after", mb.lastId);
                     } catch (JSONException e) {
                         e.printStackTrace();
                         return;
@@ -2256,6 +2296,22 @@ public class CoreService extends Service {
             return;
         }
         Message message = Message.parse(payload);
+        if("ctrl".equals(message.type)){
+            try {
+                JSONObject d = new JSONObject(message.message);
+                int id = d.getInt(Key.ID);
+                switch (d.getString(Key.ACTION)){
+                    case "delete":
+                        Message.setDeleted(mWimDBHelper.getDatabase(), message.channel_id, id);
+                        break;
+                    case "report":
+                        Message.setHidden(mWimDBHelper.getDatabase(), message.channel_id, id);
+                        break;
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
         mWimDBHelper.replace(message);
         notifyMessageListener(channel_id);
         Channel channel = mChannelMap.get(channel_id);

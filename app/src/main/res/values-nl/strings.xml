@@ -5,6 +5,7 @@
     <string name="permission_rationale">Uw locatie wordt doorlopend verzonden naar uw actieve kanalen, voor het delen van locaties en andere, op afstand gebaseerde gebeurtenissen.Zolang u kanalen open hebt staan, blijft de locatie-update werken, zelfs wanneer deze app op de achtergrond binnenkomt, zodat u een andere app zoals een navigatieapp of facebook kunt gebruiken en gewoon uw telefoon kunt afsluiten en een dutje doen terwijl uw vrienden of familie doorlopend weten waar u zich bevindt.</string>
     <string name="action_share">Delen</string>
     <string name="action_invite">Uitnodigen</string>
+    <string name="action_guest_view">Gastweergave</string>
     <string name="action_settings">Instellingen</string>
     <string name="action_about">Over</string>
     <string name="action_quit">Verlaten</string>

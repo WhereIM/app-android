@@ -36,6 +36,7 @@ public class Key {
 
     public final static String HASH = "hash";
     public final static String HEIGHT = "h";
+    public final static String HIDDEN = "hidden";
 
     public final static String ID = "id";
     public final static String IMAGE = "img";

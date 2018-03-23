@@ -71,6 +71,12 @@
     <string name="public_marker">共用圖釘</string>
     <string name="private_marker">個人圖釘</string>
     <string name="error_exhausted">可註冊數量已滿，請稍後再試。</string>
+    <string name="confirm">確認</string>
+    <string name="copy">複製</string>
+    <string name="report_inappropriate">檢舉這則訊息</string>
+    <string name="report">檢舉</string>
+    <string name="message_deleted">這則訊息已經被刪除</string>
+    <string name="message_hidden">這則訊息已經被隱藏</string>
     <string name="guest_view">訪客檢視</string>
     <string name="access_settings">存取設定</string>
     <string name="messages">訊息</string>
@@ -87,6 +93,7 @@
     <string name="fcm_begin_sharing">%1$s 開始與你分享定位！</string>
     <string name="fcm_text">%1$s：%2$s</string>
     <string name="fcm_rich">%1$s：%2$s</string>
+    <string name="fcm_image">%1$s 上傳了一張圖片</string>
     <string name="fcm_enchantment_create">%1$s：%2$s 地界已設立</string>
     <string name="fcm_enchantment_emerge">%1$s：出現在 %2$s 地界</string>
     <string name="fcm_enchantment_in">%1$s：進入 %2$s 地界</string>

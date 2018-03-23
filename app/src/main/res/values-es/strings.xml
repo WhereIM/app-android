@@ -5,6 +5,7 @@
     <string name="permission_rationale">Su localización será enviada continuamente a sus canales activos, para compartir la localización y otros eventos lejanos basados en la localización.Siempre y cuando tenga cualquier canal activo, la actualización de la localización continua trabajando, incluso cuando esta aplicación esté en segundo plano, así que puede usar otra aplicación como la aplicación de navegación o facebook o simplemente bloquee su teléfono y descanse, y mantenga informados a su familia y amigos de dónde está mientras tanto.</string>
     <string name="action_share">Compartir</string>
     <string name="action_invite">Invitar</string>
+    <string name="action_guest_view">Vista de invitado</string>
     <string name="action_settings">Configuración</string>
     <string name="action_about">Sobre</string>
     <string name="action_quit">Salir</string>
