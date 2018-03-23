@@ -524,6 +524,28 @@ public class ChannelMessengerFragment extends BaseFragment {
     public QuadTree.LatLng pinLocation;
     private String mCurrentPhotoPath;
 
+    private void takePhoto(){
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        File storageDir = getContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = null;
+        try {
+            image = File.createTempFile(
+                    "tmp",  /* prefix */
+                    ".jpg",         /* suffix */
+                    storageDir      /* directory */
+            );
+            // Save a file: path for use with ACTION_VIEW intents
+            mCurrentPhotoPath = image.getAbsolutePath();
+            Uri photoURI = FileProvider.getUriForFile(getContext(),
+                    "im.where.whereim.fileprovider",
+                    image);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+            startActivityForResult(intent, ACTION_CAMERA);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_channel_messenger, container, false);
@@ -555,24 +577,10 @@ public class ChannelMessengerFragment extends BaseFragment {
         mCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                File storageDir = getContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-                File image = null;
-                try {
-                    image = File.createTempFile(
-                            "tmp",  /* prefix */
-                            ".jpg",         /* suffix */
-                            storageDir      /* directory */
-                    );
-                    // Save a file: path for use with ACTION_VIEW intents
-                    mCurrentPhotoPath = image.getAbsolutePath();
-                    Uri photoURI = FileProvider.getUriForFile(getContext(),
-                            "im.where.whereim.fileprovider",
-                            image);
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                    startActivityForResult(intent, ACTION_CAMERA);
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if (ActivityCompat.checkSelfPermission(getContext(), android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(new String[]{android.Manifest.permission.CAMERA}, 0);
+                } else {
+                    takePhoto();
                 }
             }
         });
@@ -829,6 +837,16 @@ public class ChannelMessengerFragment extends BaseFragment {
                     }
                 });
                 break;
+            }
+        }
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if(requestCode==0){
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                takePhoto();
             }
         }
     }
