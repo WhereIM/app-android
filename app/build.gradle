@@ -46,8 +46,8 @@ dependencies {
     compile('com.facebook.android:facebook-android-sdk:4.22.0') {
         exclude group: 'com.android.support', module: 'appcompat-v7'
     }
-    compile 'com.amazonaws:aws-android-sdk-core:2.4.7'
-    compile 'com.amazonaws:aws-android-sdk-iot:2.4.7'
+    compile 'com.amazonaws:aws-android-sdk-core:2.6.17'
+    compile 'com.amazonaws:aws-android-sdk-iot:2.6.17'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.crashlytics.sdk.android:crashlytics:2.9.1'
     implementation 'com.davemorrissey.labs:subsampling-scale-image-view:3.10.0'
