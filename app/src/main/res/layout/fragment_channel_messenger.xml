@@ -72,7 +72,7 @@
             android:layout_gravity="center_vertical"
             android:layout_margin="5dp"
             android:layout_weight="1"
-            android:background="@android:color/white" />
+            android:background="@drawable/edittext_background" />
 
         <ImageButton
             android:id="@+id/send"
