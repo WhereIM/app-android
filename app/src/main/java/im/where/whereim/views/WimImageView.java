@@ -4,6 +4,8 @@ import android.content.Context;
 import android.util.AttributeSet;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.request.RequestOptions;
 
 import im.where.whereim.Config;
 import im.where.whereim.models.Image;
@@ -28,7 +30,7 @@ public class WimImageView extends android.support.v7.widget.AppCompatImageView {
     private float mH = -1;
 
     public void setImage(Image image){
-        Glide.with(mContext).load(Config.getThumbnail(image.url)).into(this);
+        Glide.with(mContext).load(Config.getThumbnail(image.url)).apply(new RequestOptions().transform(new RoundedCorners(15))).into(this);
         mW = image.width;
         mH = image.height;
         requestLayout();
