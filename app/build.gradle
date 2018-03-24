@@ -66,8 +66,8 @@ dependencies {
     implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:5.5.0'
     implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-locationlayer:0.4.0'
     compile 'com.android.support:multidex:1.0.3'
-    compile 'com.android.support:appcompat-v7:27.0.2'
-    compile 'com.android.support:design:27.0.2'
+    compile 'com.android.support:appcompat-v7:27.1.0'
+    compile 'com.android.support:design:27.1.0'
     compile 'io.branch.sdk.android:library:2.+'
     compile 'com.squareup.okhttp3:okhttp:3.10.0'
     compile "me.leolin:ShortcutBadger:1.1.21@aar"
