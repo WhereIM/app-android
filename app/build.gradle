@@ -62,9 +62,9 @@ dependencies {
     compile 'com.google.firebase:firebase-ads:11.8.0'
     compile 'com.google.guava:guava:20.0'
     compile 'com.google.zxing:core:3.3.0'
-    compile('com.mapbox.mapboxsdk:mapbox-android-sdk:5.0.2@aar') {
-        transitive = true
-    }
+    implementation 'com.mapzen.android:lost:3.0.4'
+    implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:5.5.0'
+    implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-locationlayer:0.4.0'
     compile 'com.android.support:multidex:1.0.3'
     compile 'com.android.support:appcompat-v7:27.0.2'
     compile 'com.android.support:design:27.0.2'

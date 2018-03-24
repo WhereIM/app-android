@@ -32,6 +32,12 @@ import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
+import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerMode;
+import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin;
+import com.mapbox.services.android.telemetry.location.LocationEngine;
+import com.mapbox.services.android.telemetry.location.LocationEngineListener;
+import com.mapbox.services.android.telemetry.location.LocationEnginePriority;
+import com.mapbox.services.android.telemetry.location.LostLocationEngine;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,7 +50,7 @@ import im.where.whereim.models.Enchantment;
 import im.where.whereim.models.Mate;
 import im.where.whereim.models.POI;
 
-public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxMap.OnMapLongClickListener, MapboxMap.OnMapClickListener, MapboxMap.OnMarkerViewClickListener {
+public class ChannelMapboxFragment extends ChannelMapFragment implements LocationEngineListener, MapboxMap.OnMapLongClickListener, MapboxMap.OnMapClickListener, MapboxMap.OnMarkerViewClickListener {
     private final static int MAP_MOVE_ANIMATION_DURATION = 750; //ms
 
     // https://github.com/mapbox/mapbox-gl-native/issues/2167#issuecomment-200302992
@@ -127,6 +133,11 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
 
         iconFactory = IconFactory.getInstance(getActivity());
 
+        locationEngine = new LostLocationEngine(getContext());
+        locationEngine.setPriority(LocationEnginePriority.HIGH_ACCURACY);
+        locationEngine.addLocationEngineListener(ChannelMapboxFragment.this);
+        locationEngine.activate();
+
         LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
         Location locationByGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         Location locationByNetwork = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
@@ -184,6 +195,9 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
         }
     }
 
+    private LocationLayerPlugin locationLayerPlugin;
+    private LocationEngine locationEngine;
+
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_channel_mapbox, container, false);
@@ -194,12 +208,14 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
                 getMapAsync(new OnMapReadyCallback() {
                     @Override
                     public void onMapReady(MapboxMap mapboxMap) {
-                        Location location = mapboxMap.getMyLocation();
-                        CameraPosition position = new CameraPosition.Builder()
-                                .target(new LatLng(location.getLatitude(), location.getLongitude()))
-                                .build();
+                        Location location = locationEngine.getLastLocation();;
+                        if(location != null){
+                            CameraPosition position = new CameraPosition.Builder()
+                                    .target(new LatLng(location.getLatitude(), location.getLongitude()))
+                                    .build();
 
-                        mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), MAP_MOVE_ANIMATION_DURATION);
+                            mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), MAP_MOVE_ANIMATION_DURATION);
+                        }
                     }
                 });
             }
@@ -212,7 +228,10 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
         mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(final MapboxMap mapboxMap) {
-                mapboxMap.setMyLocationEnabled(true);
+                locationLayerPlugin = new LocationLayerPlugin(mMapView, mapboxMap, locationEngine);
+                locationLayerPlugin.setLocationLayerEnabled(LocationLayerMode.COMPASS);
+                getLifecycle().addObserver(locationLayerPlugin);
+
                 mapboxMap.setAllowConcurrentMultipleOpenInfoWindows(false);
                 mapboxMap.getUiSettings().setCompassGravity(Gravity.LEFT|Gravity.TOP);
 
@@ -243,11 +262,19 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
     public void onStart() {
         super.onStart();
         mMapView.onStart();
+        if (locationEngine != null) {
+            locationEngine.requestLocationUpdates();
+            locationEngine.addLocationEngineListener(this);
+        }
     }
 
     @Override
     public void onStop() {
         mMapView.onStop();
+        if (locationEngine != null) {
+            locationEngine.removeLocationEngineListener(this);
+            locationEngine.removeLocationUpdates();
+        }
         super.onStop();
     }
 
@@ -358,6 +385,9 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
                 mMapView.onDestroy();
         } catch (Exception e) {
             // noop
+        }
+        if(locationEngine != null){
+            locationEngine.deactivate();
         }
         super.onDestroy();
     }
@@ -871,5 +901,15 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements MapboxM
             clickMarker(obj);
         }
         return false;
+    }
+
+    @Override
+    public void onConnected() {
+        locationEngine.requestLocationUpdates();
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
     }
 }
