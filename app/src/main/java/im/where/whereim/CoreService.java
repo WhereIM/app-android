@@ -3,6 +3,7 @@ package im.where.whereim;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -13,8 +14,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
@@ -43,8 +44,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -2343,6 +2342,7 @@ public class CoreService extends Service {
         }
     }
 
+    private final static String NOTIFICATION_CHANNEL_ID = "whereim";
     private int notificationId = 0;
     private void setupNotification(String tab, String channel_id, String title, String message){
         Intent intent = new Intent(this, ChannelActivity.class);
@@ -2355,16 +2355,20 @@ public class CoreService extends Service {
                         .addNextIntent(intent)
                         .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(this)
+        Notification notification =
+                new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
                         .setSmallIcon(R.drawable.ic_stat_logo)
                         .setContentTitle(title)
                         .setContentText(message)
                         .setDefaults(Notification.DEFAULT_SOUND)
                         .setContentIntent(pendingIntent)
-                        .setAutoCancel(true);
+                        .setAutoCancel(true)
+                        .build();
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(notificationId++, mBuilder.build());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notificationManager.createNotificationChannel(new NotificationChannel(NOTIFICATION_CHANNEL_ID, "Where.IM", NotificationManager.IMPORTANCE_DEFAULT));
+        }
+        notificationManager.notify(notificationId++, notification);
     }
 
     // Channel: Location
