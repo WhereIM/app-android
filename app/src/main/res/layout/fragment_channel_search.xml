@@ -9,28 +9,37 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
+        android:background="#7F7F7F"
         android:orientation="horizontal">
 
         <EditText
             android:id="@+id/keyword"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
+            android:layout_gravity="center_vertical"
             android:inputType="text"
             android:imeOptions="actionDone|flagNoFullscreen"
+            android:background="@drawable/edittext_background"
+            android:padding="2dp"
+            android:layout_margin="5dp"
             android:maxLines="1" />
 
         <Button
             android:id="@+id/search"
-            android:layout_width="wrap_content"
+            android:layout_width="40dp"
             android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:background="@null"
             android:text="🔍" />
 
         <Button
             android:id="@+id/clear"
-            android:layout_width="wrap_content"
+            android:layout_width="40dp"
             android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:background="@null"
             android:text="✘"
             android:visibility="gone"/>
     </LinearLayout>

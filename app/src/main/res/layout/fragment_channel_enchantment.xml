@@ -10,7 +10,8 @@
     <im.where.whereim.views.FilterBar
         android:id="@+id/filter"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="40dp"
+        android:background="#7C7C7C" />
 
     <ExpandableListView
         android:id="@+id/enchantment"

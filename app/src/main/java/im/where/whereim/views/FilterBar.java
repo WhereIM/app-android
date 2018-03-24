@@ -5,22 +5,24 @@ import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
+import android.widget.FrameLayout;
+
+import im.where.whereim.R;
 
 /**
  * Created by buganini on 22/05/2017.
  */
 
-public class FilterBar extends LinearLayout {
+public class FilterBar extends FrameLayout {
     public interface Callback {
         void onFilter(String keyword);
     }
-
 
     private EditText mKeyword;
     private Button mBtnClear;
@@ -29,11 +31,9 @@ public class FilterBar extends LinearLayout {
     public FilterBar(final Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
 
-        mKeyword = new EditText(context);
-        mBtnClear = new Button(context);
-
-        setOrientation(LinearLayout.HORIZONTAL);
-
+        View view = LayoutInflater.from(context).inflate(R.layout.view_filterbar, null);
+        mKeyword = view.findViewById(R.id.keyword);
+        mBtnClear = view.findViewById(R.id.clear);
         mKeyword.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -76,16 +76,10 @@ public class FilterBar extends LinearLayout {
             }
         });
 
-        LinearLayout.LayoutParams kwparams = new LinearLayout.LayoutParams(0, LayoutParams.MATCH_PARENT);
-        kwparams.weight = 1;
-        mKeyword.setLayoutParams(kwparams);
-        addView(mKeyword);
-
-        LinearLayout.LayoutParams btparams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
-        mBtnClear.setLayoutParams(btparams);
-        mBtnClear.setVisibility(View.GONE);
-        mBtnClear.setText("✘");
-        addView(mBtnClear);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        view.setLayoutParams(params);
+        addView(view);
+        requestLayout();
     }
 
     public void setCallback(Callback callback) {
