@@ -63,7 +63,7 @@ public class ImageViewerActivity extends AppCompatActivity {
         if(!previewDir.exists()){
             previewDir.mkdir();
         }
-        previewFile = new File(previewDir, key);
+        previewFile = new File(previewDir, "pv-"+key);
 
         imageView = findViewById(R.id.image);
 
