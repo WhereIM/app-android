@@ -207,7 +207,8 @@ public class ChannelMessengerFragment extends BaseFragment {
                                 Intent intent = new Intent(getContext(), ImageViewerActivity.class);
                                 intent.putExtra(Key.MATE_NAME, mate == null ? "" : mate.getDisplayName());
                                 intent.putExtra(Key.TIME, msg.time);
-                                intent.putExtra(Key.IMAGE, msg.getImage().url);
+                                intent.putExtra(Key.KEY, msg.getImage().key);
+                                intent.putExtra(Key.EXTENSION, msg.getImage().ext);
                                 startActivity(intent);
                             }
                         });
@@ -248,7 +249,8 @@ public class ChannelMessengerFragment extends BaseFragment {
                                 Mate mate = binder.getChannelMate(mChannel.id, msg.mate_id);
 
                                 Intent intent = new Intent(getContext(), ImageViewerActivity.class);
-                                intent.putExtra(Key.IMAGE, msg.getImage().url);
+                                intent.putExtra(Key.KEY, msg.getImage().key);
+                                intent.putExtra(Key.EXTENSION, msg.getImage().ext);
                                 intent.putExtra(Key.MATE_NAME, mate == null ? "" : mate.getDisplayName());
                                 intent.putExtra(Key.TIME, msg.time);
                                 startActivity(intent);

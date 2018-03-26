@@ -18,6 +18,7 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
+import im.where.whereim.models.Image;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -55,13 +56,14 @@ public class ImageViewerActivity extends AppCompatActivity {
         String hm = new SimpleDateFormat("HH:mm").format(ts);
         time.setText(getString(R.string.date_format, eee, lymd)+" "+hm);
 
-        final String img = intent.getStringExtra(Key.IMAGE);
+        final String key = intent.getStringExtra(Key.KEY);
+        final String ext = intent.getStringExtra(Key.EXTENSION);
 
         previewDir = new File(getCacheDir(), "preview");
         if(!previewDir.exists()){
             previewDir.mkdir();
         }
-        previewFile = new File(previewDir, img);
+        previewFile = new File(previewDir, key);
 
         imageView = findViewById(R.id.image);
 
@@ -73,6 +75,9 @@ public class ImageViewerActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     OkHttpClient client = new OkHttpClient();
+                    Image img = new Image();
+                    img.key = key;
+                    img.ext = ext;
                     Request request = new Request.Builder().url(Config.getPreview(img)).build();
                     try {
                         Response response = client.newCall(request).execute();

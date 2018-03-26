@@ -8,6 +8,8 @@ import com.google.common.io.Files;
 
 import java.util.Locale;
 
+import im.where.whereim.models.Image;
+
 /**
  * Created by buganini on 07/01/17.
  */
@@ -74,11 +76,11 @@ public class Config {
         editor.apply();
     }
 
-    public static String getThumbnail(String objkey){
-        return String.format(Locale.ENGLISH, Config.THUMBNAIL_URL, Files.getNameWithoutExtension(objkey)+".jpg");
+    public static String getThumbnail(Image image){
+        return String.format(Locale.ENGLISH, Config.THUMBNAIL_URL, Files.getNameWithoutExtension(image.key)+"."+image.ext);
     }
 
-    public static String getPreview(String objkey){
-        return String.format(Locale.ENGLISH, Config.PREVIEW_URL, Files.getNameWithoutExtension(objkey)+".jpg");
+    public static String getPreview(Image image){
+        return String.format(Locale.ENGLISH, Config.PREVIEW_URL, Files.getNameWithoutExtension(image.key)+"."+image.ext);
     }
 }

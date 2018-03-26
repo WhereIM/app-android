@@ -30,7 +30,7 @@ public class WimImageView extends android.support.v7.widget.AppCompatImageView {
     private float mH = -1;
 
     public void setImage(Image image){
-        Glide.with(mContext).load(Config.getThumbnail(image.url)).apply(new RequestOptions().transform(new RoundedCorners(15))).into(this);
+        Glide.with(mContext).load(Config.getThumbnail(image)).apply(new RequestOptions().transform(new RoundedCorners(15))).into(this);
         mW = image.width;
         mH = image.height;
         requestLayout();

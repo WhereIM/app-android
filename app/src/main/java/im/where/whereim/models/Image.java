@@ -5,7 +5,8 @@ package im.where.whereim.models;
  */
 
 public class Image {
-    public String url;
+    public String key;
+    public String ext;
     public int width;
     public int height;
 }

@@ -141,18 +141,23 @@ public class Message extends BaseModel {
         if(!"image".equals(this.type)){
             return null;
         }
-        if(!json.has(Key.IMAGE)){
+        if(!json.has(Key.KEY)){
             return null;
         }
         try {
             Image img = new Image();
-            img.url = json.getString(Key.IMAGE);
+            img.key = json.getString(Key.KEY);
             if(json.has(Key.WIDTH) && json.has(Key.HEIGHT)){
                 img.width = json.getInt(Key.WIDTH);
                 img.height = json.getInt(Key.HEIGHT);
             }else{
                 img.width = -1;
                 img.height = -1;
+            }
+            if(json.has(Key.EXTENSION)){
+                img.ext = json.getString(Key.EXTENSION);
+            }else{
+                img.ext = "jpg";
             }
             return img;
         } catch (JSONException e) {

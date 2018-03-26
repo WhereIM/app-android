@@ -27,6 +27,7 @@ public class Key {
 
     public final static String ENABLED = "enabled";
     public final static String ENABLE_MESSAGE = "enable_message";
+    public final static String EXTENSION = "ext";
 
     public final static String FACEBOOK = "facebook";
     public final static String FCM_TOKEN = "fcm_token";
