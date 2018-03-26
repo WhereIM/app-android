@@ -399,11 +399,7 @@ public class ChannelMessengerFragment extends BaseFragment {
                 }
                 case TYPE_PENDING_IMAGE: {
                     PendingImageViewHolder vh = (PendingImageViewHolder) holder;
-                    try {
-                        Glide.with(ChannelMessengerFragment.this).load(new File(pendingMessage.payload.getString("file"))).into(vh.image);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                    vh.image.setFile(pendingMessage.getFile());
                     return;
                 }
                 case TYPE_IN_TEXT: {
