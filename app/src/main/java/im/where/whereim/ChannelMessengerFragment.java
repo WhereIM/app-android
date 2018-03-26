@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.PointF;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -16,7 +17,10 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -509,11 +513,38 @@ public class ChannelMessengerFragment extends BaseFragment {
         }
     };
 
+    private static class WimLinearLayoutManager extends  LinearLayoutManager {
+        public WimLinearLayoutManager(Context context) {
+            super(context);
+        }
+
+        private static final float MILLISECONDS_PER_INCH = 150f;
+
+        public void slowlySmoothScrollToPosition(RecyclerView recyclerView, int position) {
+            final LinearSmoothScroller linearSmoothScroller = new LinearSmoothScroller(recyclerView.getContext()) {
+
+                @Override
+                public PointF computeScrollVectorForPosition(int targetPosition) {
+                    return super.computeScrollVectorForPosition(targetPosition);
+                }
+
+                @Override
+                protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {
+                    return MILLISECONDS_PER_INCH / displayMetrics.densityDpi;
+                }
+            };
+
+            linearSmoothScroller.setTargetPosition(position);
+            startSmoothScroll(linearSmoothScroller);
+        }
+
+    }
+
     private boolean messageViewEnd = true;
     private long maxMessageId = 0;
     private Message.BundledCursor mCurrentCursor;
     private RecyclerView mListView;
-    private LinearLayoutManager layoutManager;
+    private WimLinearLayoutManager layoutManager;
     private View mUnread;
     private View mPin;
     private View mPicker;
@@ -622,7 +653,7 @@ public class ChannelMessengerFragment extends BaseFragment {
         });
 
         mListView = (RecyclerView) view.findViewById(R.id.message);
-        layoutManager = new LinearLayoutManager(getContext());
+        layoutManager = new WimLinearLayoutManager(getContext());
         layoutManager.setStackFromEnd(true);
         mListView.setLayoutManager(layoutManager);
         mListView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -708,61 +739,71 @@ public class ChannelMessengerFragment extends BaseFragment {
             lastReload = System.currentTimeMillis();
             postBinderTask(new CoreService.BinderTask() {
                 @Override
-                public void onBinderReady(CoreService.CoreBinder binder) {
+                public void onBinderReady(final CoreService.CoreBinder binder) {
                     final boolean origMessageViewEnd = messageViewEnd;
-                    mCurrentCursor = binder.getMessageCursor(mChannel);
-                    if(mAdapter==null){
-                        mAdapter = new MessageCursorAdapter(getActivity(), mCurrentCursor);
-                        mListView.setAdapter(mAdapter);
-                        maxMessageId = mCurrentCursor.lastId;
-                    }else{
-                        if(mAdapter.getCursor().count == 0){
-                            mAdapter.changeCursor(mCurrentCursor);
-                            return;
-                        }
-                        int originPosition = layoutManager.findFirstVisibleItemPosition();
-                        long originId = mAdapter.getItemId(originPosition);
-                        Integer newPosition = null;
-                        int originTop = 0;
-                        if(originId >= 0){
-                            mCurrentCursor.cursor.moveToFirst();
-                            do{
-                                long id = mCurrentCursor.cursor.getLong(0);
-                                if(id >= originId){
-                                    newPosition = mCurrentCursor.cursor.getPosition();
-                                    break;
-                                }
-                            }while(mCurrentCursor.cursor.moveToNext());
-                            if(newPosition == null){
-                                newPosition = originPosition;
-                            }
-                            View v = mListView.getChildAt(0);
-                            originTop = (v == null) ? 0 : (v.getTop() - mListView.getPaddingTop());
-                        }
-                        mAdapter.changeCursor(mCurrentCursor);
-                        if(originId < 0){
-                            maxMessageId = mCurrentCursor.lastId;
-                        }else{
-                            layoutManager.scrollToPositionWithOffset(newPosition, originTop);
-                        }
-                        if(origMessageViewEnd){
+                    new Thread(){
+                        @Override
+                        public void run() {
+                            mCurrentCursor = binder.getMessageCursor(mChannel);
                             mHandler.post(new Runnable() {
                                 @Override
                                 public void run() {
-                                    mListView.smoothScrollToPosition(mAdapter.getItemCount() - 1);
+                                    if(mAdapter==null){
+                                        mAdapter = new MessageCursorAdapter(getActivity(), mCurrentCursor);
+                                        mListView.setAdapter(mAdapter);
+                                        maxMessageId = mCurrentCursor.lastId;
+                                    }else{
+                                        if(mAdapter.getCursor().count == 0){
+                                            mAdapter.changeCursor(mCurrentCursor);
+                                            return;
+                                        }
+                                        int originPosition = layoutManager.findFirstVisibleItemPosition();
+                                        long originId = mAdapter.getItemId(originPosition);
+                                        Integer newPosition = null;
+                                        int originTop = 0;
+                                        if(originId >= 0){
+                                            mCurrentCursor.cursor.moveToFirst();
+                                            do{
+                                                long id = mCurrentCursor.cursor.getLong(0);
+                                                if(id >= originId){
+                                                    newPosition = mCurrentCursor.cursor.getPosition();
+                                                    break;
+                                                }
+                                            }while(mCurrentCursor.cursor.moveToNext());
+                                            if(newPosition == null){
+                                                newPosition = originPosition;
+                                            }
+                                            View v = mListView.getChildAt(0);
+                                            originTop = (v == null) ? 0 : (v.getTop() - mListView.getPaddingTop());
+                                        }
+                                        mAdapter.changeCursor(mCurrentCursor);
+                                        if(originId < 0){
+                                            maxMessageId = mCurrentCursor.lastId;
+                                        }else{
+                                            layoutManager.scrollToPositionWithOffset(newPosition, originTop);
+                                        }
+                                        if(origMessageViewEnd){
+                                            mHandler.post(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    layoutManager.slowlySmoothScrollToPosition(mListView, mAdapter.getItemCount() - 1);
+                                                }
+                                            });
+                                            messageViewEnd = origMessageViewEnd;
+                                            maxMessageId = mCurrentCursor.lastId;
+                                        }else{
+                                            if(mCurrentCursor.lastId > maxMessageId) {
+                                                mUnread.setVisibility(View.VISIBLE);
+                                            }
+                                        }
+                                    }
+                                    if(isShowed()) {
+                                        binder.setRead(mChannel);
+                                    }
                                 }
                             });
-                            messageViewEnd = origMessageViewEnd;
-                            maxMessageId = mCurrentCursor.lastId;
-                        }else{
-                            if(mCurrentCursor.lastId > maxMessageId) {
-                                mUnread.setVisibility(View.VISIBLE);
-                            }
                         }
-                    }
-                    if(isShowed()) {
-                        binder.setRead(mChannel);
-                    }
+                    }.start();
                 }
             });
         }
