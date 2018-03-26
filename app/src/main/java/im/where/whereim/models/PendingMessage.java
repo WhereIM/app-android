@@ -16,6 +16,7 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.sql.SQLInput;
 import java.util.ArrayList;
 import java.util.List;
@@ -105,6 +106,14 @@ public class PendingMessage extends BaseModel {
         return cv;
     }
 
+    public File getFile(){
+        try {
+            return new File(payload.getString("file"));
+        } catch (JSONException e) {
+            return null;
+        }
+    }
+
     public static PendingMessage pop(SQLiteDatabase db){
         Cursor cursor = db.rawQuery("SELECT * FROM "+TABLE_NAME+" ORDER BY "+COL_ID+" ASC LIMIT 1", new String[]{});
         if(cursor.moveToFirst()){
@@ -114,6 +123,15 @@ public class PendingMessage extends BaseModel {
     }
 
     public static void delete(SQLiteDatabase db, String hash){
+        Cursor cursor = db.rawQuery("SELECT * FROM "+TABLE_NAME+" WHERE "+COL_HASH+"=?", new String[]{hash});
+        if(cursor.moveToFirst()){
+            File file = PendingMessage.parse(cursor).getFile();
+            try {
+                file.delete();
+            } catch (Exception e){
+                //noop
+            }
+        }
         db.execSQL("DELETE FROM "+TABLE_NAME+" WHERE "+COL_HASH+"=?", new String[]{hash});
     }
 

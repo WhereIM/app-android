@@ -1152,7 +1152,7 @@ public class CoreService extends Service {
         }
     }
 
-    private final static int DELIVERY_INTERVAL = 5000;
+    private final static int DELIVERY_INTERVAL = 15000;
     private boolean uploading = false;
     private Runnable deliverPendingMessage = new Runnable() {
         @Override
@@ -1177,46 +1177,50 @@ public class CoreService extends Service {
                             break;
                         }
                         case "image": {
-                            final File file = new File(m.payload.getString("file"));
-                            getUploadLink("image", file.getName(), new OnUploadLink() {
+                            final File file = m.getFile();
+                            if(file.exists()){
+                                getUploadLink("image", file.getName(), new OnUploadLink() {
 
-                                @Override
-                                public void onUploadLinkReady(final String uid, final String url, final HashMap<String, String> data) {
-                                    uploading = true;
-                                    new Thread() {
-                                        @Override
-                                        public void run() {
-                                            MultipartBody.Builder b = new MultipartBody.Builder()
-                                                    .setType(MultipartBody.FORM);
-                                            for (String k : data.keySet()) {
-                                                b.addFormDataPart(k, data.get(k));
-                                            }
-                                            b.addFormDataPart("file", file.getName(), RequestBody.create(MediaType.parse("application/octet-stream"), file));
-                                            Request request = new Request.Builder().url(url).post(b.build()).build();
-                                            OkHttpClient client = new OkHttpClient();
-                                            try {
-                                                Response response = client.newCall(request).execute();
-                                                if (response.isSuccessful()) {
-                                                    try {
-                                                        JSONObject payload = new JSONObject();
-                                                        payload.put(Key.TYPE, "image");
-                                                        payload.put(Key.IMAGE, uid);
-                                                        payload.put(Key.HASH, m.hash);
-                                                        String topic = String.format("channel/%s/data/message/put", m.channel_id);
-                                                        publish(topic, payload);
-                                                    } catch (JSONException e) {
-                                                        e.printStackTrace();
-                                                    }
-                                                    file.delete();
+                                    @Override
+                                    public void onUploadLinkReady(final String uid, final String url, final HashMap<String, String> data) {
+                                        uploading = true;
+                                        new Thread() {
+                                            @Override
+                                            public void run() {
+                                                MultipartBody.Builder b = new MultipartBody.Builder()
+                                                        .setType(MultipartBody.FORM);
+                                                for (String k : data.keySet()) {
+                                                    b.addFormDataPart(k, data.get(k));
                                                 }
-                                            } catch (IOException e) {
-                                                e.printStackTrace();
+                                                b.addFormDataPart("file", file.getName(), RequestBody.create(MediaType.parse("application/octet-stream"), file));
+                                                Request request = new Request.Builder().url(url).post(b.build()).build();
+                                                OkHttpClient client = new OkHttpClient();
+                                                try {
+                                                    Response response = client.newCall(request).execute();
+                                                    if (response.isSuccessful()) {
+                                                        try {
+                                                            JSONObject payload = new JSONObject();
+                                                            payload.put(Key.TYPE, "image");
+                                                            payload.put(Key.IMAGE, uid);
+                                                            payload.put(Key.HASH, m.hash);
+                                                            String topic = String.format("channel/%s/data/message/put", m.channel_id);
+                                                            publish(topic, payload);
+                                                        } catch (JSONException e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                    }
+                                                } catch (IOException e) {
+                                                    e.printStackTrace();
+                                                }
+                                                uploading = false;
                                             }
-                                            uploading = false;
-                                        }
-                                    }.start();
-                                }
-                            });
+                                        }.start();
+                                    }
+                                });
+                            } else {
+                                throw new Exception("Pending image file not found");
+                            }
+
                             break;
                         }
                         case "ctrl": {
