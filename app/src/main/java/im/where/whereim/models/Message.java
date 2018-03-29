@@ -266,15 +266,12 @@ public class Message extends BaseModel {
         if("text".equals(type)){
             return this.message;
         }
-        JSONObject json = null;
+        JSONObject json;
         try {
             json = new JSONObject(message);
         } catch (Exception e) {
             return null;
         }
-        JSONObject j;
-        Drawable d;
-        ImageSpan span;
         switch (type) {
             case "rich": {
                 return json.optString(Key.TEXT);
