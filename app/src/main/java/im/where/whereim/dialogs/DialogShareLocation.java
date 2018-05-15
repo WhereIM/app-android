@@ -32,7 +32,7 @@ public class DialogShareLocation {
                         Intent i = new Intent(Intent.ACTION_SEND);
                         i.setType("text/plain");
                         i.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.action_share));
-                        i.putExtra(Intent.EXTRA_TEXT, title+"\n"+String.format(Config.WHERE_IM_URL, "here/"+lat+"/"+lng+(t.isEmpty()?"":"/"+t)));
+                        i.putExtra(Intent.EXTRA_TEXT, title+"\n \n"+String.format(Config.WHERE_IM_URL, "here/"+lat+"/"+lng+(t.isEmpty()?"":"/"+t)));
                         context.startActivity(Intent.createChooser(i, context.getString(R.string.action_share)));
                     }
                 })
