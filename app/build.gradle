@@ -3,7 +3,7 @@ apply plugin: 'io.fabric'
 
 android {
     compileSdkVersion 27
-    buildToolsVersion '26.0.2'
+    buildToolsVersion '27.0.3'
     defaultConfig {
         applicationId "im.where.whereim"
         minSdkVersion 19
@@ -39,39 +39,38 @@ repositories {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile('com.facebook.android:facebook-android-sdk:4.22.0') {
+    implementation('com.facebook.android:facebook-android-sdk:4.22.0') {
         exclude group: 'com.android.support', module: 'appcompat-v7'
     }
-    compile 'com.amazonaws:aws-android-sdk-core:2.6.17'
-    compile 'com.amazonaws:aws-android-sdk-iot:2.6.17'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.crashlytics.sdk.android:crashlytics:2.9.1'
+    implementation 'com.amazonaws:aws-android-sdk-core:2.6.17'
+    implementation 'com.amazonaws:aws-android-sdk-iot:2.6.17'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.1'
     implementation 'com.davemorrissey.labs:subsampling-scale-image-view:3.10.0'
     implementation 'com.github.bumptech.glide:glide:4.6.1'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.6.1'
-    compile 'com.google.android.gms:play-services-auth:11.8.0'
-    compile 'com.google.android.gms:play-services-location:11.8.0'
-    compile 'com.google.android.gms:play-services-maps:11.8.0'
-    compile 'com.google.android.gms:play-services-vision:11.8.0'
-    compile 'com.google.firebase:firebase-core:11.8.0'
-    compile 'com.google.firebase:firebase-messaging:11.8.0'
-    compile 'com.google.firebase:firebase-ads:11.8.0'
-    compile 'com.google.guava:guava:20.0'
-    compile 'com.google.zxing:core:3.3.0'
+    implementation 'com.google.android.gms:play-services-auth:11.8.0'
+    implementation 'com.google.android.gms:play-services-location:11.8.0'
+    implementation 'com.google.android.gms:play-services-maps:11.8.0'
+    implementation 'com.google.android.gms:play-services-vision:11.8.0'
+    implementation 'com.google.firebase:firebase-core:11.8.0'
+    implementation 'com.google.firebase:firebase-messaging:11.8.0'
+    implementation 'com.google.firebase:firebase-ads:11.8.0'
+    implementation 'com.google.guava:guava:20.0'
+    implementation 'com.google.zxing:core:3.3.0'
     implementation 'com.mapzen.android:lost:3.0.4'
     implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:5.5.0'
     implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-locationlayer:0.4.0'
-    compile 'com.android.support:multidex:1.0.3'
-    compile 'com.android.support:appcompat-v7:27.1.0'
-    compile 'com.android.support:design:27.1.0'
-    compile 'io.branch.sdk.android:library:2.+'
-    compile 'com.squareup.okhttp3:okhttp:3.10.0'
-    compile "me.leolin:ShortcutBadger:1.1.21@aar"
-    testCompile 'junit:junit:4.12'
+    implementation 'com.android.support:multidex:1.0.3'
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support:design:27.1.1'
+    implementation 'io.branch.sdk.android:library:2.+'
+    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
+    implementation "me.leolin:ShortcutBadger:1.1.21@aar"
+    testImplementation 'junit:junit:4.12'
 }
 
 def ksFile = rootProject.file('keystore.properties')
