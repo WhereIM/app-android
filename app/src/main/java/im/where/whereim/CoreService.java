@@ -55,6 +55,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -522,7 +523,7 @@ public class CoreService extends Service {
                 return false;
             synchronized (mMapDataReceiver){
                 if(!mMapDataReceiver.containsKey(channel.id)){
-                    mMapDataReceiver.put(channel.id, new ArrayList<MapDataDelegate>());
+                    mMapDataReceiver.put(channel.id, new LinkedList<MapDataDelegate>());
                 }
                 mMapDataReceiver.get(channel.id).add(receiver);
             }
@@ -591,7 +592,7 @@ public class CoreService extends Service {
             synchronized (mMateListener){
                 list = mMateListener.get(channel.id);
                 if(list==null){
-                    list = new ArrayList<>();
+                    list = new LinkedList<>();
                     mMateListener.put(channel.id, list);
                 }
             }
@@ -609,7 +610,7 @@ public class CoreService extends Service {
             }
         }
 
-        public ArrayList<Mate> getChannelMates(String channel_id, String filterKeyword){
+        public List<Mate> getChannelMates(String channel_id, String filterKeyword){
             return CoreService.this.getChannelMates(channel_id, filterKeyword);
         }
 
@@ -835,7 +836,7 @@ public class CoreService extends Service {
             synchronized (mEnchantmentListener){
                 list = mEnchantmentListener.get(channel.id);
                 if(list==null){
-                    list = new ArrayList<>();
+                    list = new LinkedList<>();
                     mEnchantmentListener.put(channel.id, list);
                 }
             }
@@ -911,7 +912,7 @@ public class CoreService extends Service {
             synchronized (mMarkerListener){
                 list = mMarkerListener.get(channel.id);
                 if(list==null){
-                    list = new ArrayList<>();
+                    list = new LinkedList<>();
                     mMarkerListener.put(channel.id, list);
                 }
             }
@@ -950,7 +951,7 @@ public class CoreService extends Service {
             synchronized (mMessageListener){
                 list = mMessageListener.get(channel.id);
                 if(list==null){
-                    list = new ArrayList<>();
+                    list = new LinkedList<>();
                     mMessageListener.put(channel.id, list);
                 }
             }
@@ -1057,7 +1058,7 @@ public class CoreService extends Service {
                 return false;
             synchronized (mChannelViewReceiver){
                 if(!mChannelViewReceiver.containsKey(channel.id)){
-                    mChannelViewReceiver.put(channel.id, new ArrayList<ChannelViewDelegate>());
+                    mChannelViewReceiver.put(channel.id, new LinkedList<ChannelViewDelegate>());
                 }
                 mChannelViewReceiver.get(channel.id).add(receiver);
             }
@@ -1114,8 +1115,8 @@ public class CoreService extends Service {
     private Boolean mIsActiveDevice = null;
     private boolean mRequestActiveDevice = false;
     private final HashMap<String, List<ApiKeyCallback>> mApiKeyCallback = new HashMap<>();
-    private final List<ConnectionStatusCallback> mConnectionStatusChangedListener = new ArrayList<>();
-    private final List<Runnable> mChannelListChangedListener = new ArrayList<>();
+    private final List<ConnectionStatusCallback> mConnectionStatusChangedListener = new LinkedList<>();
+    private final List<Runnable> mChannelListChangedListener = new LinkedList<>();
     private final HashMap<String, List<Runnable>> mChannelChangedListener = new HashMap<>();
     private final HashMap<String, List<Runnable>> mMateListener = new HashMap<>();
     private final HashMap<String, List<Runnable>> mEnchantmentListener = new HashMap<>();
@@ -1493,7 +1494,7 @@ public class CoreService extends Service {
         });
     }
 
-    private List<Channel> mChannelList = new ArrayList<>();
+    private List<Channel> mChannelList = new LinkedList<>();
     private HashMap<String, Channel> mChannelMap = new HashMap<>();
 
 
@@ -2220,8 +2221,8 @@ public class CoreService extends Service {
     }
 
     private HashMap<String, HashMap<String, Mate>> mChannelMate = new HashMap<>();
-    private ArrayList<Mate> getChannelMates(String channel_id, String filterKeyword){
-        ArrayList<Mate> list = new ArrayList<>();
+    private List<Mate> getChannelMates(String channel_id, String filterKeyword){
+        LinkedList<Mate> list = new LinkedList<>();
 
         synchronized (mChannelMate) {
             HashMap<String, Mate> mateMap = mChannelMate.get(channel_id);
