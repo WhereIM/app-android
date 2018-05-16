@@ -223,8 +223,7 @@ public class LoginActivity extends BaseActivity {
                         }
                     }
                 }else{
-                    Log.e("LoginActivity", "start ChannelListActivity");
-                    Intent intent = new Intent(LoginActivity.this, ChannelListActivity.class);
+                    Intent intent = new Intent(LoginActivity.this, ChannelActivity.class);
                     startActivity(intent);
                     finish();
                 }

@@ -36,7 +36,7 @@ import im.where.whereim.models.Mate;
 import im.where.whereim.views.EmojiText;
 import im.where.whereim.views.FilterBar;
 
-public class ChannelMarkerFragment extends BaseFragment {
+public class ChannelMarkerFragment extends BaseChannelFragment {
     public ChannelMarkerFragment() {
         // Required empty public constructor
     }
@@ -53,6 +53,39 @@ public class ChannelMarkerFragment extends BaseFragment {
     private ArrayList<Mate> mMateList;
     private Marker.List mMarkerList;
     private MarkerAdapter mAdapter;
+
+    @Override
+    protected void initChannel() {
+        postBinderTask(new CoreService.BinderTask() {
+            @Override
+            public void onBinderReady(final CoreService.CoreBinder binder) {
+                getChannel(new ChannelActivity.GetChannelCallback() {
+                    @Override
+                    public void onGetChannel(final Channel channel) {
+                        mChannel = channel;
+
+                        binder.addMateListener(channel, mMateListener);
+                        binder.addMarkerListener(channel, mMarkerListener);
+
+                    }
+                });
+            }
+        });
+    }
+
+    @Override
+    protected void deinitChannel() {
+        postBinderTask(new CoreService.BinderTask() {
+            @Override
+            public void onBinderReady(CoreService.CoreBinder binder) {
+                if(mChannel!=null){
+                    binder.removeMateListener(mChannel, mMateListener);
+                    binder.removeMarkerListener(mChannel, mMarkerListener);
+                }
+            }
+        });
+    }
+
     private class MarkerAdapter extends BaseExpandableListAdapter {
 
         @Override
@@ -494,98 +527,91 @@ public class ChannelMarkerFragment extends BaseFragment {
         mFilter = (FilterBar) view.findViewById(R.id.filter);
         mListView = (ExpandableListView) view.findViewById(R.id.marker);
 
-        getChannel(new ChannelActivity.GetChannelCallback() {
+        postBinderTask(new CoreService.BinderTask() {
             @Override
-            public void onGetChannel(final Channel channel) {
-                mChannel = channel;
-
-                postBinderTask(new CoreService.BinderTask() {
+            public void onBinderReady(CoreService.CoreBinder binder) {
+                mFilter.setCallback(new FilterBar.Callback() {
                     @Override
-                    public void onBinderReady(CoreService.CoreBinder binder) {
-                        mFilter.setCallback(new FilterBar.Callback() {
-                            @Override
-                            public void onFilter(String keyword) {
-                                mFilterKeyword = keyword;
-                                mHandler.post(mMateListener);
-                                mHandler.post(mMarkerListener);
-                            }
-                        });
-
-                        mAdapter = new MarkerAdapter();
-                        mListView.setAdapter(mAdapter);
-                        mListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-                            @Override
-                            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-                                ChannelActivity activity = (ChannelActivity) getActivity();
-                                if(groupPosition==0 || groupPosition==1){
-                                    Mate mate = (Mate) mAdapter.getChild(groupPosition, childPosition);
-                                    if(mate!=null) {
-                                        activity.moveToMate(mate, true);
-                                    }
-                                }else{
-                                    Marker marker = (Marker) mAdapter.getChild(groupPosition, childPosition);
-                                    if(marker!=null) {
-                                        activity.moveToMarker(marker, true);
-                                    }
-                                }
-                                return true;
-                            }
-                        });
-                        mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-                            @Override
-                            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                                long packedPos = mListView.getExpandableListPosition(position);
-                                int itemType = ExpandableListView.getPackedPositionType(id);
-
-                                if (itemType == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
-                                    int childPosition = ExpandableListView.getPackedPositionChild(packedPos);
-                                    int groupPosition = ExpandableListView.getPackedPositionGroup(packedPos);
-
-                                    if (groupPosition==0) {
-                                        mEditingMate = (Mate) mAdapter.getChild(groupPosition, childPosition);
-                                        if(mEditingMate!=null) {
-                                            getActivity().startActionMode(mSelfAction);
-                                        }
-                                    } else if (groupPosition==1) {
-                                        mEditingMate = (Mate) mAdapter.getChild(groupPosition, childPosition);
-                                        if(mEditingMate!=null) {
-                                            getActivity().startActionMode(mMateAction);
-                                        }
-                                    } else {
-                                        mEditingMarker = (Marker) mAdapter.getChild(groupPosition, childPosition);
-                                        if(mEditingMarker!=null) {
-                                            getActivity().startActionMode(mMarkerAction);
-                                        }
-                                    }
-
-                                    return true;
-                                }
-                                return false;
-                            }
-                        });
-                        for(int i=0;i<mAdapter.getGroupCount();i+=1){
-                            mListView.expandGroup(i);
-                        }
-
-                        mListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
-                            @Override
-                            public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
-                                switch(groupPosition){
-                                    case 0:
-                                    case 1:
-                                        new DialogMatesInfo(getActivity());
-                                        break;
-                                }
-                                return true; // disable click-to-collapse
-                            }
-                        });
-
-                        binder.addMateListener(channel, mMateListener);
-                        binder.addMarkerListener(channel, mMarkerListener);
+                    public void onFilter(String keyword) {
+                        mFilterKeyword = keyword;
+                        mHandler.post(mMateListener);
+                        mHandler.post(mMarkerListener);
                     }
                 });
+
+                mAdapter = new MarkerAdapter();
+                mListView.setAdapter(mAdapter);
+                mListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+                    @Override
+                    public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+                        ChannelActivity activity = (ChannelActivity) getActivity();
+                        if(groupPosition==0 || groupPosition==1){
+                            Mate mate = (Mate) mAdapter.getChild(groupPosition, childPosition);
+                            if(mate!=null) {
+                                activity.moveToMate(mate, true);
+                            }
+                        }else{
+                            Marker marker = (Marker) mAdapter.getChild(groupPosition, childPosition);
+                            if(marker!=null) {
+                                activity.moveToMarker(marker, true);
+                            }
+                        }
+                        return true;
+                    }
+                });
+                mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                    @Override
+                    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                        long packedPos = mListView.getExpandableListPosition(position);
+                        int itemType = ExpandableListView.getPackedPositionType(id);
+
+                        if (itemType == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
+                            int childPosition = ExpandableListView.getPackedPositionChild(packedPos);
+                            int groupPosition = ExpandableListView.getPackedPositionGroup(packedPos);
+
+                            if (groupPosition==0) {
+                                mEditingMate = (Mate) mAdapter.getChild(groupPosition, childPosition);
+                                if(mEditingMate!=null) {
+                                    getActivity().startActionMode(mSelfAction);
+                                }
+                            } else if (groupPosition==1) {
+                                mEditingMate = (Mate) mAdapter.getChild(groupPosition, childPosition);
+                                if(mEditingMate!=null) {
+                                    getActivity().startActionMode(mMateAction);
+                                }
+                            } else {
+                                mEditingMarker = (Marker) mAdapter.getChild(groupPosition, childPosition);
+                                if(mEditingMarker!=null) {
+                                    getActivity().startActionMode(mMarkerAction);
+                                }
+                            }
+
+                            return true;
+                        }
+                        return false;
+                    }
+                });
+                for(int i=0;i<mAdapter.getGroupCount();i+=1){
+                    mListView.expandGroup(i);
+                }
+
+                mListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+                    @Override
+                    public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
+                        switch(groupPosition){
+                            case 0:
+                            case 1:
+                                new DialogMatesInfo(getActivity());
+                                break;
+                        }
+                        return true; // disable click-to-collapse
+                    }
+                });
+
+                initChannel();
             }
         });
+
         return view;
     }
 
@@ -635,15 +661,7 @@ public class ChannelMarkerFragment extends BaseFragment {
 
     @Override
     public void onDestroyView() {
-        postBinderTask(new CoreService.BinderTask() {
-            @Override
-            public void onBinderReady(CoreService.CoreBinder binder) {
-                if(mChannel!=null){
-                    binder.removeMateListener(mChannel, mMateListener);
-                    binder.removeMarkerListener(mChannel, mMarkerListener);
-                }
-            }
-        });
+        deinitChannel();
         super.onDestroyView();
     }
 }

@@ -70,6 +70,10 @@ public class GuestViewMgmtActivity extends BaseChannelActivity {
             }
         });
 
+    }
+
+    @Override
+    protected void onChannelChanged() {
         getChannel(new GetChannelCallback() {
             @Override
             public void onGetChannel(Channel channel) {

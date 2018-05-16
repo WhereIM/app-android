@@ -541,12 +541,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         super.onServiceConnected(name, service);
-        if(getBinder().getClientId()==null){
-            Log.e("ChannelListActivity", "start LoginActivity");
-            Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
-            finish();
-        }else{
+        if(getBinder().getClientId()!=null){
             Branch branch = Branch.getInstance();
             branch.initSession(new Branch.BranchReferralInitListener(){
                 @Override

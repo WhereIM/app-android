@@ -407,6 +407,30 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
     }
 
     @Override
+    protected void resetMap() {
+        synchronized (mMarkerMap) {
+            mMarkerMap.clear();
+        }
+        selfMate = null;
+        if (mRadiusCircle != null) {
+            mRadiusCircle.remove();
+            mRadiusCircle = null;
+        }
+        synchronized (mMateCircle) {
+            for(Polygon p: mMateCircle.values()){
+                p.remove();
+            }
+            mMateCircle.clear();
+        }
+        synchronized (mMateMarker) {
+            for(MarkerView m: mMateMarker.values()){
+                m.remove();
+            }
+            mMateMarker.clear();
+        }
+    }
+
+    @Override
     public void onDestroyView() {
         if (mMapView != null)
             mMapView.onDestroy();

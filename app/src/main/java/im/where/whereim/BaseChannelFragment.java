@@ -1,4 +1,6 @@
 package im.where.whereim;
 
-public class BaseChannelFragment {
+public abstract class BaseChannelFragment extends BaseFragment {
+    protected abstract void initChannel();
+    protected abstract void deinitChannel();
 }

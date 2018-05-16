@@ -36,7 +36,7 @@ import im.where.whereim.models.Enchantment;
 import im.where.whereim.views.EmojiText;
 import im.where.whereim.views.FilterBar;
 
-public class ChannelEnchantmentFragment extends BaseFragment {
+public class ChannelEnchantmentFragment extends BaseChannelFragment {
     public ChannelEnchantmentFragment() {
         // Required empty public constructor
     }
@@ -51,6 +51,37 @@ public class ChannelEnchantmentFragment extends BaseFragment {
     private Channel mChannel;
     private Enchantment.List mEnchantmentList;
     private EnchantmentAdapter mAdapter;
+
+    @Override
+    protected void initChannel() {
+        postBinderTask(new CoreService.BinderTask() {
+            @Override
+            public void onBinderReady(final CoreService.CoreBinder binder) {
+                getChannel(new BaseChannelActivity.GetChannelCallback() {
+                    @Override
+                    public void onGetChannel(Channel channel) {
+                        mChannel = channel;
+                        binder.addChannelChangedListener(channel.id, mChannelListener);
+                        binder.addEnchantmentListener(channel, mEnchantmentListener);
+                    }
+                });
+            }
+        });
+    }
+
+    @Override
+    protected void deinitChannel() {
+        postBinderTask(new CoreService.BinderTask() {
+            @Override
+            public void onBinderReady(CoreService.CoreBinder binder) {
+                if(mChannel!=null){
+                    binder.removeChannelChangedListener(mChannel.id, mChannelListener);
+                    binder.removeEnchantmentListener(mChannel, mEnchantmentListener);
+                }
+            }
+        });
+    }
+
     private class EnchantmentAdapter extends BaseExpandableListAdapter {
 
         @Override
@@ -464,84 +495,76 @@ public class ChannelEnchantmentFragment extends BaseFragment {
         mFilter = (FilterBar) view.findViewById(R.id.filter);
         mListView = (ExpandableListView) view.findViewById(R.id.enchantment);
 
-        getChannel(new ChannelActivity.GetChannelCallback() {
+        postBinderTask(new CoreService.BinderTask() {
             @Override
-            public void onGetChannel(final Channel channel) {
-                mChannel = channel;
-
-                postBinderTask(new CoreService.BinderTask() {
+            public void onBinderReady(CoreService.CoreBinder binder) {
+                mFilter.setCallback(new FilterBar.Callback() {
                     @Override
-                    public void onBinderReady(CoreService.CoreBinder binder) {
-                        mFilter.setCallback(new FilterBar.Callback() {
-                            @Override
-                            public void onFilter(String keyword) {
-                                mFilterKeyword = keyword;
-                                mHandler.post(mEnchantmentListener);
-                            }
-                        });
-
-                        mAdapter = new EnchantmentAdapter();
-                        mListView.setAdapter(mAdapter);
-                        for(int i=0;i<mAdapter.getGroupCount();i+=1){
-                            mListView.expandGroup(i);
-                        }
-                        mListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-                            @Override
-                            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-                                Enchantment enchantment = (Enchantment) mAdapter.getChild(groupPosition, childPosition);
-                                if(enchantment!=null){
-                                    ChannelActivity activity = (ChannelActivity) getActivity();
-                                    activity.moveToEnchantment(enchantment);
-                                    return true;
-                                }
-                                return false;
-                            }
-                        });
-                        mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-                            @Override
-                            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                                long packedPos = mListView.getExpandableListPosition(position);
-                                int itemType = ExpandableListView.getPackedPositionType(id);
-
-                                if (itemType == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
-                                    int childPosition = ExpandableListView.getPackedPositionChild(packedPos);
-                                    int groupPosition = ExpandableListView.getPackedPositionGroup(packedPos);
-
-                                    if (groupPosition==0) {
-                                        getActivity().startActionMode(mSelfAction);
-                                    } else {
-                                        mEditingEnchantment = (Enchantment) mAdapter.getChild(groupPosition, childPosition);
-                                        if(mEditingEnchantment!=null) {
-                                            getActivity().startActionMode(mEnchantmentAction);
-                                        }
-                                    }
-
-                                    return true;
-                                }
-                                return false;
-                            }
-                        });
-
-                        mListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
-                            @Override
-                            public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
-                                switch (groupPosition){
-                                    case 0:
-                                        new DialogMobileEnchantment(getActivity());
-                                        break;
-                                    case 1:
-                                    case 2:
-                                        new DialogFixedEnchantment(getActivity());
-                                        break;
-                                }
-                                return true; // disable click-to-collapse
-                            }
-                        });
-
-                        binder.addChannelChangedListener(channel.id, mChannelListener);
-                        binder.addEnchantmentListener(channel, mEnchantmentListener);
+                    public void onFilter(String keyword) {
+                        mFilterKeyword = keyword;
+                        mHandler.post(mEnchantmentListener);
                     }
                 });
+
+                mAdapter = new EnchantmentAdapter();
+                mListView.setAdapter(mAdapter);
+                for(int i=0;i<mAdapter.getGroupCount();i+=1){
+                    mListView.expandGroup(i);
+                }
+                mListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+                    @Override
+                    public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+                        Enchantment enchantment = (Enchantment) mAdapter.getChild(groupPosition, childPosition);
+                        if(enchantment!=null){
+                            ChannelActivity activity = (ChannelActivity) getActivity();
+                            activity.moveToEnchantment(enchantment);
+                            return true;
+                        }
+                        return false;
+                    }
+                });
+                mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                    @Override
+                    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                        long packedPos = mListView.getExpandableListPosition(position);
+                        int itemType = ExpandableListView.getPackedPositionType(id);
+
+                        if (itemType == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
+                            int childPosition = ExpandableListView.getPackedPositionChild(packedPos);
+                            int groupPosition = ExpandableListView.getPackedPositionGroup(packedPos);
+
+                            if (groupPosition==0) {
+                                getActivity().startActionMode(mSelfAction);
+                            } else {
+                                mEditingEnchantment = (Enchantment) mAdapter.getChild(groupPosition, childPosition);
+                                if(mEditingEnchantment!=null) {
+                                    getActivity().startActionMode(mEnchantmentAction);
+                                }
+                            }
+
+                            return true;
+                        }
+                        return false;
+                    }
+                });
+
+                mListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+                    @Override
+                    public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
+                        switch (groupPosition){
+                            case 0:
+                                new DialogMobileEnchantment(getActivity());
+                                break;
+                            case 1:
+                            case 2:
+                                new DialogFixedEnchantment(getActivity());
+                                break;
+                        }
+                        return true; // disable click-to-collapse
+                    }
+                });
+
+                initChannel();
             }
         });
         return view;
@@ -579,15 +602,7 @@ public class ChannelEnchantmentFragment extends BaseFragment {
 
     @Override
     public void onDestroyView() {
-        postBinderTask(new CoreService.BinderTask() {
-            @Override
-            public void onBinderReady(CoreService.CoreBinder binder) {
-                if(mChannel!=null){
-                    binder.removeChannelChangedListener(mChannel.id, mChannelListener);
-                    binder.removeEnchantmentListener(mChannel, mEnchantmentListener);
-                }
-            }
-        });
+        deinitChannel();
         super.onDestroyView();
     }
 }

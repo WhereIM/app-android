@@ -25,7 +25,7 @@ import im.where.whereim.models.POI;
  * Created by buganini on 19/01/17.
  */
 
-abstract public class ChannelMapFragment extends BaseFragment implements CoreService.MapDataDelegate {
+abstract public class ChannelMapFragment extends BaseChannelFragment implements CoreService.MapDataDelegate {
     protected Handler mHandler = new Handler();
 
     protected View mMarkerActionsController;
@@ -48,6 +48,18 @@ abstract public class ChannelMapFragment extends BaseFragment implements CoreSer
     protected Marker mEditingMarker = new Marker();
     protected Enchantment mEditingEnchantment = new Enchantment();
     protected Key.MAP_OBJECT mEditingType = null;
+
+    @Override
+    protected void initChannel() {
+
+    }
+
+    @Override
+    protected void deinitChannel() {
+        resetMap();
+    }
+
+    protected abstract void resetMap();
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {

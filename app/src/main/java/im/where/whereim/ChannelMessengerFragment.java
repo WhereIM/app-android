@@ -58,7 +58,7 @@ import im.where.whereim.views.WimSpan;
 
 import static android.app.Activity.RESULT_OK;
 
-public class ChannelMessengerFragment extends BaseFragment {
+public class ChannelMessengerFragment extends BaseChannelFragment {
     private final static int ACTION_PICKER = 0;
     private final static int ACTION_CAMERA = 1;
 
@@ -70,31 +70,12 @@ public class ChannelMessengerFragment extends BaseFragment {
     @Override
     public void onShow() {
         updateUI();
-        getChannel(new ChannelActivity.GetChannelCallback() {
-            @Override
-            public void onGetChannel(final Channel channel) {
-                postBinderTask(new CoreService.BinderTask() {
-                    @Override
-                    public void onBinderReady(CoreService.CoreBinder binder) {
-                        binder.addMessageListener(channel, mMessageListener);
-                        binder.setRead(mChannel);
-                    }
-                });
-            }
-        });
-
+        initChannel();
     }
 
     @Override
     public void onHide() {
-        postBinderTask(new CoreService.BinderTask() {
-            @Override
-            public void onBinderReady(CoreService.CoreBinder binder) {
-                if(mChannel!=null){
-                    binder.removeMessageListener(mChannel, mMessageListener);
-                }
-            }
-        });
+        deinitChannel();
     }
 
     @Override
@@ -106,6 +87,36 @@ public class ChannelMessengerFragment extends BaseFragment {
 
     private Channel mChannel;
     private MessageCursorAdapter mAdapter;
+
+    @Override
+    protected void initChannel() {
+        getChannel(new ChannelActivity.GetChannelCallback() {
+            @Override
+            public void onGetChannel(final Channel channel) {
+                mChannel = channel;
+                postBinderTask(new CoreService.BinderTask() {
+                    @Override
+                    public void onBinderReady(CoreService.CoreBinder binder) {
+                        binder.addMessageListener(mChannel, mMessageListener);
+                        binder.setRead(mChannel);
+                    }
+                });
+            }
+        });
+    }
+
+    @Override
+    protected void deinitChannel() {
+        postBinderTask(new CoreService.BinderTask() {
+            @Override
+            public void onBinderReady(CoreService.CoreBinder binder) {
+                if(mChannel!=null){
+                    binder.removeMessageListener(mChannel, mMessageListener);
+                }
+            }
+        });
+    }
+
     private class MessageCursorAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private final static int TYPE_PENDING_TEXT = 0;
         private final static int TYPE_PENDING_IMAGE = 1;
@@ -699,12 +710,6 @@ public class ChannelMessengerFragment extends BaseFragment {
             }
         });
 
-        getChannel(new ChannelActivity.GetChannelCallback() {
-            @Override
-            public void onGetChannel(final Channel channel) {
-                mChannel = channel;
-            }
-        });
         return view;
     }
 

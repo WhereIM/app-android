@@ -14,6 +14,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -162,6 +163,15 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(null);
+
+        toolbar.findViewById(R.id.list).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ChannelActivity.this, ChannelListActivity.class);
+                startActivity(intent);
+            }
+        });
+
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -223,6 +233,21 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                 checkTips();
             }
         });
+    }
+
+    @Override
+    protected void onChannelChanged() {
+        mChannelMapFragment.deinitChannel();
+        mChannelMapFragment.initChannel();
+
+        mChannelMessengerFragment.deinitChannel();
+        mChannelMessengerFragment.initChannel();
+
+        mChannelMarkerFragment.deinitChannel();
+        mChannelMarkerFragment.initChannel();
+
+        mChannelEnchantmentFragment.deinitChannel();
+        mChannelEnchantmentFragment.initChannel();
     }
 
     private void checkTips() {
@@ -502,6 +527,13 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         super.onServiceConnected(name, service);
+
+        if(mBinder.getClientId()==null){
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        }
+
         mBinder.setActivity(this);
         mBinder.openMap(mChannel, this);
         mBinder.addChannelListChangedListener(mChannelListChangedListener);

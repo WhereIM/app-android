@@ -41,21 +41,8 @@
         <activity
             android:name=".ChannelListActivity"
             android:configChanges="keyboard|keyboardHidden|orientation"
-            android:launchMode="singleTask"
+            android:launchMode="singleInstance"
             android:theme="@style/AppTheme.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            <intent-filter>
-                <data android:scheme="whereim" />
-
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".PoiViewerActivity"
@@ -70,7 +57,22 @@
             android:label="@string/app_name"
             android:parentActivityName=".ChannelListActivity"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden" />
+            android:windowSoftInputMode="stateHidden"
+            android:launchMode="singleInstance">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <data android:scheme="whereim" />
+
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".ImageViewerActivity"
             android:configChanges="keyboard|keyboardHidden|orientation"

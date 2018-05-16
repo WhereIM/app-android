@@ -297,6 +297,30 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     }
 
     @Override
+    protected void resetMap() {
+        synchronized (mMarkerMap) {
+            mMarkerMap.clear();
+        }
+        selfMate = null;
+        if(mRadiusCircle!=null){
+            mRadiusCircle.remove();
+            mRadiusCircle = null;
+        }
+        synchronized (mMateCircle) {
+            for(Circle c: mMateCircle.values()){
+                c.remove();
+            }
+            mMateCircle.clear();
+        }
+        synchronized (mMateMarker) {
+            for(Marker m: mMateMarker.values()){
+                m.remove();
+            }
+            mMateMarker.clear();
+        }
+    }
+
+    @Override
     public void onDestroyView() {
         if(mMapView!=null)
             mMapView.onDestroy();
