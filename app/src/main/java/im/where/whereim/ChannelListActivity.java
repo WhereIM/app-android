@@ -1,17 +1,13 @@
 package im.where.whereim;
 
-import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -29,18 +25,12 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONObject;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import im.where.whereim.dialogs.DialogChannelJoin;
-import im.where.whereim.dialogs.DialogChannelNew;
-import im.where.whereim.dialogs.DialogCreateChannel;
 import im.where.whereim.models.Channel;
 import im.where.whereim.models.POI;
 import io.branch.referral.Branch;
@@ -402,29 +392,8 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
         mNewChannel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new DialogChannelNew(ChannelListActivity.this, new DialogChannelNew.Callback() {
-                    @Override
-                    public void onSelectJoinByQrCode() {
-                        Intent intent = new Intent(ChannelListActivity.this, ScannerActivity.class);
-                        startActivity(intent);
-                    }
-
-                    @Override
-                    public void onSelectCreateChannel() {
-                        postBinderTask(new CoreService.BinderTask() {
-                            @Override
-                            public void onBinderReady(final CoreService.CoreBinder binder) {
-                                new DialogCreateChannel(ChannelListActivity.this, binder.getUserName(), new DialogCreateChannel.Callback() {
-
-                                    @Override
-                                    public void onDone(String channel_name, String mate_name) {
-                                        binder.createChannel(channel_name, mate_name);
-                                    }
-                                });
-                            }
-                        });
-                    }
-                });
+                Intent intent = new Intent(ChannelListActivity.this, NewChannelActivity.class);
+                startActivity(intent);
             }
         });
     }

@@ -60,6 +60,7 @@ public class NewChannelActivity extends BaseActivity {
         });
     }
 
+    private int origChannelCount = -1;
     private Runnable channelListChangedListener = new Runnable() {
         @Override
         public void run() {
@@ -67,12 +68,16 @@ public class NewChannelActivity extends BaseActivity {
                 @Override
                 public void onBinderReady(CoreService.CoreBinder binder) {
                     List<Channel> channels = binder.getChannelList();
-                    if(channels.size() > 0){
-                        Intent intent = new Intent(NewChannelActivity.this, ChannelActivity.class);
-                        intent.putExtra(Key.CHANNEL, channels.get(0).id);
-                        startActivity(intent);
+                    int n = channels.size();
+                    if(origChannelCount !=-1 && n != origChannelCount){
+                        if(origChannelCount==0){
+                            Intent intent = new Intent(NewChannelActivity.this, ChannelActivity.class);
+                            intent.putExtra(Key.CHANNEL, channels.get(0).id);
+                            startActivity(intent);
+                        }
                         finish();
                     }
+                    origChannelCount = n;
                 }
             });
         }
