@@ -298,8 +298,21 @@ public class CoreService extends Service {
             }
         }
 
-        public void clearChannelList(){
-            mChannelList.clear(); // minor leak in mChannelMap
+        public boolean isChannelSynced(){
+            return channelSynced;
+        }
+
+        public void addChannelSyncedListeners(Runnable r){
+            synchronized (mChannelSyncedListeners) {
+                mChannelSyncedListeners.add(r);
+            }
+            notifyChannelSyncedListeners();
+        }
+
+        public void removeChannelSyncedListeners(Runnable r){
+            synchronized (mChannelSyncedListeners) {
+                mChannelSyncedListeners.remove(r);
+            }
         }
 
         public void addChannelListChangedListener(Runnable r){
@@ -1751,6 +1764,8 @@ public class CoreService extends Service {
                     case "toast":
                         mqttToastHandler(msg);
                         break;
+                    case "event":
+                        mqttClientEventHandler(msg);
                 }
                 return;
             }
@@ -2059,6 +2074,36 @@ public class CoreService extends Service {
         }
 
         notifyChannelMarkerListChangedListeners(marker.channel_id);
+    }
+
+
+    private boolean channelSynced = false;
+    private void mqttClientEventHandler(JSONObject msg) {
+        try {
+            if(msg.has("end")){
+                switch (msg.getString("end")){
+                    case "channel":
+                        channelSynced = true;
+                        notifyChannelSyncedListeners();
+                        break;
+                }
+            }
+        } catch (Exception e) {
+            // noop
+        }
+    }
+
+    private final LinkedList<Runnable> mChannelSyncedListeners = new LinkedList<>();
+
+    private void notifyChannelSyncedListeners(){
+        if(!channelSynced){
+            return;
+        }
+        synchronized (mChannelSyncedListeners) {
+            for(Runnable r: mChannelSyncedListeners){
+                mHandler.post(r);
+            }
+        }
     }
 
     private final HashMap<String, Boolean> mChannelDataSync = new HashMap<>();

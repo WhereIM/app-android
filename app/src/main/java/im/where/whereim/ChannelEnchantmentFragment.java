@@ -252,6 +252,9 @@ public class ChannelEnchantmentFragment extends BaseChannelFragment {
             }
 
             public void setItem(Channel c){
+                if(c==null){
+                    return;
+                }
                 enchantment = null;
                 channel = c;
                 this.name.setText(getString(R.string.radius_m, (int)c.radius));

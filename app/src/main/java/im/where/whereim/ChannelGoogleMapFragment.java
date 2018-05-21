@@ -92,11 +92,6 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-        Location locationByGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        Location locationByNetwork = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        long positionTime = 0;
-
         Activity activity = getActivity();
         Intent intent = activity.getIntent();
         if (intent.getBooleanExtra(Key.PENDING_POI, false)) {
@@ -128,20 +123,37 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
             currentLat = defaultLat = poi.latitude;
             currentLng = defaultLng = poi.longitude;
             defaultZoom = 13;
-        } else {
-            if(locationByNetwork != null){
-                positionTime = locationByNetwork.getTime();
-                defaultLat = locationByNetwork.getLatitude();
-                defaultLng = locationByNetwork.getLongitude();
-                defaultZoom = 15;
-            }
-            if(locationByGPS != null && locationByGPS.getTime() > positionTime){
-                defaultLat = locationByGPS.getLatitude();
-                defaultLng = locationByGPS.getLongitude();
-                defaultZoom = 15;
-            }
-            currentLat = defaultLat;
-            currentLng = defaultLng;
+        }else{
+            postLocationServiceTask(new Runnable() {
+                @Override
+                public void run() {
+                    LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+                    Location locationByGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    Location locationByNetwork = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                    long positionTime = 0;
+
+                    if(locationByNetwork != null){
+                        positionTime = locationByNetwork.getTime();
+                        defaultLat = locationByNetwork.getLatitude();
+                        defaultLng = locationByNetwork.getLongitude();
+                        defaultZoom = 15;
+                    }
+                    if(locationByGPS != null && locationByGPS.getTime() > positionTime){
+                        defaultLat = locationByGPS.getLatitude();
+                        defaultLng = locationByGPS.getLongitude();
+                        defaultZoom = 15;
+                    }
+                    currentLat = defaultLat;
+                    currentLng = defaultLng;
+                    getMapAsync(new OnMapReadyCallback() {
+                        @Override
+                        public void onMapReady(GoogleMap googleMap) {
+                            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(defaultLat, defaultLng), defaultZoom));
+
+                        }
+                    });
+                }
+            });
         }
     }
 
@@ -159,7 +171,13 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
             @Override
             public void onMapReady(final GoogleMap googleMap) {
                 googleMap.getUiSettings().setMapToolbarEnabled(false);
-                googleMap.setMyLocationEnabled(true);
+                postLocationServiceTask(new Runnable() {
+                    @Override
+                    public void run() {
+                        googleMap.setMyLocationEnabled(true);
+
+                    }
+                });
                 googleMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
                     @Override
                     public void onCameraIdle() {

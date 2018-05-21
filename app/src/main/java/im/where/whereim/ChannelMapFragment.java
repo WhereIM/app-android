@@ -1,13 +1,20 @@
 package im.where.whereim;
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 import org.json.JSONObject;
+
+import java.util.LinkedList;
+import java.util.List;
 
 import im.where.whereim.dialogs.DialogCreateEnchantment;
 import im.where.whereim.dialogs.DialogMapMenu;
@@ -27,6 +34,40 @@ import im.where.whereim.models.POI;
 
 abstract public class ChannelMapFragment extends BaseChannelFragment implements CoreService.MapDataDelegate {
     protected Handler mHandler = new Handler();
+
+    final private List<Runnable> mPendingLocationServiceTask = new LinkedList<>();
+
+    public void onLocationServiceReady(){
+        processLocationServiceTask();
+    }
+
+    protected void postLocationServiceTask(Runnable task){
+        synchronized (mPendingLocationServiceTask) {
+            mPendingLocationServiceTask.add(task);
+        }
+        processLocationServiceTask();
+    }
+
+
+    private void processLocationServiceTask() {
+        Activity activity = getActivity();
+        if (activity==null || ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        while(true){
+            Runnable task = null;
+            synchronized (mPendingLocationServiceTask){
+                if(mPendingLocationServiceTask.size()>0){
+                    task = mPendingLocationServiceTask.remove(0);
+                }
+            }
+            if(task==null){
+                break;
+            }else{
+                task.run();
+            }
+        }
+    }
 
     protected View mMarkerActionsController;
     protected View mEnchantmentController;

@@ -9,7 +9,12 @@ import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import im.where.whereim.dialogs.DialogChannelJoin;
 
 /**
  * Created by buganini on 07/01/17.
@@ -17,7 +22,7 @@ import java.util.List;
 
 public class BaseActivity extends AppCompatActivity implements ServiceConnection {
 
-    final private List<CoreService.BinderTask> mPendingTask = new ArrayList<>();
+    final private List<CoreService.BinderTask> mPendingTask = new LinkedList<>();
 
     protected Handler mHandler = new Handler();
     protected void postUITask(Runnable r){
@@ -83,5 +88,48 @@ public class BaseActivity extends AppCompatActivity implements ServiceConnection
     @Override
     public void onServiceDisconnected(ComponentName name) {
 
+    }
+
+    protected String pending_joined_channel = null;
+    protected void processLink(String link){
+        Pattern mPatternChannelJoin = Pattern.compile("^channel/([A-Fa-f0-9]{32})$");
+        Matcher m;
+        m = mPatternChannelJoin.matcher(link);
+        if(m.matches()){
+            pending_joined_channel = m.group(1);
+            channelJoin(pending_joined_channel);
+            return;
+        }
+        Pattern mPatternHere = Pattern.compile("^here/(-?[0-9.]+)/(-?[0-9.]+)(?:/(.*))?$");
+        m = mPatternHere.matcher(link);
+        if(m.matches()){
+            Intent intent = new Intent(BaseActivity.this, PoiViewerActivity.class);
+            intent.putExtra(Key.LATITUDE, Double.valueOf(m.group(1)));
+            intent.putExtra(Key.LONGITUDE, Double.valueOf(m.group(2)));
+            intent.putExtra(Key.NAME, m.group(3));
+            startActivityForResult(intent, 0);
+        }
+    }
+
+    protected void channelJoin(final String channel_id){
+        postBinderTask(new CoreService.BinderTask() {
+            @Override
+            public void onBinderReady(final CoreService.CoreBinder binder) {
+                new DialogChannelJoin(BaseActivity.this, binder.getUserName(), new DialogChannelJoin.Callback() {
+                    @Override
+                    public void onDone(String mate_name) {
+                        binder.joinChannel(channel_id, null /*channel_alias*/, mate_name);
+                    }
+                });
+            }
+        });
+    }
+
+    @Override
+    public void finish() {
+        synchronized (mPendingTask) {
+            mPendingTask.clear();
+        }
+        super.finish();
     }
 }

@@ -41,6 +41,7 @@ import com.mapbox.services.android.telemetry.location.LostLocationEngine;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import im.where.whereim.geo.QuadTree;
@@ -133,15 +134,15 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
 
         iconFactory = IconFactory.getInstance(getActivity());
 
-        locationEngine = new LostLocationEngine(getContext());
-        locationEngine.setPriority(LocationEnginePriority.HIGH_ACCURACY);
-        locationEngine.addLocationEngineListener(ChannelMapboxFragment.this);
-        locationEngine.activate();
-
-        LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-        Location locationByGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        Location locationByNetwork = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        long positionTime = 0;
+        postLocationServiceTask(new Runnable() {
+            @Override
+            public void run() {
+                locationEngine = new LostLocationEngine(getContext());
+                locationEngine.setPriority(LocationEnginePriority.HIGH_ACCURACY);
+                locationEngine.addLocationEngineListener(ChannelMapboxFragment.this);
+                locationEngine.activate();
+            }
+        });
 
         Activity activity = getActivity();
         Intent intent = activity.getIntent();
@@ -179,19 +180,27 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
             currentLng = defaultLng = poi.longitude;
             defaultZoom = 13;
         } else {
-            if (locationByNetwork != null) {
-                positionTime = locationByNetwork.getTime();
-                defaultLat = locationByNetwork.getLatitude();
-                defaultLng = locationByNetwork.getLongitude();
-                defaultZoom = 15;
-            }
-            if (locationByGPS != null && locationByGPS.getTime() > positionTime) {
-                defaultLat = locationByGPS.getLatitude();
-                defaultLng = locationByGPS.getLongitude();
-                defaultZoom = 15;
-            }
-            currentLat = defaultLat;
-            currentLng = defaultLng;
+            postLocationServiceTask(new Runnable() {
+                @Override
+                public void run() {
+                    Location l = locationEngine.getLastLocation();
+                    if(l != null){
+                        currentLat = l.getLatitude();
+                        currentLng = l.getLongitude();
+                    }
+
+                    getMapAsync(new OnMapReadyCallback() {
+                        @Override
+                        public void onMapReady(MapboxMap mapboxMap) {
+                            CameraPosition position = new CameraPosition.Builder()
+                                    .target(new LatLng(defaultLat, defaultLng))
+                                    .build();
+
+                            mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), MAP_MOVE_ANIMATION_DURATION);
+                        }
+                    });
+                }
+            });
         }
     }
 
@@ -208,14 +217,11 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
                 getMapAsync(new OnMapReadyCallback() {
                     @Override
                     public void onMapReady(MapboxMap mapboxMap) {
-                        Location location = locationEngine.getLastLocation();;
-                        if(location != null){
-                            CameraPosition position = new CameraPosition.Builder()
-                                    .target(new LatLng(location.getLatitude(), location.getLongitude()))
-                                    .build();
+                        CameraPosition position = new CameraPosition.Builder()
+                                .target(new LatLng(defaultLat, defaultLng))
+                                .build();
 
-                            mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), MAP_MOVE_ANIMATION_DURATION);
-                        }
+                        mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), MAP_MOVE_ANIMATION_DURATION);
                     }
                 });
             }
@@ -228,9 +234,14 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
         mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(final MapboxMap mapboxMap) {
-                locationLayerPlugin = new LocationLayerPlugin(mMapView, mapboxMap, locationEngine);
-                locationLayerPlugin.setLocationLayerEnabled(LocationLayerMode.COMPASS);
-                getLifecycle().addObserver(locationLayerPlugin);
+                postLocationServiceTask(new Runnable() {
+                    @Override
+                    public void run() {
+                        locationLayerPlugin = new LocationLayerPlugin(mMapView, mapboxMap, locationEngine);
+                        locationLayerPlugin.setLocationLayerEnabled(LocationLayerMode.COMPASS);
+                        getLifecycle().addObserver(locationLayerPlugin);
+                    }
+                });
 
                 mapboxMap.setAllowConcurrentMultipleOpenInfoWindows(false);
                 mapboxMap.getUiSettings().setCompassGravity(Gravity.LEFT|Gravity.TOP);
@@ -262,10 +273,15 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
     public void onStart() {
         super.onStart();
         mMapView.onStart();
-        if (locationEngine != null) {
-            locationEngine.requestLocationUpdates();
-            locationEngine.addLocationEngineListener(this);
-        }
+        postLocationServiceTask(new Runnable() {
+            @Override
+            public void run() {
+                if (locationEngine != null) {
+                    locationEngine.requestLocationUpdates();
+                    locationEngine.addLocationEngineListener(ChannelMapboxFragment.this);
+                }
+            }
+        });
     }
 
     @Override
@@ -278,7 +294,7 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
         super.onStop();
     }
 
-    final ArrayList<Polyline> lines = new ArrayList<>();
+    final LinkedList<Polyline> lines = new LinkedList<>();
 
     private CameraPosition mLastCameraPosition = null;
     private void cameraMoved(MapboxMap mapboxMap) {

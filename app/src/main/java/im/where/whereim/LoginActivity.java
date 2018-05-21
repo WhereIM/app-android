@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -25,8 +24,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
 import com.google.common.base.Optional;
 
 public class LoginActivity extends BaseActivity {
@@ -76,6 +73,13 @@ public class LoginActivity extends BaseActivity {
     private String mToken;
     private String mAuthId;
     private String mName;
+
+    private Runnable channelSyncedCallback = new Runnable() {
+        @Override
+        public void run() {
+            checkLogin();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -192,6 +196,25 @@ public class LoginActivity extends BaseActivity {
         checkLogin();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        postBinderTask(new CoreService.BinderTask() {
+            @Override
+            public void onBinderReady(CoreService.CoreBinder binder) {
+                binder.addChannelSyncedListeners(channelSyncedCallback);
+            }
+        });
+    }
+
+    @Override
+    protected void onPause() {
+        if(mBinder != null){
+            mBinder.removeChannelSyncedListeners(channelSyncedCallback);
+        }
+        super.onPause();
+    }
+
     boolean mTrial = false;
     private void checkLogin(){
         postBinderTask(new CoreService.BinderTask() {
@@ -223,9 +246,16 @@ public class LoginActivity extends BaseActivity {
                         }
                     }
                 }else{
-                    Intent intent = new Intent(LoginActivity.this, ChannelActivity.class);
-                    startActivity(intent);
-                    finish();
+                    if(binder.isChannelSynced()){
+                        if(binder.getChannelList().size()==0){
+                            Intent intent = new Intent(LoginActivity.this, NewChannelActivity.class);
+                            startActivity(intent);
+                        }else{
+                            Intent intent = new Intent(LoginActivity.this, ChannelActivity.class);
+                            startActivity(intent);
+                        }
+                        finish();
+                    }
                 }
             }
         });

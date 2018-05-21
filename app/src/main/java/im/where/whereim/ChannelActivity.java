@@ -1,17 +1,19 @@
 package im.where.whereim;
 
-import android.content.ComponentName;
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -24,13 +26,12 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import im.where.whereim.dialogs.DialogChannelInvite;
-import im.where.whereim.dialogs.DialogChannelInviteQrCode;
 import im.where.whereim.geo.QuadTree;
 import im.where.whereim.models.Ad;
 import im.where.whereim.models.Channel;
@@ -87,17 +88,6 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        switch(Config.getMapProvider(this)){
-            case GOOGLE:
-                mChannelMapFragment = new ChannelGoogleMapFragment();
-                mChannelSearchFragment = new ChannelGoogleSearchFragment();
-                break;
-            case MAPBOX:
-                mChannelMapFragment = new ChannelMapboxFragment();
-                mChannelSearchFragment = new ChannelMapboxSearchFragment();
-                break;
-        }
 
         setContentView(R.layout.activity_channel);
 
@@ -172,82 +162,147 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
             }
         });
 
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-
-        // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
-        mViewPager.setOffscreenPageLimit(mSectionsPagerAdapter.getCount());
-        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                View view = getCurrentFocus();
-                if (view != null) {
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                }
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
 
         mTabLayout = (TabLayout) findViewById(R.id.tabs);
+
+        updateLayout();
 
         postBinderTask(new CoreService.BinderTask() {
             @Override
             public void onBinderReady(CoreService.CoreBinder binder) {
-                Intent intent = getIntent();
-
-                mTabLayout.setupWithViewPager(mViewPager);
-
-                String tab = intent.getStringExtra("tab");
-                if(tab != null){
-                    switch (tab){
-                        case "map":
-                            mTabLayout.getTabAt(TAB_MAP).select();
-                            break;
-                        case "message":
-                            mTabLayout.getTabAt(TAB_MESSAGE).select();
-                            break;
-                    }
+                if(mBinder.getClientId()==null){
+                    Intent intent = new Intent(ChannelActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                    finish();
                 }
             }
         });
 
-        updateLayout();
 
-        mReady += 1;
-        mHandler.post(new Runnable() {
+        switch(Config.getMapProvider(ChannelActivity.this)){
+            case GOOGLE:
+                mChannelMapFragment = new ChannelGoogleMapFragment();
+                mChannelSearchFragment = new ChannelGoogleSearchFragment();
+                break;
+            case MAPBOX:
+                mChannelMapFragment = new ChannelMapboxFragment();
+                mChannelSearchFragment = new ChannelMapboxSearchFragment();
+                break;
+        }
+
+        postChannelReadyTask(new Runnable(){
             @Override
             public void run() {
-                checkTips();
+                if (ContextCompat.checkSelfPermission(ChannelActivity.this,
+                        android.Manifest.permission.ACCESS_FINE_LOCATION)
+                        == PackageManager.PERMISSION_GRANTED) {
+                    onLocationServiceReady();
+                }else{
+
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(ChannelActivity.this,
+                            android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                        Toast.makeText(ChannelActivity.this, R.string.permission_rationale, Toast.LENGTH_SHORT).show();
+
+                    } else {
+                        ActivityCompat.requestPermissions(ChannelActivity.this,
+                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                0);
+                    }
+                }
+
+                // Create the adapter that will return a fragment for each of the three
+                // primary sections of the activity.
+                mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+
+                // Set up the ViewPager with the sections adapter.
+                mViewPager = (ViewPager) findViewById(R.id.container);
+                mViewPager.setAdapter(mSectionsPagerAdapter);
+                mViewPager.setOffscreenPageLimit(mSectionsPagerAdapter.getCount());
+                mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+                    @Override
+                    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+                    }
+
+                    @Override
+                    public void onPageSelected(int position) {
+                        View view = getCurrentFocus();
+                        if (view != null) {
+                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                        }
+                    }
+
+                    @Override
+                    public void onPageScrollStateChanged(int state) {
+
+                    }
+                });
+
+                postBinderTask(new CoreService.BinderTask() {
+                    @Override
+                    public void onBinderReady(CoreService.CoreBinder binder) {
+                        Intent intent = getIntent();
+
+                        mTabLayout.setupWithViewPager(mViewPager);
+
+                        String tab = intent.getStringExtra("tab");
+                        if(tab != null){
+                            switch (tab){
+                                case "map":
+                                    mTabLayout.getTabAt(TAB_MAP).select();
+                                    break;
+                                case "message":
+                                    mTabLayout.getTabAt(TAB_MESSAGE).select();
+                                    break;
+                            }
+                        }
+                    }
+                });
+
+                mReady += 1;
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        checkTips();
+                    }
+                });
+            }
+        });
+    }
+
+    private void onLocationServiceReady(){
+        mChannelMapFragment.onLocationServiceReady();
+        postBinderTask(new CoreService.BinderTask() {
+            @Override
+            public void onBinderReady(CoreService.CoreBinder binder) {
+                binder.checkLocationService();
             }
         });
     }
 
     @Override
     protected void onChannelChanged() {
-        mChannelMapFragment.deinitChannel();
-        mChannelMapFragment.initChannel();
+        if(mChannelMapFragment != null) {
+            mChannelMapFragment.deinitChannel();
+            mChannelMapFragment.initChannel();
+        }
 
-        mChannelMessengerFragment.deinitChannel();
-        mChannelMessengerFragment.initChannel();
+        if(mChannelMessengerFragment != null) {
+            mChannelMessengerFragment.deinitChannel();
+            mChannelMessengerFragment.initChannel();
+        }
 
-        mChannelMarkerFragment.deinitChannel();
-        mChannelMarkerFragment.initChannel();
+        if(mChannelMarkerFragment != null) {
+            mChannelMarkerFragment.deinitChannel();
+            mChannelMarkerFragment.initChannel();
+        }
 
-        mChannelEnchantmentFragment.deinitChannel();
-        mChannelEnchantmentFragment.initChannel();
+        if(mChannelMarkerFragment != null) {
+            mChannelEnchantmentFragment.deinitChannel();
+            mChannelEnchantmentFragment.initChannel();
+        }
     }
 
     private void checkTips() {
@@ -525,19 +580,22 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     };
 
     @Override
-    public void onServiceConnected(ComponentName name, IBinder service) {
-        super.onServiceConnected(name, service);
-
-        if(mBinder.getClientId()==null){
-            Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
-            finish();
-        }
-
-        mBinder.setActivity(this);
-        mBinder.openMap(mChannel, this);
-        mBinder.addChannelListChangedListener(mChannelListChangedListener);
-        mBinder.addConnectionStatusChangedListener(this);
+    protected void onResume() {
+        super.onResume();
+        postChannelReadyTask(new Runnable() {
+            @Override
+            public void run() {
+                postBinderTask(new CoreService.BinderTask() {
+                    @Override
+                    public void onBinderReady(CoreService.CoreBinder binder) {
+                        binder.setActivity(ChannelActivity.this);
+                        binder.openMap(mChannel, ChannelActivity.this);
+                        binder.addChannelListChangedListener(mChannelListChangedListener);
+                        binder.addConnectionStatusChangedListener(ChannelActivity.this);
+                    }
+                });
+            }
+        });
     }
 
     @Override
@@ -549,5 +607,19 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
             mBinder.removeConnectionStatusChangedListener(this);
         }
         super.onPause();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 0: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    onLocationServiceReady();
+                }
+                return;
+            }
+        }
     }
 }

@@ -39,26 +39,27 @@
             android:value="key_live_aayb4b97WVkvLOgKbltUBogaFBg655VB" />
 
         <activity
+            android:name=".NewChannelActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name=".ChannelListActivity"
             android:configChanges="keyboard|keyboardHidden|orientation"
             android:launchMode="singleInstance"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".PoiViewerActivity"
             android:configChanges="keyboard|keyboardHidden|orientation"
             android:label="@string/app_name"
-            android:parentActivityName=".ChannelListActivity"
+            android:parentActivityName=".ChannelActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".ChannelActivity"
             android:configChanges="keyboard|keyboardHidden|orientation"
             android:label="@string/app_name"
-            android:parentActivityName=".ChannelListActivity"
+            android:launchMode="singleInstance"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden"
-            android:launchMode="singleInstance">
+            android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -76,7 +77,7 @@
         <activity
             android:name=".ImageViewerActivity"
             android:configChanges="keyboard|keyboardHidden|orientation"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".GuestViewMgmtActivity"
             android:configChanges="keyboard|keyboardHidden|orientation"
@@ -149,7 +150,7 @@
             android:resource="@drawable/ic_stat_logo" />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="whereim"/>
+            android:value="whereim" />
     </application>
 
 </manifest>

@@ -47,9 +47,6 @@ import io.branch.referral.Branch;
 import io.branch.referral.BranchError;
 
 public class ChannelListActivity extends BaseActivity implements CoreService.ConnectionStatusCallback {
-    public final static int REQUEST_PENDING_POI = 0;
-    public final static int REQUEST_QR_CODE = 1;
-
     private List<Channel> mChannelList;
     private ListView mListView;
     private Runnable mChannelListChangedListener = new Runnable() {
@@ -64,6 +61,11 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                         public void run() {
                             mChannelList = binder.getChannelList();
                             mAdapter.notifyDataSetChanged();
+                            if(mChannelList.size()==0){
+                                Intent intent = new Intent(ChannelListActivity.this, NewChannelActivity.class);
+                                startActivity(intent);
+                                finish();
+                            }
                         }
                     });
                 }
@@ -209,20 +211,6 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
         this.setIntent(intent);
     }
 
-    private void channelJoin(final String channel_id){
-        postBinderTask(new CoreService.BinderTask() {
-            @Override
-            public void onBinderReady(final CoreService.CoreBinder binder) {
-            new DialogChannelJoin(ChannelListActivity.this, binder.getUserName(), new DialogChannelJoin.Callback() {
-                @Override
-                public void onDone(String mate_name) {
-                    binder.joinChannel(channel_id, null /*channel_alias*/, mate_name);
-                }
-            });
-            }
-        });
-    }
-
     private View mViewRoot;
     private View mCover;
     private ImageView mNewChannelPointer;
@@ -241,22 +229,6 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (ContextCompat.checkSelfPermission(ChannelListActivity.this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            if (ActivityCompat.shouldShowRequestPermissionRationale(ChannelListActivity.this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                Toast.makeText(ChannelListActivity.this, R.string.permission_rationale, Toast.LENGTH_SHORT).show();
-
-            } else {
-                ActivityCompat.requestPermissions(ChannelListActivity.this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        0);
-            }
-        }
 
         setContentView(R.layout.activity_channel_list);
 
@@ -317,7 +289,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                 Channel channel = (Channel) mAdapter.getItem(position);
                 if(channel.enabled!=null && channel.enabled){
                     Intent intent = new Intent(ChannelListActivity.this, ChannelActivity.class);
-                    intent.putExtra("channel", channel.id);
+                    intent.putExtra(Key.CHANNEL, channel.id);
                     if(pendingPOI != null){
                         intent.putExtra(Key.LATITUDE, pendingPOI.latitude);
                         intent.putExtra(Key.LONGITUDE, pendingPOI.longitude);
@@ -326,6 +298,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                         pendingPOI = null;
                     }
                     startActivity(intent);
+                    finish();
                 }
             }
         });
@@ -433,7 +406,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
                     @Override
                     public void onSelectJoinByQrCode() {
                         Intent intent = new Intent(ChannelListActivity.this, ScannerActivity.class);
-                        startActivityForResult(intent, REQUEST_QR_CODE);
+                        startActivity(intent);
                     }
 
                     @Override
@@ -519,26 +492,6 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case 0: {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    postBinderTask(new CoreService.BinderTask() {
-                        @Override
-                        public void onBinderReady(CoreService.CoreBinder binder) {
-                            binder.checkLocationService();
-                        }
-                    });
-                }
-                return;
-            }
-        }
-    }
-
-    @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
         super.onServiceConnected(name, service);
         if(getBinder().getClientId()!=null){
@@ -594,25 +547,6 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
         });
     }
 
-    private void processLink(String link){
-        Pattern mPatternChannelJoin = Pattern.compile("^channel/([A-Fa-f0-9]{32})$");
-        Matcher m;
-        m = mPatternChannelJoin.matcher(link);
-        if(m.matches()){
-            channelJoin(m.group(1));
-            return;
-        }
-        Pattern mPatternHere = Pattern.compile("^here/(-?[0-9.]+)/(-?[0-9.]+)(?:/(.*))?$");
-        m = mPatternHere.matcher(link);
-        if(m.matches()){
-            Intent intent = new Intent(ChannelListActivity.this, PoiViewerActivity.class);
-            intent.putExtra(Key.LATITUDE, Double.valueOf(m.group(1)));
-            intent.putExtra(Key.LONGITUDE, Double.valueOf(m.group(2)));
-            intent.putExtra(Key.NAME, m.group(3));
-            startActivityForResult(intent, 0);
-        }
-    }
-
     @Override
     protected void onPause() {
         if(mBinder!=null) {
@@ -626,29 +560,5 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
     @Override
     public void onConnectionStatusChanged(boolean connected) {
         mConnectionStatus.setVisibility(connected?View.GONE:View.VISIBLE);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        switch (requestCode) {
-            case REQUEST_PENDING_POI:
-                if (resultCode == 1) {
-                    pendingPOI = new POI();
-                    pendingPOI.latitude = data.getDoubleExtra(Key.LATITUDE, 0);
-                    pendingPOI.longitude = data.getDoubleExtra(Key.LONGITUDE, 0);
-                    pendingPOI.name = data.getStringExtra(Key.NAME);
-                }
-                break;
-            case REQUEST_QR_CODE:
-                if (resultCode == 1) {
-                    String link = data.getStringExtra(Key.LINK);
-                    if(link!=null){
-                        processLink(link);
-                    }
-                }
-                break;
-        }
     }
 }

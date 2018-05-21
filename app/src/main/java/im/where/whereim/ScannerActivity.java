@@ -12,6 +12,7 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 import android.widget.RelativeLayout;
 
 import com.google.android.gms.vision.CameraSource;
@@ -23,10 +24,14 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ScannerActivity extends AppCompatActivity {
+import im.where.whereim.models.Channel;
+
+public class ScannerActivity extends BaseActivity {
+    private RelativeLayout frame;
     private SurfaceView surfaceView;
     private CameraSource cameraSource;
     private boolean matched = false;
+    private View loading;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +41,10 @@ public class ScannerActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(null);
+
+        frame = (RelativeLayout) findViewById(R.id.frame);
+
+        loading = findViewById(R.id.loading);
 
         int e = (int) (Math.min(Resources.getSystem().getDisplayMetrics().widthPixels, Resources.getSystem().getDisplayMetrics().heightPixels) * 0.75);
 
@@ -61,14 +70,19 @@ public class ScannerActivity extends AppCompatActivity {
 
                 if (!matched && barcodes.size() != 0) {
                     String s = barcodes.valueAt(0).displayValue;
-                    Matcher m = pattern.matcher(s);
+                    final Matcher m = pattern.matcher(s);
                     if(m.matches()){
                         matched = true;
-                        Intent intent = new Intent();
-                        intent.putExtra(Key.LINK, m.group(1));
-                        setResult(1, intent);
+
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                frame.removeView(surfaceView);
+                                loading.setVisibility(View.VISIBLE);
+                                processLink(m.group(1));
+                            }
+                        });
                     }
-                    finish();
                 }
             }
         });
@@ -107,7 +121,6 @@ public class ScannerActivity extends AppCompatActivity {
     }
 
     private void ready(){
-        RelativeLayout frame = (RelativeLayout) findViewById(R.id.frame);
         frame.addView(surfaceView);
     }
 
@@ -118,5 +131,45 @@ public class ScannerActivity extends AppCompatActivity {
                 ready();
             }
         }
+    }
+
+    private Runnable channelListChangedListener = new Runnable() {
+        @Override
+        public void run() {
+            postBinderTask(new CoreService.BinderTask() {
+                @Override
+                public void onBinderReady(CoreService.CoreBinder binder) {
+                    if(pending_joined_channel != null){
+                        for(Channel c: binder.getChannelList()){
+                            if(pending_joined_channel.equals(c.id)){
+                                Intent intent = new Intent(ScannerActivity.this, ChannelActivity.class);
+                                startActivity(intent);
+                                finish();
+                                return;
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    };
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        postBinderTask(new CoreService.BinderTask() {
+            @Override
+            public void onBinderReady(CoreService.CoreBinder binder) {
+                binder.addChannelListChangedListener(channelListChangedListener);
+            }
+        });
+    }
+
+    @Override
+    protected void onPause() {
+        if(mBinder != null){
+            mBinder.removeChannelListChangedListener(channelListChangedListener);
+        }
+        super.onPause();
     }
 }

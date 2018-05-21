@@ -4,9 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import im.where.whereim.models.Channel;
@@ -25,27 +25,105 @@ public abstract class BaseChannelActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setChannel(getIntent());
+        Intent intent = getIntent();
+        if(intent != null && intent.hasExtra(Key.CHANNEL)){
+            setChannel(intent.getStringExtra(Key.CHANNEL));
+        } else {
+            setChannel(null);
+            postBinderTask(new CoreService.BinderTask() {
+                @Override
+                public void onBinderReady(CoreService.CoreBinder binder) {
+                    if(binder.getChannelList().size() > 0){
+                        channelReady = true;
+                        processChannelReadyTask();
+                    }
+                }
+            });
+        }
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        setChannel(intent);
+        if(intent != null && intent.hasExtra(Key.CHANNEL)){
+            setChannel(intent.getStringExtra(Key.CHANNEL));
+        }
     }
 
-    protected void setChannel(Intent intent){
-        if(intent == null){
+    final private List<Runnable> mPendingChannelReadyTask = new LinkedList<>();
+
+    protected void postChannelReadyTask(Runnable task){
+        synchronized (mPendingChannelReadyTask) {
+            mPendingChannelReadyTask.add(task);
+        }
+        processChannelReadyTask();
+    }
+
+
+    private void processChannelReadyTask() {
+        if(!channelReady){
             return;
         }
-        String channel_id = intent.getStringExtra(Key.CHANNEL);
+        while(true){
+            Runnable task = null;
+            synchronized (mPendingChannelReadyTask){
+                if(mPendingChannelReadyTask.size()>0){
+                    task = mPendingChannelReadyTask.remove(0);
+                }
+            }
+            if(task==null){
+                break;
+            }else{
+                task.run();
+            }
+        }
+    }
+
+    private boolean channelReady = false;
+    private Runnable mChannelSyncedCallback = new Runnable() {
+        @Override
+        public void run() {
+            postBinderTask(new CoreService.BinderTask() {
+                @Override
+                public void onBinderReady(CoreService.CoreBinder binder) {
+                    if(binder.getChannelList().size()==0){
+                        Intent intent = new Intent(BaseChannelActivity.this, NewChannelActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }else{
+                        if(!channelReady){
+                            channelReady = true;
+                            processChannelReadyTask();
+                        }
+                    }
+                }
+            });
+        }
+    };
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        postBinderTask(new CoreService.BinderTask() {
+            @Override
+            public void onBinderReady(CoreService.CoreBinder binder) {
+                binder.addChannelSyncedListeners(mChannelSyncedCallback);
+            }
+        });
+    }
+
+    @Override
+    protected void onPause() {
+        if(mBinder != null){
+            mBinder.removeChannelSyncedListeners(mChannelSyncedCallback);
+        }
+        super.onPause();
+    }
+
+    protected void setChannel(String channel_id){
         if(channel_id==null) {
             SharedPreferences sp = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
             channel_id = sp.getString(Key.CHANNEL, null);
-            if(channel_id == null) {
-                // XXX pick one with greatest TS
-                Log.e("lala", "no mChannelId");
-            }
         } else {
             SharedPreferences.Editor editor = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
             editor.putString(Key.CHANNEL, channel_id);
@@ -56,9 +134,22 @@ public abstract class BaseChannelActivity extends BaseActivity {
         postBinderTask(new CoreService.BinderTask() {
             @Override
             public void onBinderReady(CoreService.CoreBinder binder) {
+                boolean failed = false;
+                if(_channel_id == null){
+                    failed = true;
+                }
                 mChannel = mBinder.getChannelById(_channel_id);
-                onChannelChanged();
-                processGetChannelCallback();
+                if(mChannel == null){
+                    failed = true;
+                }
+                if(failed){
+                    Intent intent = new Intent(BaseChannelActivity.this, ChannelListActivity.class);
+                    startActivity(intent);
+                    finish();
+                }else{
+                    onChannelChanged();
+                    processGetChannelCallback();
+                }
             }
         });
     }
@@ -83,5 +174,13 @@ public abstract class BaseChannelActivity extends BaseActivity {
                 callback.onGetChannel(mChannel);
             }
         }
+    }
+
+    @Override
+    public void finish() {
+        synchronized (mPendingChannelReadyTask) {
+            mPendingChannelReadyTask.clear();
+        }
+        super.finish();
     }
 }
