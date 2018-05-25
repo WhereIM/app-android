@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import im.where.whereim.dialogs.DialogChannelInvite;
+import im.where.whereim.dialogs.DialogLocationServicePermissionRationale;
 import im.where.whereim.geo.QuadTree;
 import im.where.whereim.models.Ad;
 import im.where.whereim.models.Channel;
@@ -202,7 +203,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                     if (ActivityCompat.shouldShowRequestPermissionRationale(ChannelActivity.this,
                             android.Manifest.permission.ACCESS_FINE_LOCATION)) {
 
-                        Toast.makeText(ChannelActivity.this, R.string.permission_rationale, Toast.LENGTH_SHORT).show();
+                        new DialogLocationServicePermissionRationale(ChannelActivity.this);
 
                     } else {
                         ActivityCompat.requestPermissions(ChannelActivity.this,
