@@ -72,6 +72,7 @@
     <string name="public_marker">共用圖釘</string>
     <string name="private_marker">個人圖釘</string>
     <string name="error_exhausted">可註冊數量已滿，請稍後再試。</string>
+    <string name="connecting">連線中</string>
     <string name="confirm">確認</string>
     <string name="copy">複製</string>
     <string name="report_inappropriate">檢舉這則訊息</string>

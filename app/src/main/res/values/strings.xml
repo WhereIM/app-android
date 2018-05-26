@@ -73,6 +73,7 @@
     <string name="public_marker">Shared Marker</string>
     <string name="private_marker">Personal Marker</string>
     <string name="error_exhausted">Client capacity is exhausted, please try later.</string>
+    <string name="connecting">Connecting</string>
     <string name="confirm">Confirm</string>
     <string name="copy">Copy</string>
     <string name="report_inappropriate">Report inappropriate content</string>

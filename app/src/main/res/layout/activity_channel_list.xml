@@ -28,7 +28,7 @@
                 android:textColor="@color/colorTextHighlight" />
 
             <ProgressBar
-                android:id="@+id/connection_status"
+                android:id="@+id/connecting_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="right"

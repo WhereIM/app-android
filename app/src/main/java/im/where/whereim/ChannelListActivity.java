@@ -265,7 +265,7 @@ public class ChannelListActivity extends BaseActivity implements CoreService.Con
         mPendingTitle = (TextView) findViewById(R.id.title);
         mPendingDesc = (TextView) findViewById(R.id.desc);
 
-        mConnectionStatus = findViewById(R.id.connection_status);
+        mConnectionStatus = findViewById(R.id.connecting_status);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

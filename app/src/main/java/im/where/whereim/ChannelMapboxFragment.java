@@ -234,6 +234,8 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
         mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(final MapboxMap mapboxMap) {
+                int p = (int)Util.dp2px(channelActivity, 80);
+                mapboxMap.setPadding(0, p, 0, 0);
                 postLocationServiceTask(new Runnable() {
                     @Override
                     public void run() {

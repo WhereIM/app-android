@@ -13,68 +13,16 @@
         android:animateLayoutChanges="true"
         android:orientation="vertical">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
+        <TextView
+            android:id="@+id/connecting_status"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@color/colorPrimary">
-
-            <Button
-                android:id="@+id/list"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="@android:drawable/ic_menu_directions"/>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:orientation="vertical"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:id="@+id/channel_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="@color/colorTextHighlight" />
-
-                <TextView
-                    android:id="@+id/channel_subtitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="@color/colorText" />
-            </LinearLayout>
-
-            <FrameLayout
-                android:layout_width="80dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:padding="5dp">
-
-                <Switch
-                    android:id="@+id/enable"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:visibility="gone" />
-
-                <ProgressBar
-                    android:id="@+id/enable_loading"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center" />
-
-            </FrameLayout>
-
-            <ProgressBar
-                android:id="@+id/connection_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right" />
-        </android.support.v7.widget.Toolbar>
+            android:layout_height="wrap_content"
+            android:background="#FF5555"
+            android:textColor="#FFFFFF"
+            android:padding="3dp"
+            android:gravity="center"
+            android:text="@string/connecting"
+            />
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -86,19 +34,81 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 
-            <ImageView
-                android:id="@+id/crosshair"
-                android:layout_width="wrap_content"
+            <FrameLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:src="@drawable/crosshair"/>
-        </RelativeLayout>
+                android:padding="20dp">
 
-        <ImageView
-            android:id="@+id/resize_handler"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_menu_crop" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:orientation="horizontal"
+                    android:background="@color/colorPrimary">
+
+                    <Button
+                        android:id="@+id/list"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_margin="12dp"
+                        android:background="@drawable/baseline_map_white_36"/>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_gravity="center_vertical"
+                        android:orientation="vertical"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/channel_title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:textColor="@color/colorTextHighlight" />
+
+                        <TextView
+                            android:id="@+id/channel_subtitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?android:attr/textAppearanceSmall"
+                            android:textColor="@color/colorText" />
+                    </LinearLayout>
+
+                    <FrameLayout
+                        android:layout_width="80dp"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center_vertical">
+
+                        <Switch
+                            android:id="@+id/enable"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:gravity="center"
+                            android:visibility="gone" />
+
+                        <ProgressBar
+                            android:id="@+id/enable_loading"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center" />
+
+                    </FrameLayout>
+
+                </LinearLayout>
+
+            </FrameLayout>
+
+            <ImageView
+                android:id="@+id/resize_handler"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/baseline_menu_black_18" />
+        </RelativeLayout>
 
         <FrameLayout
             android:id="@+id/aux_frame"
