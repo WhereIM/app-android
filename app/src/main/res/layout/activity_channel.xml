@@ -10,6 +10,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:animateLayoutChanges="true"
         android:orientation="vertical">
 
         <android.support.v7.widget.Toolbar
@@ -75,20 +76,34 @@
                 android:layout_gravity="right" />
         </android.support.v7.widget.Toolbar>
 
-        <android.support.design.widget.TabLayout
-            android:id="@+id/tabs"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:tabTextColor="@color/colorText"
-            app:tabSelectedTextColor="@color/colorTextHighlight"
-            style="@style/CustomTabLayout"
-            android:background="@color/colorPrimary" />
-
-        <im.where.whereim.views.ChannelViewPager
-            android:id="@+id/container"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:layout_weight="1">
+
+            <FrameLayout
+                android:id="@+id/main_frame"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <ImageView
+                android:id="@+id/crosshair"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:src="@drawable/crosshair"/>
+        </RelativeLayout>
+
+        <ImageView
+            android:id="@+id/resize_handler"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_crop" />
+
+        <FrameLayout
+            android:id="@+id/aux_frame"
+            android:layout_width="match_parent"
+            android:layout_height="0dp" />
 
     </LinearLayout>
 

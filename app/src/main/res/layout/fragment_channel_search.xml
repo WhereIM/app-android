@@ -32,6 +32,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
             android:background="@null"
+            android:visibility="gone"
             android:text="🔍" />
 
         <Button
@@ -40,8 +41,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
             android:background="@null"
-            android:text="✘"
-            android:visibility="gone"/>
+            android:text="✘"/>
     </LinearLayout>
 
     <RelativeLayout

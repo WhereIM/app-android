@@ -8,21 +8,19 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -49,21 +47,8 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     private final static int TAB_ENCHANTMENT = 4;
 
     /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
-    private SectionsPagerAdapter mSectionsPagerAdapter;
-
-    /**
      * The {@link ViewPager} that will host the section contents.
      */
-    private ViewPager mViewPager;
-    private TabLayout mTabLayout;
-
     private Handler mHandler = new Handler();
 
     @Override
@@ -84,6 +69,10 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     private Switch mActive;
     private View mEnableLoading;
 
+    private View resizeHandler;
+    private FrameLayout mainFrame;
+    private FrameLayout auxFrame;
+
     private int mReady = 0;
 
     @Override
@@ -92,9 +81,40 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
 
         setContentView(R.layout.activity_channel);
 
+        resizeHandler = findViewById(R.id.resize_handler);
+        mainFrame = findViewById(R.id.main_frame);
+        auxFrame = findViewById(R.id.aux_frame);
+
+        resizeHandler.setOnTouchListener(new View.OnTouchListener() {
+            private Float y = null;
+
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                switch(motionEvent.getAction()){
+                    case MotionEvent.ACTION_DOWN:
+                        y = motionEvent.getRawY();
+                        return true;
+                    case MotionEvent.ACTION_MOVE:
+                        if(y != null){
+                            ViewGroup.LayoutParams params = auxFrame.getLayoutParams();
+                            params.height -= motionEvent.getRawY() - y;
+                            auxFrame.setLayoutParams(params);
+                            y = motionEvent.getRawY();
+                            return true;
+                        }else{
+                            return false;
+                        }
+                    case MotionEvent.ACTION_UP:
+                        y = null;
+                        return true;
+                }
+                return false;
+            }
+        });
+
         mContentRoot = findViewById(R.id.content_root);
         mCover = findViewById(R.id.cover);
-        mActiveChannelPointer = (ImageView) findViewById(R.id.toggle_channel_pointer);
+        mActiveChannelPointer = findViewById(R.id.toggle_channel_pointer);
         mActiveChannelDesc = findViewById(R.id.toggle_channel_pointer_desc);
         findViewById(R.id.toggle_channel_close).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,7 +126,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
             }
         });
 
-        mInvitePointer = (ImageView) findViewById(R.id.invite_pointer);
+        mInvitePointer = findViewById(R.id.invite_pointer);
         mInviteDesc = findViewById(R.id.invite_pointer_desc);
         findViewById(R.id.invite_close).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -120,9 +140,9 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
 
         mConnectionStatus = findViewById(R.id.connection_status);
 
-        mChannelTitle = (TextView) findViewById(R.id.channel_title);
-        mChannelSubtitle = (TextView) findViewById(R.id.channel_subtitle);
-        mActive = (Switch) findViewById(R.id.enable);
+        mChannelTitle = findViewById(R.id.channel_title);
+        mChannelSubtitle = findViewById(R.id.channel_subtitle);
+        mActive = findViewById(R.id.enable);
         mEnableLoading = findViewById(R.id.enable_loading);
 
         mActive.setOnClickListener(new View.OnClickListener() {
@@ -151,7 +171,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         mActive.setOnLongClickListener(deactivate);
         mEnableLoading.setOnLongClickListener(deactivate);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(null);
 
@@ -163,8 +183,6 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
             }
         });
 
-
-        mTabLayout = (TabLayout) findViewById(R.id.tabs);
 
         updateLayout();
 
@@ -178,18 +196,6 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                 }
             }
         });
-
-
-        switch(Config.getMapProvider(ChannelActivity.this)){
-            case GOOGLE:
-                mChannelMapFragment = new ChannelGoogleMapFragment();
-                mChannelSearchFragment = new ChannelGoogleSearchFragment();
-                break;
-            case MAPBOX:
-                mChannelMapFragment = new ChannelMapboxFragment();
-                mChannelSearchFragment = new ChannelMapboxSearchFragment();
-                break;
-        }
 
         postChannelReadyTask(new Runnable(){
             @Override
@@ -212,50 +218,17 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                     }
                 }
 
-                // Create the adapter that will return a fragment for each of the three
-                // primary sections of the activity.
-                mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-
-                // Set up the ViewPager with the sections adapter.
-                mViewPager = (ViewPager) findViewById(R.id.container);
-                mViewPager.setAdapter(mSectionsPagerAdapter);
-                mViewPager.setOffscreenPageLimit(mSectionsPagerAdapter.getCount());
-                mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-                    @Override
-                    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-                    }
-
-                    @Override
-                    public void onPageSelected(int position) {
-                        View view = getCurrentFocus();
-                        if (view != null) {
-                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                        }
-                    }
-
-                    @Override
-                    public void onPageScrollStateChanged(int state) {
-
-                    }
-                });
 
                 postBinderTask(new CoreService.BinderTask() {
                     @Override
                     public void onBinderReady(CoreService.CoreBinder binder) {
                         Intent intent = getIntent();
 
-                        mTabLayout.setupWithViewPager(mViewPager);
-
                         String tab = intent.getStringExtra("tab");
                         if(tab != null){
                             switch (tab){
-                                case "map":
-                                    mTabLayout.getTabAt(TAB_MAP).select();
-                                    break;
                                 case "message":
-                                    mTabLayout.getTabAt(TAB_MESSAGE).select();
+                                    showAux(R.id.message, true);
                                     break;
                             }
                         }
@@ -271,6 +244,61 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                 });
             }
         });
+
+        showMain(R.id.map);
+        showAux(0, false);
+    }
+
+    void showMain(int comp){
+        switch (comp) {
+            case R.id.map:
+                if(mChannelMapFragment == null){
+                    mChannelMapFragment = ChannelMapFragment.newFragment(this);
+                }
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.main_frame, mChannelMapFragment).commit();
+                break;
+        }
+    }
+
+    void showAux(int comp, boolean resizable){
+        ViewGroup.LayoutParams params;
+        int height = 0;
+        switch (comp) {
+            case 0:
+                resizeHandler.setVisibility(View.GONE);
+                auxFrame.setVisibility(View.GONE);
+                return;
+            case R.id.search:
+                if(mChannelSearchFragment == null){
+                    mChannelSearchFragment = ChannelSearchFragment.newFragment(this);
+                }
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.aux_frame, mChannelSearchFragment).commit();
+                height = 240;
+                break;
+            case R.id.message:
+                if(mChannelMessengerFragment == null){
+                    mChannelMessengerFragment = new ChannelMessengerFragment();
+                }
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.aux_frame, mChannelMessengerFragment).commit();
+                height = 240;
+                break;
+            case R.id.marker:
+                if(mChannelMarkerFragment== null){
+                    mChannelMarkerFragment = new ChannelMarkerFragment();
+                }
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.aux_frame, mChannelMarkerFragment).commit();
+                height = 240;
+                break;
+        }
+        params = auxFrame.getLayoutParams();
+        params.height = (int) Util.dp2px(ChannelActivity.this, height);
+        auxFrame.setLayoutParams(params);
+        resizeHandler.setVisibility(resizable ? View.VISIBLE : View.GONE);
+        auxFrame.setVisibility(View.VISIBLE);
     }
 
     private void onLocationServiceReady(){
@@ -385,7 +413,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+        // as you specify a parent channelActivity in AndroidManifest.xml.
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
@@ -408,13 +436,11 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
 
     public void sendPin(QuadTree.LatLng location){
         mChannelMessengerFragment.pinLocation = location;
-        mTabLayout.getTabAt(TAB_MESSAGE).select();
     }
 
     @Override
     public void moveToPin(QuadTree.LatLng latLng) {
         mChannelMapFragment.moveToPin(latLng);
-        mTabLayout.getTabAt(TAB_MAP).select();
     }
 
     @Override
@@ -425,9 +451,6 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     @Override
     public void moveToMate(Mate mate, boolean focus) {
         mChannelMapFragment.moveToMate(mate, focus);
-        if(mate.latitude!=null){
-            mTabLayout.getTabAt(TAB_MAP).select();
-        }
     }
 
     @Override
@@ -438,7 +461,6 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     @Override
     public void moveToEnchantment(Enchantment enchantment) {
         mChannelMapFragment.moveToEnchantment(enchantment);
-        mTabLayout.getTabAt(TAB_MAP).select();
     }
 
     @Override
@@ -449,20 +471,16 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     @Override
     public void moveToMarker(Marker marker, boolean focus) {
         mChannelMapFragment.moveToMarker(marker, focus);
-        mTabLayout.getTabAt(TAB_MAP).select();
-
     }
 
     @Override
     public void editEnchantment(Enchantment enchantment) {
         mChannelMapFragment.editEnchantment(enchantment);
-        mTabLayout.getTabAt(TAB_MAP).select();
     }
 
     @Override
     public void editMarker(Marker marker) {
         mChannelMapFragment.editMarker(marker);
-        mTabLayout.getTabAt(TAB_MAP).select();
     }
 
     public QuadTree.LatLng getMapCenter() {
@@ -476,7 +494,6 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     @Override
     public void moveToSearchResult(int position, boolean focus) {
         mChannelMapFragment.moveToSearchResult(position, focus);
-        mTabLayout.getTabAt(TAB_MAP).select();
     }
 
     @Override
@@ -489,51 +506,6 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     private ChannelMessengerFragment mChannelMessengerFragment = new ChannelMessengerFragment();
     private ChannelMarkerFragment mChannelMarkerFragment = new ChannelMarkerFragment();
     private ChannelEnchantmentFragment mChannelEnchantmentFragment = new ChannelEnchantmentFragment();
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
-
-        public SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            switch (position) {
-                case 0:
-                    return mChannelMapFragment;
-                case 1:
-                    return mChannelSearchFragment;
-                case 2:
-                    return mChannelMessengerFragment;
-                case 3:
-                    return mChannelMarkerFragment;
-                case 4:
-                    return mChannelEnchantmentFragment;
-            }
-            return null;
-        }
-
-        @Override
-        public int getCount() {
-            return 5;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0: // map
-                    return "\uD83C\uDF0F️";
-                case 1: // search
-                    return "\uD83D\uDD0D";
-                case 2: // messenger
-                    return "\uD83D\uDCAC";
-                case 3: // marker
-                    return "\uD83D\uDEA9";
-                case 4: // enchantment
-                    return "⭕";
-            }
-            return null;
-        }
-    }
 
     private Runnable mChannelListChangedListener = new Runnable() {
         @Override

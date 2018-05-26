@@ -1,5 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <LinearLayout
+        android:id="@+id/main_actions_controller"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="16dp"
+        android:orientation="horizontal">
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_marginBottom="15dp"
+            app:backgroundTint="#555555"
+            android:tint="@android:color/white"
+            app:srcCompat="@drawable/ic_search_white_48dp" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_marginBottom="15dp"
+            app:backgroundTint="#555555"
+            android:tint="@android:color/white"
+            app:srcCompat="@drawable/ic_message_white_48dp" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/marker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_marginBottom="15dp"
+            app:backgroundTint="#555555"
+            android:tint="@android:color/white"
+            app:srcCompat="@drawable/ic_bubble_chart_white_48dp" />
+
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/marker_actions_controller"

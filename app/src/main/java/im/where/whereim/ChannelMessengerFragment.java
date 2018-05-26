@@ -763,7 +763,12 @@ public class ChannelMessengerFragment extends BaseChannelFragment {
                                             return;
                                         }
                                         int originPosition = layoutManager.findFirstVisibleItemPosition();
-                                        long originId = mAdapter.getItemId(originPosition);
+                                        long originId;
+                                        if(originPosition == -1){
+                                            originId = -1;
+                                        }else{
+                                            originId = mAdapter.getItemId(originPosition);
+                                        }
                                         Integer newPosition = null;
                                         int originTop = 0;
                                         if(originId >= 0){
@@ -819,6 +824,7 @@ public class ChannelMessengerFragment extends BaseChannelFragment {
         if(mCurrentCursor!=null){
             mCurrentCursor.cursor.close();
         }
+        mAdapter = null;
         super.onDestroyView();
     }
 

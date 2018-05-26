@@ -1,13 +1,12 @@
 package im.where.whereim;
 
 import android.Manifest;
-import android.app.Activity;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -33,6 +32,16 @@ import im.where.whereim.models.POI;
  */
 
 abstract public class ChannelMapFragment extends BaseChannelFragment implements CoreService.MapDataDelegate {
+    public static ChannelMapFragment newFragment(Context context){
+        switch(Config.getMapProvider(context)){
+            case GOOGLE:
+                return new ChannelGoogleMapFragment();
+            case MAPBOX:
+                return new ChannelMapboxFragment();
+        }
+        return null;
+    }
+
     protected Handler mHandler = new Handler();
 
     final private List<Runnable> mPendingLocationServiceTask = new LinkedList<>();
@@ -50,8 +59,7 @@ abstract public class ChannelMapFragment extends BaseChannelFragment implements 
 
 
     private void processLocationServiceTask() {
-        Activity activity = getActivity();
-        if (activity==null || ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (channelActivity ==null || ActivityCompat.checkSelfPermission(channelActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         while(true){
@@ -69,6 +77,7 @@ abstract public class ChannelMapFragment extends BaseChannelFragment implements 
         }
     }
 
+    protected View mMainActionsController;
     protected View mMarkerActionsController;
     protected View mEnchantmentController;
     protected View mMarkerController;
@@ -105,6 +114,26 @@ abstract public class ChannelMapFragment extends BaseChannelFragment implements 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        mMainActionsController = view.findViewById(R.id.main_actions_controller);
+        view.findViewById(R.id.search).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                channelActivity.showAux(R.id.search, true);
+            }
+        });
+        view.findViewById(R.id.message).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                channelActivity.showAux(R.id.message, true);
+            }
+        });
+        view.findViewById(R.id.marker).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                channelActivity.showAux(R.id.marker, true);
+            }
+        });
 
         mMarkerActionsController = view.findViewById(R.id.marker_actions_controller);
 
@@ -374,6 +403,11 @@ abstract public class ChannelMapFragment extends BaseChannelFragment implements 
         refreshEditing();
     }
 
+    protected void showMainActionsPanel(){
+        clearAction(true);
+        mMainActionsController.setVisibility(View.VISIBLE);
+    }
+
     private String focusTitle = null;
     private Double focusLat = null;
     private Double focusLng = null;
@@ -381,6 +415,7 @@ abstract public class ChannelMapFragment extends BaseChannelFragment implements 
         focusTitle = title;
         focusLat = lat;
         focusLng = lng;
+        mMainActionsController.setVisibility(View.GONE);
         mCreateMarker.setVisibility(createMarker?View.VISIBLE:View.GONE);
         mCreateEnchantment.setVisibility(createEnchantment?View.VISIBLE:View.GONE);
         mShare.setVisibility(share?View.VISIBLE:View.GONE);

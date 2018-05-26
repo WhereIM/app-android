@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.OpenableColumns;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
@@ -15,6 +16,10 @@ import org.json.JSONObject;
  */
 
 public class Util {
+    static public float dp2px(Context context, int dp){
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        return dp*metrics.density;
+    }
 
     static public String JsonGetNullableString(JSONObject jsObj, String key) {
         try {

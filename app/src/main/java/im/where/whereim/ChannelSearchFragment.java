@@ -31,7 +31,27 @@ import im.where.whereim.models.POI;
  * Created by buganini on 19/01/17.
  */
 
-abstract public class ChannelSearchFragment extends BaseFragment {
+abstract public class ChannelSearchFragment extends BaseChannelFragment {
+    public static ChannelSearchFragment newFragment(Context context){
+        switch(Config.getMapProvider(context)){
+            case GOOGLE:
+                return new ChannelGoogleSearchFragment();
+            case MAPBOX:
+                return new ChannelMapboxSearchFragment();
+        }
+        return null;
+    }
+
+    @Override
+    protected void initChannel() {
+
+    }
+
+    @Override
+    protected void deinitChannel() {
+
+    }
+
     private class SearchHistoryAdapter extends BaseAdapter {
         private class ViewHolder {
             TextView text;
@@ -190,6 +210,10 @@ abstract public class ChannelSearchFragment extends BaseFragment {
         mClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(mKeyword.getText().toString().isEmpty()){
+                    channelActivity.showAux(0, false);
+                    return;
+                }
                 clearAttribution();
                 mKeyword.setText("");
                 mKeyword.clearFocus();
