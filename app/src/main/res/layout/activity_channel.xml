@@ -1,195 +1,218 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/content_root"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="im.where.whereim.ChannelActivity">
+    tools:context="im.where.whereim.ChannelActivity"
+    android:fitsSystemWindows="true">
 
-    <LinearLayout
+    <!-- Layout to contain contents of main body of screen (drawer will slide over this) -->
+    <RelativeLayout
+        android:id="@+id/content_frame"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:animateLayoutChanges="true"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/connecting_status"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#FF5555"
-            android:textColor="#FFFFFF"
-            android:padding="3dp"
-            android:gravity="center"
-            android:text="@string/connecting"
-            />
+            android:layout_height="match_parent"
+            android:animateLayoutChanges="true"
+            android:orientation="vertical">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1">
-
-            <FrameLayout
-                android:id="@+id/main_frame"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-            <FrameLayout
+            <TextView
+                android:id="@+id/connecting_status"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="20dp">
+                android:background="#FF5555"
+                android:textColor="#FFFFFF"
+                android:padding="3dp"
+                android:gravity="center"
+                android:text="@string/connecting"
+                />
 
-                <LinearLayout
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+                <FrameLayout
+                    android:id="@+id/main_frame"
                     android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:orientation="horizontal"
-                    android:background="@color/colorPrimary">
+                    android:layout_height="match_parent" />
 
-                    <Button
-                        android:id="@+id/list"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:layout_gravity="center_vertical"
-                        android:layout_margin="12dp"
-                        android:background="@drawable/baseline_map_white_36"/>
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="20dp">
 
                     <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_gravity="center_vertical"
-                        android:orientation="vertical"
-                        android:gravity="center_vertical">
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:orientation="horizontal"
+                        android:background="@color/colorPrimary">
 
-                        <TextView
-                            android:id="@+id/channel_title"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceMedium"
-                            android:textColor="@color/colorTextHighlight" />
+                        <Button
+                            android:id="@+id/list"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_gravity="center_vertical"
+                            android:layout_margin="12dp"
+                            android:background="@drawable/baseline_map_white_36"/>
 
-                        <TextView
-                            android:id="@+id/channel_subtitle"
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceSmall"
-                            android:textColor="@color/colorText" />
+                            android:layout_weight="1"
+                            android:layout_gravity="center_vertical"
+                            android:orientation="vertical"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:id="@+id/channel_title"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceMedium"
+                                android:textColor="@color/colorTextHighlight" />
+
+                            <TextView
+                                android:id="@+id/channel_subtitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceSmall"
+                                android:textColor="@color/colorText" />
+                        </LinearLayout>
+
+                        <FrameLayout
+                            android:layout_width="80dp"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center_vertical">
+
+                            <Switch
+                                android:id="@+id/enable"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:visibility="gone" />
+
+                            <ProgressBar
+                                android:id="@+id/enable_loading"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center" />
+
+                        </FrameLayout>
+
                     </LinearLayout>
 
-                    <FrameLayout
-                        android:layout_width="80dp"
-                        android:layout_height="match_parent"
-                        android:layout_gravity="center_vertical">
+                </FrameLayout>
 
-                        <Switch
-                            android:id="@+id/enable"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:gravity="center"
-                            android:visibility="gone" />
+                <ImageView
+                    android:id="@+id/resize_handler"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_centerHorizontal="true"
+                    android:src="@drawable/baseline_menu_black_18" />
+            </RelativeLayout>
 
-                        <ProgressBar
-                            android:id="@+id/enable_loading"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center" />
-
-                    </FrameLayout>
-
-                </LinearLayout>
-
-            </FrameLayout>
-
-            <ImageView
-                android:id="@+id/resize_handler"
+            <FrameLayout
+                android:id="@+id/aux_frame"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_centerHorizontal="true"
-                android:src="@drawable/baseline_menu_black_18" />
-        </RelativeLayout>
+                android:layout_height="0dp" />
 
-        <FrameLayout
-            android:id="@+id/aux_frame"
+        </LinearLayout>
+
+        <View
+            android:id="@+id/cover"
             android:layout_width="match_parent"
-            android:layout_height="0dp" />
+            android:layout_height="match_parent"
+            android:clickable="true"
+            />
 
-    </LinearLayout>
+        <ImageView
+            android:id="@+id/invite_pointer"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:src="@drawable/pointer_up_right" />
 
-    <View
-        android:id="@+id/cover"
-        android:layout_width="match_parent"
+        <LinearLayout
+            android:id="@+id/invite_pointer_desc"
+            android:visibility="gone"
+            android:orientation="vertical"
+            android:background="@drawable/hint_background"
+            android:layout_below="@id/invite_pointer"
+            android:layout_centerHorizontal="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="180dp"
+                android:layout_height="wrap_content"
+                android:textColor="#ffffff"
+                android:text="@string/tip_invite" />
+
+            <Button
+                android:id="@+id/invite_close"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:text="@string/got_it" />
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/toggle_channel_pointer"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:src="@drawable/pointer_up" />
+
+        <LinearLayout
+            android:id="@+id/toggle_channel_pointer_desc"
+            android:visibility="gone"
+            android:background="@drawable/hint_background"
+            android:orientation="vertical"
+            android:layout_below="@id/toggle_channel_pointer"
+            android:layout_centerHorizontal="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="180dp"
+                android:layout_height="wrap_content"
+                android:textColor="#ffffff"
+                android:text="@string/tip_toggle_channel_2" />
+
+            <Button
+                android:id="@+id/toggle_channel_close"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:text="@string/got_it" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <!-- Container for contents of drawer - use NavigationView to make configuration easier -->
+    <android.support.design.widget.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:clickable="true"
-        />
+        android:layout_gravity="start"
+        android:fitsSystemWindows="false">
 
-    <ImageView
-        android:id="@+id/invite_pointer"
-        android:visibility="gone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:src="@drawable/pointer_up_right" />
+        <fragment android:name="im.where.whereim.DrawerFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
-    <LinearLayout
-        android:id="@+id/invite_pointer_desc"
-        android:visibility="gone"
-        android:orientation="vertical"
-        android:background="@drawable/hint_background"
-        android:layout_below="@id/invite_pointer"
-        android:layout_centerHorizontal="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+    </android.support.design.widget.NavigationView>
 
-        <TextView
-            android:layout_width="180dp"
-            android:layout_height="wrap_content"
-            android:textColor="#ffffff"
-            android:text="@string/tip_invite" />
-
-        <Button
-            android:id="@+id/invite_close"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:text="@string/got_it" />
-
-    </LinearLayout>
-
-    <ImageView
-        android:id="@+id/toggle_channel_pointer"
-        android:visibility="gone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:src="@drawable/pointer_up" />
-
-    <LinearLayout
-        android:id="@+id/toggle_channel_pointer_desc"
-        android:visibility="gone"
-        android:background="@drawable/hint_background"
-        android:orientation="vertical"
-        android:layout_below="@id/toggle_channel_pointer"
-        android:layout_centerHorizontal="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:layout_width="180dp"
-            android:layout_height="wrap_content"
-            android:textColor="#ffffff"
-            android:text="@string/tip_toggle_channel_2" />
-
-        <Button
-            android:id="@+id/toggle_channel_close"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:text="@string/got_it" />
-
-    </LinearLayout>
-
-</RelativeLayout>
+</android.support.v4.widget.DrawerLayout>

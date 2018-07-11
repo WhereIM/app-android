@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -42,6 +44,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         mConnectingStatus.setVisibility(connected?View.GONE:View.VISIBLE);
     }
 
+    private DrawerLayout mDrawerLayout;
     private View mContentRoot;
     private View mCover;
     private ImageView mActiveChannelPointer;
@@ -67,6 +70,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
 
         setContentView(R.layout.activity_channel);
 
+        mDrawerLayout = findViewById(R.id.drawer_layout);
         resizeHandler = findViewById(R.id.resize_handler);
         mainFrame = findViewById(R.id.main_frame);
         auxFrame = findViewById(R.id.aux_frame);
@@ -98,7 +102,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
             }
         });
 
-        mContentRoot = findViewById(R.id.content_root);
+        mContentRoot = findViewById(R.id.content_frame);
         mCover = findViewById(R.id.cover);
         mActiveChannelPointer = findViewById(R.id.toggle_channel_pointer);
         mActiveChannelDesc = findViewById(R.id.toggle_channel_pointer_desc);
@@ -160,8 +164,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         findViewById(R.id.list).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(ChannelActivity.this, ChannelListActivity.class);
-                startActivity(intent);
+                mDrawerLayout.openDrawer(Gravity.LEFT);
             }
         });
 
@@ -231,6 +234,9 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         showAux(0);
     }
 
+    public void closeDrawer(){
+        mDrawerLayout.closeDrawer(Gravity.LEFT);
+    }
 
     void showMain(int comp){
         switch (comp) {
@@ -460,6 +466,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         mChannelMapFragment.onMapAd(ads);
     }
 
+    private ChannelActionFragment mChannelActionFragment;
     private ChannelMapFragment mChannelMapFragment;
     private ChannelSearchFragment mChannelSearchFragment;
     private ChannelMessengerFragment mChannelMessengerFragment = new ChannelMessengerFragment();
