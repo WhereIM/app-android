@@ -19,4 +19,14 @@ public abstract class BaseChannelFragment extends BaseFragment {
         channelActivity = null;
         super.onDetach();
     }
+
+
+    protected void getChannel(final ChannelActivity.GetChannelCallback callback){
+        postBinderTask(new CoreService.BinderTask() {
+            @Override
+            public void onBinderReady(CoreService.CoreBinder binder) {
+                ((ChannelActivity) getActivity()).getChannel(callback);
+            }
+        });
+    }
 }

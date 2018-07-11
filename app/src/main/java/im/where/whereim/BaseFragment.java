@@ -108,12 +108,4 @@ public class BaseFragment extends Fragment {
         }
     }
 
-    protected void getChannel(final ChannelActivity.GetChannelCallback callback){
-        postBinderTask(new CoreService.BinderTask() {
-            @Override
-            public void onBinderReady(CoreService.CoreBinder binder) {
-                ((ChannelActivity) getActivity()).getChannel(callback);
-            }
-        });
-    }
 }
