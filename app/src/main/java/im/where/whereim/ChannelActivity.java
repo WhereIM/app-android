@@ -210,7 +210,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                         if(tab != null){
                             switch (tab){
                                 case "message":
-                                    showAux(R.id.message, true);
+                                    showAux(R.id.message);
                                     break;
                             }
                         }
@@ -228,8 +228,9 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         });
 
         showMain(R.id.map);
-        showAux(0, false);
+        showAux(0);
     }
+
 
     void showMain(int comp){
         switch (comp) {
@@ -243,15 +244,22 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         }
     }
 
-    void showAux(int comp, boolean resizable){
+    void showAux(int comp){
         ViewGroup.LayoutParams params;
+        boolean resizable = false;
         int height = 0;
         switch (comp) {
             case 0:
-                resizeHandler.setVisibility(View.GONE);
-                auxFrame.setVisibility(View.GONE);
-                return;
+                resizable = false;
+                if(mChannelActionFragment == null){
+                    mChannelActionFragment = new ChannelActionFragment();
+                }
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.aux_frame, mChannelActionFragment).commit();
+                height = 50;
+                break;
             case R.id.search:
+                resizable = true;
                 if(mChannelSearchFragment == null){
                     mChannelSearchFragment = ChannelSearchFragment.newFragment(this);
                 }
@@ -260,6 +268,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                 height = 240;
                 break;
             case R.id.message:
+                resizable = true;
                 if(mChannelMessengerFragment == null){
                     mChannelMessengerFragment = new ChannelMessengerFragment();
                 }
@@ -268,6 +277,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                 height = 240;
                 break;
             case R.id.marker:
+                resizable = true;
                 if(mChannelMarkerFragment== null){
                     mChannelMarkerFragment = new ChannelMarkerFragment();
                 }

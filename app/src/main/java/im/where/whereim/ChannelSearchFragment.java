@@ -211,7 +211,7 @@ abstract public class ChannelSearchFragment extends BaseChannelFragment {
             @Override
             public void onClick(View v) {
                 if(mKeyword.getText().toString().isEmpty()){
-                    channelActivity.showAux(0, false);
+                    channelActivity.showAux(0);
                     return;
                 }
                 clearAttribution();
