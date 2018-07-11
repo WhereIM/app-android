@@ -129,7 +129,6 @@ public abstract class BaseChannelActivity extends BaseActivity {
             editor.putString(Key.CHANNEL, channel_id);
             editor.apply();
         }
-
         final String _channel_id = channel_id;
         postBinderTask(new CoreService.BinderTask() {
             @Override
@@ -138,6 +137,7 @@ public abstract class BaseChannelActivity extends BaseActivity {
                 if(_channel_id == null){
                     failed = true;
                 }
+                final Channel prevChannel = mChannel;
                 mChannel = mBinder.getChannelById(_channel_id);
                 if(mChannel == null){
                     failed = true;
@@ -147,14 +147,14 @@ public abstract class BaseChannelActivity extends BaseActivity {
                     startActivity(intent);
                     finish();
                 }else{
-                    onChannelChanged();
+                    onChannelChanged(prevChannel);
                     processGetChannelCallback();
                 }
             }
         });
     }
 
-    protected abstract void onChannelChanged();
+    protected abstract void onChannelChanged(Channel prevChannel);
 
     private final List<GetChannelCallback> mGetChannelCallback = new ArrayList<>();
     protected void getChannel(GetChannelCallback callback){

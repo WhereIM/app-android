@@ -310,7 +310,33 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     }
 
     @Override
-    protected void onChannelChanged() {
+    protected void onChannelChanged(final Channel prevChannel) {
+        if(prevChannel != null){
+            postBinderTask(new CoreService.BinderTask() {
+                @Override
+                public void onBinderReady(CoreService.CoreBinder binder) {
+                    binder.closeMap(prevChannel, ChannelActivity.this);
+                }
+            });
+        }
+        if(mChannel.user_channel_name==null || mChannel.user_channel_name.isEmpty()){
+            mChannelTitle.setText(mChannel.channel_name);
+            mChannelSubtitle.setVisibility(View.GONE);
+        }else{
+            mChannelSubtitle.setVisibility(View.VISIBLE);
+            mChannelTitle.setText(mChannel.user_channel_name);
+            mChannelSubtitle.setText(mChannel.channel_name);
+        }
+        Boolean active = mChannel.active;
+        if(active==null){
+            mActive.setVisibility(View.GONE);
+            mEnableLoading.setVisibility(View.VISIBLE);
+        }else{
+            mActive.setVisibility(View.VISIBLE);
+            mEnableLoading.setVisibility(View.GONE);
+            mActive.setChecked(active);
+        }
+
         if(mChannelMapFragment != null) {
             mChannelMapFragment.deinitChannel();
             mChannelMapFragment.initChannel();
@@ -330,6 +356,12 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
             mChannelEnchantmentFragment.deinitChannel();
             mChannelEnchantmentFragment.initChannel();
         }
+        postBinderTask(new CoreService.BinderTask() {
+            @Override
+            public void onBinderReady(CoreService.CoreBinder binder) {
+                binder.openMap(mChannel, ChannelActivity.this);
+            }
+        });
     }
 
     private void checkTips() {
@@ -480,23 +512,6 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                 mActive.setVisibility(View.GONE);
                 mEnableLoading.setVisibility(View.GONE);
                 return;
-            }
-            if(mChannel.user_channel_name==null || mChannel.user_channel_name.isEmpty()){
-                mChannelTitle.setText(mChannel.channel_name);
-                mChannelSubtitle.setVisibility(View.GONE);
-            }else{
-                mChannelSubtitle.setVisibility(View.VISIBLE);
-                mChannelTitle.setText(mChannel.user_channel_name);
-                mChannelSubtitle.setText(mChannel.channel_name);
-            }
-            Boolean active = mChannel.active;
-            if(active==null){
-                mActive.setVisibility(View.GONE);
-                mEnableLoading.setVisibility(View.VISIBLE);
-            }else{
-                mActive.setVisibility(View.VISIBLE);
-                mEnableLoading.setVisibility(View.GONE);
-                mActive.setChecked(active);
             }
 
             mHandler.post(new Runnable() {
