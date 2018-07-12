@@ -6,26 +6,30 @@
     android:orientation="vertical"
     tools:context=".DrawerFragment">
 
-    <Button android:id="@+id/settings"
+    <ImageButton android:id="@+id/settings"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="right"
-        android:text="Settings" />
+        android:background="?android:selectableItemBackground"
+        android:src="@drawable/baseline_settings_black_24" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="80dp"
         android:orientation="horizontal">
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_gravity="bottom"
             android:text="MAPS"/>
 
-        <Button android:id="@+id/new_map"
+        <ImageButton android:id="@+id/new_map"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="+" />
+            android:layout_gravity="bottom"
+            android:background="?android:selectableItemBackground"
+            android:src="@drawable/baseline_add_black_24" />
 
     </LinearLayout>
 

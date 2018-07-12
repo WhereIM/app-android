@@ -9,9 +9,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 import im.where.whereim.R;
 
@@ -25,7 +25,7 @@ public class FilterBar extends FrameLayout {
     }
 
     private EditText mKeyword;
-    private Button mBtnClear;
+    private ImageView mBtnClear;
     private Callback mCallback;
 
     public FilterBar(final Context context, @Nullable AttributeSet attrs) {
