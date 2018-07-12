@@ -250,7 +250,9 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         }
     }
 
+    private int auxComp = 0;
     void showAux(int comp){
+        auxComp = comp;
         ViewGroup.LayoutParams params;
         boolean resizable = false;
         int height = 0;
@@ -574,6 +576,15 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                 }
                 return;
             }
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(auxComp==0){
+            super.onBackPressed();
+        }else{
+            showAux(0);
         }
     }
 }
