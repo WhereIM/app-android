@@ -10,29 +10,33 @@
     <ImageButton
         android:id="@+id/search"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_weight="1"
-        android:src="@drawable/ic_search_white_48dp" />
+        android:background="?android:selectableItemBackground"
+        android:src="@drawable/baseline_search_black_36" />
 
     <ImageButton
         android:id="@+id/marker"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_weight="1"
-        android:src="@drawable/ic_search_white_48dp" />
+        android:background="?android:selectableItemBackground"
+        android:src="@drawable/baseline_place_black_36" />
 
     <ImageButton
         android:id="@+id/message"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_weight="1"
-        android:src="@drawable/ic_search_white_48dp" />
+        android:background="?android:selectableItemBackground"
+        android:src="@drawable/baseline_message_black_36" />
 
     <ImageButton
         android:id="@+id/mates"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_weight="1"
-        android:src="@drawable/ic_search_white_48dp" />
+        android:background="?android:selectableItemBackground"
+        android:src="@drawable/baseline_face_black_36" />
 
 </LinearLayout>
