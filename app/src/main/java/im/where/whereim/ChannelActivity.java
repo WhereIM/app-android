@@ -220,7 +220,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                 params.height = (int) Util.dp2px(ChannelActivity.this, 50);
                 break;
             case FULL:
-                params.height = mContentRoot.getHeight();
+                params.height = ViewGroup.LayoutParams.MATCH_PARENT;
                 break;
             case AUTO:
                 params.height = (int) Util.dp2px(ChannelActivity.this, 240);
