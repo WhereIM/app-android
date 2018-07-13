@@ -192,8 +192,8 @@ abstract public class ChannelSearchFragment extends BaseChannelFragment {
     }
 
     private EditText mKeyword;
-    private Button mSearch;
-    private Button mClear;
+    private View mSearch;
+    private View mClear;
     private View mLoading;
     private ListView mListView;
     private View mGoogleAttribution;
@@ -207,7 +207,7 @@ abstract public class ChannelSearchFragment extends BaseChannelFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_channel_search, container, false);
 
-        mClear = (Button) view.findViewById(R.id.clear);
+        mClear = view.findViewById(R.id.clear);
         mClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -221,7 +221,7 @@ abstract public class ChannelSearchFragment extends BaseChannelFragment {
             }
         });
 
-        mSearch = (Button) view.findViewById(R.id.search);
+        mSearch = view.findViewById(R.id.search);
         mSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -230,7 +230,7 @@ abstract public class ChannelSearchFragment extends BaseChannelFragment {
             }
         });
 
-        mListView = (ListView) view.findViewById(R.id.results);
+        mListView = view.findViewById(R.id.results);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -258,11 +258,11 @@ abstract public class ChannelSearchFragment extends BaseChannelFragment {
         mListView.setAdapter(mSearchResultAdapter);
 
         mGoogleAttribution = view.findViewById(R.id.google_attribution);
-        mTextAttribution = (TextView) view.findViewById(R.id.text_attribution);
+        mTextAttribution = view.findViewById(R.id.text_attribution);
 
         mLoading = view.findViewById(R.id.loading);
 
-        mKeyword = (EditText) view.findViewById(R.id.keyword);
+        mKeyword = view.findViewById(R.id.keyword);
         mKeyword.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {

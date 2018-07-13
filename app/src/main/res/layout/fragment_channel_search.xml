@@ -26,22 +26,22 @@
             android:layout_margin="5dp"
             android:maxLines="1" />
 
-        <Button
+        <ImageButton
             android:id="@+id/search"
             android:layout_width="40dp"
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
-            android:background="@null"
-            android:text="🔍" />
+            android:background="?android:selectableItemBackground"
+            android:src="@drawable/baseline_search_black_24" />
 
-        <Button
+        <ImageButton
             android:id="@+id/clear"
             android:layout_width="40dp"
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
-            android:background="@null"
-            android:visibility="gone"
-            android:text="✘"/>
+            android:background="?android:selectableItemBackground"
+            android:src="@drawable/baseline_close_black_24"
+            android:visibility="gone" />
     </LinearLayout>
 
     <RelativeLayout
