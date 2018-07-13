@@ -15,7 +15,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import im.where.whereim.dialogs.DialogIconPicker;
+import im.where.whereim.dialogs.DialogOpenIn;
 import im.where.whereim.dialogs.DialogPublic;
+import im.where.whereim.dialogs.DialogShareLocation;
 import im.where.whereim.geo.QuadTree;
 import im.where.whereim.models.Channel;
 import im.where.whereim.models.Marker;
@@ -135,6 +137,23 @@ public class ChannelMarkerEditFragment extends BaseChannelFragment {
             @Override
             public void onClick(View view) {
                 close();
+            }
+        });
+
+        view.findViewById(R.id.share).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                QuadTree.LatLng location = channelActivity.getMapCenter();
+                new DialogShareLocation(channelActivity, mNameEdit.getText().toString(), location.latitude, location.longitude);
+            }
+        });
+
+
+        view.findViewById(R.id.open_in).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                QuadTree.LatLng location = channelActivity.getMapCenter();
+                new DialogOpenIn(getActivity(), null, location.latitude, location.longitude);
             }
         });
 
