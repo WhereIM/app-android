@@ -24,6 +24,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import im.where.whereim.dialogs.DialogChannelInvite;
 import im.where.whereim.dialogs.DialogEditMarker;
 import im.where.whereim.dialogs.DialogEditMate;
 import im.where.whereim.dialogs.DialogEditSelf;
@@ -349,8 +350,20 @@ public class ChannelMateFragment extends BaseChannelFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_channel_mate, container, false);
 
-        mFilter = (FilterBar) view.findViewById(R.id.filter);
-        mListView = (ExpandableListView) view.findViewById(R.id.mate);
+        mFilter = view.findViewById(R.id.filter);
+        mListView = view.findViewById(R.id.mate);
+
+        view.findViewById(R.id.invite).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getChannel(new BaseChannelActivity.GetChannelCallback() {
+                    @Override
+                    public void onGetChannel(final Channel channel) {
+                        new DialogChannelInvite(getActivity(), channel);
+                    }
+                });
+            }
+        });
 
         postBinderTask(new CoreService.BinderTask() {
             @Override

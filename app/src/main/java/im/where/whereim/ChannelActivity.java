@@ -45,7 +45,6 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
 
     private DrawerLayout mDrawerLayout;
     private View mContentRoot;
-    private View mCover;
 
     private View mConnectingStatus;
     private TextView mChannelTitle;
@@ -56,8 +55,6 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     private View resizeHandler;
     private FrameLayout mainFrame;
     private FrameLayout auxFrame;
-
-    private int mReady = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +95,6 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         });
 
         mContentRoot = findViewById(R.id.content_frame);
-        mCover = findViewById(R.id.cover);
 
         mConnectingStatus = findViewById(R.id.connecting_status);
 
@@ -191,8 +187,6 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                         }
                     }
                 });
-
-                mReady += 1;
             }
         });
 
@@ -386,15 +380,6 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         } else {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         }
-    }
-
-    private void invite_join(){
-        getChannel(new GetChannelCallback() {
-            @Override
-            public void onGetChannel(final Channel channel) {
-                new DialogChannelInvite(ChannelActivity.this, channel);
-            }
-        });
     }
 
     public void sendPin(QuadTree.LatLng location){
