@@ -110,6 +110,9 @@ public class ChannelMessengerFragment extends BaseChannelFragment {
         postBinderTask(new CoreService.BinderTask() {
             @Override
             public void onBinderReady(CoreService.CoreBinder binder) {
+                if(mListView!=null)
+                    mListView.setAdapter(null);
+                mAdapter = null;
                 if(mChannel!=null){
                     binder.removeMessageListener(mChannel, mMessageListener);
                 }
