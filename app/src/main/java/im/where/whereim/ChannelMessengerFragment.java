@@ -558,6 +558,7 @@ public class ChannelMessengerFragment extends BaseChannelFragment {
     private RecyclerView mListView;
     private WimLinearLayoutManager layoutManager;
     private View mUnread;
+    private View mBottom;
     private View mPin;
     private View mPicker;
     private View mCamera;
@@ -592,6 +593,16 @@ public class ChannelMessengerFragment extends BaseChannelFragment {
         View view = inflater.inflate(R.layout.fragment_channel_messenger, container, false);
 
         mPin = view.findViewById(R.id.pin);
+
+        mBottom = view.findViewById(R.id.bottom);
+        mBottom.setVisibility(View.GONE);
+        mBottom.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mListView.scrollToPosition(mAdapter.getItemCount() - 1);
+                messageViewEnd = true;
+            }
+        });
 
         mUnread = view.findViewById(R.id.unread);
         mUnread.setVisibility(View.GONE);
@@ -674,6 +685,13 @@ public class ChannelMessengerFragment extends BaseChannelFragment {
 
             }
 
+            private Runnable mShowBottom = new Runnable() {
+                @Override
+                public void run() {
+                    mBottom.setVisibility(View.VISIBLE);
+                }
+            };
+
             @Override
             public void onScrolled(RecyclerView view, int dx, int dy) {
                 if(mCurrentCursor==null){
@@ -683,6 +701,13 @@ public class ChannelMessengerFragment extends BaseChannelFragment {
                         view.getChildAt(view.getChildCount() - 1).getBottom() <= view.getHeight();
                 if(messageViewEnd){
                     mUnread.setVisibility(View.GONE);
+                }
+                boolean showBottom = !messageViewEnd && mUnread.getVisibility()==View.GONE;
+                if(showBottom){
+                    mHandler.postDelayed(mShowBottom, 1000);
+                }else{
+                    mHandler.removeCallbacks(mShowBottom);
+                    mBottom.setVisibility(View.GONE);
                 }
                 if(layoutManager.findFirstVisibleItemPosition()==0){
                     postBinderTask(new CoreService.BinderTask() {
@@ -805,6 +830,7 @@ public class ChannelMessengerFragment extends BaseChannelFragment {
                                         }else{
                                             if(mCurrentCursor.lastId > maxMessageId) {
                                                 mUnread.setVisibility(View.VISIBLE);
+                                                mBottom.setVisibility(View.GONE);
                                             }
                                         }
                                     }
