@@ -109,17 +109,28 @@
                 </FrameLayout>
 
                 <RelativeLayout
-                    android:id="@+id/resize_handler"
                     android:layout_width="match_parent"
                     android:layout_height="20dp"
                     android:layout_alignParentBottom="true"
                     android:layout_centerHorizontal="true">
                     <View
-                        android:layout_width="80dp"
-                        android:layout_height="2dp"
-                        android:background="#777777"
-                        android:layout_centerInParent="true"
-                        />
+                        android:layout_width="match_parent"
+                        android:layout_height="5dp"
+                        android:layout_alignParentBottom="true"
+                        android:layout_centerHorizontal="true"
+                        android:background="@drawable/top_shadow" />
+
+                    <RelativeLayout
+                        android:id="@+id/resize_handler"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+                        <View
+                            android:layout_width="80dp"
+                            android:layout_height="2dp"
+                            android:background="#777777"
+                            android:layout_centerInParent="true"
+                            />
+                    </RelativeLayout>
                 </RelativeLayout>
             </RelativeLayout>
 
