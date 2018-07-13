@@ -1,9 +1,7 @@
 package im.where.whereim;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -17,15 +15,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import im.where.whereim.dialogs.DialogChannelInvite;
 import im.where.whereim.dialogs.DialogLocationServicePermissionRationale;
 import im.where.whereim.geo.QuadTree;
 import im.where.whereim.models.Ad;

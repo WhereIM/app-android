@@ -1,11 +1,9 @@
 package im.where.whereim;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -16,21 +14,15 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
-import android.widget.ImageView;
-import android.widget.Switch;
 import android.widget.TextView;
-
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 
 import im.where.whereim.dialogs.DialogChannelInvite;
-import im.where.whereim.dialogs.DialogEditMarker;
 import im.where.whereim.dialogs.DialogEditMate;
 import im.where.whereim.dialogs.DialogEditSelf;
 import im.where.whereim.dialogs.DialogMatesInfo;
 import im.where.whereim.models.Channel;
-import im.where.whereim.models.Marker;
 import im.where.whereim.models.Mate;
 import im.where.whereim.views.EmojiText;
 import im.where.whereim.views.FilterBar;
