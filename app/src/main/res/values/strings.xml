@@ -55,6 +55,7 @@
     <string name="cancel">Cancel</string>
     <string name="close">Close</string>
     <string name="delete">Delete</string>
+    <string name="save">Save</string>
     <string name="open_in_channel">Open in Channel</string>
     <string name="scan_qr_code">Scan QR Code</string>
     <string name="generate_qr_code">Generate QR Code</string>
@@ -64,10 +65,12 @@
     <string name="create_enchantment">New Geofence</string>
     <string name="create_marker">New Marker</string>
     <string name="forge_location">Forge Location</string>
+    <string name="save_marker">Save Marker</string>
     <string name="radius_m">%1$d m</string>
     <string name="self">Self</string>
     <string name="mate">Mate</string>
     <string name="is_public">Shared</string>
+    <string name="only_me">Only Me</string>
     <string name="public_enchantment">Shared Geofence</string>
     <string name="private_enchantment">Personal Geofence</string>
     <string name="public_marker">Shared Marker</string>

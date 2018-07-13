@@ -54,6 +54,7 @@
     <string name="cancel">取消</string>
     <string name="close">關閉</string>
     <string name="delete">刪除</string>
+    <string name="save">儲存</string>
     <string name="open_in_channel">在群組中開啟</string>
     <string name="scan_qr_code">"掃瞄 QR  Code"</string>
     <string name="generate_qr_code">產生 QR Code</string>
@@ -63,10 +64,12 @@
     <string name="create_enchantment">設立地界</string>
     <string name="create_marker">放置圖釘</string>
     <string name="forge_location">假造位置</string>
+    <string name="save_marker">儲存圖釘</string>
     <string name="radius_m">%1$d m</string>
     <string name="self">自己</string>
     <string name="mate">夥伴</string>
     <string name="is_public">共用</string>
+    <string name="only_me">只有自己</string>
     <string name="public_enchantment">共用地界</string>
     <string name="private_enchantment">個人地界</string>
     <string name="public_marker">共用圖釘</string>

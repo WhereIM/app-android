@@ -1,12 +1,10 @@
 package im.where.whereim;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -15,25 +13,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-
 import im.where.whereim.dialogs.DialogEditMarker;
-import im.where.whereim.dialogs.DialogEditMate;
-import im.where.whereim.dialogs.DialogEditSelf;
-import im.where.whereim.dialogs.DialogMatesInfo;
 import im.where.whereim.models.Channel;
 import im.where.whereim.models.Marker;
-import im.where.whereim.models.Mate;
-import im.where.whereim.views.EmojiText;
 import im.where.whereim.views.FilterBar;
 
 public class ChannelMarkerFragment extends BaseChannelFragment {
@@ -366,7 +355,7 @@ public class ChannelMarkerFragment extends BaseChannelFragment {
                         ChannelActivity activity = (ChannelActivity) getActivity();
                         Marker marker = (Marker) mAdapter.getChild(groupPosition, childPosition);
                         if(marker!=null) {
-                            activity.resizeAux(ChannelActivity.AuxSize.AUTO);
+                            activity.resizeAux(ChannelActivity.AuxSize.FREE);
                             activity.moveToMarker(marker, true);
                         }
                         return true;

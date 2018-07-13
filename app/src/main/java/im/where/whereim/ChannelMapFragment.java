@@ -259,97 +259,10 @@ abstract public class ChannelMapFragment extends BaseChannelFragment implements 
 
     abstract protected void refreshEditing();
 
-    protected void startEditing(){
-        if(mEditingType!=null){
-            if (mEditingType == Key.MAP_OBJECT.ENCHANTMENT) {
-                mEditingEnchantment.latitude = mEditingLatitude;
-                mEditingEnchantment.longitude = mEditingLongitude;
-            }
-            if (mEditingType == Key.MAP_OBJECT.MARKER) {
-                mEditingMarker.latitude = mEditingLatitude;
-                mEditingMarker.longitude = mEditingLongitude;
-            }
-            refreshEditing();
-            return;
-        }
-        new DialogMapMenu(getActivity(), new DialogMapMenu.Callback() {
-            @Override
-            public void onOpenIn() {
-                new DialogOpenIn(getActivity(), null, mEditingLatitude, mEditingLongitude);
-            }
-
-            @Override
-            public void onShareLocation() {
-                new DialogShareLocation(getActivity(), null, mEditingLatitude, mEditingLongitude);
-            }
-
-            @Override
-            public void onSendPin() {
-                getChannel(new ChannelActivity.GetChannelCallback() {
-                    @Override
-                    public void onGetChannel(final Channel channel) {
-                        postBinderTask(new CoreService.BinderTask() {
-                            @Override
-                            public void onBinderReady(CoreService.CoreBinder binder) {
-                                ChannelActivity activity = (ChannelActivity) getActivity();
-                                activity.sendPin(new QuadTree.LatLng(mEditingLatitude, mEditingLongitude));
-                            }
-                        });
-                    }
-                });
-            }
-
-            @Override
-            public void onCreateEnchantment() {
-                new DialogCreateEnchantment(getActivity(), null, new DialogCreateEnchantment.Callback() {
-                    @Override
-                    public void onPositive(String name, boolean isPublic) {
-                        clearMakerActionsController();
-                        mEditingEnchantment.id = null;
-                        mEditingEnchantment.radius = Config.DEFAULT_ENCHANTMENT_RADIUS;
-                        mEditingEnchantment.name = name;
-                        mEditingEnchantment.latitude = mEditingLatitude;
-                        mEditingEnchantment.longitude = mEditingLongitude;
-                        mEditingEnchantment.isPublic = isPublic;
-                        mEnchantment_radius.setText(getString(R.string.radius_m, mEditingEnchantment.radius));
-                        mEditingType = Key.MAP_OBJECT.ENCHANTMENT;
-                        refreshEditing();
-                    }
-                });
-            }
-
-            @Override
-            public void onCreateMarker() {
-                new DialogCreateMarker(getActivity(), null, new DialogCreateMarker.Callback() {
-                    @Override
-                    public void onCreateMarker(String name, boolean isPublic, JSONObject attr) {
-                        mEditingMarker.id = null;
-                        mEditingMarker.name = name;
-                        mEditingMarker.latitude = mEditingLatitude;
-                        mEditingMarker.longitude = mEditingLongitude;
-                        mEditingMarker.isPublic = isPublic;
-                        mEditingMarker.attr = attr;
-                        mEditingType = Key.MAP_OBJECT.MARKER;
-                        refreshEditing();
-                    }
-                });
-            }
-
-            @Override
-            public void onForgeLocation() {
-                getChannel(new ChannelActivity.GetChannelCallback() {
-                    @Override
-                    public void onGetChannel(final Channel channel) {
-                        postBinderTask(new CoreService.BinderTask() {
-                            @Override
-                            public void onBinderReady(CoreService.CoreBinder binder) {
-                                binder.forgeLocation(getActivity(), channel, mEditingLatitude, mEditingLongitude);
-                            }
-                        });
-                    }
-                });
-            }
-        });
+    protected void onMapLongClick(QuadTree.LatLng location){
+        moveTo(new QuadTree.LatLng(location.latitude, location.longitude));
+        ChannelActivity activity = (ChannelActivity) getActivity();
+        activity.showAux(ChannelActivity.AuxComp.MARKER_CREATE);
     }
 
     @Override

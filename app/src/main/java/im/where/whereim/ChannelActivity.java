@@ -1,6 +1,7 @@
 package im.where.whereim;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -14,6 +15,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -176,7 +178,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                         if(tab != null){
                             switch (tab){
                                 case "message":
-                                    showAux(R.id.message);
+                                    showAux(AuxComp.MESSAGE);
                                     break;
                             }
                         }
@@ -186,7 +188,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         });
 
         showMain(R.id.map);
-        showAux(0);
+        showAux(AuxComp.TAB);
     }
 
     public void closeDrawer(){
@@ -207,7 +209,8 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
 
     enum AuxSize {
         TAB,
-        AUTO,
+        FREE,
+        WRAP,
         FULL,
     }
     private AuxSize currentAuxSize = AuxSize.TAB;
@@ -219,12 +222,15 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
             case TAB:
                 params.height = (int) Util.dp2px(ChannelActivity.this, 50);
                 break;
+            case WRAP:
+                params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                break;
             case FULL:
                 params.height = ViewGroup.LayoutParams.MATCH_PARENT;
                 break;
-            case AUTO:
+            case FREE:
                 params.height = (int) Util.dp2px(ChannelActivity.this, 240);
-                if(currentAuxSize == AuxSize.AUTO){
+                if(currentAuxSize == AuxSize.FREE){
                     doChange = false;
                 }
                 break;
@@ -235,13 +241,21 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         currentAuxSize = size;
     }
 
-    private int auxComp = 0;
-    void showAux(int comp){
+    enum AuxComp {
+        TAB,
+        SEARCH,
+        MESSAGE,
+        MARKER,
+        MATE,
+        MARKER_CREATE,
+    }
+    private AuxComp auxComp = AuxComp.TAB;
+    void showAux(AuxComp comp){
         auxComp = comp;
         AuxSize size = AuxSize.TAB;
         boolean resizable = false;
         switch (comp) {
-            case 0:
+            case TAB:
                 resizable = false;
                 setSearchResult(new ArrayList<POI>());
                 if(mChannelActionFragment == null){
@@ -250,7 +264,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.aux_frame, mChannelActionFragment).commit();
                 break;
-            case R.id.search:
+            case SEARCH:
                 resizable = true;
                 if(mChannelSearchFragment == null){
                     mChannelSearchFragment = ChannelSearchFragment.newFragment(this);
@@ -259,7 +273,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                         .replace(R.id.aux_frame, mChannelSearchFragment).commit();
                 size = AuxSize.FULL;
                 break;
-            case R.id.message:
+            case MESSAGE:
                 resizable = true;
                 if(mChannelMessengerFragment == null){
                     mChannelMessengerFragment = new ChannelMessengerFragment();
@@ -268,7 +282,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                         .replace(R.id.aux_frame, mChannelMessengerFragment).commit();
                 size = AuxSize.FULL;
                 break;
-            case R.id.marker:
+            case MARKER:
                 resizable = true;
                 if(mChannelMarkerFragment== null){
                     mChannelMarkerFragment = new ChannelMarkerFragment();
@@ -277,7 +291,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                         .replace(R.id.aux_frame, mChannelMarkerFragment).commit();
                 size = AuxSize.FULL;
                 break;
-            case R.id.mate:
+            case MATE:
                 resizable = true;
                 if(mChannelMateFragment== null){
                     mChannelMateFragment = new ChannelMateFragment();
@@ -285,6 +299,11 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.aux_frame, mChannelMateFragment).commit();
                 size = AuxSize.FULL;
+                break;
+            case MARKER_CREATE:
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.aux_frame, ChannelMarkerEditFragment.newInstance(null, null, false)).commit();
+                size = AuxSize.WRAP;
                 break;
         }
         resizeHandler.setVisibility(resizable ? View.VISIBLE : View.GONE);
@@ -296,6 +315,15 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                 resizeAux(_size);
             }
         });
+    }
+
+    public void closeKeyboard(){
+        InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        View focusView = getCurrentFocus();
+        if(focusView != null && inputManager != null){
+            inputManager.hideSoftInputFromWindow(focusView.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
     }
 
     private void onLocationServiceReady(){
@@ -382,6 +410,11 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     }
 
     @Override
+    public void moveTo(QuadTree.LatLng location) {
+        mChannelMapFragment.moveTo(location);
+    }
+
+    @Override
     public void moveToPin(QuadTree.LatLng latLng) {
         mChannelMapFragment.moveToPin(latLng);
     }
@@ -433,7 +466,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     public void setSearchResult(ArrayList<POI> results){
         mChannelMapFragment.setSearchResult(results);
         if(results.size() > 0){
-            resizeAux(ChannelActivity.AuxSize.AUTO);
+            resizeAux(ChannelActivity.AuxSize.FREE);
             moveToSearchResult(0, false);
         }
     }
@@ -512,10 +545,10 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
 
     @Override
     public void onBackPressed() {
-        if(auxComp==0){
+        if(auxComp==AuxComp.TAB){
             super.onBackPressed();
         }else{
-            showAux(0);
+            showAux(AuxComp.TAB);
         }
     }
 }

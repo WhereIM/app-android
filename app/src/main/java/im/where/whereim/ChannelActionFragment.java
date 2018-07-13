@@ -24,6 +24,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import im.where.whereim.ChannelActivity.AuxComp;
 import im.where.whereim.dialogs.DialogEditMarker;
 import im.where.whereim.dialogs.DialogEditMate;
 import im.where.whereim.dialogs.DialogEditSelf;
@@ -46,36 +47,6 @@ public class ChannelActionFragment extends BaseChannelFragment {
         super.onCreate(savedInstanceState);
     }
 
-    private Channel mChannel;
-
-    @Override
-    protected void initChannel() {
-        postBinderTask(new CoreService.BinderTask() {
-            @Override
-            public void onBinderReady(final CoreService.CoreBinder binder) {
-                getChannel(new ChannelActivity.GetChannelCallback() {
-                    @Override
-                    public void onGetChannel(final Channel channel) {
-                        mChannel = channel;
-
-                    }
-                });
-            }
-        });
-    }
-
-    @Override
-    protected void deinitChannel() {
-        postBinderTask(new CoreService.BinderTask() {
-            @Override
-            public void onBinderReady(CoreService.CoreBinder binder) {
-                if(mChannel!=null){
-
-                }
-            }
-        });
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_channel_action, container, false);
@@ -83,37 +54,31 @@ public class ChannelActionFragment extends BaseChannelFragment {
         view.findViewById(R.id.search).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                channelActivity.showAux(R.id.search);
+                channelActivity.showAux(AuxComp.SEARCH);
             }
         });
 
         view.findViewById(R.id.marker).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                channelActivity.showAux(R.id.marker);
+                channelActivity.showAux(AuxComp.MARKER);
             }
         });
 
         view.findViewById(R.id.message).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                channelActivity.showAux(R.id.message);
+                channelActivity.showAux(AuxComp.MESSAGE);
             }
         });
 
         view.findViewById(R.id.mates).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                channelActivity.showAux(R.id.mate);
+                channelActivity.showAux(AuxComp.MATE);
             }
         });
 
         return view;
-    }
-
-    @Override
-    public void onDestroyView() {
-        deinitChannel();
-        super.onDestroyView();
     }
 }

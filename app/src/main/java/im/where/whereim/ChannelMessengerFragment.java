@@ -20,7 +20,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.LinearSmoothScroller;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -31,8 +30,6 @@ import android.widget.TextView;
 
 import com.amazonaws.util.IOUtils;
 import com.bumptech.glide.Glide;
-
-import org.json.JSONException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -524,7 +521,7 @@ public class ChannelMessengerFragment extends BaseChannelFragment {
                     activity.moveToPin(new QuadTree.LatLng(Double.valueOf(args[1]), Double.valueOf(args[2])));
                     break;
             }
-            activity.resizeAux(ChannelActivity.AuxSize.AUTO);
+            activity.resizeAux(ChannelActivity.AuxSize.FREE);
         }
     };
 
@@ -651,10 +648,7 @@ public class ChannelMessengerFragment extends BaseChannelFragment {
         view.findViewById(R.id.send).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Activity activity = getActivity();
-                InputMethodManager inputManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-
-                inputManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                channelActivity.closeKeyboard();
                 final String message = mInput.getEditableText().toString();
                 final QuadTree.LatLng location = pinLocation;
                 if(message.isEmpty()){
@@ -729,11 +723,7 @@ public class ChannelMessengerFragment extends BaseChannelFragment {
         mListView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                View focus = getActivity().getCurrentFocus();
-                if(focus != null){
-                    inputManager.hideSoftInputFromWindow(focus.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-                }
+                channelActivity.closeKeyboard();
                 mInput.clearFocus();
                 return false;
             }

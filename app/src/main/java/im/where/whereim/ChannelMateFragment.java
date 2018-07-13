@@ -376,7 +376,7 @@ public class ChannelMateFragment extends BaseChannelFragment {
                         ChannelActivity activity = (ChannelActivity) getActivity();
                         Mate mate = (Mate) mAdapter.getChild(groupPosition, childPosition);
                         if(mate!=null) {
-                            activity.resizeAux(ChannelActivity.AuxSize.AUTO);
+                            activity.resizeAux(ChannelActivity.AuxSize.FREE);
                             activity.moveToMate(mate, true);
                         }
                         return true;

@@ -86,6 +86,8 @@ public class Marker extends BaseModel {
     public Boolean enabled;
     public boolean deleted = false;
 
+    public final static String DEFAULT_COLOR = "red";
+
     public static int getIconResource(String color){
         switch(color){
             case "azure": return R.drawable.icon_marker_azure;

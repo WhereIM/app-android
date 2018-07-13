@@ -106,14 +106,7 @@ abstract public class ChannelSearchFragment extends BaseChannelFragment {
     abstract protected BaseAdapter getAutoCompleteAdapter();
 
     private void do_search(final String keyword){
-        final ChannelActivity activity = (ChannelActivity) getActivity();
-        if(activity!=null) {
-            View view = activity.getCurrentFocus();
-            if (view != null) {
-                InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-            }
-        }
+        channelActivity.closeKeyboard();
 
         if(keyword.isEmpty()){
             setSearchResult(new ArrayList<POI>());

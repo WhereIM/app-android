@@ -5,8 +5,13 @@ import android.content.Context;
 public abstract class BaseChannelFragment extends BaseFragment {
     ChannelActivity channelActivity;
 
-    protected abstract void initChannel();
-    protected abstract void deinitChannel();
+    protected void initChannel(){
+
+    }
+
+    protected void deinitChannel(){
+
+    }
 
     @Override
     public void onAttach(Context context) {

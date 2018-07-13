@@ -149,7 +149,6 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                         @Override
                         public void onMapReady(GoogleMap googleMap) {
                             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(defaultLat, defaultLng), defaultZoom));
-
                         }
                     });
                 }
@@ -354,6 +353,16 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     private HashMap<String, Marker> mMateMarker = new HashMap<>();
 
     @Override
+    public void moveTo(final QuadTree.LatLng location) {
+        getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(location.latitude, location.longitude)));
+            }
+        });
+    }
+
+    @Override
     public void moveToPin(final QuadTree.LatLng location) {
         if(mPendingPOIMarker!=null){
             mPendingPOIMarker.remove();
@@ -370,7 +379,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                 );
                 mPendingPOIMarker.showInfoWindow();
                 mMarkerMap.put(mPendingPOIMarker, location);
-                googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(location.latitude, location.longitude)));
+                moveTo(location);
                 clickMarker(location);
             }
         });
@@ -501,7 +510,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                 if(mate!=null) {
                     onMateData(mate, focus);
                     if(mate.latitude!=null && mate.longitude!=null){
-                        googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(mate.latitude, mate.longitude)));
+                        moveTo(new QuadTree.LatLng(mate.latitude, mate.longitude));
                     }
                 }
             }
@@ -555,7 +564,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                 }
                 if(enchantment!=null) {
                     onEnchantmentData(enchantment);
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(enchantment.latitude, enchantment.longitude)));
+                    moveTo(new QuadTree.LatLng(enchantment.latitude, enchantment.longitude));
                 }
             }
         });
@@ -627,7 +636,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                 }
                 if(marker!=null) {
                     onMarkerData(marker, focus);
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(marker.latitude, marker.longitude)));
+                    moveTo(new QuadTree.LatLng(marker.latitude, marker.longitude));
                 }
             }
         });
@@ -740,14 +749,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     private Marker mEditingMarkerMarker = null;
     @Override
     public void onMapLongClick(final LatLng latLng) {
-        if(mPendingPOIMarker!=null){
-            mPendingPOIMarker.remove();
-        }
-        clearAction(false);
-        mEditingLatitude = latLng.latitude;
-        mEditingLongitude = latLng.longitude;
-
-        startEditing();
+        onMapLongClick(new QuadTree.LatLng(latLng.latitude, latLng.longitude));
     }
 
     @Override

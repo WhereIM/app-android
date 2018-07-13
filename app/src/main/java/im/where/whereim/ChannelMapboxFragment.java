@@ -462,6 +462,19 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
     private HashMap<String, MarkerView> mMateMarker = new HashMap<>();
 
     @Override
+    public void moveTo(final QuadTree.LatLng location) {
+        getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(MapboxMap mapboxMap) {
+                CameraPosition position = new CameraPosition.Builder()
+                        .target(new LatLng(location.latitude, location.longitude))
+                        .build();
+                mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), MAP_MOVE_ANIMATION_DURATION);
+            }
+        });
+    }
+
+    @Override
     public void moveToPin(final QuadTree.LatLng location) {
         if (mPendingPOIMarker != null) {
             mPendingPOIMarker.remove();
@@ -479,10 +492,7 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
                 mMarkerMap.put(mPendingPOIMarker, location);
                 clickMarker(location);
 
-                CameraPosition position = new CameraPosition.Builder()
-                        .target(new LatLng(location.latitude, location.longitude))
-                        .build();
-                mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), MAP_MOVE_ANIMATION_DURATION);
+                moveTo(new QuadTree.LatLng(location.latitude, location.longitude));
             }
         });
     }
@@ -611,10 +621,7 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
                 if (mate != null) {
                     onMateData(mate, focus);
                     if (mate.latitude != null && mate.longitude != null) {
-                        CameraPosition position = new CameraPosition.Builder()
-                                .target(new LatLng(mate.latitude, mate.longitude))
-                                .build();
-                        mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), MAP_MOVE_ANIMATION_DURATION);
+                        moveTo(new QuadTree.LatLng(mate.latitude, mate.longitude));
                     }
                 }
             }
@@ -669,10 +676,7 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
                 }
                 if (enchantment != null) {
                     onEnchantmentData(enchantment);
-                    CameraPosition position = new CameraPosition.Builder()
-                            .target(new LatLng(enchantment.latitude, enchantment.longitude))
-                            .build();
-                    mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), MAP_MOVE_ANIMATION_DURATION);
+                    moveTo(new QuadTree.LatLng(enchantment.latitude, enchantment.longitude));
                 }
             }
         });
@@ -745,10 +749,7 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
                 }
                 if (marker != null) {
                     onMarkerData(marker, focus);
-                    CameraPosition position = new CameraPosition.Builder()
-                            .target(new LatLng(marker.latitude, marker.longitude))
-                            .build();
-                    mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), MAP_MOVE_ANIMATION_DURATION);
+                    moveTo(new QuadTree.LatLng(marker.latitude, marker.longitude));
                 }
             }
         });
@@ -801,10 +802,7 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
                     return;
                 }
                 POI result = mSearchResults.get(position);
-                CameraPosition cameraPosition = new CameraPosition.Builder()
-                        .target(new LatLng(result.latitude, result.longitude))
-                        .build();
-                mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), MAP_MOVE_ANIMATION_DURATION);
+                moveTo(new QuadTree.LatLng(result.latitude, result.longitude));
                 MarkerView m = mSearchResultMarkers.get(position);
                 if(m != null){
                     mapboxMap.selectMarker(m);
@@ -874,14 +872,7 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
 
     @Override
     public void onMapLongClick(@NonNull LatLng point) {
-        if(mPendingPOIMarker!=null){
-            mPendingPOIMarker.remove();
-        }
-        clearAction(false);
-        mEditingLatitude = point.getLatitude();
-        mEditingLongitude = point.getLongitude();
-
-        startEditing();
+        onMapLongClick(new QuadTree.LatLng(point.getLatitude(), point.getLongitude()));
     }
 
     @Override
