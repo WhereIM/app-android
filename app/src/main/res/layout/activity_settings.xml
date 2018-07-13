@@ -112,15 +112,6 @@
             android:padding="5dp" />
 
         <TextView
-            android:id="@+id/reset_tips"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
-            android:paddingLeft="15dp"
-            android:text="@string/reset_tips" />
-
-        <TextView
             android:id="@+id/about"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

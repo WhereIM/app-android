@@ -12,7 +12,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Gravity;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,10 +46,6 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     private DrawerLayout mDrawerLayout;
     private View mContentRoot;
     private View mCover;
-    private ImageView mActiveChannelPointer;
-    private View mActiveChannelDesc;
-    private ImageView mInvitePointer;
-    private View mInviteDesc;
 
     private View mConnectingStatus;
     private TextView mChannelTitle;
@@ -104,29 +99,6 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
 
         mContentRoot = findViewById(R.id.content_frame);
         mCover = findViewById(R.id.cover);
-        mActiveChannelPointer = findViewById(R.id.toggle_channel_pointer);
-        mActiveChannelDesc = findViewById(R.id.toggle_channel_pointer_desc);
-        findViewById(R.id.toggle_channel_close).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SharedPreferences.Editor editor = ChannelActivity.this.getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
-                editor.putBoolean(Key.TIP_ACTIVE_CHANNEL_2, true);
-                editor.apply();
-                checkTips();
-            }
-        });
-
-        mInvitePointer = findViewById(R.id.invite_pointer);
-        mInviteDesc = findViewById(R.id.invite_pointer_desc);
-        findViewById(R.id.invite_close).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SharedPreferences.Editor editor = ChannelActivity.this.getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
-                editor.putBoolean(Key.TIP_INVITE_CHANNEL, true);
-                editor.apply();
-                checkTips();
-            }
-        });
 
         mConnectingStatus = findViewById(R.id.connecting_status);
 
@@ -221,12 +193,6 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                 });
 
                 mReady += 1;
-                mHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        checkTips();
-                    }
-                });
             }
         });
 
@@ -408,34 +374,6 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         });
     }
 
-    private void checkTips() {
-        if(mReady<1){
-            return;
-        }
-        mCover.setVisibility(View.GONE);
-        SharedPreferences sp = ChannelActivity.this.getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
-
-        if(!sp.getBoolean(Key.TIP_ACTIVE_CHANNEL_2, false)) {
-            mActiveChannelPointer.setVisibility(View.VISIBLE);
-            mActiveChannelDesc.setVisibility(View.VISIBLE);
-            mCover.setVisibility(View.VISIBLE);
-            return;
-        } else {
-            mActiveChannelPointer.setVisibility(View.GONE);
-            mActiveChannelDesc.setVisibility(View.GONE);
-        }
-
-        if(!sp.getBoolean(Key.TIP_INVITE_CHANNEL, false)) {
-            mInvitePointer.setVisibility(View.VISIBLE);
-            mInviteDesc.setVisibility(View.VISIBLE);
-            mCover.setVisibility(View.VISIBLE);
-            return;
-        } else {
-            mInvitePointer.setVisibility(View.GONE);
-            mInviteDesc.setVisibility(View.GONE);
-        }
-    }
-
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
@@ -448,22 +386,6 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         } else {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent channelActivity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_invite) {
-            invite_join();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     private void invite_join(){
@@ -561,23 +483,6 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                 mEnableLoading.setVisibility(View.GONE);
                 return;
             }
-
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    int[] rootOrig = new int[2];
-                    mContentRoot.getLocationInWindow(rootOrig);
-
-                    int[] acOrig = new int[2];
-                    mActive.getLocationInWindow(acOrig);
-
-                    RelativeLayout.LayoutParams params;
-                    params = (RelativeLayout.LayoutParams) mActiveChannelPointer.getLayoutParams();
-                    params.topMargin = acOrig[1] - rootOrig[1] + mActive.getHeight();
-                    params.leftMargin = acOrig[0] - rootOrig[0] + (mActive.getWidth() - mActiveChannelPointer.getDrawable().getIntrinsicWidth())/2;
-                    mActiveChannelPointer.setLayoutParams(params);
-                }
-            });
         }
     };
 
