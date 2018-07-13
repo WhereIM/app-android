@@ -293,6 +293,15 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                         .replace(R.id.aux_frame, mChannelMarkerFragment).commit();
                 height = 240;
                 break;
+            case R.id.mate:
+                resizable = true;
+                if(mChannelMateFragment== null){
+                    mChannelMateFragment = new ChannelMateFragment();
+                }
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.aux_frame, mChannelMateFragment).commit();
+                height = 240;
+                break;
         }
         params = auxFrame.getLayoutParams();
         params.height = (int) Util.dp2px(ChannelActivity.this, height);
@@ -354,9 +363,9 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
             mChannelMarkerFragment.initChannel();
         }
 
-        if(mChannelMarkerFragment != null) {
-            mChannelEnchantmentFragment.deinitChannel();
-            mChannelEnchantmentFragment.initChannel();
+        if(mChannelMateFragment != null) {
+            mChannelMateFragment.deinitChannel();
+            mChannelMateFragment.initChannel();
         }
         postBinderTask(new CoreService.BinderTask() {
             @Override
@@ -505,7 +514,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     private ChannelSearchFragment mChannelSearchFragment;
     private ChannelMessengerFragment mChannelMessengerFragment = new ChannelMessengerFragment();
     private ChannelMarkerFragment mChannelMarkerFragment = new ChannelMarkerFragment();
-    private ChannelEnchantmentFragment mChannelEnchantmentFragment = new ChannelEnchantmentFragment();
+    private ChannelMateFragment mChannelMateFragment = new ChannelMateFragment();
 
     private Runnable mChannelListChangedListener = new Runnable() {
         @Override

@@ -104,7 +104,7 @@ public class ChannelActionFragment extends BaseChannelFragment {
         view.findViewById(R.id.mates).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                channelActivity.showAux(R.id.mate);
             }
         });
 
