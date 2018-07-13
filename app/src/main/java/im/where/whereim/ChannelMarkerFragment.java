@@ -366,6 +366,7 @@ public class ChannelMarkerFragment extends BaseChannelFragment {
                         ChannelActivity activity = (ChannelActivity) getActivity();
                         Marker marker = (Marker) mAdapter.getChild(groupPosition, childPosition);
                         if(marker!=null) {
+                            activity.resizeAux(ChannelActivity.AuxSize.AUTO);
                             activity.moveToMarker(marker, true);
                         }
                         return true;

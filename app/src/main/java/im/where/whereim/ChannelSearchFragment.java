@@ -117,6 +117,7 @@ abstract public class ChannelSearchFragment extends BaseChannelFragment {
 
         if(keyword.isEmpty()){
             setSearchResult(new ArrayList<POI>());
+            showHistory();
             return;
         }
 
@@ -210,10 +211,7 @@ abstract public class ChannelSearchFragment extends BaseChannelFragment {
         mClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(mKeyword.getText().toString().isEmpty()){
-                    channelActivity.showAux(0);
-                    return;
-                }
+                channelActivity.resizeAux(ChannelActivity.AuxSize.FULL);
                 clearAttribution();
                 mKeyword.setText("");
                 mKeyword.clearFocus();

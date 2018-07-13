@@ -250,21 +250,50 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         }
     }
 
+    enum AuxSize {
+        TAB,
+        AUTO,
+        FULL,
+    }
+    private AuxSize currentAuxSize = AuxSize.TAB;
+    void resizeAux(AuxSize size){
+        boolean doChange = true;
+        ViewGroup.LayoutParams params;
+        params = auxFrame.getLayoutParams();
+        switch(size){
+            case TAB:
+                params.height = (int) Util.dp2px(ChannelActivity.this, 50);
+                break;
+            case FULL:
+                params.height = mContentRoot.getHeight();
+                break;
+            case AUTO:
+                params.height = (int) Util.dp2px(ChannelActivity.this, 240);
+                if(currentAuxSize == AuxSize.AUTO){
+                    doChange = false;
+                }
+                break;
+        }
+        if(doChange){
+            auxFrame.setLayoutParams(params);
+        }
+        currentAuxSize = size;
+    }
+
     private int auxComp = 0;
     void showAux(int comp){
         auxComp = comp;
-        ViewGroup.LayoutParams params;
+        AuxSize size = AuxSize.TAB;
         boolean resizable = false;
-        int height = 0;
         switch (comp) {
             case 0:
                 resizable = false;
+                setSearchResult(new ArrayList<POI>());
                 if(mChannelActionFragment == null){
                     mChannelActionFragment = new ChannelActionFragment();
                 }
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.aux_frame, mChannelActionFragment).commit();
-                height = 50;
                 break;
             case R.id.search:
                 resizable = true;
@@ -273,7 +302,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                 }
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.aux_frame, mChannelSearchFragment).commit();
-                height = 240;
+                size = AuxSize.FULL;
                 break;
             case R.id.message:
                 resizable = true;
@@ -282,7 +311,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                 }
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.aux_frame, mChannelMessengerFragment).commit();
-                height = 240;
+                size = AuxSize.FULL;
                 break;
             case R.id.marker:
                 resizable = true;
@@ -291,7 +320,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                 }
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.aux_frame, mChannelMarkerFragment).commit();
-                height = 240;
+                size = AuxSize.FULL;
                 break;
             case R.id.mate:
                 resizable = true;
@@ -300,14 +329,18 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                 }
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.aux_frame, mChannelMateFragment).commit();
-                height = 240;
+                size = AuxSize.FULL;
                 break;
         }
-        params = auxFrame.getLayoutParams();
-        params.height = (int) Util.dp2px(ChannelActivity.this, height);
-        auxFrame.setLayoutParams(params);
         resizeHandler.setVisibility(resizable ? View.VISIBLE : View.GONE);
         auxFrame.setVisibility(View.VISIBLE);
+        final AuxSize _size = size;
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                resizeAux(_size);
+            }
+        });
     }
 
     private void onLocationServiceReady(){
@@ -497,6 +530,10 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
 
     public void setSearchResult(ArrayList<POI> results){
         mChannelMapFragment.setSearchResult(results);
+        if(results.size() > 0){
+            resizeAux(ChannelActivity.AuxSize.AUTO);
+            moveToSearchResult(0, false);
+        }
     }
 
     @Override

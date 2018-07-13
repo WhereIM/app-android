@@ -111,13 +111,13 @@
                 <RelativeLayout
                     android:id="@+id/resize_handler"
                     android:layout_width="match_parent"
-                    android:layout_height="15dp"
+                    android:layout_height="20dp"
                     android:layout_alignParentBottom="true"
                     android:layout_centerHorizontal="true">
                     <View
                         android:layout_width="80dp"
                         android:layout_height="2dp"
-                        android:background="#555555"
+                        android:background="#777777"
                         android:layout_centerInParent="true"
                         />
                 </RelativeLayout>

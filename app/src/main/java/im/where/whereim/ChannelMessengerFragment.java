@@ -521,6 +521,7 @@ public class ChannelMessengerFragment extends BaseChannelFragment {
                     activity.moveToPin(new QuadTree.LatLng(Double.valueOf(args[1]), Double.valueOf(args[2])));
                     break;
             }
+            activity.resizeAux(ChannelActivity.AuxSize.AUTO);
         }
     };
 
