@@ -1663,6 +1663,7 @@ public class CoreService extends Service {
                         .setContentTitle(getResources().getString(R.string.app_name))
                         .setContentIntent(pendingIntent)
                         .setSmallIcon(R.drawable.ic_stat_logo)
+                        .setChannelId(NOTIFICATION_CHANNEL_ID)
                         .build();
 
                 startForeground(1, notification);
