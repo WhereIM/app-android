@@ -48,17 +48,11 @@
     </RelativeLayout>
 
     <LinearLayout
-        android:background="#cccccc"
+        android:id="@+id/input_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#cccccc"
         android:orientation="horizontal">
-
-        <ImageView
-            android:id="@+id/with_pin"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:src="@drawable/baseline_place_black_24" />
 
         <ImageButton
             android:id="@+id/pin"

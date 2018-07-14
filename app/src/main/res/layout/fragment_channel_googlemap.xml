@@ -34,7 +34,8 @@
             android:layout_height="wrap_content"
             android:layout_alignBottom="@id/map_center"
             android:layout_centerHorizontal="true"
-            android:src="@drawable/crosshair" />
+            android:src="@drawable/crosshair"
+            android:visibility="gone" />
 
     </RelativeLayout>
 

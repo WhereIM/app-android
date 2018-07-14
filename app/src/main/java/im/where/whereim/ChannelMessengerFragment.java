@@ -566,7 +566,6 @@ public class ChannelMessengerFragment extends AuxFragment {
     private View mPicker;
     private View mCamera;
     private EditText mInput;
-    public QuadTree.LatLng pinLocation;
     private String mCurrentPhotoPath;
 
     private void takePhoto(){
@@ -591,11 +590,27 @@ public class ChannelMessengerFragment extends AuxFragment {
         }
     }
 
+    private Integer origSize = null;
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_channel_messenger, container, false);
 
+        final View input_bar = view.findViewById(R.id.input_bar);
         mPin = view.findViewById(R.id.pin);
+        mPin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                withPin = !withPin;
+                updateUI();
+                channelActivity.setCrosshair(withPin);
+                if(withPin){
+                    origSize = channelActivity.getAuxSize();
+                    channelActivity.setAuxSize(input_bar.getHeight());
+                }else{
+                    channelActivity.setAuxSize(origSize);
+                }
+            }
+        });
 
         mBottom = view.findViewById(R.id.bottom);
         mBottom.setVisibility(View.GONE);
@@ -653,13 +668,16 @@ public class ChannelMessengerFragment extends AuxFragment {
             public void onClick(View v) {
                 channelActivity.closeKeyboard();
                 final String message = mInput.getEditableText().toString();
-                final QuadTree.LatLng location = pinLocation;
+                final QuadTree.LatLng location = withPin ? channelActivity.getMapCenter() : null;
                 if(message.isEmpty()){
                     return;
                 }
                 mInput.setText(null);
                 mInput.clearFocus();
-                pinLocation = null;
+                if(withPin && origSize!=null){
+                    channelActivity.setAuxSize(origSize);
+                }
+                withPin = false;
                 updateUI();
                 postBinderTask(new CoreService.BinderTask() {
                     @Override
@@ -735,14 +753,19 @@ public class ChannelMessengerFragment extends AuxFragment {
         return view;
     }
 
+    private boolean withPin = false;
     private void updateUI(){
-        boolean camera = pinLocation==null;
-        boolean picker = pinLocation==null;
-        mPin.setVisibility(pinLocation==null ? View.GONE : View.VISIBLE);
+        boolean camera = !withPin;
+        boolean picker = !withPin;
+        boolean pin = true;
         if(mInput.hasFocus()){
             camera = false;
             picker = false;
+            if(!withPin){
+                pin = false;
+            }
         }
+        mPin.setVisibility(pin ? View.VISIBLE : View.GONE);
         mCamera.setVisibility(camera ? View.VISIBLE : View.GONE);
         mPicker.setVisibility(picker ? View.VISIBLE : View.GONE);
     }

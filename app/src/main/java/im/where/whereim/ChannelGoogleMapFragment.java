@@ -160,7 +160,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_channel_googlemap, container, false);
 
-        mMapView = (MapView) view.findViewById(R.id.map);
+        mMapView = view.findViewById(R.id.map);
 
         MapsInitializer.initialize(getActivity());
 
@@ -377,7 +377,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                 mPendingPOIMarker = googleMap.addMarker(
                         new MarkerOptions()
                                 .position(new LatLng(location.latitude, location.longitude))
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.icon_pin))
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.baseline_place_black_48))
                                 .anchor(0.5f, 1f)
                                 .zIndex(0.5f)
                 );
@@ -758,6 +758,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
 
     @Override
     public void onMapClick(LatLng latLng) {
+        onMapClick(new QuadTree.LatLng(latLng.latitude, latLng.longitude));
         if(mEditingType!=null){
             return;
         }

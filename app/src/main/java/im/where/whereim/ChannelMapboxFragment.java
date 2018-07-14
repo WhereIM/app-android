@@ -227,7 +227,7 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
             }
         });
 
-        mMapView = (MapView) view.findViewById(R.id.map);
+        mMapView = view.findViewById(R.id.map);
 
         mMapView.onCreate(savedInstanceState);
 
@@ -488,7 +488,7 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
             public void onMapReady(MapboxMap mapboxMap) {
                 MarkerViewOptions markerViewOptions = new MarkerViewOptions()
                         .position(new LatLng(location.latitude, location.longitude))
-                        .icon(iconFactory.fromResource(R.drawable.icon_pin)
+                        .icon(iconFactory.fromResource(R.drawable.baseline_place_black_48)
 //                          .zIndex(0.5f)
                         );
                 mPendingPOIMarker = mapboxMap.addMarker(markerViewOptions);
@@ -865,6 +865,7 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
 
     @Override
     public void onMapClick(@NonNull LatLng point) {
+        onMapClick(new QuadTree.LatLng(point.getLatitude(), point.getLongitude()));
         if(mEditingType!=null){
             return;
         }

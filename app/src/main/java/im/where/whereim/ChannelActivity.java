@@ -134,7 +134,6 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
             }
         });
 
-
         updateLayout();
 
         postBinderTask(new CoreService.BinderTask() {
@@ -201,6 +200,10 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         mDrawerLayout.closeDrawer(Gravity.LEFT);
     }
 
+    public void setCrosshair(boolean display){
+        mChannelMapFragment.setCrosshair(display);
+    }
+
     enum AuxSize {
         TAB,
         FREE,
@@ -233,6 +236,11 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
             auxFrame.setLayoutParams(params);
         }
         currentAuxSize = size;
+    }
+
+    public int getAuxSize(){
+        ViewGroup.LayoutParams params = auxFrame.getLayoutParams();
+        return params.height;
     }
 
     public void setAuxSize(int height){
@@ -340,6 +348,9 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
         View focusView = getCurrentFocus();
+        if(focusView != null){
+            focusView.clearFocus();
+        }
         if(focusView != null && inputManager != null){
             inputManager.hideSoftInputFromWindow(focusView.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
@@ -423,10 +434,6 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         } else {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         }
-    }
-
-    public void sendPin(QuadTree.LatLng location){
-        mChannelMessengerFragment.pinLocation = location;
     }
 
     @Override

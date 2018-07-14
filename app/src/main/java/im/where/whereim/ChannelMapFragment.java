@@ -3,7 +3,10 @@ package im.where.whereim;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.view.View;
 import android.widget.TextView;
@@ -69,15 +72,19 @@ abstract public class ChannelMapFragment extends BaseChannelFragment implements 
         }
     }
 
+    protected View mCrosshair;
     protected View mMarkerView;
     protected TextView mMarkerViewTitle;
-
 
     protected Marker mEditingMarkerOrig = null;
     protected Enchantment mEditingEnchantmentOrig = null;
     protected Marker mEditingMarker = new Marker();
     protected Enchantment mEditingEnchantment = new Enchantment();
     protected Key.MAP_OBJECT mEditingType = null;
+
+    public void setCrosshair(boolean display){
+        mCrosshair.setVisibility(display ? View.VISIBLE : View.GONE);
+    }
 
     @Override
     protected void deinitChannel() {
@@ -87,15 +94,25 @@ abstract public class ChannelMapFragment extends BaseChannelFragment implements 
     protected abstract void resetMap();
 
     @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mCrosshair = view.findViewById(R.id.crosshair);
+        mCrosshair.setVisibility(View.GONE);
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
     }
 
     abstract protected void refreshEditing();
+    protected void onMapClick(QuadTree.LatLng location){
+        channelActivity.closeKeyboard();
+    }
+
     protected void onMapLongClick(QuadTree.LatLng location){
         moveTo(location);
-        ChannelActivity activity = (ChannelActivity) getActivity();
-        activity.showAux(ChannelActivity.AuxComp.MARKER_CREATE);
+        channelActivity.showAux(ChannelActivity.AuxComp.MARKER_CREATE);
     }
 
     public void clickMarker(Object obj) {
