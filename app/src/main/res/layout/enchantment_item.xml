@@ -13,12 +13,12 @@
         android:id="@+id/name"
         android:gravity="center_vertical"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:padding="5dp" />
+        android:padding="@dimen/content_inset" />
 
     <FrameLayout
         android:layout_height="50dp"
         android:layout_gravity="center_vertical"
-        android:padding="5dp"
+        android:padding="@dimen/content_inset"
         android:layout_width="80dp">
 
         <Switch

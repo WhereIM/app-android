@@ -32,7 +32,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:padding="5dp" />
+                android:padding="@dimen/content_inset" />
 
             <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
@@ -52,7 +52,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
-                    android:padding="5dp"
+                    android:padding="@dimen/content_inset"
                     android:text="16:56"
                     android:textAppearance="?android:attr/textAppearanceSmall"
                     android:textSize="10sp"

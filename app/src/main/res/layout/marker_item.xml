@@ -18,14 +18,14 @@
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:gravity="center_vertical"
-        android:padding="5dp"
+        android:padding="@dimen/content_inset"
         android:text="@string/name"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <FrameLayout
         android:layout_height="50dp"
         android:layout_gravity="center_vertical"
-        android:padding="5dp"
+        android:padding="@dimen/content_inset"
         android:layout_width="80dp">
 
         <Switch

@@ -65,7 +65,7 @@
                 android:id="@+id/google_attribution"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="5dp"
+                android:padding="@dimen/content_inset"
                 android:visibility="gone"
                 android:src="@drawable/powered_by_google_on_white"/>
 
@@ -73,7 +73,7 @@
                 android:id="@+id/text_attribution"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="5dp"
+                android:padding="@dimen/content_inset"
                 android:background="#cccccc"
                 android:autoLink="web|email"
                 android:visibility="gone"

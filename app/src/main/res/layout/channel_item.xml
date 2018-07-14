@@ -29,7 +29,7 @@
             android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="5dp"
+            android:padding="@dimen/content_inset"
             android:text="Title"
             android:textColor="@android:color/black"
             android:textAppearance="?android:attr/textAppearanceMedium" />
@@ -49,7 +49,7 @@
         android:layout_width="80dp"
         android:layout_height="50dp"
         android:layout_gravity="center_vertical"
-        android:padding="5dp">
+        android:padding="@dimen/content_inset">
 
         <Switch
             android:id="@+id/enable"

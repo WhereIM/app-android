@@ -60,7 +60,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:background="@null"
-            android:padding="5dp"
+            android:padding="@dimen/content_inset"
             android:src="@drawable/baseline_place_black_24" />
 
         <ImageButton
@@ -69,7 +69,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:background="@null"
-            android:padding="5dp"
+            android:padding="@dimen/content_inset"
             android:src="@drawable/baseline_insert_photo_black_24" />
 
         <ImageButton
@@ -78,7 +78,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:background="@null"
-            android:padding="5dp"
+            android:padding="@dimen/content_inset"
             android:src="@drawable/baseline_photo_camera_black_24" />
 
         <EditText

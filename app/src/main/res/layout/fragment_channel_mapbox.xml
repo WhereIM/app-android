@@ -45,7 +45,7 @@
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
             android:layout_marginTop="5dp"
-            android:layout_marginRight="5dp"
+            android:layout_marginRight="@dimen/map_side_inset"
             android:src="@drawable/baseline_gps_fixed_black_24" />
     </RelativeLayout>
 

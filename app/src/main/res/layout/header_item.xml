@@ -12,6 +12,6 @@
         android:id="@+id/name"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="@android:color/black"
-        android:padding="5dp" />
+        android:padding="@dimen/content_inset" />
 
 </LinearLayout>

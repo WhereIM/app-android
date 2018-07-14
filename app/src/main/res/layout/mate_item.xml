@@ -28,7 +28,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/title"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:padding="5dp" />
+            android:padding="@dimen/content_inset" />
 
         <TextView
             android:text="Subtitle"

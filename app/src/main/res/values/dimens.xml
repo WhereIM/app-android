@@ -5,4 +5,7 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="tab_height">50dp</dimen>
     <dimen name="map_top_inset">80dp</dimen>
+    <dimen name="map_side_inset">15dp</dimen>
+    <dimen name="title_bar_margin_top">15dp</dimen>
+    <dimen name="content_inset">5dp</dimen>
 </resources>
