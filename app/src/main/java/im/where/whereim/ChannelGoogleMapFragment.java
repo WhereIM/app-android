@@ -169,8 +169,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(final GoogleMap googleMap) {
-                int p = (int)Util.dp2px(channelActivity, 80);
-                googleMap.setPadding(0, p, 0, 0);
+                googleMap.setPadding(0, getResources().getDimensionPixelOffset(R.dimen.map_top_inset), 0, 0);
                 googleMap.getUiSettings().setMapToolbarEnabled(false);
                 postLocationServiceTask(new Runnable() {
                     @Override

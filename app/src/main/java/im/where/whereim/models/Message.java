@@ -207,7 +207,7 @@ public class Message extends BaseModel {
                     }
                     if (lat != null && lng != null) {
                         SpannableString icon = new SpannableString("@");
-                        d = ResourcesCompat.getDrawable(context.getResources(), R.drawable.icon_pin, null);
+                        d = ResourcesCompat.getDrawable(context.getResources(), R.drawable.crosshair, null);
                         d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
                         span = new ImageSpan(d, ImageSpan.ALIGN_BASELINE);
                         icon.setSpan(span, 0, 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);

@@ -214,7 +214,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         params = auxFrame.getLayoutParams();
         switch(size){
             case TAB:
-                params.height = (int) Util.dp2px(ChannelActivity.this, 50);
+                params.height = getResources().getDimensionPixelSize(R.dimen.tab_height);
                 break;
             case WRAP:
                 params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
