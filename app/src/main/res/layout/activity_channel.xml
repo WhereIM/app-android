@@ -45,6 +45,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:animateLayoutChanges="true"
+                    android:elevation="10dp"
                     android:background="@color/titleBarBackground"
                     android:orientation="vertical"
                     app:layout_constraintStart_toStartOf="parent"
