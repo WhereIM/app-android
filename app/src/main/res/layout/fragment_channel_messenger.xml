@@ -54,11 +54,20 @@
         android:orientation="horizontal">
 
         <ImageView
+            android:id="@+id/with_pin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@drawable/baseline_place_black_24" />
+
+        <ImageButton
             android:id="@+id/pin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:src="@drawable/icon_pin" />
+            android:background="@null"
+            android:padding="5dp"
+            android:src="@drawable/baseline_place_black_24" />
 
         <ImageButton
             android:id="@+id/picker"
@@ -67,7 +76,7 @@
             android:layout_gravity="center"
             android:background="@null"
             android:padding="5dp"
-            android:src="@drawable/ic_insert_photo_black_24dp" />
+            android:src="@drawable/baseline_insert_photo_black_24" />
 
         <ImageButton
             android:id="@+id/camera"
@@ -76,7 +85,7 @@
             android:layout_gravity="center"
             android:background="@null"
             android:padding="5dp"
-            android:src="@drawable/ic_photo_camera_black_24dp" />
+            android:src="@drawable/baseline_photo_camera_black_24" />
 
         <EditText
             android:id="@+id/input"
