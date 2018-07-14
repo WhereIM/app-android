@@ -15,8 +15,8 @@ import im.where.whereim.views.EmojiText;
 public class DialogFixedEnchantment {
     public DialogFixedEnchantment(Context context){
         final AlertDialog dialog = new AlertDialog.Builder(context)
-                .setTitle(TextUtils.concat(new EmojiText(context, "ℹ"), " ", context.getString(R.string.fixed_enchantment)))
-                .setMessage(R.string.fixed_enchantment_desc)
+                .setTitle(TextUtils.concat(new EmojiText(context, "ℹ"), " ", context.getString(R.string.fixed_geofence)))
+                .setMessage(R.string.fixed_geofence_desc)
                 .setPositiveButton(R.string.close, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

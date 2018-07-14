@@ -28,10 +28,10 @@
     <string name="location_status_not_avail">Not available</string>
     <string name="location_status_stale">Stale, last known location</string>
     <string name="location_status_fresh">Fresh or forged location</string>
-    <string name="mobile_enchantment">Mobile geofence</string>
-    <string name="mobile_enchantment_desc">Notify when mates approach to or get away from you by certain distance.</string>
-    <string name="fixed_enchantment">Fixed geofence</string>
-    <string name="fixed_enchantment_desc">Notify when mates enter or leave a particular area.</string>
+    <string name="mobile_geofence">Mobile geofence</string>
+    <string name="mobile_geofence_desc">Notify when mates approach to or get away from you by certain distance.</string>
+    <string name="fixed_geofence">Fixed geofence</string>
+    <string name="fixed_geofence_desc">Notify when mates enter or leave a particular area.</string>
     <string name="error">Error</string>
     <string name="retry">Retry</string>
     <string name="date_format">%1$s %2$s</string>
@@ -91,6 +91,10 @@
     <string name="unread">Unread</string>
     <string name="begin_sharing">Notify others you have begun sharing location</string>
     <string name="message_not_implemented">Require new version to display this message</string>
+    <string name="message_geofence_create">Geofence %1$s is created.</string>
+    <string name="message_geofence_emerge">Emerged in geofence %1$s.</string>
+    <string name="message_geofence_in">Entered geofence %1$s.</string>
+    <string name="message_geofence_out">Left geofence %1$s.</string>
     <string name="message_enchantment_create">Geofence %1$s is created.</string>
     <string name="message_enchantment_emerge">Emerged in geofence %1$s.</string>
     <string name="message_enchantment_in">Entered geofence %1$s.</string>
@@ -105,6 +109,10 @@
     <string name="fcm_enchantment_emerge">%1$s: Emerged in geofence %2$s.</string>
     <string name="fcm_enchantment_in">%1$s: Entered geofence %2$s.</string>
     <string name="fcm_enchantment_out">%1$s: Left geofence %2$s.</string>
+    <string name="fcm_geofence_create">%1$s: Geofence %2$s is created.</string>
+    <string name="fcm_geofence_emerge">%1$s: Emerged in geofence %2$s.</string>
+    <string name="fcm_geofence_in">%1$s: Entered geofence %2$s.</string>
+    <string name="fcm_geofence_out">%1$s: Left geofence %2$s.</string>
     <string name="fcm_marker_create">%1$s: Marker %2$s is created.</string>
     <string name="fcm_radius_report">In/Out: %1$s / %2$s (%3$s m)</string>
     <string name="message_limit_active_channel">Limit of number of active channels (%1$s) is reached.</string>

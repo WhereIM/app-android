@@ -27,10 +27,10 @@
     <string name="location_status_not_avail">沒有定位資訊</string>
     <string name="location_status_stale">過時資訊，最後已知的位置</string>
     <string name="location_status_fresh">即時資訊（或是假造資訊）</string>
-    <string name="mobile_enchantment">隨身地界</string>
-    <string name="mobile_enchantment_desc">當夥伴在設定的距離接近或遠離你時發送通知。</string>
-    <string name="fixed_enchantment">固定地界</string>
-    <string name="fixed_enchantment_desc">當夥伴進入或離開指定的區域時發送通知。</string>
+    <string name="mobile_geofence">隨身地界</string>
+    <string name="mobile_geofence_desc">當夥伴在設定的距離接近或遠離你時發送通知。</string>
+    <string name="fixed_geofence">固定地界</string>
+    <string name="fixed_geofence_desc">當夥伴進入或離開指定的區域時發送通知。</string>
     <string name="error">錯誤</string>
     <string name="retry">再試一次</string>
     <string name="date_format">%2$s (%1$s)</string>
@@ -90,6 +90,10 @@
     <string name="unread">未讀訊息</string>
     <string name="begin_sharing">通知其他人你開始分享定位了</string>
     <string name="message_not_implemented">需要更新版本才能讀取此則訊息</string>
+    <string name="message_geofence_create">%1$s 地界已設立</string>
+    <string name="message_geofence_emerge">出現在 %1$s 地界</string>
+    <string name="message_geofence_in">進入 %1$s 地界</string>
+    <string name="message_geofence_out">離開 %1$s 地界</string>
     <string name="message_enchantment_create">%1$s 地界已設立</string>
     <string name="message_enchantment_emerge">出現在 %1$s 地界</string>
     <string name="message_enchantment_in">進入 %1$s 地界</string>
@@ -104,6 +108,10 @@
     <string name="fcm_enchantment_emerge">%1$s：出現在 %2$s 地界</string>
     <string name="fcm_enchantment_in">%1$s：進入 %2$s 地界</string>
     <string name="fcm_enchantment_out">%1$s：離開 %2$s 地界</string>
+    <string name="fcm_geofence_create">%1$s：%2$s 地界已設立</string>
+    <string name="fcm_geofence_emerge">%1$s：出現在 %2$s 地界</string>
+    <string name="fcm_geofence_in">%1$s：進入 %2$s 地界</string>
+    <string name="fcm_geofence_out">%1$s：離開 %2$s 地界</string>
     <string name="fcm_marker_create">%1$s：放了 %2$s 圖釘</string>
     <string name="fcm_radius_report">圈內/外：%1$s / %2$s (%3$s m)</string>
     <string name="message_limit_active_channel">同時傳送中的群組數量已達上限（%1$s）。</string>

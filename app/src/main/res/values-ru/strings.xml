@@ -26,10 +26,10 @@
     <string name="location_status_not_avail">Недоступен</string>
     <string name="location_status_stale">Старое, последнее известное местоположение</string>
     <string name="location_status_fresh">Свежее или ненастоящее местоположение</string>
-    <string name="mobile_enchantment">Динамическая геозона</string>
-    <string name="mobile_enchantment_desc">Сообщите, когда приятели подходят или уходят от вас на определенное расстояние.</string>
-    <string name="fixed_enchantment">Статическая геозона</string>
-    <string name="fixed_enchantment_desc">Уведомлять, когда приятели входят или покидают определенную область.</string>
+    <string name="mobile_geofence">Динамическая геозона</string>
+    <string name="mobile_geofence_desc">Сообщите, когда приятели подходят или уходят от вас на определенное расстояние.</string>
+    <string name="fixed_geofence">Статическая геозона</string>
+    <string name="fixed_geofence_desc">Уведомлять, когда приятели входят или покидают определенную область.</string>
     <string name="error">Ошибка</string>
     <string name="retry">Повтор</string>
     <string name="date_format">%1$s %2$s</string>
@@ -77,6 +77,10 @@
     <string name="unread">Не прочитано</string>
     <string name="begin_sharing">Сообщить пользователям что вы начали делиться местоположением</string>
     <string name="message_not_implemented">Требуется новая версия для отображения этого сообщения</string>
+    <string name="message_geofence_create">Геозона %1$s создана.</string>
+    <string name="message_geofence_emerge">Появился в геозоне %1$s.</string>
+    <string name="message_geofence_in">Вошел в геозону %1$s.</string>
+    <string name="message_geofence_out">Вышел из геозоны %1$s.</string>
     <string name="message_enchantment_create">Геозона %1$s создана.</string>
     <string name="message_enchantment_emerge">Появился в геозоне %1$s.</string>
     <string name="message_enchantment_in">Вошел в геозону %1$s.</string>
@@ -90,6 +94,10 @@
     <string name="fcm_enchantment_emerge">%1$s: Появился в геозоне %2$s.</string>
     <string name="fcm_enchantment_in">%1$s: Вошел в геозону %2$s.</string>
     <string name="fcm_enchantment_out">%1$s: Вышел из геозоны %2$s.</string>
+    <string name="fcm_geofence_create">%1$s: Геозона %2$s создана.</string>
+    <string name="fcm_geofence_emerge">%1$s: Появился в геозоне %2$s.</string>
+    <string name="fcm_geofence_in">%1$s: Вошел в геозону %2$s.</string>
+    <string name="fcm_geofence_out">%1$s: Вышел из геозоны %2$s.</string>
     <string name="fcm_marker_create">%1$s: Маркер %2$s создан</string>
     <string name="fcm_radius_report">В/Из: %1$s / %2$s (%3$s м)</string>
     <string name="message_limit_active_channel">Достигнут предел количества активных каналов (%1$s).</string>

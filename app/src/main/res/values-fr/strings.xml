@@ -26,10 +26,10 @@
     <string name="location_status_not_avail">Indisponible</string>
     <string name="location_status_stale">Dépassé, dernière localisation connue</string>
     <string name="location_status_fresh">Nouvelle localisation ou localisation fabriqué</string>
-    <string name="mobile_enchantment">Géorepérage mobile</string>
-    <string name="mobile_enchantment_desc">Envoyer une notification quand des amis s\'approchent ou s\'éloignent de vous à une certaine distance.</string>
-    <string name="fixed_enchantment">Géorepérage fixe</string>
-    <string name="fixed_enchantment_desc">Envoyer une notification quand des amis entrent ou quittent une zone particulière.</string>
+    <string name="mobile_geofence">Géorepérage mobile</string>
+    <string name="mobile_geofence_desc">Envoyer une notification quand des amis s\'approchent ou s\'éloignent de vous à une certaine distance.</string>
+    <string name="fixed_geofence">Géorepérage fixe</string>
+    <string name="fixed_geofence_desc">Envoyer une notification quand des amis entrent ou quittent une zone particulière.</string>
     <string name="error">Erreur</string>
     <string name="retry">Réessayer</string>
     <string name="date_format">%1$s %2$s</string>
@@ -77,6 +77,10 @@
     <string name="unread">Non lu</string>
     <string name="begin_sharing">Avertissez les autres utilisateurs que vous avez commencé le partage de position</string>
     <string name="message_not_implemented">Nouvelle version requise pour afficher ce message</string>
+    <string name="message_geofence_create">Le géorepérage %1$s a été créé.</string>
+    <string name="message_geofence_emerge">A émergé dans le géorepérage %1$s.</string>
+    <string name="message_geofence_in">Est entré dans le géorepérage %1$s.</string>
+    <string name="message_geofence_out">Est parti du géorepérage %1$s.</string>
     <string name="message_enchantment_create">Le géorepérage %1$s a été créé.</string>
     <string name="message_enchantment_emerge">A émergé dans le géorepérage %1$s.</string>
     <string name="message_enchantment_in">Est entré dans le géorepérage %1$s.</string>
@@ -90,6 +94,10 @@
     <string name="fcm_enchantment_emerge">%1$s: A émergé dans le géorepérage %2$s.</string>
     <string name="fcm_enchantment_in">%1$s: Est entré dans le géorepérage %2$s.</string>
     <string name="fcm_enchantment_out">%1$s: Est parti du géorepérage %2$s.</string>
+    <string name="fcm_geofence_create">%1$s: Le géorepérage %2$s a été créé.</string>
+    <string name="fcm_geofence_emerge">%1$s: A émergé dans le géorepérage %2$s.</string>
+    <string name="fcm_geofence_in">%1$s: Est entré dans le géorepérage %2$s.</string>
+    <string name="fcm_geofence_out">%1$s: Est parti du géorepérage %2$s.</string>
     <string name="fcm_marker_create">%1$s: Le marqueur %2$s a été créé.</string>
     <string name="fcm_radius_report">Dedans/Dehors : %1$s / %2$s (%3$s m)</string>
     <string name="message_limit_active_channel">La limite du nombre de chaînes actives (%1$s est atteinte.</string>

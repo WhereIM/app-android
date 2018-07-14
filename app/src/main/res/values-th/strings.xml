@@ -26,10 +26,10 @@
     <string name="location_status_not_avail">ไม่มีให้บริการ</string>
     <string name="location_status_stale">สถานที่เก่าหรือสถานที่รู้จักล่าสุด</string>
     <string name="location_status_fresh">สถานที่ใหม่หรือสถานที่ที่รุดไปข้างหน้า</string>
-    <string name="mobile_enchantment">Geofence บนอุปกรณ์เคลื่อนที่</string>
-    <string name="mobile_enchantment_desc">แจ้งเตือนเมื่อเพื่อนของคุณเข้าใกล้หรือออกห่างจากคุณด้วยระยะหนึ่ง ๆ</string>
-    <string name="fixed_enchantment">Geofence คงที่</string>
-    <string name="fixed_enchantment_desc">แจ้งเตือนเมื่อเพื่อนของคุณเข้าสู่หรือออกจากบริเวณใด ๆ</string>
+    <string name="mobile_geofence">Geofence บนอุปกรณ์เคลื่อนที่</string>
+    <string name="mobile_geofence_desc">แจ้งเตือนเมื่อเพื่อนของคุณเข้าใกล้หรือออกห่างจากคุณด้วยระยะหนึ่ง ๆ</string>
+    <string name="fixed_geofence">Geofence คงที่</string>
+    <string name="fixed_geofence_desc">แจ้งเตือนเมื่อเพื่อนของคุณเข้าสู่หรือออกจากบริเวณใด ๆ</string>
     <string name="error">ข้อผิดพลาด</string>
     <string name="retry">ลองอีกครั้ง</string>
     <string name="date_format">%2$s (%1$s)</string>
@@ -77,6 +77,10 @@
     <string name="unread">ไม่ได้อ่าน</string>
     <string name="begin_sharing">แจ้งคนอื่น ๆ ที่คุณเริ่มแบ่งปันตำแหน่ง</string>
     <string name="message_not_implemented">ต้องการให้เวอร์ชันใหม่แสดงข้อความนี้</string>
+    <string name="message_geofence_create">สร้าง geofence %1$s แล้ว</string>
+    <string name="message_geofence_emerge">ได้เกิดขึ้นใน geofence %1$s</string>
+    <string name="message_geofence_in">เข้ามา geofence %1$s แล้ว</string>
+    <string name="message_geofence_out">ออกจาก geofence %1$s แล้ว</string>
     <string name="message_enchantment_create">สร้าง geofence %1$s แล้ว</string>
     <string name="message_enchantment_emerge">ได้เกิดขึ้นใน geofence %1$s</string>
     <string name="message_enchantment_in">เข้ามา geofence %1$s แล้ว</string>
@@ -90,6 +94,10 @@
     <string name="fcm_enchantment_emerge">%1$s: ได้เกิดขึ้นใน geofence %2$s</string>
     <string name="fcm_enchantment_in">%1$s: เข้ามา geofence %2$s แล้ว</string>
     <string name="fcm_enchantment_out">%1$s: ออกจาก geofence %2$s แล้ว</string>
+    <string name="fcm_geofence_create">%1$s: สร้าง geofence %2$s แล้ว</string>
+    <string name="fcm_geofence_emerge">%1$s: ได้เกิดขึ้นใน geofence %2$s</string>
+    <string name="fcm_geofence_in">%1$s: เข้ามา geofence %2$s แล้ว</string>
+    <string name="fcm_geofence_out">%1$s: ออกจาก geofence %2$s แล้ว</string>
     <string name="fcm_marker_create">%1$s: เครื่องหมาย %2$s ถูกสร้างขึ้น</string>
     <string name="fcm_radius_report">เข้า / ออก: %1$s / %2$s (%3$s ม.)</string>
     <string name="message_limit_active_channel">จำนวนช่องที่ใช้งานอยู่ (%1$s) ถึงขีดจำกัดแล้ว</string>

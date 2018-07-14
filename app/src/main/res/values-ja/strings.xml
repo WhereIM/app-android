@@ -26,10 +26,10 @@
     <string name="location_status_not_avail">利用できません</string>
     <string name="location_status_stale">無効、最新の位置情報</string>
     <string name="location_status_fresh">新しいまたは偽造された位置情報</string>
-    <string name="mobile_enchantment">モバイル ジオフェンス</string>
-    <string name="mobile_enchantment_desc">メイトがエリアから離れた時、または接近してきた時に通知します。</string>
-    <string name="fixed_enchantment">フィックスド ジオフェンス</string>
-    <string name="fixed_enchantment_desc">メイトがエリアから離れた時、または入ってきたときに通知します。</string>
+    <string name="mobile_geofence">モバイル ジオフェンス</string>
+    <string name="mobile_geofence_desc">メイトがエリアから離れた時、または接近してきた時に通知します。</string>
+    <string name="fixed_geofence">フィックスド ジオフェンス</string>
+    <string name="fixed_geofence_desc">メイトがエリアから離れた時、または入ってきたときに通知します。</string>
     <string name="error">エラー</string>
     <string name="retry">リトライ</string>
     <string name="date_format">%2$s (%1$s)</string>
@@ -77,6 +77,10 @@
     <string name="unread">未読</string>
     <string name="begin_sharing">位置情報を家族や知人に知らせる</string>
     <string name="message_not_implemented">このメッセージを表示するには、新しいバージョンが必要です</string>
+    <string name="message_geofence_create">ジオフェンス%1$sが作られました。</string>
+    <string name="message_geofence_emerge">ジオフェンスが登場しました%1$s。</string>
+    <string name="message_geofence_in">ジオフェンスに入りました%1$s。</string>
+    <string name="message_geofence_out">ジオフェンスから出ました%1$s。</string>
     <string name="message_enchantment_create">ジオフェンス%1$sが作られました。</string>
     <string name="message_enchantment_emerge">ジオフェンスが登場しました%1$s。</string>
     <string name="message_enchantment_in">ジオフェンスに入りました%1$s。</string>
@@ -90,6 +94,10 @@
     <string name="fcm_enchantment_emerge">%1$s：ジオフェンスが登場しました%2$s。</string>
     <string name="fcm_enchantment_in">%1$s：ジオフェンスに入りました%2$s。</string>
     <string name="fcm_enchantment_out">%1$s：ジオフェンスから出ました%2$s。</string>
+    <string name="fcm_geofence_create">%1$s：ジオフェンス%2$sが作られました。</string>
+    <string name="fcm_geofence_emerge">%1$s：ジオフェンスが登場しました%2$s。</string>
+    <string name="fcm_geofence_in">%1$s：ジオフェンスに入りました%2$s。</string>
+    <string name="fcm_geofence_out">%1$s：ジオフェンスから出ました%2$s。</string>
     <string name="fcm_marker_create">%1$s：マーカー %2$s が作成されます。</string>
     <string name="fcm_radius_report">イン/アウト：%1$s / %2$s (%3$s m)</string>
     <string name="message_limit_active_channel">アクティブなチャネル数の制限 (%1$s) に達しました。</string>

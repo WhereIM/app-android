@@ -26,10 +26,10 @@
     <string name="location_status_not_avail">Nicht verfügbar</string>
     <string name="location_status_stale">Verbrauchter, letzter bekannter Standort</string>
     <string name="location_status_fresh">Frischer oder geschmiedeter Standort</string>
-    <string name="mobile_enchantment">Mobiles Geofencing</string>
-    <string name="mobile_enchantment_desc">Mitteilung, wenn Kumpel sich aus einer bestimmten Entfernung nähern oder sich von Ihnen entfernen</string>
-    <string name="fixed_enchantment">Fixiertes Geofencing</string>
-    <string name="fixed_enchantment_desc">Mitteilung, wenn Kumpel einen bestimmten Bereich betreten oder verlassen.</string>
+    <string name="mobile_geofence">Mobiles Geofencing</string>
+    <string name="mobile_geofence_desc">Mitteilung, wenn Kumpel sich aus einer bestimmten Entfernung nähern oder sich von Ihnen entfernen</string>
+    <string name="fixed_geofence">Fixiertes Geofencing</string>
+    <string name="fixed_geofence_desc">Mitteilung, wenn Kumpel einen bestimmten Bereich betreten oder verlassen.</string>
     <string name="error">Fehler</string>
     <string name="retry">Erneut versuchen</string>
     <string name="date_format">%1$s %2$s</string>
@@ -77,6 +77,10 @@
     <string name="unread">Ungelesen</string>
     <string name="begin_sharing">Andere benachrichtigen, dass Sie begonnen haben, Ihren Standort zu teilen.</string>
     <string name="message_not_implemented">Neue Version erforderlich, um diese Nachricht anzuzeigen</string>
+    <string name="message_geofence_create">Geofencing %1$s wurde erstellt.</string>
+    <string name="message_geofence_emerge">Ist im Geofencing %1$s aufgetaucht.</string>
+    <string name="message_geofence_in">Ist im Geofencing %1$s eingetreten.</string>
+    <string name="message_geofence_out">Hat das Geofencing %1$s verlassen.</string>
     <string name="message_enchantment_create">Geofencing %1$s wurde erstellt.</string>
     <string name="message_enchantment_emerge">Ist im Geofencing %1$s aufgetaucht.</string>
     <string name="message_enchantment_in">Ist im Geofencing %1$s eingetreten.</string>
@@ -90,6 +94,10 @@
     <string name="fcm_enchantment_emerge">%1$s: Ist im Geofencing %2$s aufgetaucht.</string>
     <string name="fcm_enchantment_in">%1$s: Ist im Geofencing %2$s eingetreten.</string>
     <string name="fcm_enchantment_out">%1$s: Hat das Geofencing %2$s verlassen.</string>
+    <string name="fcm_geofence_create">%1$s: Geofencing %2$s wurde erstellt.</string>
+    <string name="fcm_geofence_emerge">%1$s: Ist im Geofencing %2$s aufgetaucht.</string>
+    <string name="fcm_geofence_in">%1$s: Ist im Geofencing %2$s eingetreten.</string>
+    <string name="fcm_geofence_out">%1$s: Hat das Geofencing %2$s verlassen.</string>
     <string name="fcm_marker_create">%1$s: Marker %2$s wurde erstellt.</string>
     <string name="fcm_radius_report">Ein/Aus: %1$s / %2$s (%3$s m)</string>
     <string name="message_limit_active_channel">Die Anzahl aktiver Channels (%1$s) ist erreicht.</string>

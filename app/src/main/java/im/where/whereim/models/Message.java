@@ -230,6 +230,18 @@ public class Message extends BaseModel {
                 case "enchantment_out":
                     return new SpannableString(context.getResources().getString(R.string.message_enchantment_out, json.optString("name", "")));
 
+                case "geofence_create":
+                    return new SpannableString(context.getResources().getString(R.string.message_geofence_create, json.optString("name", "")));
+
+                case "geofence_emerge":
+                    return new SpannableString(context.getResources().getString(R.string.message_geofence_emerge, json.optString("name", "")));
+
+                case "geofence_in":
+                    return new SpannableString(context.getResources().getString(R.string.message_geofence_in, json.optString("name", "")));
+
+                case "geofence_out":
+                    return new SpannableString(context.getResources().getString(R.string.message_enchantment_out, json.optString("name", "")));
+
                 case "marker_create": {
                     SpannableStringBuilder b = new SpannableStringBuilder();
                     if (json.has(Key.ATTR)) {
