@@ -35,12 +35,17 @@ import im.where.whereim.models.Mate;
 import im.where.whereim.views.EmojiText;
 import im.where.whereim.views.FilterBar;
 
-public class ChannelActionFragment extends BaseChannelFragment {
+public class ChannelActionFragment extends AuxFragment {
     public ChannelActionFragment() {
         // Required empty public constructor
     }
 
     private Handler mHandler = new Handler();
+
+    @Override
+    protected ChannelActivity.AuxSize getInitialSizePolicy() {
+        return ChannelActivity.AuxSize.TAB;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

@@ -55,7 +55,7 @@ import im.where.whereim.views.WimSpan;
 
 import static android.app.Activity.RESULT_OK;
 
-public class ChannelMessengerFragment extends BaseChannelFragment {
+public class ChannelMessengerFragment extends AuxFragment {
     private final static int ACTION_PICKER = 0;
     private final static int ACTION_CAMERA = 1;
 
@@ -73,6 +73,11 @@ public class ChannelMessengerFragment extends BaseChannelFragment {
     @Override
     public void onHide() {
         deinitChannel();
+    }
+
+    @Override
+    public boolean isResizable() {
+        return true;
     }
 
     @Override
@@ -521,7 +526,7 @@ public class ChannelMessengerFragment extends BaseChannelFragment {
                     activity.moveToPin(new QuadTree.LatLng(Double.valueOf(args[1]), Double.valueOf(args[2])));
                     break;
             }
-            activity.resizeAux(ChannelActivity.AuxSize.FREE);
+            setSizePolicy(ChannelActivity.AuxSize.FREE);
         }
     };
 

@@ -22,7 +22,7 @@ import im.where.whereim.geo.QuadTree;
 import im.where.whereim.models.Channel;
 import im.where.whereim.models.Marker;
 
-public class ChannelMarkerEditFragment extends BaseChannelFragment {
+public class ChannelMarkerEditFragment extends AuxFragment {
     public ChannelMarkerEditFragment() {
         // Required empty public constructor
     }
@@ -45,6 +45,10 @@ public class ChannelMarkerEditFragment extends BaseChannelFragment {
         return fragment;
     }
 
+    @Override
+    protected ChannelActivity.AuxSize getInitialSizePolicy() {
+        return ChannelActivity.AuxSize.WRAP;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -161,6 +165,6 @@ public class ChannelMarkerEditFragment extends BaseChannelFragment {
     }
 
     private void close(){
-        channelActivity.showAux(ChannelActivity.AuxComp.TAB);
+        channelActivity.onBackPressed();
     }
 }

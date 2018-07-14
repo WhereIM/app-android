@@ -8,6 +8,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Gravity;
@@ -214,7 +215,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         FULL,
     }
     private AuxSize currentAuxSize = AuxSize.TAB;
-    void resizeAux(AuxSize size){
+    void setAuxSizePolicy(AuxSize size){
         boolean doChange = true;
         ViewGroup.LayoutParams params;
         params = auxFrame.getLayoutParams();
@@ -241,6 +242,15 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         currentAuxSize = size;
     }
 
+    public void setAuxSize(int height){
+        if(height > mContentRoot.getHeight()){ // this may happen after screen rotation
+            return;
+        }
+        ViewGroup.LayoutParams params = auxFrame.getLayoutParams();
+        params.height = height;
+        auxFrame.setLayoutParams(params);
+    }
+
     enum AuxComp {
         TAB,
         SEARCH,
@@ -252,67 +262,83 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     private AuxComp auxComp = AuxComp.TAB;
     void showAux(AuxComp comp){
         auxComp = comp;
-        AuxSize size = AuxSize.TAB;
-        boolean resizable = false;
+        FragmentManager fm = getSupportFragmentManager();
+        fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         switch (comp) {
             case TAB:
-                resizable = false;
                 setSearchResult(new ArrayList<POI>());
                 if(mChannelActionFragment == null){
                     mChannelActionFragment = new ChannelActionFragment();
                 }
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.aux_frame, mChannelActionFragment).commit();
+                fm.beginTransaction()
+                        .replace(R.id.aux_frame, mChannelActionFragment)
+                        .commit();
                 break;
             case SEARCH:
-                resizable = true;
                 if(mChannelSearchFragment == null){
                     mChannelSearchFragment = ChannelSearchFragment.newFragment(this);
                 }
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.aux_frame, mChannelSearchFragment).commit();
-                size = AuxSize.FULL;
+                mChannelActionFragment.resetSizePolicy();
+                fm.beginTransaction()
+                        .replace(R.id.aux_frame, mChannelSearchFragment)
+                        .commit();
                 break;
             case MESSAGE:
-                resizable = true;
                 if(mChannelMessengerFragment == null){
                     mChannelMessengerFragment = new ChannelMessengerFragment();
                 }
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.aux_frame, mChannelMessengerFragment).commit();
-                size = AuxSize.FULL;
+                mChannelMessengerFragment.resetSizePolicy();
+                fm.beginTransaction()
+                        .replace(R.id.aux_frame, mChannelMessengerFragment)
+                        .commit();
                 break;
             case MARKER:
-                resizable = true;
                 if(mChannelMarkerFragment== null){
                     mChannelMarkerFragment = new ChannelMarkerFragment();
                 }
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.aux_frame, mChannelMarkerFragment).commit();
-                size = AuxSize.FULL;
+                mChannelMarkerFragment.resetSizePolicy();
+                fm.beginTransaction()
+                        .replace(R.id.aux_frame, mChannelMarkerFragment)
+                        .commit();
                 break;
             case MATE:
-                resizable = true;
                 if(mChannelMateFragment== null){
                     mChannelMateFragment = new ChannelMateFragment();
                 }
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.aux_frame, mChannelMateFragment).commit();
-                size = AuxSize.FULL;
+                mChannelMateFragment.resetSizePolicy();
+                fm.beginTransaction()
+                        .replace(R.id.aux_frame, mChannelMateFragment)
+                        .commit();
                 break;
             case MARKER_CREATE:
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.aux_frame, ChannelMarkerEditFragment.newInstance(null, null, false)).commit();
-                size = AuxSize.WRAP;
+                fm.beginTransaction()
+                        .replace(R.id.aux_frame, ChannelMarkerEditFragment.newInstance(null, null, null, false))
+                        .commit();
                 break;
         }
+    }
+
+    public void setAuxResizable(boolean resizable){
         resizeHandler.setVisibility(resizable ? View.VISIBLE : View.GONE);
-        auxFrame.setVisibility(View.VISIBLE);
-        final AuxSize _size = size;
+    }
+
+    public void editMarker(String id, QuadTree.LatLng latLng, String name, String color, Boolean isPublic){
+        if(latLng != null){
+            moveTo(latLng);
+        }
+        FragmentManager fm = getSupportFragmentManager();
+        AuxFragment currentFragment = (AuxFragment) fm.findFragmentById(R.id.aux_frame);
+        ViewGroup.LayoutParams params = auxFrame.getLayoutParams();
+        currentFragment.setHeight(params.height);
+        fm.beginTransaction()
+                .replace(R.id.aux_frame, ChannelMarkerEditFragment.newInstance(id, name, color, isPublic))
+                .addToBackStack(null)
+                .commit();
+        resizeHandler.setVisibility(View.GONE);
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                resizeAux(_size);
+                setAuxSizePolicy(AuxSize.WRAP);
             }
         });
     }
@@ -338,6 +364,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
 
     @Override
     protected void onChannelChanged(final Channel prevChannel) {
+        showAux(auxComp);
         if(prevChannel != null){
             postBinderTask(new CoreService.BinderTask() {
                 @Override
@@ -466,7 +493,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     public void setSearchResult(ArrayList<POI> results){
         mChannelMapFragment.setSearchResult(results);
         if(results.size() > 0){
-            resizeAux(ChannelActivity.AuxSize.FREE);
+            setAuxSizePolicy(ChannelActivity.AuxSize.FREE);
             moveToSearchResult(0, false);
         }
     }
@@ -548,7 +575,9 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         if(auxComp==AuxComp.TAB){
             super.onBackPressed();
         }else{
-            showAux(AuxComp.TAB);
+            if(!getSupportFragmentManager().popBackStackImmediate()){
+                showAux(AuxComp.TAB);
+            }
         }
     }
 }

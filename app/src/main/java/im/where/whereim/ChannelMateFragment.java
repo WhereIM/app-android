@@ -27,12 +27,17 @@ import im.where.whereim.models.Mate;
 import im.where.whereim.views.EmojiText;
 import im.where.whereim.views.FilterBar;
 
-public class ChannelMateFragment extends BaseChannelFragment {
+public class ChannelMateFragment extends AuxFragment {
     public ChannelMateFragment() {
         // Required empty public constructor
     }
 
     private Handler mHandler = new Handler();
+
+    @Override
+    public boolean isResizable() {
+        return true;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -376,7 +381,7 @@ public class ChannelMateFragment extends BaseChannelFragment {
                         ChannelActivity activity = (ChannelActivity) getActivity();
                         Mate mate = (Mate) mAdapter.getChild(groupPosition, childPosition);
                         if(mate!=null) {
-                            activity.resizeAux(ChannelActivity.AuxSize.FREE);
+                            setSizePolicy(ChannelActivity.AuxSize.FREE);
                             activity.moveToMate(mate, true);
                         }
                         return true;

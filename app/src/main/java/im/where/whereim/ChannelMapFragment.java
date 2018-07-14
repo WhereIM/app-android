@@ -31,7 +31,7 @@ import im.where.whereim.models.POI;
  * Created by buganini on 19/01/17.
  */
 
-abstract public class ChannelMapFragment extends BaseChannelFragment implements CoreService.MapDataDelegate {
+abstract public class ChannelMapFragment extends AuxFragment implements CoreService.MapDataDelegate {
     public static ChannelMapFragment newFragment(Context context){
         switch(Config.getMapProvider(context)){
             case GOOGLE:
@@ -99,8 +99,8 @@ abstract public class ChannelMapFragment extends BaseChannelFragment implements 
     protected Key.MAP_OBJECT mEditingType = null;
 
     @Override
-    protected void initChannel() {
-
+    public boolean isResizable() {
+        return true;
     }
 
     @Override

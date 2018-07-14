@@ -25,12 +25,17 @@ import im.where.whereim.models.Channel;
 import im.where.whereim.models.Marker;
 import im.where.whereim.views.FilterBar;
 
-public class ChannelMarkerFragment extends BaseChannelFragment {
+public class ChannelMarkerFragment extends AuxFragment {
     public ChannelMarkerFragment() {
         // Required empty public constructor
     }
 
     private Handler mHandler = new Handler();
+
+    @Override
+    public boolean isResizable() {
+        return true;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -355,7 +360,7 @@ public class ChannelMarkerFragment extends BaseChannelFragment {
                         ChannelActivity activity = (ChannelActivity) getActivity();
                         Marker marker = (Marker) mAdapter.getChild(groupPosition, childPosition);
                         if(marker!=null) {
-                            activity.resizeAux(ChannelActivity.AuxSize.FREE);
+                            setSizePolicy(ChannelActivity.AuxSize.FREE);
                             activity.moveToMarker(marker, true);
                         }
                         return true;
