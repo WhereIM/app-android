@@ -5,7 +5,7 @@
     <color name="colorAccent">#a7ad8d</color>
     <color name="colorText">#CCCCCC</color>
     <color name="colorTextHighlight">#FFFFFF</color>
-    <color name="colorMapTitle">#FFFFFF</color>
+    <color name="colorMapTitle">#000000</color>
     <color name="textColorLink">#047bfe</color>
     <color name="titleBarBackground">#FFFFFF</color>
     <color name="panelBackground">#e5bfbfbf</color>

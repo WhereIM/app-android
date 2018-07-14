@@ -88,7 +88,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textAppearance="?android:attr/textAppearanceSmall"
-                                android:textColor="@color/colorText" />
+                                android:textColor="@color/colorMapTitle" />
                         </LinearLayout>
 
 
