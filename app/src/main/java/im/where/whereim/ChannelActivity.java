@@ -57,9 +57,16 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     private FrameLayout mainFrame;
     private FrameLayout auxFrame;
 
+    private float MIN_VISION_AREA_HEIGHT;
+    private float MAP_TOP_INSET;
+    private float MIN_AUX_HEIGHT;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        MIN_VISION_AREA_HEIGHT = Util.dp2px(this, 80);
+        MAP_TOP_INSET = getResources().getDimension(R.dimen.map_top_inset);
+        MIN_AUX_HEIGHT = getResources().getDimension(R.dimen.tab_height);
 
         setContentView(R.layout.activity_channel);
 
@@ -79,9 +86,19 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                         return true;
                     case MotionEvent.ACTION_MOVE:
                         if(y != null){
+                            float dy = motionEvent.getRawY() - y;
                             ViewGroup.LayoutParams params = auxFrame.getLayoutParams();
-                            params.height -= motionEvent.getRawY() - y;
-                            auxFrame.setLayoutParams(params);
+                            params.height -= dy;
+                            boolean resize = true;
+                            if(mContentRoot.getHeight() - params.height - MAP_TOP_INSET < MIN_VISION_AREA_HEIGHT){
+                                resize = false;
+                            }
+                            if(params.height < MIN_AUX_HEIGHT){
+                                resize = false;
+                            }
+                            if(resize){
+                                auxFrame.setLayoutParams(params);
+                            }
                             y = motionEvent.getRawY();
                             return true;
                         }else{
