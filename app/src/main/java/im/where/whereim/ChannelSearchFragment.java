@@ -88,6 +88,7 @@ abstract public class ChannelSearchFragment extends AuxFragment {
 
     protected Handler mHandler = new Handler();
 
+    abstract public Config.MapProvider getProvider();
     abstract protected void search(String keyword);
     abstract protected void autoComplete(String keyword);
     abstract protected BaseAdapter getSearchResultAdapter();

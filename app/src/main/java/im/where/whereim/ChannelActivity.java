@@ -276,7 +276,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                         .commit();
                 break;
             case SEARCH:
-                if(mChannelSearchFragment == null){
+                if(mChannelSearchFragment == null || mChannelSearchFragment.getProvider() != Config.getMapProvider(this)){
                     mChannelSearchFragment = ChannelSearchFragment.newFragment(this);
                 }
                 mChannelActionFragment.resetSizePolicy();

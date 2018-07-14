@@ -51,6 +51,11 @@ public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
     }
 
     @Override
+    public Config.MapProvider getProvider() {
+        return Config.MapProvider.GOOGLE;
+    }
+
+    @Override
     public void search(final String keyword) {
         final ChannelActivity activity = (ChannelActivity) getActivity();
 

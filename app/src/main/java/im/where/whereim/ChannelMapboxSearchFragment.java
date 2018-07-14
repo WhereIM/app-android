@@ -32,6 +32,11 @@ public class ChannelMapboxSearchFragment extends ChannelSearchFragment {
     }
 
     @Override
+    public Config.MapProvider getProvider() {
+        return Config.MapProvider.MAPBOX;
+    }
+
+    @Override
     public void search(final String keyword) {
         final ChannelActivity activity = (ChannelActivity) getActivity();
 
