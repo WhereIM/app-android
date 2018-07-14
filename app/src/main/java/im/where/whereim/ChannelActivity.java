@@ -476,16 +476,6 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         mChannelMapFragment.moveToMarker(marker, focus);
     }
 
-    @Override
-    public void editEnchantment(Enchantment enchantment) {
-        mChannelMapFragment.editEnchantment(enchantment);
-    }
-
-    @Override
-    public void editMarker(Marker marker) {
-        mChannelMapFragment.editMarker(marker);
-    }
-
     public QuadTree.LatLng getMapCenter() {
         return mChannelMapFragment.getMapCenter();
     }

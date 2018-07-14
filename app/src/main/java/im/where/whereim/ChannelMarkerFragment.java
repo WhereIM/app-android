@@ -1,14 +1,9 @@
 package im.where.whereim;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AlertDialog;
-import android.view.ActionMode;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -18,9 +13,7 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import org.json.JSONObject;
-
-import im.where.whereim.dialogs.DialogEditMarker;
+import im.where.whereim.geo.QuadTree;
 import im.where.whereim.models.Channel;
 import im.where.whereim.models.Marker;
 import im.where.whereim.views.FilterBar;
@@ -260,77 +253,6 @@ public class ChannelMarkerFragment extends AuxFragment {
         }
     };
 
-    private Marker mEditingMarker;
-    private ActionMode.Callback mMarkerAction = new ActionMode.Callback() {
-        private final static int ACTION_EDIT = 0;
-        private final static int ACTION_DELETE = 1;
-
-        @Override
-        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-            menu.add(0, ACTION_EDIT, 0, "✏️");
-            menu.add(0, ACTION_DELETE, 0, "❌️");
-            return true;
-        }
-
-        @Override
-        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            return false;
-        }
-
-        @Override
-        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            mode.finish();
-            final ChannelActivity activity = (ChannelActivity) getActivity();
-            switch(item.getItemId()) {
-                case ACTION_EDIT:
-                    new DialogEditMarker(activity, mEditingMarker.name, mEditingMarker.getIconColor(), mEditingMarker.isPublic, new DialogEditMarker.Callback() {
-                        @Override
-                        public void onEditMarker(final String name, final boolean isPublic, final JSONObject attr) {
-                            postBinderTask(new CoreService.BinderTask() {
-                                @Override
-                                public void onBinderReady(CoreService.CoreBinder binder) {
-                                    mEditingMarker.name = name;
-                                    mEditingMarker.attr = attr;
-                                    mEditingMarker.isPublic = isPublic;
-                                    activity.editMarker(mEditingMarker);
-                                }
-                            });
-                        }
-                    });
-                    return true;
-                case ACTION_DELETE:
-                    new AlertDialog.Builder(activity)
-                            .setTitle(R.string.delete)
-                            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    postBinderTask(new CoreService.BinderTask() {
-                                        @Override
-                                        public void onBinderReady(CoreService.CoreBinder binder) {
-                                            if(mEditingMarker!=null) {
-                                                binder.deleteMarker(mEditingMarker);
-                                            }
-                                        }
-                                    });
-                                }
-                            })
-                            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-
-                                }
-                            }).show();
-                    return true;
-            }
-            return false;
-        }
-
-        @Override
-        public void onDestroyActionMode(ActionMode mode) {
-
-        }
-    };
-
     private String mFilterKeyword = null;
     private FilterBar mFilter;
     private ExpandableListView mListView;
@@ -376,9 +298,9 @@ public class ChannelMarkerFragment extends AuxFragment {
                             int childPosition = ExpandableListView.getPackedPositionChild(packedPos);
                             int groupPosition = ExpandableListView.getPackedPositionGroup(packedPos);
 
-                            mEditingMarker = (Marker) mAdapter.getChild(groupPosition, childPosition);
-                            if(mEditingMarker!=null) {
-                                getActivity().startActionMode(mMarkerAction);
+                            Marker marker = (Marker) mAdapter.getChild(groupPosition, childPosition);
+                            if(marker != null) {
+                                channelActivity.editMarker(marker.id, new QuadTree.LatLng(marker.latitude, marker.longitude), marker.name, marker.getIconColor(), marker.isPublic);
                             }
 
                             return true;

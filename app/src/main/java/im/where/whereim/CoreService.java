@@ -103,8 +103,6 @@ public class CoreService extends Service {
         void moveToEnchantment(Enchantment enchantment);
         void onMarkerData(Marker marker, boolean focus);
         void moveToMarker(Marker marker, boolean focus);
-        void editEnchantment(Enchantment enchantment);
-        void editMarker(Marker marker);
         QuadTree.LatLng getMapCenter();
         void setSearchResult(ArrayList<POI> results);
         void moveToSearchResult(int position, boolean focus);

@@ -448,7 +448,7 @@ public class ChannelEnchantmentFragment extends BaseChannelFragment {
                                 public void onBinderReady(CoreService.CoreBinder binder) {
                                     mEditingEnchantment.name = name;
                                     mEditingEnchantment.isPublic = isPublic;
-                                    activity.editEnchantment(mEditingEnchantment);
+//                                    activity.editEnchantment(mEditingEnchantment);
                                 }
                             });
                         }

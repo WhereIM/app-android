@@ -1,13 +1,11 @@
 package im.where.whereim;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -27,16 +25,18 @@ public class ChannelMarkerEditFragment extends AuxFragment {
         // Required empty public constructor
     }
 
+    private final static String FIELD_ID = "id";
     private final static String FIELD_NAME = "name";
     private final static String FIELD_COLOR = "color";
     private final static String FIELD_PUBLIC = "public";
 
     private Handler mHandler = new Handler();
 
-    public static ChannelMarkerEditFragment newInstance(String name, String color, boolean isPublic) {
+    public static ChannelMarkerEditFragment newInstance(String id, String name, String color, Boolean isPublic) {
         ChannelMarkerEditFragment fragment = new ChannelMarkerEditFragment();
 
         Bundle args = new Bundle();
+        args.putString(FIELD_ID, id);
         args.putString(FIELD_NAME, name);
         args.putString(FIELD_COLOR, color);
         args.putBoolean(FIELD_PUBLIC, isPublic);
@@ -56,7 +56,9 @@ public class ChannelMarkerEditFragment extends AuxFragment {
     }
 
 
+    String mId;
     String mColor;
+    Boolean mIsPublic;
 
     TextView mNameEdit;
     ImageView mIconEdit;
@@ -66,10 +68,13 @@ public class ChannelMarkerEditFragment extends AuxFragment {
         View view = inflater.inflate(R.layout.fragment_channel_marker_edit, container, false);
 
         Bundle args = getArguments();
+        mId = args.getString(FIELD_ID);
         mColor = args.getString(FIELD_COLOR, null);
         if(mColor == null){
             mColor = Marker.DEFAULT_COLOR;
         }
+        mIsPublic = args.getBoolean(FIELD_PUBLIC);
+
         mNameEdit = view.findViewById(R.id.name);
         mIconEdit = view.findViewById(R.id.icon);
         mNameEdit.setText(args.getString(FIELD_NAME));
@@ -96,44 +101,23 @@ public class ChannelMarkerEditFragment extends AuxFragment {
             @Override
             public void onClick(View view) {
                 channelActivity.closeKeyboard();
-                new DialogPublic(channelActivity, getString(R.string.save_marker), new DialogPublic.Callback() {
-                    @Override
-                    public void onSelected(final boolean isPublic) {
-                        postBinderTask(new CoreService.BinderTask() {
-                            @Override
-                            public void onBinderReady(final CoreService.CoreBinder binder) {
-                                getChannel(new BaseChannelActivity.GetChannelCallback() {
-                                    @Override
-                                    public void onGetChannel(Channel channel) {
-                                        QuadTree.LatLng location = channelActivity.getMapCenter();
-                                        Marker marker = new Marker();
-                                        marker.channel_id = channel.id;
-                                        marker.id = null;
-                                        marker.name = mNameEdit.getText().toString();
-                                        marker.latitude = location.latitude;
-                                        marker.longitude = location.longitude;
-                                        marker.isPublic = isPublic;
-                                        marker.attr = new JSONObject();
-                                        try {
-                                            marker.attr.put(Key.COLOR, mColor);
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                            return;
-                                        }
+                if(mIsPublic == null){
+                    new DialogPublic(channelActivity, getString(R.string.save_marker), new DialogPublic.Callback() {
+                        @Override
+                        public void onSelected(boolean isPublic) {
+                            mIsPublic = isPublic;
+                            save();
+                        }
 
-                                        binder.setMarker(marker);
-                                        close();
-                                    }
-                                });
-                            }
-                        });
-                    }
+                        @Override
+                        public void onCanceled() {
+                            close();
+                        }
+                    });
+                }else{
+                    save();
+                }
 
-                    @Override
-                    public void onCanceled() {
-                        close();
-                    }
-                });
             }
         });
 
@@ -162,6 +146,37 @@ public class ChannelMarkerEditFragment extends AuxFragment {
         });
 
         return view;
+    }
+
+    private void save(){
+        postBinderTask(new CoreService.BinderTask() {
+            @Override
+            public void onBinderReady(final CoreService.CoreBinder binder) {
+                getChannel(new BaseChannelActivity.GetChannelCallback() {
+                    @Override
+                    public void onGetChannel(Channel channel) {
+                        QuadTree.LatLng location = channelActivity.getMapCenter();
+                        Marker marker = new Marker();
+                        marker.channel_id = channel.id;
+                        marker.id = mId;
+                        marker.name = mNameEdit.getText().toString();
+                        marker.latitude = location.latitude;
+                        marker.longitude = location.longitude;
+                        marker.isPublic = mIsPublic;
+                        marker.attr = new JSONObject();
+                        try {
+                            marker.attr.put(Key.COLOR, mColor);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            return;
+                        }
+
+                        binder.setMarker(marker);
+                        close();
+                    }
+                });
+            }
+        });
     }
 
     private void close(){

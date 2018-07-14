@@ -867,7 +867,6 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
         if (mPendingPOIMarker != null) {
             mPendingPOIMarker.remove();
         }
-        clearAction(false);
     }
 
     @Override
@@ -878,7 +877,6 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
     @Override
     protected void refreshEditing() {
         if (mEditingType == Key.MAP_OBJECT.ENCHANTMENT) {
-            mEnchantmentController.setVisibility(View.VISIBLE);
             getMapAsync(new OnMapReadyCallback() {
                 @Override
                 public void onMapReady(MapboxMap mapboxMap) {
@@ -893,13 +891,11 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
                 }
             });
         } else {
-            mEnchantmentController.setVisibility(View.GONE);
             if (mEditingEnchantmentCircle != null) {
                 mEditingEnchantmentCircle.remove();
             }
         }
         if (mEditingType == Key.MAP_OBJECT.MARKER) {
-            mMarkerController.setVisibility(View.VISIBLE);
             getMapAsync(new OnMapReadyCallback() {
                 @Override
                 public void onMapReady(MapboxMap mapboxMap) {
@@ -916,7 +912,6 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
                 }
             });
         } else {
-            mMarkerController.setVisibility(View.GONE);
             if (mEditingMarkerMarker != null) {
                 mEditingMarkerMarker.remove();
             }
@@ -930,7 +925,6 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
             if (mPendingPOIMarker != null) {
                 mPendingPOIMarker.remove();
             }
-            clearAction(true);
             clickMarker(obj);
         }
         return false;

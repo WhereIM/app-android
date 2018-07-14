@@ -30,6 +30,4 @@
         android:layout_marginRight="5dp"
         android:src="@drawable/ic_gps_fixed_black_24dp" />
 
-    <include layout="@layout/partial_channel_map"/>
-
 </RelativeLayout>
