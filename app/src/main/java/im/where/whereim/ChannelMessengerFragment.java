@@ -618,6 +618,7 @@ public class ChannelMessengerFragment extends AuxFragment {
             @Override
             public void onClick(View view) {
                 mListView.scrollToPosition(mAdapter.getItemCount() - 1);
+                mBottom.setVisibility(View.GONE);
                 messageViewEnd = true;
             }
         });
