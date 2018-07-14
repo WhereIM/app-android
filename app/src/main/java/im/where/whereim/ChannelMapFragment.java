@@ -21,7 +21,7 @@ import im.where.whereim.models.POI;
  * Created by buganini on 19/01/17.
  */
 
-abstract public class ChannelMapFragment extends AuxFragment implements CoreService.MapDataDelegate {
+abstract public class ChannelMapFragment extends BaseChannelFragment implements CoreService.MapDataDelegate {
     public static ChannelMapFragment newFragment(Context context){
         switch(Config.getMapProvider(context)){
             case GOOGLE:
@@ -35,6 +35,8 @@ abstract public class ChannelMapFragment extends AuxFragment implements CoreServ
     protected Handler mHandler = new Handler();
 
     final private List<Runnable> mPendingLocationServiceTask = new LinkedList<>();
+
+    abstract Config.MapProvider getProvider();
 
     public void onLocationServiceReady(){
         processLocationServiceTask();
@@ -76,11 +78,6 @@ abstract public class ChannelMapFragment extends AuxFragment implements CoreServ
     protected Marker mEditingMarker = new Marker();
     protected Enchantment mEditingEnchantment = new Enchantment();
     protected Key.MAP_OBJECT mEditingType = null;
-
-    @Override
-    public boolean isResizable() {
-        return true;
-    }
 
     @Override
     protected void deinitChannel() {

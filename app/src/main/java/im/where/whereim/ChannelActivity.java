@@ -188,24 +188,17 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
             }
         });
 
-        showMain(R.id.map);
-        showAux(AuxComp.TAB);
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                setupMapView();
+                showAux(AuxComp.TAB);
+            }
+        });
     }
 
     public void closeDrawer(){
         mDrawerLayout.closeDrawer(Gravity.LEFT);
-    }
-
-    void showMain(int comp){
-        switch (comp) {
-            case R.id.map:
-                if(mChannelMapFragment == null){
-                    mChannelMapFragment = ChannelMapFragment.newFragment(this);
-                }
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.main_frame, mChannelMapFragment).commit();
-                break;
-        }
     }
 
     enum AuxSize {
@@ -516,19 +509,36 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         }
     };
 
+    private void setupMapView(){
+        if(mChannelMapFragment==null || mChannelMapFragment.getProvider() != Config.getMapProvider(this)){
+            mChannelMapFragment = ChannelMapFragment.newFragment(this);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.main_frame, mChannelMapFragment)
+                    .commit();
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
-        postChannelReadyTask(new Runnable() {
+
+        mHandler.post(new Runnable() {
             @Override
             public void run() {
-                postBinderTask(new CoreService.BinderTask() {
+                setupMapView();
+
+                postChannelReadyTask(new Runnable() {
                     @Override
-                    public void onBinderReady(CoreService.CoreBinder binder) {
-                        binder.setActivity(ChannelActivity.this);
-                        binder.openMap(mChannel, ChannelActivity.this);
-                        binder.addChannelListChangedListener(mChannelListChangedListener);
-                        binder.addConnectionStatusChangedListener(ChannelActivity.this);
+                    public void run() {
+                        postBinderTask(new CoreService.BinderTask() {
+                            @Override
+                            public void onBinderReady(CoreService.CoreBinder binder) {
+                                binder.setActivity(ChannelActivity.this);
+                                binder.openMap(mChannel, ChannelActivity.this);
+                                binder.addChannelListChangedListener(mChannelListChangedListener);
+                                binder.addConnectionStatusChangedListener(ChannelActivity.this);
+                            }
+                        });
                     }
                 });
             }

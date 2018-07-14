@@ -316,6 +316,11 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     }
 
     @Override
+    Config.MapProvider getProvider() {
+        return Config.MapProvider.GOOGLE;
+    }
+
+    @Override
     protected void resetMap() {
         synchronized (mMarkerMap) {
             mMarkerMap.clear();

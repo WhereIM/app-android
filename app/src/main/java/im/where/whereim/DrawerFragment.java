@@ -69,6 +69,8 @@ public class DrawerFragment extends BaseFragment {
         view.findViewById(R.id.settings).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                ChannelActivity activity = (ChannelActivity) getActivity();
+                activity.closeDrawer();
                 Intent intent = new Intent(getActivity(), SettingsActivity.class);
                 startActivity(intent);
             }

@@ -425,6 +425,11 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
     }
 
     @Override
+    Config.MapProvider getProvider() {
+        return Config.MapProvider.MAPBOX;
+    }
+
+    @Override
     protected void resetMap() {
         synchronized (mMarkerMap) {
             mMarkerMap.clear();
