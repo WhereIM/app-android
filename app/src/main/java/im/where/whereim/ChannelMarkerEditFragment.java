@@ -1,5 +1,7 @@
 package im.where.whereim;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -39,7 +41,9 @@ public class ChannelMarkerEditFragment extends AuxFragment {
         args.putString(FIELD_ID, id);
         args.putString(FIELD_NAME, name);
         args.putString(FIELD_COLOR, color);
-        args.putBoolean(FIELD_PUBLIC, isPublic);
+        if(isPublic != null){
+            args.putBoolean(FIELD_PUBLIC, isPublic);
+        }
         fragment.setArguments(args);
 
         return fragment;
@@ -60,12 +64,17 @@ public class ChannelMarkerEditFragment extends AuxFragment {
     String mColor;
     Boolean mIsPublic;
 
-    TextView mNameEdit;
-    ImageView mIconEdit;
+    TextView mEditName;
+    ImageView mEditIcon;
+    View mButtonDelete;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_channel_marker_edit, container, false);
+
+        mEditName = view.findViewById(R.id.name);
+        mEditIcon = view.findViewById(R.id.icon);
+        mButtonDelete = view.findViewById(R.id.delete);
 
         Bundle args = getArguments();
         mId = args.getString(FIELD_ID);
@@ -73,20 +82,22 @@ public class ChannelMarkerEditFragment extends AuxFragment {
         if(mColor == null){
             mColor = Marker.DEFAULT_COLOR;
         }
-        mIsPublic = args.getBoolean(FIELD_PUBLIC);
+        if(args.containsKey(FIELD_PUBLIC)){
+            mIsPublic = args.getBoolean(FIELD_PUBLIC);
+        }else{
+            mIsPublic = null;
+        }
 
-        mNameEdit = view.findViewById(R.id.name);
-        mIconEdit = view.findViewById(R.id.icon);
-        mNameEdit.setText(args.getString(FIELD_NAME));
-        mIconEdit.setImageResource(Marker.getIconResource(mColor));
-        mIconEdit.setOnClickListener(new View.OnClickListener() {
+        mEditName.setText(args.getString(FIELD_NAME));
+        mEditIcon.setImageResource(Marker.getIconResource(mColor));
+        mEditIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 new DialogIconPicker(getContext(), mColor, new DialogIconPicker.Callback() {
                     @Override
                     public void onSelected(String color) {
                         mColor = color;
-                        mIconEdit.setImageResource(Marker.getIconResource(mColor));
+                        mEditIcon.setImageResource(Marker.getIconResource(mColor));
                     }
 
                     @Override
@@ -94,6 +105,39 @@ public class ChannelMarkerEditFragment extends AuxFragment {
 
                     }
                 });
+            }
+        });
+        if(mId == null){
+            mButtonDelete.setVisibility(View.GONE);
+        }
+        mButtonDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new AlertDialog.Builder(channelActivity)
+                        .setTitle(R.string.delete)
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                postBinderTask(new CoreService.BinderTask() {
+                                    @Override
+                                    public void onBinderReady(final CoreService.CoreBinder binder) {
+                                        getChannel(new BaseChannelActivity.GetChannelCallback() {
+                                            @Override
+                                            public void onGetChannel(Channel channel) {
+                                                binder.deleteMarker(channel.id, mId, mIsPublic);
+                                            }
+                                        });
+                                        channelActivity.onBackPressed();
+                                    }
+                                });
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        }).show();
             }
         });
 
@@ -132,7 +176,7 @@ public class ChannelMarkerEditFragment extends AuxFragment {
             @Override
             public void onClick(View view) {
                 QuadTree.LatLng location = channelActivity.getMapCenter();
-                new DialogShareLocation(channelActivity, mNameEdit.getText().toString(), location.latitude, location.longitude);
+                new DialogShareLocation(channelActivity, mEditName.getText().toString(), location.latitude, location.longitude);
             }
         });
 
@@ -159,7 +203,7 @@ public class ChannelMarkerEditFragment extends AuxFragment {
                         Marker marker = new Marker();
                         marker.channel_id = channel.id;
                         marker.id = mId;
-                        marker.name = mNameEdit.getText().toString();
+                        marker.name = mEditName.getText().toString();
                         marker.latitude = location.latitude;
                         marker.longitude = location.longitude;
                         marker.isPublic = mIsPublic;

@@ -305,7 +305,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                 break;
             case MARKER_CREATE:
                 fm.beginTransaction()
-                        .replace(R.id.aux_frame, ChannelMarkerEditFragment.newInstance(null, null, null, false))
+                        .replace(R.id.aux_frame, ChannelMarkerEditFragment.newInstance(null, null, null, null))
                         .commit();
                 break;
         }

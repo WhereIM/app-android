@@ -771,17 +771,14 @@ public class CoreService extends Service {
             }
         }
 
-        public void deleteMarker(Marker marker){
-            if(marker==null){
-                return;
-            }
+        public void deleteMarker(String channel_id, String id, boolean isPublic){
             try {
                 JSONObject payload = new JSONObject();
-                payload.put(Key.ID, marker.id);
+                payload.put(Key.ID, id);
                 payload.put(Key.DELETED, true);
 
-                if(marker.isPublic){
-                    publish(String.format("channel/%s/data/marker/put", marker.channel_id), payload);
+                if(isPublic){
+                    publish(String.format("channel/%s/data/marker/put", channel_id), payload);
                 }else{
                     publish(String.format("client/%s/marker/put", mClientId), payload);
                 }
