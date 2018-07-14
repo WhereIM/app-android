@@ -131,11 +131,11 @@ abstract public class ChannelSearchFragment extends AuxFragment {
         } else {
             mSearch.setVisibility(View.VISIBLE);
             mClear.setVisibility(View.GONE);
-
         }
 
-        final ChannelActivity activity = (ChannelActivity) getActivity();
-        activity.setSearchResult(result);
+        if(channelActivity!=null){
+            channelActivity.setSearchResult(result);
+        }
         mLoading.setVisibility(View.GONE);
         mSearchResult = result;
         mSearchResultAdapter.notifyDataSetChanged();
