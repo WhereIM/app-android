@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -47,8 +48,10 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     private View mConnectingStatus;
     private TextView mChannelTitle;
     private TextView mChannelSubtitle;
+    private ImageView mStatus;
     private Switch mActive;
-    private View mEnableLoading;
+    private View mActiveLoading;
+    private View mSendingPane;
 
     private View resizeHandler;
     private FrameLayout mainFrame;
@@ -98,8 +101,17 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
 
         mChannelTitle = findViewById(R.id.channel_title);
         mChannelSubtitle = findViewById(R.id.channel_subtitle);
-        mActive = findViewById(R.id.enable);
-        mEnableLoading = findViewById(R.id.enable_loading);
+        mStatus = findViewById(R.id.status);
+        mActive = findViewById(R.id.active);
+        mActiveLoading = findViewById(R.id.active_loading);
+        mSendingPane = findViewById(R.id.sending_pane);
+
+        mStatus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toggleSendingPange();
+            }
+        });
 
         mActive.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -125,7 +137,14 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
             }
         };
         mActive.setOnLongClickListener(deactivate);
-        mEnableLoading.setOnLongClickListener(deactivate);
+        mActiveLoading.setOnLongClickListener(deactivate);
+
+        findViewById(R.id.forge_location).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
 
         findViewById(R.id.list).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -196,6 +215,15 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         });
     }
 
+    private void toggleSendingPange(){
+        boolean show = mSendingPane.getVisibility() != View.GONE;
+        setSendingPane(!show);
+    }
+
+    private void setSendingPane(boolean show){
+        mSendingPane.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
     public void closeDrawer(){
         mDrawerLayout.closeDrawer(Gravity.LEFT);
     }
@@ -263,6 +291,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     private AuxComp auxComp = AuxComp.TAB;
     void showAux(AuxComp comp){
         auxComp = comp;
+        setSendingPane(false);
         FragmentManager fm = getSupportFragmentManager();
         fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         switch (comp) {
@@ -388,10 +417,11 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         Boolean active = mChannel.active;
         if(active==null){
             mActive.setVisibility(View.GONE);
-            mEnableLoading.setVisibility(View.VISIBLE);
+            mActiveLoading.setVisibility(View.VISIBLE);
         }else{
+            mStatus.setImageResource(active ? R.drawable.icon_mate : R.drawable.baseline_face_black_36);
             mActive.setVisibility(View.VISIBLE);
-            mEnableLoading.setVisibility(View.GONE);
+            mActiveLoading.setVisibility(View.GONE);
             mActive.setChecked(active);
         }
 
@@ -510,7 +540,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         public void run() {
             if(mChannel==null) {
                 mActive.setVisibility(View.GONE);
-                mEnableLoading.setVisibility(View.GONE);
+                mActiveLoading.setVisibility(View.GONE);
                 return;
             }
         }

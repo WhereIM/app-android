@@ -31,7 +31,7 @@
                 android:text="@string/connecting"
                 />
 
-            <RelativeLayout
+            <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1">
@@ -41,16 +41,23 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
 
-                <FrameLayout
-                    android:layout_width="match_parent"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:padding="20dp">
+                    android:animateLayoutChanges="true"
+                    android:background="@color/titleBarBackground"
+                    android:orientation="vertical"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginTop="@dimen/title_bar_margin_top"
+                    android:layout_marginStart="@dimen/map_side_inset"
+                    android:layout_marginEnd="@dimen/map_side_inset">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="56dp"
-                        android:orientation="horizontal"
-                        android:background="@color/colorPrimary">
+                        android:orientation="horizontal">
 
                         <Button
                             android:id="@+id/list"
@@ -58,22 +65,22 @@
                             android:layout_height="36dp"
                             android:layout_gravity="center_vertical"
                             android:layout_margin="12dp"
-                            android:background="@drawable/baseline_menu_white_36"/>
+                            android:background="@drawable/baseline_menu_black_36" />
 
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
                             android:layout_gravity="center_vertical"
-                            android:orientation="vertical"
-                            android:gravity="center_vertical">
+                            android:layout_weight="1"
+                            android:gravity="center_vertical"
+                            android:orientation="vertical">
 
                             <TextView
                                 android:id="@+id/channel_title"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textAppearance="?android:attr/textAppearanceMedium"
-                                android:textColor="@color/colorTextHighlight" />
+                                android:textColor="@color/colorMapTitle" />
 
                             <TextView
                                 android:id="@+id/channel_subtitle"
@@ -83,36 +90,73 @@
                                 android:textColor="@color/colorText" />
                         </LinearLayout>
 
-                        <FrameLayout
-                            android:layout_width="80dp"
-                            android:layout_height="match_parent"
-                            android:layout_gravity="center_vertical">
 
-                            <Switch
-                                android:id="@+id/enable"
-                                android:layout_width="wrap_content"
+                        <ImageView
+                            android:id="@+id/status"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/sending_pane"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:padding="@dimen/content_inset">
+
+                            <TextView
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:layout_gravity="center"
-                                android:gravity="center"
-                                android:visibility="gone" />
+                                android:layout_weight="1"
+                                android:textAppearance="?android:attr/textAppearanceMedium"
+                                android:text="@string/share_location" />
 
-                            <ProgressBar
-                                android:id="@+id/enable_loading"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center" />
+                            <FrameLayout
+                                android:layout_width="45dp"
+                                android:layout_height="match_parent"
+                                android:layout_gravity="center_vertical">
 
-                        </FrameLayout>
+                                <Switch
+                                    android:id="@+id/active"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:gravity="center"
+                                    android:visibility="gone" />
+
+                                <ProgressBar
+                                    android:id="@+id/active_loading"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center" />
+
+                            </FrameLayout>
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/forge_location"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:padding="@dimen/content_inset"
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:background="?android:selectableItemBackground"
+                            android:text="@string/forge_location" />
 
                     </LinearLayout>
 
-                </FrameLayout>
+                </LinearLayout>
 
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="20dp"
-                    android:layout_alignParentBottom="true"
-                    android:layout_centerHorizontal="true">
+                    app:layout_constraintBottom_toBottomOf="parent">
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="5dp"
@@ -132,7 +176,7 @@
                             />
                     </RelativeLayout>
                 </RelativeLayout>
-            </RelativeLayout>
+            </android.support.constraint.ConstraintLayout>
 
             <FrameLayout
                 android:id="@+id/aux_frame"
