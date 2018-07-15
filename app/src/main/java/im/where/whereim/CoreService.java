@@ -735,6 +735,8 @@ public class CoreService extends Service {
                 payload.put(Key.LATITUDE, marker.latitude);
                 payload.put(Key.LONGITUDE, marker.longitude);
                 payload.put(Key.ATTR, marker.attr);
+                payload.put(Key.GEOFENCE, marker.geofence);
+                payload.put(Key.RADIUS, marker.radius);
 
                 if(marker.isPublic){
                     publish(String.format("channel/%s/data/marker/put", marker.channel_id), payload);
@@ -2025,6 +2027,8 @@ public class CoreService extends Service {
                 if (data.has(Key.ATTR)) {
                     marker.attr = data.getJSONObject(Key.ATTR);
                 }
+                marker.geofence = data.optBoolean(Key.GEOFENCE, marker.geofence);
+                marker.radius = data.optInt(Key.RADIUS, marker.radius);
                 marker.isPublic = data.optBoolean(Key.PUBLIC, marker.isPublic);
                 marker.enabled = Util.JsonOptBoolean(data, Key.ENABLED, marker.enabled);
                 marker.deleted = Util.JsonOptBoolean(data, Key.DELETED, marker.deleted);

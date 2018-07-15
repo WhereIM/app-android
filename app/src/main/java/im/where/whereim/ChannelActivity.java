@@ -359,7 +359,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                 break;
             case MARKER_CREATE:
                 fm.beginTransaction()
-                        .replace(R.id.aux_frame, ChannelMarkerEditFragment.newInstance(null, null, null, null))
+                        .replace(R.id.aux_frame, ChannelMarkerEditFragment.newInstance(null, null, null, Config.DEFAULT_GEOFENCE_RADIUS, false, null))
                         .commit();
                 break;
         }
@@ -369,7 +369,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         resizeHandler.setVisibility(resizable ? View.VISIBLE : View.GONE);
     }
 
-    public void editMarker(String id, QuadTree.LatLng latLng, String name, String color, Boolean isPublic){
+    public void editMarker(String id, QuadTree.LatLng latLng, String name, String color, int radius, boolean geofence, Boolean isPublic){
         if(latLng != null){
             moveTo(latLng);
         }
@@ -378,7 +378,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         ViewGroup.LayoutParams params = auxFrame.getLayoutParams();
         currentFragment.setHeight(params.height);
         fm.beginTransaction()
-                .replace(R.id.aux_frame, ChannelMarkerEditFragment.newInstance(id, name, color, isPublic))
+                .replace(R.id.aux_frame, ChannelMarkerEditFragment.newInstance(id, name, color, radius, geofence, isPublic))
                 .addToBackStack(null)
                 .commit();
         resizeHandler.setVisibility(View.GONE);

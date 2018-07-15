@@ -14,6 +14,7 @@ import android.widget.TextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import im.where.whereim.dialogs.DialogGeofence;
 import im.where.whereim.dialogs.DialogIconPicker;
 import im.where.whereim.dialogs.DialogOpenIn;
 import im.where.whereim.dialogs.DialogPublic;
@@ -30,17 +31,21 @@ public class ChannelMarkerEditFragment extends AuxFragment {
     private final static String FIELD_ID = "id";
     private final static String FIELD_NAME = "name";
     private final static String FIELD_COLOR = "color";
+    private final static String FIELD_RADIUS = "radius";
+    private final static String FIELD_GEOFENCE = "geofence";
     private final static String FIELD_PUBLIC = "public";
 
     private Handler mHandler = new Handler();
 
-    public static ChannelMarkerEditFragment newInstance(String id, String name, String color, Boolean isPublic) {
+    public static ChannelMarkerEditFragment newInstance(String id, String name, String color, int radius, boolean geofence, Boolean isPublic) {
         ChannelMarkerEditFragment fragment = new ChannelMarkerEditFragment();
 
         Bundle args = new Bundle();
         args.putString(FIELD_ID, id);
         args.putString(FIELD_NAME, name);
         args.putString(FIELD_COLOR, color);
+        args.putInt(FIELD_RADIUS, radius);
+        args.putBoolean(FIELD_GEOFENCE, geofence);
         if(isPublic != null){
             args.putBoolean(FIELD_PUBLIC, isPublic);
         }
@@ -62,10 +67,13 @@ public class ChannelMarkerEditFragment extends AuxFragment {
 
     String mId;
     String mColor;
+    Integer mRadius;
+    Boolean mGeofence;
     Boolean mIsPublic;
 
     TextView mEditName;
     ImageView mEditIcon;
+    TextView mEditGeofence;
     View mButtonDelete;
 
     @Override
@@ -74,22 +82,24 @@ public class ChannelMarkerEditFragment extends AuxFragment {
 
         mEditName = view.findViewById(R.id.name);
         mEditIcon = view.findViewById(R.id.icon);
+        mEditGeofence = view.findViewById(R.id.geofence);
         mButtonDelete = view.findViewById(R.id.delete);
 
         Bundle args = getArguments();
         mId = args.getString(FIELD_ID);
+        mEditName.setText(args.getString(FIELD_NAME));
         mColor = args.getString(FIELD_COLOR, null);
         if(mColor == null){
             mColor = Marker.DEFAULT_COLOR;
         }
+        mRadius = args.getInt(FIELD_RADIUS);
+        mGeofence = args.getBoolean(FIELD_GEOFENCE);
         if(args.containsKey(FIELD_PUBLIC)){
             mIsPublic = args.getBoolean(FIELD_PUBLIC);
         }else{
             mIsPublic = null;
         }
 
-        mEditName.setText(args.getString(FIELD_NAME));
-        mEditIcon.setImageResource(Marker.getIconResource(mColor));
         mEditIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -97,7 +107,26 @@ public class ChannelMarkerEditFragment extends AuxFragment {
                     @Override
                     public void onSelected(String color) {
                         mColor = color;
-                        mEditIcon.setImageResource(Marker.getIconResource(mColor));
+                        updateUI();
+                    }
+
+                    @Override
+                    public void onCanceled() {
+
+                    }
+                });
+            }
+        });
+
+        mEditGeofence.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new DialogGeofence(getContext(), mGeofence, mRadius, new DialogGeofence.Callback() {
+                    @Override
+                    public void onDone(boolean active, int radius) {
+                        mGeofence = active;
+                        mRadius = radius;
+                        updateUI();
                     }
 
                     @Override
@@ -189,7 +218,18 @@ public class ChannelMarkerEditFragment extends AuxFragment {
             }
         });
 
+        updateUI();
+
         return view;
+    }
+
+    private void updateUI(){
+        mEditIcon.setImageResource(Marker.getIconResource(mColor));
+        if(mGeofence){
+            mEditGeofence.setText(getString(R.string.radius_m, mRadius));
+        }else{
+            mEditGeofence.setText(R.string.off);
+        }
     }
 
     private void save(){
@@ -214,6 +254,8 @@ public class ChannelMarkerEditFragment extends AuxFragment {
                             e.printStackTrace();
                             return;
                         }
+                        marker.geofence = mGeofence;
+                        marker.radius = mRadius;
 
                         binder.setMarker(marker);
                         close();

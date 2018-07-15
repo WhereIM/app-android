@@ -27,6 +27,9 @@
     <string name="location_status_not_avail">沒有定位資訊</string>
     <string name="location_status_stale">過時資訊，最後已知的位置</string>
     <string name="location_status_fresh">即時資訊（或是假造資訊）</string>
+    <string name="detection">地界</string>
+    <string name="off">關閉</string>
+    <string name="active">啟用</string>
     <string name="mobile_geofence">隨身地界</string>
     <string name="mobile_geofence_desc">當夥伴在設定的距離接近或遠離你時發送通知。</string>
     <string name="fixed_geofence">固定地界</string>

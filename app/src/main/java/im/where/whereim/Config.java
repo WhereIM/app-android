@@ -36,9 +36,9 @@ public class Config {
     public final static String PREVIEW_URL = "https://s3-ap-northeast-1.amazonaws.com/whereim-preview/%s";
 
     public final static int[] SELF_RADIUS = new int[]{75, 100, 150, 200, 250, 300, 400, 500, 1000, 1500, 2000, 3000};
-    public final static int ENCHANTMENT_RADIUS_MAX = 5000;
-    public final static int ENCHANTMENT_RADIUS_MIN = 15;
-    public final static int DEFAULT_ENCHANTMENT_RADIUS = 50;
+    public final static int GEOFENCE_RADIUS_MAX = 5000;
+    public final static int GEOFENCE_RADIUS_MIN = 15;
+    public final static int DEFAULT_GEOFENCE_RADIUS = 50;
 
     public final static int MAP_AD_TTL = 5 * 60 * 1000; //ms
 

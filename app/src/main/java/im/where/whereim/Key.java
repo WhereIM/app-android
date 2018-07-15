@@ -32,6 +32,7 @@ public class Key {
     public final static String FACEBOOK = "facebook";
     public final static String FCM_TOKEN = "fcm_token";
 
+    public final static String GEOFENCE = "geofence";
     public final static String GOOGLE = "google";
     public final static String GOOGLE_SEARCH = "google_search";
 

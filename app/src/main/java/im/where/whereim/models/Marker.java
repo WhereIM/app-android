@@ -29,6 +29,8 @@ public class Marker extends BaseModel {
     private final static String COL_LATITUDE = "latitude";
     private final static String COL_LONGITUDE = "longitude";
     private final static String COL_ATTR = "attr";
+    private final static String COL_RADIUS = "radius";
+    private final static String COL_GEOFENCE = "geofence";
     private final static String COL_PUBLIC = "public";
     private final static String COL_ENABLED = "enabled";
 
@@ -57,6 +59,8 @@ public class Marker extends BaseModel {
                 COL_LATITUDE + " DOUBLE PRECISION, " +
                 COL_LONGITUDE + " DOUBLE PRECISION, " +
                 COL_ATTR + " TEXT, " +
+                COL_RADIUS + " INTEGER, " +
+                COL_GEOFENCE + " BOOLEAN, " +
                 COL_PUBLIC + " BOOLEAN, " +
                 COL_ENABLED + " BOOLEAN)";
         db.execSQL(sql);
@@ -65,6 +69,17 @@ public class Marker extends BaseModel {
         db.execSQL(sql);
     }
 
+    public static void upgradeTable(SQLiteDatabase db, int currVersion){
+        String sql;
+        if (currVersion < 7) {
+            sql = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + COL_RADIUS + " INTEGER NOT NULL DEFAULT 75";
+            db.execSQL(sql);
+            sql = "ALTER TABLE " + TABLE_NAME + " ADD COLUMN " + COL_GEOFENCE + " BOOLEAN NOT NULL DEFAULT 0";
+            db.execSQL(sql);
+
+            currVersion = 7;
+        }
+    }
 
     public static class List {
         public ArrayList<Marker> public_list;
@@ -82,6 +97,8 @@ public class Marker extends BaseModel {
     public double latitude;
     public double longitude;
     public JSONObject attr;
+    public int radius;
+    public Boolean geofence;
     public boolean isPublic;
     public Boolean enabled;
     public boolean deleted = false;
@@ -145,7 +162,8 @@ public class Marker extends BaseModel {
         } catch (JSONException e) {
             marker.attr = new JSONObject();
         }
-        marker.isPublic = cursor.getInt(cursor.getColumnIndexOrThrow(COL_PUBLIC))!=0;
+        marker.radius = cursor.getInt(cursor.getColumnIndexOrThrow(COL_RADIUS));
+        marker.geofence = cursor.getInt(cursor.getColumnIndexOrThrow(COL_GEOFENCE))!=0;        marker.isPublic = cursor.getInt(cursor.getColumnIndexOrThrow(COL_PUBLIC))!=0;
         marker.enabled = cursor.getInt(cursor.getColumnIndexOrThrow(COL_ENABLED))!=0;
         return marker;
     }
@@ -164,9 +182,13 @@ public class Marker extends BaseModel {
         cv.put(COL_LATITUDE, latitude);
         cv.put(COL_LONGITUDE, longitude);
         cv.put(COL_ATTR, attr.toString());
+        cv.put(COL_RADIUS, radius);
+        if (geofence != null) {
+            cv.put(COL_GEOFENCE, geofence?1:0);
+        }
         cv.put(COL_PUBLIC, isPublic?1:0);
         if (enabled != null) {
-            cv.put(COL_ENABLED, enabled ?1:0);
+            cv.put(COL_ENABLED, enabled?1:0);
         }
         return cv;
     }

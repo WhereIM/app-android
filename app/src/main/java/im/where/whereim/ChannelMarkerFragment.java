@@ -300,7 +300,7 @@ public class ChannelMarkerFragment extends AuxFragment {
 
                             Marker marker = (Marker) mAdapter.getChild(groupPosition, childPosition);
                             if(marker != null) {
-                                channelActivity.editMarker(marker.id, new QuadTree.LatLng(marker.latitude, marker.longitude), marker.name, marker.getIconColor(), marker.isPublic);
+                                channelActivity.editMarker(marker.id, new QuadTree.LatLng(marker.latitude, marker.longitude), marker.name, marker.getIconColor(), marker.radius, marker.geofence, marker.isPublic);
                             }
 
                             return true;

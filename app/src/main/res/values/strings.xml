@@ -28,6 +28,9 @@
     <string name="location_status_not_avail">Not available</string>
     <string name="location_status_stale">Stale, last known location</string>
     <string name="location_status_fresh">Fresh or forged location</string>
+    <string name="detection">Detection</string>
+    <string name="off">Off</string>
+    <string name="active">Active</string>
     <string name="mobile_geofence">Mobile geofence</string>
     <string name="mobile_geofence_desc">Notify when mates approach to or get away from you by certain distance.</string>
     <string name="fixed_geofence">Fixed geofence</string>
