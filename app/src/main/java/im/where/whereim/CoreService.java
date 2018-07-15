@@ -68,7 +68,6 @@ import im.where.whereim.geo.QuadTree;
 import im.where.whereim.models.Ad;
 import im.where.whereim.models.Channel;
 import im.where.whereim.models.ChannelView;
-import im.where.whereim.models.Enchantment;
 import im.where.whereim.models.Marker;
 import im.where.whereim.models.Mate;
 import im.where.whereim.models.Message;
@@ -99,8 +98,6 @@ public class CoreService extends Service {
         void moveToPin(QuadTree.LatLng location);
         void onMateData(Mate mate, boolean focus);
         void moveToMate(Mate mate, boolean focus);
-        void onEnchantmentData(Enchantment enchantment);
-        void moveToEnchantment(Enchantment enchantment);
         void onMarkerData(Marker marker, boolean focus);
         void moveToMarker(Marker marker, boolean focus);
         QuadTree.LatLng getMapCenter();
@@ -539,14 +536,6 @@ public class CoreService extends Service {
                 }
                 mMapDataReceiver.get(channel.id).add(receiver);
             }
-            synchronized (mChannelEnchantment) {
-                HashMap<String, Enchantment> list = mChannelEnchantment.get(channel.id);
-                if(list!=null){
-                    for (Enchantment enchantment : list.values()) {
-                        receiver.onEnchantmentData(enchantment);
-                    }
-                }
-            }
             synchronized (mChannelMarker) {
                 HashMap<String, Marker> list = mChannelMarker.get(channel.id);
                 if(list!=null){
@@ -650,75 +639,6 @@ public class CoreService extends Service {
             }
         }
 
-        public void setEnchantment(Enchantment enchantment) {
-            if(enchantment==null){
-                return;
-            }
-            try {
-                JSONObject payload = new JSONObject();
-                if(enchantment.id == null) {
-                    payload.put(Key.CHANNEL, enchantment.channel_id);
-                    payload.put(Key.ENABLED, true);
-                } else {
-                    payload.put(Key.ID, enchantment.id);
-                }
-                payload.put(Key.NAME, enchantment.name);
-                payload.put(Key.LATITUDE, enchantment.latitude);
-                payload.put(Key.LONGITUDE, enchantment.longitude);
-                payload.put(Key.RADIUS, enchantment.radius);
-
-                if(enchantment.isPublic){
-                    publish(String.format("channel/%s/data/enchantment/put", enchantment.channel_id), payload);
-                }else{
-                    publish(String.format("client/%s/enchantment/put", mClientId), payload);
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
-        public void toggleEnchantmentEnabled(Enchantment enchantment){
-            if(enchantment==null){
-                return;
-            }
-            if(enchantment.enabled ==null){
-                return;
-            }
-            try {
-                JSONObject payload = new JSONObject();
-                payload.put(Key.ID, enchantment.id);
-                payload.put(Key.ENABLED, !enchantment.enabled);
-                enchantment.enabled = null;
-                String topic;
-                if(enchantment.isPublic){
-                    topic = String.format("channel/%s/data/enchantment/put", enchantment.channel_id);
-                }else{
-                    topic = String.format("client/%s/enchantment/put", mClientId);
-                }
-                publish(topic, payload);
-                notifyChannelEnchantmentListChangedListeners(enchantment.channel_id);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
-        public void deleteEnchantment(Enchantment enchantment){
-            try {
-                JSONObject payload = new JSONObject();
-                payload.put(Key.ID, enchantment.id);
-                payload.put(Key.DELETED, true);
-                String topic;
-                if(enchantment.isPublic){
-                    topic = String.format("channel/%s/data/enchantment/put", enchantment.channel_id);
-                }else{
-                    topic = String.format("client/%s/enchantment/put", mClientId);
-                }
-                publish(topic, payload);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
         public void setMarker(Marker marker) {
             if(marker==null){
                 return;
@@ -786,82 +706,6 @@ public class CoreService extends Service {
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
-            }
-        }
-
-        public Enchantment getChannelEnchantment(String channel_id, String enchantment_id){
-            synchronized (mChannelEnchantment) {
-                HashMap<String, Enchantment> list;
-                list = mChannelEnchantment.get(channel_id);
-                if(list==null){
-                    return null;
-                }
-                return list.get(enchantment_id);
-            }
-        }
-
-        public Enchantment.List getChannelEnchantments(String channel_id, String filterKeyword){
-            Enchantment.List ret = new Enchantment.List();
-            synchronized (mChannelEnchantment) {
-                HashMap<String, Enchantment> list;
-                list = mChannelEnchantment.get(channel_id);
-                if(list==null){
-                    return ret;
-                }
-                for (Enchantment enchantment : list.values()) {
-                    boolean matched = true;
-                    if(filterKeyword!=null){
-                        filterKeyword = filterKeyword.toLowerCase();
-                        matched = false;
-                        if(enchantment.name!=null && enchantment.name.toLowerCase().contains(filterKeyword)){
-                            matched = true;
-                        }
-                    }
-                    if(!matched){
-                        continue;
-                    }
-                    if(enchantment.isPublic){
-                        ret.public_list.add(enchantment);
-                    }else{
-                        ret.private_list.add(enchantment);
-                    }
-                }
-            }
-            Collections.sort(ret.public_list, new Comparator<Enchantment>() {
-                @Override
-                public int compare(Enchantment lhs, Enchantment rhs) {
-                    return lhs.name.compareToIgnoreCase(rhs.name);
-                }
-            });
-            Collections.sort(ret.private_list, new Comparator<Enchantment>() {
-                @Override
-                public int compare(Enchantment lhs, Enchantment rhs) {
-                    return lhs.name.compareToIgnoreCase(rhs.name);
-                }
-            });
-            return ret;
-        }
-
-        public void addEnchantmentListener(Channel channel, Runnable r){
-            List<Runnable> list;
-            synchronized (mEnchantmentListener){
-                list = mEnchantmentListener.get(channel.id);
-                if(list==null){
-                    list = new LinkedList<>();
-                    mEnchantmentListener.put(channel.id, list);
-                }
-            }
-            list.add(r);
-            mHandler.post(r);
-        }
-
-        public void removeEnchantmentListener(Channel channel, Runnable r){
-            List<Runnable> list;
-            synchronized (mEnchantmentListener){
-                list = mEnchantmentListener.get(channel.id);
-                if(list!=null){
-                    list.remove(r);
-                }
             }
         }
 
@@ -1438,19 +1282,6 @@ public class CoreService extends Service {
             }
             cursor.close();
 
-            cursor = Enchantment.getCursor(mWimDBHelper.getDatabase());
-            while (cursor.moveToNext()) {
-                Enchantment enchantment = Enchantment.parse(cursor);
-                HashMap<String, Enchantment> list = mChannelEnchantment.get(enchantment.channel_id);
-                if (list == null) {
-                    list = new HashMap<>();
-                    mChannelEnchantment.put(enchantment.channel_id, list);
-                }
-                list.put(enchantment.id, enchantment);
-
-                enchantmentHandler(enchantment);
-            }
-            cursor.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -1751,9 +1582,6 @@ public class CoreService extends Service {
                     case "channel":
                         mqttClientChannelHandler(msg);
                         break;
-                    case "enchantment":
-                        mqttEnchantmentHandler(msg);
-                        break;
                     case "marker":
                         mqttMarkerHandler(msg);
                         break;
@@ -1780,9 +1608,6 @@ public class CoreService extends Service {
                 switch (m.group(2)){
                     case "mate":
                         mqttChannelMateHandler(channel_id, msg);
-                        break;
-                    case "enchantment":
-                        mqttEnchantmentHandler(msg);
                         break;
                     case "marker":
                         mqttMarkerHandler(msg);
@@ -1915,82 +1740,6 @@ public class CoreService extends Service {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-    }
-
-    private final HashMap<String, HashMap<String, Enchantment>> mChannelEnchantment = new HashMap<>();
-    private void mqttEnchantmentHandler(JSONObject data) {
-        final String enchantment_id;
-        final String channel_id;
-        Enchantment enchantment;
-        try {
-            enchantment_id = data.getString(Key.ID);
-            channel_id = data.getString(Key.CHANNEL);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return;
-        }
-        synchronized (mChannelEnchantment) {
-            HashMap<String, Enchantment> list = mChannelEnchantment.get(channel_id);
-            if (list == null) {
-                list = new HashMap<>();
-                mChannelEnchantment.put(channel_id, list);
-            }
-
-            enchantment = list.get(enchantment_id);
-            if (enchantment == null) {
-                enchantment = new Enchantment();
-                list.put(enchantment_id, enchantment);
-            }
-            enchantment.id = enchantment_id;
-            enchantment.channel_id = channel_id;
-            enchantment.name = Util.JsonOptNullableString(data, Key.NAME, enchantment.name);
-            enchantment.latitude = data.optDouble(Key.LATITUDE, enchantment.latitude);
-            enchantment.longitude = data.optDouble(Key.LONGITUDE, enchantment.longitude);
-            enchantment.radius = data.optInt(Key.RADIUS, enchantment.radius);
-            enchantment.isPublic = data.optBoolean(Key.PUBLIC, enchantment.isPublic);
-            enchantment.enabled = Util.JsonOptBoolean(data, Key.ENABLED, enchantment.enabled);
-            enchantment.deleted = Util.JsonOptBoolean(data, Key.DELETED, enchantment.deleted);
-        }
-
-        if(!enchantment.deleted){
-            mWimDBHelper.replace(enchantment);
-        }
-
-        try {
-            if (data.has(Key.TS)) {
-                setTS(channel_id, data.getLong(Key.TS));
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        enchantmentHandler(enchantment);
-    }
-
-    private void enchantmentHandler(final Enchantment enchantment){
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                synchronized (mMapDataReceiver){
-                    if(mMapDataReceiver.containsKey(enchantment.channel_id)){
-                        for (MapDataDelegate mapDataDelegate : mMapDataReceiver.get(enchantment.channel_id)) {
-                            mapDataDelegate.onEnchantmentData(enchantment);
-                        }
-                    }
-                }
-
-            }
-        });
-
-        if(enchantment.deleted){
-            HashMap<String, Enchantment> list = mChannelEnchantment.get(enchantment.channel_id);
-            if(list!=null) {
-                list.remove(enchantment.id);
-            }
-            enchantment.delete(mWimDBHelper.getDatabase());
-        }
-
-        notifyChannelEnchantmentListChangedListeners(enchantment.channel_id);
     }
 
     private final HashMap<String, HashMap<String, Marker>> mChannelMarker = new HashMap<>();

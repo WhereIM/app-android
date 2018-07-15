@@ -29,7 +29,6 @@ import im.where.whereim.dialogs.DialogLocationServicePermissionRationale;
 import im.where.whereim.geo.QuadTree;
 import im.where.whereim.models.Ad;
 import im.where.whereim.models.Channel;
-import im.where.whereim.models.Enchantment;
 import im.where.whereim.models.Marker;
 import im.where.whereim.models.Mate;
 import im.where.whereim.models.POI;
@@ -501,16 +500,6 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     @Override
     public void moveToMate(Mate mate, boolean focus) {
         mChannelMapFragment.moveToMate(mate, focus);
-    }
-
-    @Override
-    public void onEnchantmentData(Enchantment enchantment) {
-        mChannelMapFragment.onEnchantmentData(enchantment);
-    }
-
-    @Override
-    public void moveToEnchantment(Enchantment enchantment) {
-        mChannelMapFragment.moveToEnchantment(enchantment);
     }
 
     @Override

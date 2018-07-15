@@ -35,7 +35,6 @@ import java.util.List;
 import im.where.whereim.geo.QuadTree;
 import im.where.whereim.models.Ad;
 import im.where.whereim.models.Channel;
-import im.where.whereim.models.Enchantment;
 import im.where.whereim.models.GooglePOI;
 import im.where.whereim.models.Mate;
 import im.where.whereim.models.POI;
@@ -516,59 +515,6 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                     if(mate.latitude!=null && mate.longitude!=null){
                         moveTo(new QuadTree.LatLng(mate.latitude, mate.longitude));
                     }
-                }
-            }
-        });
-    }
-
-    final private HashMap<String, Circle> mEnchantmentCircle = new HashMap<>();
-
-    @Override
-    public void onEnchantmentData(final Enchantment enchantment){
-        getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(GoogleMap googleMap) {
-                synchronized (mEnchantmentCircle) {
-                    Circle circle = mEnchantmentCircle.get(enchantment.id);
-                    if(circle!=null){
-                        circle.remove();
-                    }
-                }
-                if(mEditingType == Key.MAP_OBJECT.ENCHANTMENT && enchantment.id.equals(mEditingEnchantment.id)){
-                    return;
-                }
-                if(enchantment.deleted){
-                    mEnchantmentCircle.remove(enchantment.id);
-                }else {
-                    if (enchantment.enabled == null || enchantment.enabled || enchantment==focusEnchantment) {
-                        Circle circle = googleMap.addCircle(new CircleOptions()
-                                .center(new LatLng(enchantment.latitude, enchantment.longitude))
-                                .radius(enchantment.radius)
-                                .strokeWidth(3)
-                                .strokeColor((enchantment.enabled == null || enchantment.enabled) ? (enchantment.isPublic ? Color.RED : 0xFFFFA500) : Color.GRAY));
-                        synchronized (mEnchantmentCircle) {
-                            mEnchantmentCircle.put(enchantment.id, circle);
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    private Enchantment focusEnchantment = null;
-    @Override
-    public void moveToEnchantment(final Enchantment enchantment) {
-        getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(GoogleMap googleMap) {
-                Enchantment exFocusEnchantment = focusEnchantment;
-                focusEnchantment = enchantment;
-                if(exFocusEnchantment!=null) {
-                    onEnchantmentData(exFocusEnchantment);
-                }
-                if(enchantment!=null) {
-                    onEnchantmentData(enchantment);
-                    moveTo(new QuadTree.LatLng(enchantment.latitude, enchantment.longitude));
                 }
             }
         });

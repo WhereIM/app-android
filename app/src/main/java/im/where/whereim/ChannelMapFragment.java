@@ -15,7 +15,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import im.where.whereim.geo.QuadTree;
-import im.where.whereim.models.Enchantment;
 import im.where.whereim.models.Marker;
 import im.where.whereim.models.Mate;
 import im.where.whereim.models.POI;
@@ -76,10 +75,7 @@ abstract public class ChannelMapFragment extends BaseChannelFragment implements 
     protected View mMarkerView;
     protected TextView mMarkerViewTitle;
 
-    protected Marker mEditingMarkerOrig = null;
-    protected Enchantment mEditingEnchantmentOrig = null;
     protected Marker mEditingMarker = new Marker();
-    protected Enchantment mEditingEnchantment = new Enchantment();
     protected Key.MAP_OBJECT mEditingType = null;
 
     public void setCrosshair(boolean display){

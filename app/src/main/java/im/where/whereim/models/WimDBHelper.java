@@ -26,7 +26,6 @@ public class WimDBHelper extends SQLiteOpenHelper {
         PendingMessage.createTable(db);
         Mate.createTable(db);
         Marker.createTable(db);
-        Enchantment.createTable(db);
     }
 
     @Override

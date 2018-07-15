@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -47,7 +46,6 @@ import java.util.List;
 import im.where.whereim.geo.QuadTree;
 import im.where.whereim.models.Ad;
 import im.where.whereim.models.Channel;
-import im.where.whereim.models.Enchantment;
 import im.where.whereim.models.Mate;
 import im.where.whereim.models.POI;
 
@@ -627,60 +625,6 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
                     if (mate.latitude != null && mate.longitude != null) {
                         moveTo(new QuadTree.LatLng(mate.latitude, mate.longitude));
                     }
-                }
-            }
-        });
-    }
-
-    final private HashMap<String, Polyline> mEnchantmentCircle = new HashMap<>();
-
-    @Override
-    public void onEnchantmentData(final Enchantment enchantment) {
-        getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(MapboxMap mapboxMap) {
-                synchronized (mEnchantmentCircle) {
-                    Polyline circle = mEnchantmentCircle.get(enchantment.id);
-                    if (circle != null) {
-                        circle.remove();
-                    }
-                }
-                if(mEditingType== Key.MAP_OBJECT.ENCHANTMENT && enchantment.id.equals(mEditingEnchantment.id)){
-                    return;
-                }
-                if (enchantment.deleted) {
-                    mEnchantmentCircle.remove(enchantment.id);
-                } else {
-                    if (enchantment.enabled == null || enchantment.enabled || enchantment == focusEnchantment) {
-                        Polyline circle = mapboxMap.addPolyline(new PolylineOptions()
-                                .addAll(polygonCircleForCoordinate(new LatLng(enchantment.latitude, enchantment.longitude), enchantment.radius))
-                                .width(1)
-                                .color((enchantment.enabled == null || enchantment.enabled) ? (enchantment.isPublic ? Color.RED : 0xFFFFA500) : Color.GRAY)
-                        );
-                        synchronized (mEnchantmentCircle) {
-                            mEnchantmentCircle.put(enchantment.id, circle);
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    private Enchantment focusEnchantment = null;
-
-    @Override
-    public void moveToEnchantment(final Enchantment enchantment) {
-        getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(MapboxMap mapboxMap) {
-                Enchantment exFocusEnchantment = focusEnchantment;
-                focusEnchantment = enchantment;
-                if (exFocusEnchantment != null) {
-                    onEnchantmentData(exFocusEnchantment);
-                }
-                if (enchantment != null) {
-                    onEnchantmentData(enchantment);
-                    moveTo(new QuadTree.LatLng(enchantment.latitude, enchantment.longitude));
                 }
             }
         });
