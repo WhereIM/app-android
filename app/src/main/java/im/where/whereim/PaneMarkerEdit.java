@@ -60,6 +60,11 @@ public class PaneMarkerEdit extends BasePane {
     }
 
     @Override
+    public boolean showCrosshair() {
+        return true;
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }

@@ -30,6 +30,10 @@ public class BasePane extends BaseChannelFragment {
         this.height = height;
     }
 
+    public boolean showCrosshair(){
+        return false;
+    }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -40,5 +44,6 @@ public class BasePane extends BaseChannelFragment {
             }
         }
         channelActivity.setPaneResizable(isResizable());
+        channelActivity.setCrosshair(showCrosshair());
     }
 }

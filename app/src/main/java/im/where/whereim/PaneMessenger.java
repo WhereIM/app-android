@@ -65,12 +65,12 @@ public class PaneMessenger extends BasePane {
     @Override
     public void onShow() {
         updateUI();
-        initChannel();
+        addListener();
     }
 
     @Override
     public void onHide() {
-        deinitChannel();
+        removeListener();
     }
 
     @Override
@@ -90,6 +90,15 @@ public class PaneMessenger extends BasePane {
 
     @Override
     protected void initChannel() {
+        addListener();
+    }
+
+    @Override
+    protected void deinitChannel() {
+        removeListener();
+    }
+
+    private void addListener(){
         getChannel(new ChannelActivity.GetChannelCallback() {
             @Override
             public void onGetChannel(final Channel channel) {
@@ -104,9 +113,7 @@ public class PaneMessenger extends BasePane {
             }
         });
     }
-
-    @Override
-    protected void deinitChannel() {
+    private void removeListener(){
         postBinderTask(new CoreService.BinderTask() {
             @Override
             public void onBinderReady(CoreService.CoreBinder binder) {
@@ -590,6 +597,17 @@ public class PaneMessenger extends BasePane {
         }
     }
 
+    private boolean mShowCrosshair = false;
+    @Override
+    public boolean showCrosshair() {
+        return mShowCrosshair;
+    }
+
+    private void setCrosshair(boolean enable){
+        mShowCrosshair = enable;
+        channelActivity.setCrosshair(enable);
+    }
+
     private Integer origSize = null;
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -602,7 +620,7 @@ public class PaneMessenger extends BasePane {
             public void onClick(View view) {
                 withPin = !withPin;
                 updateUI();
-                channelActivity.setCrosshair(withPin);
+                setCrosshair(withPin);
                 if(withPin){
                     origSize = channelActivity.getPaneSize();
                     channelActivity.setPaneSize(input_bar.getHeight());
