@@ -11,6 +11,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -22,6 +23,8 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -32,6 +35,8 @@ import im.where.whereim.models.Channel;
 import im.where.whereim.models.Marker;
 import im.where.whereim.models.Mate;
 import im.where.whereim.models.POI;
+import io.branch.referral.Branch;
+import io.branch.referral.BranchError;
 
 public class ChannelActivity extends BaseChannelActivity implements CoreService.ConnectionStatusCallback, CoreService.MapDataDelegate {
     private Handler mHandler = new Handler();
@@ -636,6 +641,21 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                                 binder.addConnectionStatusChangedListener(ChannelActivity.this);
                             }
                         });
+                        Branch branch = Branch.getInstance();
+                        branch.initSession(new Branch.BranchReferralInitListener(){
+                            @Override
+                            public void onInitFinished(JSONObject referringParams, BranchError error) {
+                                if (error == null) {
+                                    String uri = Util.JsonOptNullableString(referringParams, "$deeplink_path", null);
+                                    if(uri!=null){
+                                        processLink(uri);
+                                    }
+                                } else {
+                                    Log.i("WhereIM", error.getMessage());
+                                }
+                            }
+                        }, getIntent().getData(), ChannelActivity.this);
+
                     }
                 });
             }
