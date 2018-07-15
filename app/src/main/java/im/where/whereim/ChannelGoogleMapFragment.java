@@ -715,7 +715,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         });
     }
 
-    private Circle mEditingEnchantmentCircle = null;
+    private Circle mEditingMarkerCircle = null;
     private Marker mEditingMarkerMarker = null;
     @Override
     public void onMapLongClick(final LatLng latLng) {
@@ -735,25 +735,6 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
 
     @Override
     protected void refreshEditing(){
-        if(mEditingType== Key.MAP_OBJECT.ENCHANTMENT){
-            getMapAsync(new OnMapReadyCallback() {
-                @Override
-                public void onMapReady(GoogleMap googleMap) {
-                    if(mEditingEnchantmentCircle !=null){
-                        mEditingEnchantmentCircle.remove();
-                    }
-                    mEditingEnchantmentCircle = googleMap.addCircle(new CircleOptions()
-                            .center(new LatLng(mEditingEnchantment.latitude, mEditingEnchantment.longitude))
-                            .radius(mEditingEnchantment.radius)
-                            .strokeWidth(3)
-                            .strokeColor(mEditingEnchantment.isPublic ? Color.RED : 0xFFFFA500));
-                }
-            });
-        }else{
-            if(mEditingEnchantmentCircle!=null){
-                mEditingEnchantmentCircle.remove();
-            }
-        }
         if(mEditingType== Key.MAP_OBJECT.MARKER){
             getMapAsync(new OnMapReadyCallback() {
                 @Override
@@ -770,12 +751,23 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                                     .zIndex(1f)
                     );
                     mEditingMarkerMarker.showInfoWindow();
+                    if(mEditingMarkerCircle !=null){
+                        mEditingMarkerCircle.remove();
+                    }
+                    mEditingMarkerCircle = googleMap.addCircle(new CircleOptions()
+                            .center(new LatLng(mEditingMarker.latitude, mEditingMarker.longitude))
+                            .radius(mEditingMarker.radius)
+                            .strokeWidth(3)
+                            .strokeColor(mEditingMarker.isPublic ? Color.RED : 0xFFFFA500));
                 }
             });
 
         }else{
             if(mEditingMarkerMarker !=null){
                 mEditingMarkerMarker.remove();
+            }
+            if(mEditingMarkerCircle !=null){
+                mEditingMarkerCircle.remove();
             }
         }
     }
