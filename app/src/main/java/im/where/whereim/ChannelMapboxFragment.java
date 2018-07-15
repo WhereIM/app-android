@@ -631,6 +631,7 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
     }
 
     final private HashMap<String, MarkerView> mMarkerMarker = new HashMap<>();
+    final private HashMap<String, Polyline> mMarkerCircle = new HashMap<>();
 
     @Override
     public void onMarkerData(final im.where.whereim.models.Marker marker, final boolean focus) {
@@ -644,12 +645,19 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
                         m.remove();
                     }
                 }
+                synchronized (mMarkerCircle) {
+                    Polyline circle = mMarkerCircle.get(marker.id);
+                    if (circle != null) {
+                        circle.remove();
+                    }
+                }
                 if(mEditingType == Key.MAP_OBJECT.MARKER && marker.id.equals(mEditingMarker.id)){
                     return;
                 }
                 m = null;
                 if (marker.deleted) {
                     mMarkerMarker.remove(marker.id);
+                    mMarkerCircle.remove(marker.id);
                 } else {
                     if (marker.enabled == null || marker.enabled || marker == focusMarker) {
                         MarkerViewOptions markerViewOptions = new MarkerViewOptions()
@@ -668,6 +676,16 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
 
                         if (marker == focusMarker) {
                             mapboxMap.selectMarker(m);
+                        }
+                    }
+                    if(marker.geofence){
+                        Polyline circle = mapboxMap.addPolyline(new PolylineOptions()
+                                .addAll(polygonCircleForCoordinate(new LatLng(marker.latitude, marker.longitude), marker.radius))
+                                .width(1)
+                                .color(marker.isPublic ? Color.RED : 0xFFFFA500)
+                        );
+                        synchronized (mMarkerCircle) {
+                            mMarkerCircle.put(marker.id, circle);
                         }
                     }
                 }

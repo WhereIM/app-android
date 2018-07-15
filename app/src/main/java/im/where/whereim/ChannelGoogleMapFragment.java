@@ -521,6 +521,7 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     }
 
     final private HashMap<String, Marker> mMarkerMarker = new HashMap<>();
+    final private HashMap<String, Circle> mMarkerCircle = new HashMap<>();
 
     @Override
     public void onMarkerData(final im.where.whereim.models.Marker marker, final boolean focus) {
@@ -534,12 +535,19 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                         m.remove();
                     }
                 }
+                synchronized (mMarkerCircle) {
+                    Circle circle = mMarkerCircle.get(marker.id);
+                    if(circle!=null){
+                        circle.remove();
+                    }
+                }
                 if(mEditingType == Key.MAP_OBJECT.MARKER && marker.id.equals(mEditingMarker.id)){
                     return;
                 }
                 m = null;
                 if(marker.deleted){
                     mMarkerMarker.remove(marker.id);
+                    mMarkerCircle.remove(marker.id);
                 }else {
                     if (marker.enabled == null || marker.enabled || marker==focusMarker) {
                         m = googleMap.addMarker(
@@ -560,7 +568,19 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
                             m.showInfoWindow();
                         }
                     }
+                    if (marker.geofence) {
+                        Circle circle = googleMap.addCircle(new CircleOptions()
+                                .center(new LatLng(marker.latitude, marker.longitude))
+                                .radius(marker.radius)
+                                .strokeWidth(3)
+                                .strokeColor(marker.isPublic ? Color.RED : 0xFFFFA500)
+                        );
+                        synchronized (mMarkerCircle) {
+                            mMarkerCircle.put(marker.id, circle);
+                        }
+                    }
                 }
+
                 synchronized (mMarkerMap) {
                     if(m!=null){
                         mMarkerMap.put(m, marker);
