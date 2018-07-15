@@ -42,13 +42,6 @@
             android:name=".NewChannelActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".PoiViewerActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation"
-            android:label="@string/app_name"
-            android:parentActivityName=".ChannelActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden" />
-        <activity
             android:name=".ChannelActivity"
             android:configChanges="keyboard|keyboardHidden|orientation"
             android:label="@string/app_name"
