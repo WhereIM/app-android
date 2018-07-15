@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import im.where.whereim.geo.QuadTree;
-import im.where.whereim.models.GooglePOI;
 import im.where.whereim.models.POI;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -24,7 +23,7 @@ import okhttp3.Response;
  * Created by buganini on 19/01/17.
  */
 
-public class ChannelMapboxSearchFragment extends ChannelSearchFragment {
+public class PaneMapboxSearch extends PaneSearch {
 
 
     private void getApiKey(final CoreService.ApiKeyCallback callback){

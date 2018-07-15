@@ -53,12 +53,12 @@ import im.where.whereim.views.WimSpan;
 
 import static android.app.Activity.RESULT_OK;
 
-public class ChannelMessengerFragment extends AuxFragment {
+public class PaneMessenger extends BasePane {
     private final static int ACTION_PICKER = 0;
     private final static int ACTION_CAMERA = 1;
 
 
-    public ChannelMessengerFragment() {
+    public PaneMessenger() {
         // Required empty public constructor
     }
 
@@ -462,7 +462,7 @@ public class ChannelMessengerFragment extends AuxFragment {
                 case TYPE_IN_IMAGE: {
                     InImageViewHolder ivh = (InImageViewHolder) holder;
                     ivh.msg = message;
-                    Glide.with(ChannelMessengerFragment.this).clear(ivh.image);
+                    Glide.with(PaneMessenger.this).clear(ivh.image);
                     if (binder == null) {
                         ivh.date.setVisibility(View.GONE);
                         ivh.sender.setText(null);
@@ -482,7 +482,7 @@ public class ChannelMessengerFragment extends AuxFragment {
                 case TYPE_OUT_IMAGE: {
                     OutImageViewHolder ovh = (OutImageViewHolder) holder;
                     ovh.msg = message;
-                    Glide.with(ChannelMessengerFragment.this).clear(ovh.image);
+                    Glide.with(PaneMessenger.this).clear(ovh.image);
                     if (binder == null) {
                         ovh.date.setVisibility(View.GONE);
                         ovh.time.setText(null);
@@ -524,7 +524,7 @@ public class ChannelMessengerFragment extends AuxFragment {
                     activity.moveToPin(new QuadTree.LatLng(Double.valueOf(args[1]), Double.valueOf(args[2])));
                     break;
             }
-            setSizePolicy(ChannelActivity.AuxSize.FREE);
+            setSizePolicy(ChannelActivity.PaneSizePolicy.FREE);
         }
     };
 
@@ -593,7 +593,7 @@ public class ChannelMessengerFragment extends AuxFragment {
     private Integer origSize = null;
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_channel_messenger, container, false);
+        View view = inflater.inflate(R.layout.pane_messenger, container, false);
 
         final View input_bar = view.findViewById(R.id.input_bar);
         mPin = view.findViewById(R.id.pin);
@@ -604,10 +604,10 @@ public class ChannelMessengerFragment extends AuxFragment {
                 updateUI();
                 channelActivity.setCrosshair(withPin);
                 if(withPin){
-                    origSize = channelActivity.getAuxSize();
-                    channelActivity.setAuxSize(input_bar.getHeight());
+                    origSize = channelActivity.getPaneSize();
+                    channelActivity.setPaneSize(input_bar.getHeight());
                 }else{
-                    channelActivity.setAuxSize(origSize);
+                    channelActivity.setPaneSize(origSize);
                 }
             }
         });
@@ -676,7 +676,7 @@ public class ChannelMessengerFragment extends AuxFragment {
                 mInput.setText(null);
                 mInput.clearFocus();
                 if(withPin && origSize!=null){
-                    channelActivity.setAuxSize(origSize);
+                    channelActivity.setPaneSize(origSize);
                 }
                 withPin = false;
                 updateUI();

@@ -27,7 +27,7 @@ import okhttp3.Response;
  * Created by buganini on 19/01/17.
  */
 
-public class ChannelGoogleSearchFragment extends ChannelSearchFragment {
+public class PaneGoogleSearch extends PaneSearch {
 
     private String cachedApiKey = null;
 

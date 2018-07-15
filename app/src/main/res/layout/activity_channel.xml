@@ -180,7 +180,7 @@
             </android.support.constraint.ConstraintLayout>
 
             <FrameLayout
-                android:id="@+id/aux_frame"
+                android:id="@+id/pane_frame"
                 android:layout_width="match_parent"
                 android:layout_height="0dp" />
 

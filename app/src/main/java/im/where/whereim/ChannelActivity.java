@@ -54,25 +54,25 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
 
     private View resizeHandler;
     private FrameLayout mainFrame;
-    private FrameLayout auxFrame;
+    private FrameLayout paneFrame;
 
     private float MIN_VISION_AREA_HEIGHT;
     private float MAP_TOP_INSET;
-    private float MIN_AUX_HEIGHT;
+    private float MIN_PANE_HEIGHT;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         MIN_VISION_AREA_HEIGHT = Util.dp2px(this, 80);
         MAP_TOP_INSET = getResources().getDimension(R.dimen.map_top_inset);
-        MIN_AUX_HEIGHT = getResources().getDimension(R.dimen.tab_height);
+        MIN_PANE_HEIGHT = getResources().getDimension(R.dimen.tab_height);
 
         setContentView(R.layout.activity_channel);
 
         mDrawerLayout = findViewById(R.id.drawer_layout);
         resizeHandler = findViewById(R.id.resize_handler);
         mainFrame = findViewById(R.id.main_frame);
-        auxFrame = findViewById(R.id.aux_frame);
+        paneFrame = findViewById(R.id.pane_frame);
 
         resizeHandler.setOnTouchListener(new View.OnTouchListener() {
             private Float y = null;
@@ -86,17 +86,17 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                     case MotionEvent.ACTION_MOVE:
                         if(y != null){
                             float dy = motionEvent.getRawY() - y;
-                            ViewGroup.LayoutParams params = auxFrame.getLayoutParams();
+                            ViewGroup.LayoutParams params = paneFrame.getLayoutParams();
                             params.height -= dy;
                             boolean resize = true;
                             if(mContentRoot.getHeight() - params.height - MAP_TOP_INSET < MIN_VISION_AREA_HEIGHT){
                                 resize = false;
                             }
-                            if(params.height < MIN_AUX_HEIGHT){
+                            if(params.height < MIN_PANE_HEIGHT){
                                 resize = false;
                             }
                             if(resize){
-                                auxFrame.setLayoutParams(params);
+                                paneFrame.setLayoutParams(params);
                             }
                             y = motionEvent.getRawY();
                             return true;
@@ -213,7 +213,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                         if(tab != null){
                             switch (tab){
                                 case "message":
-                                    showAux(AuxComp.MESSAGE);
+                                    showPane(PaneComp.MESSAGE);
                                     break;
                             }
                         }
@@ -226,7 +226,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
             @Override
             public void run() {
                 setupMapView();
-                showAux(AuxComp.TAB);
+                showPane(PaneComp.TAB);
             }
         });
     }
@@ -248,17 +248,17 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         mChannelMapFragment.setCrosshair(display);
     }
 
-    enum AuxSize {
+    enum PaneSizePolicy {
         TAB,
         FREE,
         WRAP,
         FULL,
     }
-    private AuxSize currentAuxSize = AuxSize.TAB;
-    void setAuxSizePolicy(AuxSize size){
+    private PaneSizePolicy currentPaneSizePolicy = PaneSizePolicy.TAB;
+    void setPaneSizePolicy(PaneSizePolicy size){
         boolean doChange = true;
         ViewGroup.LayoutParams params;
-        params = auxFrame.getLayoutParams();
+        params = paneFrame.getLayoutParams();
         switch(size){
             case TAB:
                 params.height = getResources().getDimensionPixelSize(R.dimen.tab_height);
@@ -271,32 +271,32 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                 break;
             case FREE:
                 params.height = (int) Util.dp2px(ChannelActivity.this, 240);
-                if(currentAuxSize == AuxSize.FREE){
+                if(currentPaneSizePolicy == PaneSizePolicy.FREE){
                     doChange = false;
                 }
                 break;
         }
         if(doChange){
-            auxFrame.setLayoutParams(params);
+            paneFrame.setLayoutParams(params);
         }
-        currentAuxSize = size;
+        currentPaneSizePolicy = size;
     }
 
-    public int getAuxSize(){
-        ViewGroup.LayoutParams params = auxFrame.getLayoutParams();
+    public int getPaneSize(){
+        ViewGroup.LayoutParams params = paneFrame.getLayoutParams();
         return params.height;
     }
 
-    public void setAuxSize(int height){
+    public void setPaneSize(int height){
         if(height > mContentRoot.getHeight()){ // this may happen after screen rotation
             return;
         }
-        ViewGroup.LayoutParams params = auxFrame.getLayoutParams();
+        ViewGroup.LayoutParams params = paneFrame.getLayoutParams();
         params.height = height;
-        auxFrame.setLayoutParams(params);
+        paneFrame.setLayoutParams(params);
     }
 
-    enum AuxComp {
+    enum PaneComp {
         TAB,
         SEARCH,
         MESSAGE,
@@ -304,67 +304,67 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         MATE,
         MARKER_CREATE,
     }
-    private AuxComp auxComp = AuxComp.TAB;
-    void showAux(AuxComp comp){
-        auxComp = comp;
+    private PaneComp paneComp = PaneComp.TAB;
+    void showPane(PaneComp comp){
+        paneComp = comp;
         setSendingPane(false);
         FragmentManager fm = getSupportFragmentManager();
         fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         switch (comp) {
             case TAB:
                 setSearchResult(new ArrayList<POI>());
-                if(mChannelActionFragment == null){
-                    mChannelActionFragment = new ChannelActionFragment();
+                if(mPaneRoot == null){
+                    mPaneRoot = new PaneRoot();
                 }
                 fm.beginTransaction()
-                        .replace(R.id.aux_frame, mChannelActionFragment)
+                        .replace(R.id.pane_frame, mPaneRoot)
                         .commit();
                 break;
             case SEARCH:
-                if(mChannelSearchFragment == null || mChannelSearchFragment.getProvider() != Config.getMapProvider(this)){
-                    mChannelSearchFragment = ChannelSearchFragment.newFragment(this);
+                if(mPaneSearch == null || mPaneSearch.getProvider() != Config.getMapProvider(this)){
+                    mPaneSearch = PaneSearch.newFragment(this);
                 }
-                mChannelActionFragment.resetSizePolicy();
+                mPaneRoot.resetSizePolicy();
                 fm.beginTransaction()
-                        .replace(R.id.aux_frame, mChannelSearchFragment)
+                        .replace(R.id.pane_frame, mPaneSearch)
                         .commit();
                 break;
             case MESSAGE:
-                if(mChannelMessengerFragment == null){
-                    mChannelMessengerFragment = new ChannelMessengerFragment();
+                if(mPaneMessenger == null){
+                    mPaneMessenger = new PaneMessenger();
                 }
-                mChannelMessengerFragment.resetSizePolicy();
+                mPaneMessenger.resetSizePolicy();
                 fm.beginTransaction()
-                        .replace(R.id.aux_frame, mChannelMessengerFragment)
+                        .replace(R.id.pane_frame, mPaneMessenger)
                         .commit();
                 break;
             case MARKER:
-                if(mChannelMarkerFragment== null){
-                    mChannelMarkerFragment = new ChannelMarkerFragment();
+                if(mPaneMarker == null){
+                    mPaneMarker = new PaneMarker();
                 }
-                mChannelMarkerFragment.resetSizePolicy();
+                mPaneMarker.resetSizePolicy();
                 fm.beginTransaction()
-                        .replace(R.id.aux_frame, mChannelMarkerFragment)
+                        .replace(R.id.pane_frame, mPaneMarker)
                         .commit();
                 break;
             case MATE:
-                if(mChannelMateFragment== null){
-                    mChannelMateFragment = new ChannelMateFragment();
+                if(mPaneMate == null){
+                    mPaneMate = new PaneMate();
                 }
-                mChannelMateFragment.resetSizePolicy();
+                mPaneMate.resetSizePolicy();
                 fm.beginTransaction()
-                        .replace(R.id.aux_frame, mChannelMateFragment)
+                        .replace(R.id.pane_frame, mPaneMate)
                         .commit();
                 break;
             case MARKER_CREATE:
                 fm.beginTransaction()
-                        .replace(R.id.aux_frame, ChannelMarkerEditFragment.newInstance(null, null, null, Config.DEFAULT_GEOFENCE_RADIUS, false, null))
+                        .replace(R.id.pane_frame, PaneMarkerEdit.newInstance(null, null, null, Config.DEFAULT_GEOFENCE_RADIUS, false, null))
                         .commit();
                 break;
         }
     }
 
-    public void setAuxResizable(boolean resizable){
+    public void setPaneResizable(boolean resizable){
         resizeHandler.setVisibility(resizable ? View.VISIBLE : View.GONE);
     }
 
@@ -373,18 +373,18 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
             moveTo(latLng);
         }
         FragmentManager fm = getSupportFragmentManager();
-        AuxFragment currentFragment = (AuxFragment) fm.findFragmentById(R.id.aux_frame);
-        ViewGroup.LayoutParams params = auxFrame.getLayoutParams();
+        BasePane currentFragment = (BasePane) fm.findFragmentById(R.id.pane_frame);
+        ViewGroup.LayoutParams params = paneFrame.getLayoutParams();
         currentFragment.setHeight(params.height);
         fm.beginTransaction()
-                .replace(R.id.aux_frame, ChannelMarkerEditFragment.newInstance(id, name, color, radius, geofence, isPublic))
+                .replace(R.id.pane_frame, PaneMarkerEdit.newInstance(id, name, color, radius, geofence, isPublic))
                 .addToBackStack(null)
                 .commit();
         resizeHandler.setVisibility(View.GONE);
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                setAuxSizePolicy(AuxSize.WRAP);
+                setPaneSizePolicy(PaneSizePolicy.WRAP);
             }
         });
     }
@@ -413,7 +413,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
 
     @Override
     protected void onChannelChanged(final Channel prevChannel) {
-        showAux(auxComp);
+        showPane(paneComp);
         if(prevChannel != null){
             postBinderTask(new CoreService.BinderTask() {
                 @Override
@@ -446,19 +446,19 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
             mChannelMapFragment.initChannel();
         }
 
-        if(mChannelMessengerFragment != null) {
-            mChannelMessengerFragment.deinitChannel();
-            mChannelMessengerFragment.initChannel();
+        if(mPaneMessenger != null) {
+            mPaneMessenger.deinitChannel();
+            mPaneMessenger.initChannel();
         }
 
-        if(mChannelMarkerFragment != null) {
-            mChannelMarkerFragment.deinitChannel();
-            mChannelMarkerFragment.initChannel();
+        if(mPaneMarker != null) {
+            mPaneMarker.deinitChannel();
+            mPaneMarker.initChannel();
         }
 
-        if(mChannelMateFragment != null) {
-            mChannelMateFragment.deinitChannel();
-            mChannelMateFragment.initChannel();
+        if(mPaneMate != null) {
+            mPaneMate.deinitChannel();
+            mPaneMate.initChannel();
         }
         postBinderTask(new CoreService.BinderTask() {
             @Override
@@ -519,7 +519,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     public void setSearchResult(ArrayList<POI> results){
         mChannelMapFragment.setSearchResult(results);
         if(results.size() > 0){
-            setAuxSizePolicy(ChannelActivity.AuxSize.FREE);
+            setPaneSizePolicy(PaneSizePolicy.FREE);
             moveToSearchResult(0, false);
         }
     }
@@ -534,12 +534,12 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         mChannelMapFragment.onMapAd(ads);
     }
 
-    private ChannelActionFragment mChannelActionFragment;
+    private PaneRoot mPaneRoot;
     private ChannelMapFragment mChannelMapFragment;
-    private ChannelSearchFragment mChannelSearchFragment;
-    private ChannelMessengerFragment mChannelMessengerFragment = new ChannelMessengerFragment();
-    private ChannelMarkerFragment mChannelMarkerFragment = new ChannelMarkerFragment();
-    private ChannelMateFragment mChannelMateFragment = new ChannelMateFragment();
+    private PaneSearch mPaneSearch;
+    private PaneMessenger mPaneMessenger = new PaneMessenger();
+    private PaneMarker mPaneMarker = new PaneMarker();
+    private PaneMate mPaneMate = new PaneMate();
 
     private Runnable mChannelListChangedListener = new Runnable() {
         @Override
@@ -615,11 +615,11 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
 
     @Override
     public void onBackPressed() {
-        if(auxComp==AuxComp.TAB){
+        if(paneComp == PaneComp.TAB){
             super.onBackPressed();
         }else{
             if(!getSupportFragmentManager().popBackStackImmediate()){
-                showAux(AuxComp.TAB);
+                showPane(PaneComp.TAB);
             }
         }
     }

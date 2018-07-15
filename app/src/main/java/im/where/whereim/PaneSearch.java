@@ -29,13 +29,13 @@ import im.where.whereim.models.POI;
  * Created by buganini on 19/01/17.
  */
 
-abstract public class ChannelSearchFragment extends AuxFragment {
-    public static ChannelSearchFragment newFragment(Context context){
+abstract public class PaneSearch extends BasePane {
+    public static PaneSearch newFragment(Context context){
         switch(Config.getMapProvider(context)){
             case GOOGLE:
-                return new ChannelGoogleSearchFragment();
+                return new PaneGoogleSearch();
             case MAPBOX:
-                return new ChannelMapboxSearchFragment();
+                return new PaneMapboxSearch();
         }
         return null;
     }
@@ -192,13 +192,13 @@ abstract public class ChannelSearchFragment extends AuxFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_channel_search, container, false);
+        View view = inflater.inflate(R.layout.pane_search, container, false);
 
         mClear = view.findViewById(R.id.clear);
         mClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setSizePolicy(ChannelActivity.AuxSize.FULL);
+                setSizePolicy(ChannelActivity.PaneSizePolicy.FULL);
                 clearAttribution();
                 mKeyword.setText("");
                 mKeyword.clearFocus();

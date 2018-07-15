@@ -27,8 +27,8 @@ import im.where.whereim.models.Mate;
 import im.where.whereim.views.EmojiText;
 import im.where.whereim.views.FilterBar;
 
-public class ChannelMateFragment extends AuxFragment {
-    public ChannelMateFragment() {
+public class PaneMate extends BasePane {
+    public PaneMate() {
         // Required empty public constructor
     }
 
@@ -345,7 +345,7 @@ public class ChannelMateFragment extends AuxFragment {
     private ExpandableListView mListView;
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_channel_mate, container, false);
+        View view = inflater.inflate(R.layout.pane_mate, container, false);
 
         mFilter = view.findViewById(R.id.filter);
         mListView = view.findViewById(R.id.mate);
@@ -381,7 +381,7 @@ public class ChannelMateFragment extends AuxFragment {
                         ChannelActivity activity = (ChannelActivity) getActivity();
                         Mate mate = (Mate) mAdapter.getChild(groupPosition, childPosition);
                         if(mate!=null) {
-                            setSizePolicy(ChannelActivity.AuxSize.FREE);
+                            setSizePolicy(ChannelActivity.PaneSizePolicy.FREE);
                             activity.moveToMate(mate, true);
                         }
                         return true;

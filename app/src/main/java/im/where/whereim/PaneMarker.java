@@ -18,8 +18,8 @@ import im.where.whereim.models.Channel;
 import im.where.whereim.models.Marker;
 import im.where.whereim.views.FilterBar;
 
-public class ChannelMarkerFragment extends AuxFragment {
-    public ChannelMarkerFragment() {
+public class PaneMarker extends BasePane {
+    public PaneMarker() {
         // Required empty public constructor
     }
 
@@ -258,7 +258,7 @@ public class ChannelMarkerFragment extends AuxFragment {
     private ExpandableListView mListView;
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_channel_marker, container, false);
+        View view = inflater.inflate(R.layout.pane_marker, container, false);
 
         mFilter = (FilterBar) view.findViewById(R.id.filter);
         mListView = (ExpandableListView) view.findViewById(R.id.marker);
@@ -282,7 +282,7 @@ public class ChannelMarkerFragment extends AuxFragment {
                         ChannelActivity activity = (ChannelActivity) getActivity();
                         Marker marker = (Marker) mAdapter.getChild(groupPosition, childPosition);
                         if(marker!=null) {
-                            setSizePolicy(ChannelActivity.AuxSize.FREE);
+                            setSizePolicy(ChannelActivity.PaneSizePolicy.FREE);
                             activity.moveToMarker(marker, true);
                         }
                         return true;

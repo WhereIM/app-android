@@ -7,18 +7,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import im.where.whereim.ChannelActivity.AuxComp;
+import im.where.whereim.ChannelActivity.PaneComp;
 
-public class ChannelActionFragment extends AuxFragment {
-    public ChannelActionFragment() {
+public class PaneRoot extends BasePane {
+    public PaneRoot() {
         // Required empty public constructor
     }
 
     private Handler mHandler = new Handler();
 
     @Override
-    protected ChannelActivity.AuxSize getInitialSizePolicy() {
-        return ChannelActivity.AuxSize.TAB;
+    protected ChannelActivity.PaneSizePolicy getInitialSizePolicy() {
+        return ChannelActivity.PaneSizePolicy.TAB;
     }
 
     @Override
@@ -28,33 +28,33 @@ public class ChannelActionFragment extends AuxFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_channel_action, container, false);
+        View view = inflater.inflate(R.layout.pane_root, container, false);
 
         view.findViewById(R.id.search).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                channelActivity.showAux(AuxComp.SEARCH);
+                channelActivity.showPane(PaneComp.SEARCH);
             }
         });
 
         view.findViewById(R.id.marker).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                channelActivity.showAux(AuxComp.MARKER);
+                channelActivity.showPane(PaneComp.MARKER);
             }
         });
 
         view.findViewById(R.id.message).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                channelActivity.showAux(AuxComp.MESSAGE);
+                channelActivity.showPane(PaneComp.MESSAGE);
             }
         });
 
         view.findViewById(R.id.mates).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                channelActivity.showAux(AuxComp.MATE);
+                channelActivity.showPane(PaneComp.MATE);
             }
         });
 

@@ -108,7 +108,7 @@ abstract public class ChannelMapFragment extends BaseChannelFragment implements 
 
     protected void onMapLongClick(QuadTree.LatLng location){
         moveTo(location);
-        channelActivity.showAux(ChannelActivity.AuxComp.MARKER_CREATE);
+        channelActivity.showPane(ChannelActivity.PaneComp.MARKER_CREATE);
     }
 
     public void clickMarker(Object obj) {

@@ -23,8 +23,8 @@ import im.where.whereim.geo.QuadTree;
 import im.where.whereim.models.Channel;
 import im.where.whereim.models.Marker;
 
-public class ChannelMarkerEditFragment extends AuxFragment {
-    public ChannelMarkerEditFragment() {
+public class PaneMarkerEdit extends BasePane {
+    public PaneMarkerEdit() {
         // Required empty public constructor
     }
 
@@ -37,8 +37,8 @@ public class ChannelMarkerEditFragment extends AuxFragment {
 
     private Handler mHandler = new Handler();
 
-    public static ChannelMarkerEditFragment newInstance(String id, String name, String color, int radius, boolean geofence, Boolean isPublic) {
-        ChannelMarkerEditFragment fragment = new ChannelMarkerEditFragment();
+    public static PaneMarkerEdit newInstance(String id, String name, String color, int radius, boolean geofence, Boolean isPublic) {
+        PaneMarkerEdit fragment = new PaneMarkerEdit();
 
         Bundle args = new Bundle();
         args.putString(FIELD_ID, id);
@@ -55,8 +55,8 @@ public class ChannelMarkerEditFragment extends AuxFragment {
     }
 
     @Override
-    protected ChannelActivity.AuxSize getInitialSizePolicy() {
-        return ChannelActivity.AuxSize.WRAP;
+    protected ChannelActivity.PaneSizePolicy getInitialSizePolicy() {
+        return ChannelActivity.PaneSizePolicy.WRAP;
     }
 
     @Override
@@ -78,7 +78,7 @@ public class ChannelMarkerEditFragment extends AuxFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_channel_marker_edit, container, false);
+        View view = inflater.inflate(R.layout.pane_marker_edit, container, false);
 
         mEditName = view.findViewById(R.id.name);
         mEditIcon = view.findViewById(R.id.icon);
