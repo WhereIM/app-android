@@ -77,6 +77,15 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         mainFrame = findViewById(R.id.main_frame);
         paneFrame = findViewById(R.id.pane_frame);
 
+        mDrawerLayout.addDrawerListener(new DrawerLayout.SimpleDrawerListener() {
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                DrawerFragment drawer = (DrawerFragment) getSupportFragmentManager().findFragmentById(R.id.drawer);
+                drawer.refresh();
+            }
+        });
+
         resizeHandler.setOnTouchListener(new View.OnTouchListener() {
             private Float y = null;
 

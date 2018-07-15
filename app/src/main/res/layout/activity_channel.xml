@@ -218,7 +218,9 @@
         android:layout_gravity="start"
         android:fitsSystemWindows="false">
 
-        <fragment android:name="im.where.whereim.DrawerFragment"
+        <fragment
+            android:id="@+id/drawer"
+            android:name="im.where.whereim.DrawerFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 

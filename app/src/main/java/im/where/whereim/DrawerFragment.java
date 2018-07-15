@@ -32,21 +32,25 @@ public class DrawerFragment extends BaseFragment {
     private Runnable mChannelListChangedListener = new Runnable() {
         @Override
         public void run() {
-            postBinderTask(new CoreService.BinderTask() {
-                @Override
-                public void onBinderReady(final CoreService.CoreBinder binder) {
-                    mHandler.post(new Runnable(){
-
-                        @Override
-                        public void run() {
-                            mChannelList = binder.getChannelList();
-                            mAdapter.notifyDataSetChanged();
-                        }
-                    });
-                }
-            });
+            refresh();
         }
     };
+
+    public void refresh(){
+        postBinderTask(new CoreService.BinderTask() {
+            @Override
+            public void onBinderReady(final CoreService.CoreBinder binder) {
+                mHandler.post(new Runnable(){
+
+                    @Override
+                    public void run() {
+                        mChannelList = binder.getChannelList();
+                        mAdapter.notifyDataSetChanged();
+                    }
+                });
+            }
+        });
+    }
 
     public DrawerFragment() {
         // Required empty public constructor
