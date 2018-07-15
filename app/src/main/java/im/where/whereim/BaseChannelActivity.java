@@ -124,10 +124,6 @@ public abstract class BaseChannelActivity extends BaseActivity {
         if(channel_id==null) {
             SharedPreferences sp = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
             channel_id = sp.getString(Key.CHANNEL, null);
-        } else {
-            SharedPreferences.Editor editor = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
-            editor.putString(Key.CHANNEL, channel_id);
-            editor.apply();
         }
         final String _channel_id = channel_id;
         postBinderTask(new CoreService.BinderTask() {
@@ -142,11 +138,11 @@ public abstract class BaseChannelActivity extends BaseActivity {
                 if(mChannel == null){
                     failed = true;
                 }
-                if(failed){
-                    Intent intent = new Intent(BaseChannelActivity.this, ChannelListActivity.class);
-                    startActivity(intent);
-                    finish();
-                }else{
+                if(!failed){
+                    SharedPreferences.Editor editor = getSharedPreferences(Config.APP_SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
+                    editor.putString(Key.CHANNEL, _channel_id);
+                    editor.apply();
+
                     onChannelChanged(prevChannel);
                     processGetChannelCallback();
                 }

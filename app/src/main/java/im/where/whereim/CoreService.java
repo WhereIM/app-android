@@ -1488,7 +1488,7 @@ public class CoreService extends Service {
             if(!mIsForeground){
                 mIsForeground = true;
 
-                Intent notificationIntent = new Intent(this, ChannelListActivity.class);
+                Intent notificationIntent = new Intent(this, ChannelActivity.class);
                 notificationIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 

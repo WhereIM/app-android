@@ -42,11 +42,6 @@
             android:name=".NewChannelActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".ChannelListActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation"
-            android:launchMode="singleInstance"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
             android:name=".PoiViewerActivity"
             android:configChanges="keyboard|keyboardHidden|orientation"
             android:label="@string/app_name"
