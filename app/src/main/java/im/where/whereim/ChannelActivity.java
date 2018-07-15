@@ -158,7 +158,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         findViewById(R.id.forge_location).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                showPane(PaneComp.FORGE_LOCATION);
             }
         });
 
@@ -303,6 +303,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         MARKER,
         MATE,
         MARKER_CREATE,
+        FORGE_LOCATION,
     }
     private PaneComp paneComp = PaneComp.TAB;
     void showPane(PaneComp comp){
@@ -359,6 +360,11 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
             case MARKER_CREATE:
                 fm.beginTransaction()
                         .replace(R.id.pane_frame, PaneMarkerEdit.newInstance(null, null, null, Config.DEFAULT_GEOFENCE_RADIUS, false, null))
+                        .commit();
+                break;
+            case FORGE_LOCATION:
+                fm.beginTransaction()
+                        .replace(R.id.pane_frame, new PaneForgeLocation())
                         .commit();
                 break;
         }
