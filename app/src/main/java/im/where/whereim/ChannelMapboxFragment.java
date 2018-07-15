@@ -114,16 +114,10 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
         mHandler.post(mMapTaskRunnable);
     }
 
-    private double defaultLat = 0;
-    private double defaultLng = 0;
-    private float defaultZoom = 0;
-    private double currentLat = 0;
-    private double currentLng = 0;
-
     private MapView mMapView;
     private IconFactory iconFactory;
 
-    private MarkerView mPendingPOIMarker = null;
+    private MarkerView mPOIMarker = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -142,64 +136,27 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
             }
         });
 
-        Activity activity = getActivity();
-        Intent intent = activity.getIntent();
-        if (intent.getBooleanExtra(Key.PENDING_POI, false)) {
-            final POI poi = new POI();
-            poi.latitude = intent.getDoubleExtra(Key.LATITUDE, 0);
-            poi.longitude = intent.getDoubleExtra(Key.LONGITUDE, 0);
-            poi.name = intent.getStringExtra(Key.NAME);
-
-            getMapAsync(new OnMapReadyCallback() {
-                @Override
-                public void onMapReady(final MapboxMap mapboxMap) {
-                    mHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (mPendingPOIMarker != null) {
-                                mPendingPOIMarker.remove();
-                            }
-                            MarkerViewOptions markerViewOptions = new MarkerViewOptions()
-                                    .title(poi.name)
-                                    .position(new LatLng(poi.latitude, poi.longitude))
-                                    .icon(iconFactory.fromResource(R.drawable.search_marker)
-//                          .zIndex(0.5f)
-                                    );
-                            mPendingPOIMarker = mapboxMap.addMarker(markerViewOptions);
-                            mapboxMap.selectMarker(mPendingPOIMarker);
-                            mMarkerMap.put(mPendingPOIMarker, poi);
-                            clickMarker(poi);
-                        }
-                    });
+        postLocationServiceTask(new Runnable() {
+            @Override
+            public void run() {
+                Location l = locationEngine.getLastLocation();
+                if(l != null){
+                    currentLat = l.getLatitude();
+                    currentLng = l.getLongitude();
                 }
-            });
 
-            currentLat = defaultLat = poi.latitude;
-            currentLng = defaultLng = poi.longitude;
-            defaultZoom = 13;
-        } else {
-            postLocationServiceTask(new Runnable() {
-                @Override
-                public void run() {
-                    Location l = locationEngine.getLastLocation();
-                    if(l != null){
-                        currentLat = l.getLatitude();
-                        currentLng = l.getLongitude();
+                getMapAsync(new OnMapReadyCallback() {
+                    @Override
+                    public void onMapReady(MapboxMap mapboxMap) {
+                        CameraPosition position = new CameraPosition.Builder()
+                                .target(new LatLng(defaultLat, defaultLng))
+                                .build();
+
+                        mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), MAP_MOVE_ANIMATION_DURATION);
                     }
-
-                    getMapAsync(new OnMapReadyCallback() {
-                        @Override
-                        public void onMapReady(MapboxMap mapboxMap) {
-                            CameraPosition position = new CameraPosition.Builder()
-                                    .target(new LatLng(defaultLat, defaultLng))
-                                    .build();
-
-                            mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), MAP_MOVE_ANIMATION_DURATION);
-                        }
-                    });
-                }
-            });
-        }
+                });
+            }
+        });
     }
 
     private LocationLayerPlugin locationLayerPlugin;
@@ -291,6 +248,35 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
             locationEngine.removeLocationUpdates();
         }
         super.onStop();
+    }
+
+    @Override
+    public void setPOI(final POI poi) {
+        getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(final MapboxMap mapboxMap) {
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mPOIMarker != null) {
+                            mPOIMarker.remove();
+                        }
+                        if(poi != null){
+                            MarkerViewOptions markerViewOptions = new MarkerViewOptions()
+                                    .title(poi.name)
+                                    .position(new LatLng(poi.latitude, poi.longitude))
+                                    .icon(iconFactory.fromResource(R.drawable.search_marker)
+//                          .zIndex(0.5f)
+                                    );
+                            mPOIMarker = mapboxMap.addMarker(markerViewOptions);
+                            mapboxMap.selectMarker(mPOIMarker);
+                            mMarkerMap.put(mPOIMarker, poi);
+                            clickMarker(poi);
+                        }
+                    }
+                });
+            }
+        });
     }
 
     final LinkedList<Polyline> lines = new LinkedList<>();
@@ -480,6 +466,7 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
 
     @Override
     public void moveTo(final QuadTree.LatLng location) {
+        super.moveTo(location);
         getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(MapboxMap mapboxMap) {
@@ -487,29 +474,6 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
                         .target(new LatLng(location.latitude, location.longitude))
                         .build();
                 mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), MAP_MOVE_ANIMATION_DURATION);
-            }
-        });
-    }
-
-    @Override
-    public void moveToPin(final QuadTree.LatLng location) {
-        if (mPendingPOIMarker != null) {
-            mPendingPOIMarker.remove();
-        }
-        getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(MapboxMap mapboxMap) {
-                MarkerViewOptions markerViewOptions = new MarkerViewOptions()
-                        .position(new LatLng(location.latitude, location.longitude))
-                        .icon(iconFactory.fromResource(R.drawable.baseline_place_black_48)
-//                          .zIndex(0.5f)
-                        );
-                mPendingPOIMarker = mapboxMap.addMarker(markerViewOptions);
-                mapboxMap.selectMarker(mPendingPOIMarker);
-                mMarkerMap.put(mPendingPOIMarker, location);
-                clickMarker(location);
-
-                moveTo(new QuadTree.LatLng(location.latitude, location.longitude));
             }
         });
     }
@@ -733,11 +697,6 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
         });
     }
 
-    @Override
-    public QuadTree.LatLng getMapCenter() {
-        return new QuadTree.LatLng(currentLat, currentLng);
-    }
-
     private ArrayList<POI> mSearchResults;
 
     private ArrayList<MarkerView> mSearchResultMarkers = new ArrayList<>();
@@ -840,12 +799,6 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
     @Override
     public void onMapClick(@NonNull LatLng point) {
         onMapClick(new QuadTree.LatLng(point.getLatitude(), point.getLongitude()));
-        if(mEditingType!=null){
-            return;
-        }
-        if (mPendingPOIMarker != null) {
-            mPendingPOIMarker.remove();
-        }
     }
 
     @Override
@@ -893,9 +846,6 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
     public boolean onMarkerClick(@NonNull Marker marker, @NonNull View view, @NonNull MapboxMap.MarkerViewAdapter adapter) {
         Object obj = mMarkerMap.get(marker);
         if(obj!=null) { // non-editting marker
-            if (mPendingPOIMarker != null) {
-                mPendingPOIMarker.remove();
-            }
             clickMarker(obj);
         }
         return false;

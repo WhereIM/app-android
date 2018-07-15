@@ -47,6 +47,7 @@ import im.where.whereim.models.Channel;
 import im.where.whereim.models.Marker;
 import im.where.whereim.models.Mate;
 import im.where.whereim.models.Message;
+import im.where.whereim.models.POI;
 import im.where.whereim.models.PendingMessage;
 import im.where.whereim.views.WimImageView;
 import im.where.whereim.views.WimSpan;
@@ -511,7 +512,6 @@ public class PaneMessenger extends BasePane {
 
         @Override
         public void onClick(String url) {
-            final ChannelActivity activity = (ChannelActivity) getActivity();
             final String[] args = url.split("/");
             switch(args[0]){
                 case "marker":
@@ -520,15 +520,21 @@ public class PaneMessenger extends BasePane {
                         public void onBinderReady(CoreService.CoreBinder binder) {
                             Marker m = binder.getChannelMarker(mChannel.id, args[1]);
                             if(m != null){
-                                activity.moveToMarker(m, true);
+                                channelActivity.moveToMarker(m, true);
                             } else {
-                                activity.moveToPin(new QuadTree.LatLng(Double.valueOf(args[2]), Double.valueOf(args[3])));
+                                POI poi = new POI();
+                                poi.latitude = Double.valueOf(args[2]);
+                                poi.longitude = Double.valueOf(args[3]);
+                                channelActivity.setPOI(poi);
                             }
                         }
                     });
                     break;
                 case "pin":
-                    activity.moveToPin(new QuadTree.LatLng(Double.valueOf(args[1]), Double.valueOf(args[2])));
+                    POI poi = new POI();
+                    poi.latitude = Double.valueOf(args[1]);
+                    poi.longitude = Double.valueOf(args[2]);
+                    channelActivity.setPOI(poi);
                     break;
             }
             setSizePolicy(ChannelActivity.PaneSizePolicy.FREE);

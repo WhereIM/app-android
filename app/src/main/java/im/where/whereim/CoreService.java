@@ -94,8 +94,7 @@ public class CoreService extends Service {
     }
 
     public interface MapDataDelegate {
-        void moveTo(QuadTree.LatLng location);
-        void moveToPin(QuadTree.LatLng location);
+        void setPOI(POI poi);
         void onMateData(Mate mate, boolean focus);
         void moveToMate(Mate mate, boolean focus);
         void onMarkerData(Marker marker, boolean focus);

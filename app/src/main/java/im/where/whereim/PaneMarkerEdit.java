@@ -29,6 +29,8 @@ public class PaneMarkerEdit extends BasePane {
     }
 
     private final static String FIELD_ID = "id";
+    private final static String FIELD_LAT = "lat";
+    private final static String FIELD_LNG = "lng";
     private final static String FIELD_NAME = "name";
     private final static String FIELD_COLOR = "color";
     private final static String FIELD_RADIUS = "radius";
@@ -37,11 +39,15 @@ public class PaneMarkerEdit extends BasePane {
 
     private Handler mHandler = new Handler();
 
-    public static PaneMarkerEdit newInstance(String id, String name, String color, int radius, boolean geofence, Boolean isPublic) {
+    public static PaneMarkerEdit newInstance(String id, String name, QuadTree.LatLng location, String color, int radius, boolean geofence, Boolean isPublic) {
         PaneMarkerEdit fragment = new PaneMarkerEdit();
 
         Bundle args = new Bundle();
         args.putString(FIELD_ID, id);
+        if(location != null){
+            args.putDouble(FIELD_LAT, location.latitude);
+            args.putDouble(FIELD_LNG, location.longitude);
+        }
         args.putString(FIELD_NAME, name);
         args.putString(FIELD_COLOR, color);
         args.putInt(FIELD_RADIUS, radius);
@@ -53,6 +59,20 @@ public class PaneMarkerEdit extends BasePane {
 
         return fragment;
     }
+
+
+    String mId;
+    String mName;
+    QuadTree.LatLng mLocation;
+    String mColor;
+    Integer mRadius;
+    Boolean mGeofence;
+    Boolean mIsPublic;
+
+    TextView mEditName;
+    ImageView mEditIcon;
+    TextView mEditGeofence;
+    View mButtonDelete;
 
     @Override
     protected ChannelActivity.PaneSizePolicy getInitialSizePolicy() {
@@ -66,7 +86,7 @@ public class PaneMarkerEdit extends BasePane {
 
     @Override
     public boolean showCrosshair() {
-        return mId == null;
+        return mId==null && mLocation==null;
     }
 
     @Override
@@ -77,32 +97,12 @@ public class PaneMarkerEdit extends BasePane {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    }
-
-
-    String mId;
-    String mColor;
-    Integer mRadius;
-    Boolean mGeofence;
-    Boolean mIsPublic;
-
-    TextView mEditName;
-    ImageView mEditIcon;
-    TextView mEditGeofence;
-    View mButtonDelete;
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.pane_marker_edit, container, false);
-
-        mEditName = view.findViewById(R.id.name);
-        mEditIcon = view.findViewById(R.id.icon);
-        mEditGeofence = view.findViewById(R.id.geofence);
-        mButtonDelete = view.findViewById(R.id.delete);
-
         Bundle args = getArguments();
         mId = args.getString(FIELD_ID);
-        mEditName.setText(args.getString(FIELD_NAME));
+        if(args.containsKey(FIELD_LAT) && args.containsKey(FIELD_LNG)){
+            mLocation = new QuadTree.LatLng(args.getDouble(FIELD_LAT), args.getDouble(FIELD_LNG));
+        }
+        mName = args.getString(FIELD_NAME);
         mColor = args.getString(FIELD_COLOR, null);
         if(mColor == null){
             mColor = Marker.DEFAULT_COLOR;
@@ -114,7 +114,18 @@ public class PaneMarkerEdit extends BasePane {
         }else{
             mIsPublic = null;
         }
+    }
 
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.pane_marker_edit, container, false);
+
+        mEditName = view.findViewById(R.id.name);
+        mEditIcon = view.findViewById(R.id.icon);
+        mEditGeofence = view.findViewById(R.id.geofence);
+        mButtonDelete = view.findViewById(R.id.delete);
+
+        mEditName.setText(mName);
         mEditIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -212,6 +223,9 @@ public class PaneMarkerEdit extends BasePane {
         view.findViewById(R.id.cancel).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(mLocation != null){
+                    channelActivity.setPOI(null);
+                }
                 close();
             }
         });

@@ -71,6 +71,12 @@ abstract public class ChannelMapFragment extends BaseChannelFragment implements 
             }
         }
     }
+    protected double defaultLat = 0;
+    protected double defaultLng = 0;
+    protected float defaultZoom = 0;
+
+    protected double currentLat = 0;
+    protected double currentLng = 0;
 
     protected View mCrosshair;
     protected View mMarkerView;
@@ -88,6 +94,11 @@ abstract public class ChannelMapFragment extends BaseChannelFragment implements 
         resetMap();
     }
 
+    protected void moveTo(QuadTree.LatLng location){
+        defaultLat = location.latitude;
+        defaultLng = location.longitude;
+        defaultZoom = 13;
+    }
     protected abstract void resetMap();
 
     @Override
@@ -99,6 +110,7 @@ abstract public class ChannelMapFragment extends BaseChannelFragment implements 
             @Override
             public void onGetChannel(Channel channel) {
                 setCrosshair(channelActivity.showCrosshair());
+                setPOI(channelActivity.getPoi());
             }
         });
     }
@@ -108,6 +120,12 @@ abstract public class ChannelMapFragment extends BaseChannelFragment implements 
         super.onDestroyView();
     }
 
+    @Override
+    public QuadTree.LatLng getMapCenter() {
+        return new QuadTree.LatLng(currentLat, currentLng);
+    }
+
+    abstract public void setPOI(POI poi);
     abstract protected void refreshEditing();
     protected void onMapClick(QuadTree.LatLng location){
         channelActivity.clearFocus();
@@ -122,31 +140,14 @@ abstract public class ChannelMapFragment extends BaseChannelFragment implements 
         if(obj==null){
             return;
         }
-        String title;
-        double latitude;
-        double longitude;
-
         if (obj instanceof Mate) {
             Mate mate = (Mate) obj;
-            title = mate.getDisplayName();
-            latitude = mate.latitude;
-            longitude = mate.longitude;
-
-
         } else if (obj instanceof im.where.whereim.models.Marker) {
             im.where.whereim.models.Marker marker = (im.where.whereim.models.Marker) obj;
             channelActivity.viewMarker(marker);
         } else if (obj instanceof POI) {
             POI poi = (POI) obj;
-            title = poi.name;
-            latitude = poi.latitude;
-            longitude = poi.longitude;
-
-
-        } else if (obj instanceof QuadTree.LatLng) {
-            QuadTree.LatLng location = (QuadTree.LatLng) obj;
-            moveTo(location);
-
+            channelActivity.editMarker(null, new QuadTree.LatLng(poi.latitude, poi.longitude), poi.name, null, Config.DEFAULT_GEOFENCE_RADIUS, false, null);
         } else {
             return;
         }

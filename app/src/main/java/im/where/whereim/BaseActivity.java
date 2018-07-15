@@ -11,7 +11,6 @@ import android.util.Log;
 
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -19,6 +18,7 @@ import java.util.regex.Pattern;
 
 import im.where.whereim.dialogs.DialogChannelJoin;
 import im.where.whereim.geo.QuadTree;
+import im.where.whereim.models.POI;
 import io.branch.referral.Branch;
 import io.branch.referral.BranchError;
 
@@ -127,9 +127,12 @@ public class BaseActivity extends AppCompatActivity implements ServiceConnection
         m = mPatternHere.matcher(link);
         if(m.matches()){
             if(this instanceof ChannelActivity){
-                QuadTree.LatLng location = new QuadTree.LatLng(Double.valueOf(m.group(1)), Double.valueOf(m.group(2)));
                 ChannelActivity channelActivity = (ChannelActivity) this;
-                channelActivity.editMarker(null, location, m.group(3), null, Config.DEFAULT_GEOFENCE_RADIUS, false, null);
+                POI poi = new POI();
+                poi.name = m.group(3);
+                poi.latitude = Double.valueOf(m.group(1));
+                poi.longitude = Double.valueOf(m.group(2));
+                channelActivity.setPOI(poi);
             }
         }
     }

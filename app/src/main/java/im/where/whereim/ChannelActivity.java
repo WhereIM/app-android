@@ -11,7 +11,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -23,8 +22,6 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -35,8 +32,6 @@ import im.where.whereim.models.Channel;
 import im.where.whereim.models.Marker;
 import im.where.whereim.models.Mate;
 import im.where.whereim.models.POI;
-import io.branch.referral.Branch;
-import io.branch.referral.BranchError;
 
 public class ChannelActivity extends BaseChannelActivity implements CoreService.ConnectionStatusCallback, CoreService.MapDataDelegate {
     private Handler mHandler = new Handler();
@@ -374,7 +369,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                 break;
             case MARKER_CREATE:
                 fm.beginTransaction()
-                        .replace(R.id.pane_frame, PaneMarkerEdit.newInstance(null, null, null, Config.DEFAULT_GEOFENCE_RADIUS, false, null))
+                        .replace(R.id.pane_frame, PaneMarkerEdit.newInstance(null, null, null, null, Config.DEFAULT_GEOFENCE_RADIUS, false, null))
                         .commit();
                 break;
             case FORGE_LOCATION:
@@ -400,11 +395,24 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         mPaneMarkerView = null;
     }
 
+
+    private POI mPoi;
+    public void setPOI(POI poi){
+        mPoi = poi;
+        if(mChannelMapFragment != null){
+            mChannelMapFragment.setPOI(mPoi);
+        }
+    }
+
+    public POI getPoi(){
+        return mPoi;
+    }
+
     private PaneMarkerView mPaneMarkerView = null;
     public void viewMarker(Marker marker){
         FragmentManager fm = getSupportFragmentManager();
         BasePane currentFragment = (BasePane) fm.findFragmentById(R.id.pane_frame);
-        if(currentFragment.lockFocus()){
+        if(currentFragment != null && currentFragment.lockFocus()){
             return;
         }
         if(currentFragment instanceof PaneMarkerView){
@@ -424,16 +432,19 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
 
     public void editMarker(String id, QuadTree.LatLng latLng, String name, String color, int radius, boolean geofence, Boolean isPublic){
         if(latLng != null){
-            moveTo(latLng);
+            mChannelMapFragment.moveTo(latLng);
         }
         FragmentManager fm = getSupportFragmentManager();
         BasePane currentFragment = (BasePane) fm.findFragmentById(R.id.pane_frame);
+        if(currentFragment != null && currentFragment.lockFocus()){
+            return;
+        }
         if(currentFragment != null){
             ViewGroup.LayoutParams params = paneFrame.getLayoutParams();
             currentFragment.setHeight(params.height);
         }
         fm.beginTransaction()
-                .replace(R.id.pane_frame, PaneMarkerEdit.newInstance(id, name, color, radius, geofence, isPublic))
+                .replace(R.id.pane_frame, PaneMarkerEdit.newInstance(id, name, latLng, color, radius, geofence, isPublic))
                 .addToBackStack(null)
                 .commit();
     }
@@ -539,16 +550,6 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         } else {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         }
-    }
-
-    @Override
-    public void moveTo(QuadTree.LatLng location) {
-        mChannelMapFragment.moveTo(location);
-    }
-
-    @Override
-    public void moveToPin(QuadTree.LatLng latLng) {
-        mChannelMapFragment.moveToPin(latLng);
     }
 
     @Override

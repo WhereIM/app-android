@@ -78,81 +78,42 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         mHandler.post(mMapTaskRunnable);
     }
 
-    private double defaultLat = 0;
-    private double defaultLng = 0;
-    private float defaultZoom = 0;
-    private double currentLat = 0;
-    private double currentLng = 0;
-
     private MapView mMapView;
 
-    private Marker mPendingPOIMarker = null;
+    private Marker mPOIMarker = null;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Activity activity = getActivity();
-        Intent intent = activity.getIntent();
-        if (intent.getBooleanExtra(Key.PENDING_POI, false)) {
-            final POI poi = new POI();
-            poi.latitude = intent.getDoubleExtra(Key.LATITUDE, 0);
-            poi.longitude = intent.getDoubleExtra(Key.LONGITUDE, 0);
-            poi.name = intent.getStringExtra(Key.NAME);
+        postLocationServiceTask(new Runnable() {
+            @Override
+            public void run() {
+                LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+                Location locationByGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                Location locationByNetwork = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                long positionTime = 0;
 
-            getMapAsync(new OnMapReadyCallback() {
-                @Override
-                public void onMapReady(GoogleMap googleMap) {
-                    if(mPendingPOIMarker!=null){
-                        mPendingPOIMarker.remove();
-                    }
-                    mPendingPOIMarker = googleMap.addMarker(
-                            new MarkerOptions()
-                                    .title(poi.name)
-                                    .position(new LatLng(poi.latitude, poi.longitude))
-                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.search_marker))
-                                    .anchor(0.5f, 1f)
-                                    .zIndex(0.5f)
-                    );
-                    mPendingPOIMarker.showInfoWindow();
-                    mMarkerMap.put(mPendingPOIMarker, poi);
-                    clickMarker(poi);
+                if(locationByNetwork != null){
+                    positionTime = locationByNetwork.getTime();
+                    defaultLat = locationByNetwork.getLatitude();
+                    defaultLng = locationByNetwork.getLongitude();
+                    defaultZoom = 15;
                 }
-            });
-
-            currentLat = defaultLat = poi.latitude;
-            currentLng = defaultLng = poi.longitude;
-            defaultZoom = 13;
-        }else{
-            postLocationServiceTask(new Runnable() {
-                @Override
-                public void run() {
-                    LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-                    Location locationByGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                    Location locationByNetwork = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                    long positionTime = 0;
-
-                    if(locationByNetwork != null){
-                        positionTime = locationByNetwork.getTime();
-                        defaultLat = locationByNetwork.getLatitude();
-                        defaultLng = locationByNetwork.getLongitude();
-                        defaultZoom = 15;
-                    }
-                    if(locationByGPS != null && locationByGPS.getTime() > positionTime){
-                        defaultLat = locationByGPS.getLatitude();
-                        defaultLng = locationByGPS.getLongitude();
-                        defaultZoom = 15;
-                    }
-                    currentLat = defaultLat;
-                    currentLng = defaultLng;
-                    getMapAsync(new OnMapReadyCallback() {
-                        @Override
-                        public void onMapReady(GoogleMap googleMap) {
-                            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(defaultLat, defaultLng), defaultZoom));
-                        }
-                    });
+                if(locationByGPS != null && locationByGPS.getTime() > positionTime){
+                    defaultLat = locationByGPS.getLatitude();
+                    defaultLng = locationByGPS.getLongitude();
+                    defaultZoom = 15;
                 }
-            });
-        }
+                currentLat = defaultLat;
+                currentLng = defaultLng;
+                getMapAsync(new OnMapReadyCallback() {
+                    @Override
+                    public void onMapReady(GoogleMap googleMap) {
+                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(defaultLat, defaultLng), defaultZoom));
+                    }
+                });
+            }
+        });
     }
 
     @Override
@@ -193,6 +154,31 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         processMapTask();
 
         return view;
+    }
+
+    @Override
+    public void setPOI(final POI poi) {
+        getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                if(mPOIMarker !=null){
+                    mPOIMarker.remove();
+                }
+                if(poi != null){
+                    mPOIMarker = googleMap.addMarker(
+                            new MarkerOptions()
+                                    .title(poi.name)
+                                    .position(new LatLng(poi.latitude, poi.longitude))
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.search_marker))
+                                    .anchor(0.5f, 1f)
+                                    .zIndex(0.5f)
+                    );
+                    mPOIMarker.showInfoWindow();
+                    mMarkerMap.put(mPOIMarker, poi);
+                    clickMarker(poi);
+                }
+            }
+        });
     }
 
     final ArrayList<Polyline> lines = new ArrayList<>();
@@ -372,33 +358,11 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
 
     @Override
     public void moveTo(final QuadTree.LatLng location) {
+        super.moveTo(location);
         getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 googleMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(location.latitude, location.longitude)));
-            }
-        });
-    }
-
-    @Override
-    public void moveToPin(final QuadTree.LatLng location) {
-        if(mPendingPOIMarker!=null){
-            mPendingPOIMarker.remove();
-        }
-        getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(GoogleMap googleMap) {
-                mPendingPOIMarker = googleMap.addMarker(
-                        new MarkerOptions()
-                                .position(new LatLng(location.latitude, location.longitude))
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.baseline_place_black_48))
-                                .anchor(0.5f, 1f)
-                                .zIndex(0.5f)
-                );
-                mPendingPOIMarker.showInfoWindow();
-                mMarkerMap.put(mPendingPOIMarker, location);
-                moveTo(location);
-                clickMarker(location);
             }
         });
     }
@@ -624,11 +588,6 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         });
     }
 
-    @Override
-    public QuadTree.LatLng getMapCenter() {
-        return new QuadTree.LatLng(currentLat, currentLng);
-    }
-
     private ArrayList<POI> mSearchResults;
     private ArrayList<Marker> mSearchResultMarkers = new ArrayList<>();
     @Override
@@ -737,12 +696,6 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     @Override
     public void onMapClick(LatLng latLng) {
         onMapClick(new QuadTree.LatLng(latLng.latitude, latLng.longitude));
-        if(mEditingType!=null){
-            return;
-        }
-        if(mPendingPOIMarker!=null){
-            mPendingPOIMarker.remove();
-        }
     }
 
     @Override
@@ -788,9 +741,6 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     public boolean onMarkerClick(Marker marker) {
         Object obj = mMarkerMap.get(marker);
         if(obj!=null) { // non-editting marker
-            if (mPendingPOIMarker != null) {
-                mPendingPOIMarker.remove();
-            }
             clickMarker(obj);
         }
         return false;
