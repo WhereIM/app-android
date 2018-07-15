@@ -603,11 +603,16 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     private Runnable mChannelListChangedListener = new Runnable() {
         @Override
         public void run() {
-            if(mChannel==null) {
-                mActive.setVisibility(View.GONE);
-                mActiveLoading.setVisibility(View.GONE);
-                return;
-            }
+            postBinderTask(new CoreService.BinderTask() {
+                @Override
+                public void onBinderReady(CoreService.CoreBinder binder) {
+                    if(binder.getChannelList().size()==0){
+                        Intent intent = new Intent(ChannelActivity.this, NewChannelActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }
+                }
+            });
         }
     };
 
