@@ -653,10 +653,8 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
 
     @Override
     public void onBackPressed() {
-        if(paneComp != PaneComp.TAB){
-            if(!getSupportFragmentManager().popBackStackImmediate()){
-                showPane(PaneComp.TAB);
-            }
+        if(!getSupportFragmentManager().popBackStackImmediate()){
+            showPane(PaneComp.TAB);
         }
     }
 }
