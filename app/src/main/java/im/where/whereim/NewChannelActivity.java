@@ -69,13 +69,17 @@ public class NewChannelActivity extends BaseActivity {
                 public void onBinderReady(CoreService.CoreBinder binder) {
                     List<Channel> channels = binder.getChannelList();
                     int n = channels.size();
-                    if(origChannelCount !=-1 && n != origChannelCount){
-                        if(origChannelCount==0){
-                            Intent intent = new Intent(NewChannelActivity.this, ChannelActivity.class);
-                            intent.putExtra(Key.CHANNEL, channels.get(0).id);
-                            startActivity(intent);
+                    if(origChannelCount == -1){ // init channel count
+                        processDeepLink();
+                    } else {
+                        if(n != origChannelCount){ // channel count changed
+                            if(origChannelCount==0){ // switch to the new & only channel
+                                Intent intent = new Intent(NewChannelActivity.this, ChannelActivity.class);
+                                intent.putExtra(Key.CHANNEL, channels.get(0).id);
+                                startActivity(intent);
+                            }
+                            finish();
                         }
-                        finish();
                     }
                     origChannelCount = n;
                 }
@@ -100,6 +104,13 @@ public class NewChannelActivity extends BaseActivity {
             mBinder.removeChannelListChangedListener(channelListChangedListener);
         }
         super.onPause();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(origChannelCount > 0){
+            super.onBackPressed();
+        }
     }
 }
 
