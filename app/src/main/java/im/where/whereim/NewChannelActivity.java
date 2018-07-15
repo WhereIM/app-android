@@ -69,9 +69,7 @@ public class NewChannelActivity extends BaseActivity {
                 public void onBinderReady(CoreService.CoreBinder binder) {
                     List<Channel> channels = binder.getChannelList();
                     int n = channels.size();
-                    if(origChannelCount == -1){ // init channel count
-                        processDeepLink();
-                    } else {
+                    if(origChannelCount != -1){ // just set channel count for init callback
                         if(n != origChannelCount){ // channel count changed
                             if(origChannelCount==0){ // switch to the new & only channel
                                 Intent intent = new Intent(NewChannelActivity.this, ChannelActivity.class);
@@ -82,6 +80,7 @@ public class NewChannelActivity extends BaseActivity {
                         }
                     }
                     origChannelCount = n;
+                    processDeepLink();
                 }
             });
         }
