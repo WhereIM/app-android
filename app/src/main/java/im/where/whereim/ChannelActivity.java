@@ -51,6 +51,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     private Switch mActive;
     private View mActiveLoading;
     private View mSendingPane;
+    private TextView mGeofence;
 
     private View resizeHandler;
     private FrameLayout mainFrame;
@@ -68,6 +69,8 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         MIN_PANE_HEIGHT = getResources().getDimension(R.dimen.tab_height);
 
         setContentView(R.layout.activity_channel);
+
+        mGeofence = findViewById(R.id.geofence);
 
         mDrawerLayout = findViewById(R.id.drawer_layout);
         resizeHandler = findViewById(R.id.resize_handler);
@@ -445,6 +448,12 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
             mActive.setVisibility(View.VISIBLE);
             mActiveLoading.setVisibility(View.GONE);
             mActive.setChecked(active);
+        }
+
+        if(mChannel.enable_radius){
+            mGeofence.setText(getString(R.string.radius_m, mChannel.radius));
+        }else{
+            mGeofence.setText(R.string.off);
         }
 
         if(mChannelMapFragment != null) {

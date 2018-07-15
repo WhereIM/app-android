@@ -141,6 +141,28 @@
                             </FrameLayout>
                         </LinearLayout>
 
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:padding="@dimen/content_inset">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceMedium"
+                                android:text="@string/detection" />
+
+                            <TextView
+                                android:id="@+id/geofence"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceSmall"
+                                android:background="?android:selectableItemBackground" />
+
+                        </LinearLayout>
+
                         <TextView
                             android:id="@+id/forge_location"
                             android:layout_width="match_parent"
