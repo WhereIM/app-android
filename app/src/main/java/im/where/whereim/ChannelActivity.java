@@ -445,7 +445,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
 
     @Override
     protected void onChannelChanged(final Channel prevChannel) {
-        showPane(paneComp);
+        showPane(PaneComp.TAB);
         if(prevChannel != null){
             postBinderTask(new CoreService.BinderTask() {
                 @Override
