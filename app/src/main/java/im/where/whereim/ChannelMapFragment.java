@@ -103,8 +103,7 @@ abstract public class ChannelMapFragment extends BaseChannelFragment implements 
 
     abstract protected void refreshEditing();
     protected void onMapClick(QuadTree.LatLng location){
-        channelActivity.setSendingPanel(false);
-        channelActivity.closeKeyboard();
+        channelActivity.clearFocus();
     }
 
     protected void onMapLongClick(QuadTree.LatLng location){
@@ -129,11 +128,7 @@ abstract public class ChannelMapFragment extends BaseChannelFragment implements 
 
         } else if (obj instanceof im.where.whereim.models.Marker) {
             im.where.whereim.models.Marker marker = (im.where.whereim.models.Marker) obj;
-            title = marker.name;
-            latitude = marker.latitude;
-            longitude = marker.longitude;
-
-
+            channelActivity.viewMarker(marker);
         } else if (obj instanceof POI) {
             POI poi = (POI) obj;
             title = poi.name;

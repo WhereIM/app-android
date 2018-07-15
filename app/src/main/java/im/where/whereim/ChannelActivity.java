@@ -377,25 +377,48 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         resizeHandler.setVisibility(resizable ? View.VISIBLE : View.GONE);
     }
 
+    public void clearFocus(){
+        setSendingPanel(false);
+        closeKeyboard();
+        if(mPaneMarkerView != null && mPaneMarkerView.isVisible()){
+            getSupportFragmentManager().popBackStackImmediate();
+        }
+        mPaneMarkerView = null;
+    }
+
+    private PaneMarkerView mPaneMarkerView = null;
+    public void viewMarker(Marker marker){
+        if(mPaneMarkerView != null && mPaneMarkerView.isVisible()){
+            mPaneMarkerView.setMarker(marker);
+        }else{
+            FragmentManager fm = getSupportFragmentManager();
+            BasePane currentFragment = (BasePane) fm.findFragmentById(R.id.pane_frame);
+            if(currentFragment != null){
+                ViewGroup.LayoutParams params = paneFrame.getLayoutParams();
+                currentFragment.setHeight(params.height);
+            }
+            mPaneMarkerView = PaneMarkerView.newInstance(marker.id);
+            fm.beginTransaction()
+                    .replace(R.id.pane_frame, mPaneMarkerView)
+                    .addToBackStack(null)
+                    .commit();
+        }
+    }
+
     public void editMarker(String id, QuadTree.LatLng latLng, String name, String color, int radius, boolean geofence, Boolean isPublic){
         if(latLng != null){
             moveTo(latLng);
         }
         FragmentManager fm = getSupportFragmentManager();
         BasePane currentFragment = (BasePane) fm.findFragmentById(R.id.pane_frame);
-        ViewGroup.LayoutParams params = paneFrame.getLayoutParams();
-        currentFragment.setHeight(params.height);
+        if(currentFragment != null){
+            ViewGroup.LayoutParams params = paneFrame.getLayoutParams();
+            currentFragment.setHeight(params.height);
+        }
         fm.beginTransaction()
                 .replace(R.id.pane_frame, PaneMarkerEdit.newInstance(id, name, color, radius, geofence, isPublic))
                 .addToBackStack(null)
                 .commit();
-        resizeHandler.setVisibility(View.GONE);
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                setPaneSizePolicy(PaneSizePolicy.WRAP);
-            }
-        });
     }
 
     public void closeKeyboard(){

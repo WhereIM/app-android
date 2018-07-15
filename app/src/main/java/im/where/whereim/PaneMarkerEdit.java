@@ -61,7 +61,7 @@ public class PaneMarkerEdit extends BasePane {
 
     @Override
     public boolean showCrosshair() {
-        return true;
+        return mId == null;
     }
 
     @Override
