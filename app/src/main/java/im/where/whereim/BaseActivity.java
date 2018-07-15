@@ -93,7 +93,7 @@ public class BaseActivity extends AppCompatActivity implements ServiceConnection
 
     protected String pending_joined_channel = null;
     protected void processLink(String link){
-        Pattern mPatternChannelJoin = Pattern.compile("^channel/([A-Fa-f0-9]{32})$");
+        Pattern mPatternChannelJoin = Pattern.compile("^(?:channel|map)/([A-Fa-f0-9]{32})$");
         Matcher m;
         m = mPatternChannelJoin.matcher(link);
         if(m.matches()){
