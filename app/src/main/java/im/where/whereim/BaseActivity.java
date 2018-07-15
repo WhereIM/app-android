@@ -15,6 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import im.where.whereim.dialogs.DialogChannelJoin;
+import im.where.whereim.geo.QuadTree;
 
 /**
  * Created by buganini on 07/01/17.
@@ -103,11 +104,11 @@ public class BaseActivity extends AppCompatActivity implements ServiceConnection
         Pattern mPatternHere = Pattern.compile("^here/(-?[0-9.]+)/(-?[0-9.]+)(?:/(.*))?$");
         m = mPatternHere.matcher(link);
         if(m.matches()){
-            Intent intent = new Intent(BaseActivity.this, PoiViewerActivity.class);
-            intent.putExtra(Key.LATITUDE, Double.valueOf(m.group(1)));
-            intent.putExtra(Key.LONGITUDE, Double.valueOf(m.group(2)));
-            intent.putExtra(Key.NAME, m.group(3));
-            startActivityForResult(intent, 0);
+            if(this instanceof ChannelActivity){
+                QuadTree.LatLng location = new QuadTree.LatLng(Double.valueOf(m.group(1)), Double.valueOf(m.group(2)));
+                ChannelActivity channelActivity = (ChannelActivity) this;
+                channelActivity.editMarker(null, location, m.group(3), null, Config.DEFAULT_GEOFENCE_RADIUS, false, null);
+            }
         }
     }
 
