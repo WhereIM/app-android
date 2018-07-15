@@ -7,6 +7,9 @@ import android.content.ServiceConnection;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -16,6 +19,8 @@ import java.util.regex.Pattern;
 
 import im.where.whereim.dialogs.DialogChannelJoin;
 import im.where.whereim.geo.QuadTree;
+import io.branch.referral.Branch;
+import io.branch.referral.BranchError;
 
 /**
  * Created by buganini on 07/01/17.
@@ -89,6 +94,23 @@ public class BaseActivity extends AppCompatActivity implements ServiceConnection
     @Override
     public void onServiceDisconnected(ComponentName name) {
 
+    }
+
+    protected void processDeepLink(){
+        Branch branch = Branch.getInstance();
+        branch.initSession(new Branch.BranchReferralInitListener(){
+            @Override
+            public void onInitFinished(JSONObject referringParams, BranchError error) {
+                if (error == null) {
+                    String uri = Util.JsonOptNullableString(referringParams, "$deeplink_path", null);
+                    if(uri!=null){
+                        processLink(uri);
+                    }
+                } else {
+                    Log.i("WhereIM", error.getMessage());
+                }
+            }
+        }, getIntent().getData(), this);
     }
 
     protected String pending_joined_channel = null;

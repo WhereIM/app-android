@@ -634,33 +634,20 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
             public void run() {
                 setupMapView();
 
-                postChannelReadyTask(new Runnable() {
+                postBinderTask(new CoreService.BinderTask() {
                     @Override
-                    public void run() {
-                        postBinderTask(new CoreService.BinderTask() {
+                    public void onBinderReady(final CoreService.CoreBinder binder) {
+                        binder.setActivity(ChannelActivity.this);
+                        binder.addChannelListChangedListener(mChannelListChangedListener);
+                        binder.addConnectionStatusChangedListener(ChannelActivity.this);
+                        postChannelReadyTask(new Runnable() {
                             @Override
-                            public void onBinderReady(CoreService.CoreBinder binder) {
-                                binder.setActivity(ChannelActivity.this);
+                            public void run() {
                                 binder.openMap(mChannel, ChannelActivity.this);
-                                binder.addChannelListChangedListener(mChannelListChangedListener);
-                                binder.addConnectionStatusChangedListener(ChannelActivity.this);
+
+                                processDeepLink();
                             }
                         });
-                        Branch branch = Branch.getInstance();
-                        branch.initSession(new Branch.BranchReferralInitListener(){
-                            @Override
-                            public void onInitFinished(JSONObject referringParams, BranchError error) {
-                                if (error == null) {
-                                    String uri = Util.JsonOptNullableString(referringParams, "$deeplink_path", null);
-                                    if(uri!=null){
-                                        processLink(uri);
-                                    }
-                                } else {
-                                    Log.i("WhereIM", error.getMessage());
-                                }
-                            }
-                        }, getIntent().getData(), ChannelActivity.this);
-
                     }
                 });
             }
