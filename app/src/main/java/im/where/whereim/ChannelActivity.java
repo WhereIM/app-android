@@ -464,7 +464,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     protected void onChannelChanged(final Channel prevChannel) {
         FragmentManager fm = getSupportFragmentManager();
         BasePane currentFragment = (BasePane) fm.findFragmentById(R.id.pane_frame);
-        if(currentFragment.clearOnChannelChanged()) {
+        if(currentFragment==null || currentFragment.clearOnChannelChanged()) {
             showPane(PaneComp.TAB);
         }
         if(prevChannel != null){
