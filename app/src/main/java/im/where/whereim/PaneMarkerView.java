@@ -47,6 +47,11 @@ public class PaneMarkerView extends BasePane {
         return ChannelActivity.PaneSizePolicy.WRAP;
     }
 
+    @Override
+    public boolean requireFocus() {
+        return true;
+    }
+
     public void setMarker(Marker marker){
         Bundle args = new Bundle();
         args.putString(FIELD_ID, marker.id);

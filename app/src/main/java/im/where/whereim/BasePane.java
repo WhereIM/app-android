@@ -34,6 +34,14 @@ public class BasePane extends BaseChannelFragment {
         return false;
     }
 
+    public boolean requireFocus(){
+        return false;
+    }
+
+    public boolean lockFocus(){
+        return false;
+    }
+
     @Override
     public void onStart() {
         super.onStart();

@@ -60,6 +60,11 @@ public class PaneMarkerEdit extends BasePane {
     }
 
     @Override
+    public boolean lockFocus() {
+        return true;
+    }
+
+    @Override
     public boolean showCrosshair() {
         return mId == null;
     }

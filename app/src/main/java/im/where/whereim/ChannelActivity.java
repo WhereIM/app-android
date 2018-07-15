@@ -387,19 +387,24 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     public void clearFocus(){
         setSendingPanel(false);
         closeKeyboard();
-        if(mPaneMarkerView != null && mPaneMarkerView.isVisible()){
-            getSupportFragmentManager().popBackStackImmediate();
+        FragmentManager fm = getSupportFragmentManager();
+        BasePane currentFragment = (BasePane) fm.findFragmentById(R.id.pane_frame);
+        if(currentFragment.requireFocus()){
+            fm.popBackStackImmediate();
         }
         mPaneMarkerView = null;
     }
 
     private PaneMarkerView mPaneMarkerView = null;
     public void viewMarker(Marker marker){
-        if(mPaneMarkerView != null && mPaneMarkerView.isVisible()){
-            mPaneMarkerView.setMarker(marker);
+        FragmentManager fm = getSupportFragmentManager();
+        BasePane currentFragment = (BasePane) fm.findFragmentById(R.id.pane_frame);
+        if(currentFragment.lockFocus()){
+            return;
+        }
+        if(currentFragment instanceof PaneMarkerView){
+            ((PaneMarkerView) currentFragment).setMarker(marker);
         }else{
-            FragmentManager fm = getSupportFragmentManager();
-            BasePane currentFragment = (BasePane) fm.findFragmentById(R.id.pane_frame);
             if(currentFragment != null){
                 ViewGroup.LayoutParams params = paneFrame.getLayoutParams();
                 currentFragment.setHeight(params.height);
