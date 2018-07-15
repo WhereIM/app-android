@@ -311,7 +311,12 @@ public class PaneMarker extends BasePane {
                 for(int i=0;i<mAdapter.getGroupCount();i+=1){
                     mListView.expandGroup(i);
                 }
-
+                mListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+                    @Override
+                    public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
+                        return true;
+                    }
+                });
 
                 initChannel();
             }

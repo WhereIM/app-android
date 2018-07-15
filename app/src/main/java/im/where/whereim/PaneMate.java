@@ -421,12 +421,7 @@ public class PaneMate extends BasePane {
                 mListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
                     @Override
                     public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
-                        switch(groupPosition){
-                            case 0:
-                            case 1:
-                                new DialogMatesInfo(getActivity());
-                                break;
-                        }
+                        new DialogMatesInfo(getActivity());
                         return true; // disable click-to-collapse
                     }
                 });
