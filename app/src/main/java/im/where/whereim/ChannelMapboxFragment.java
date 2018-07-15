@@ -448,6 +448,18 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
             }
             mMateMarker.clear();
         }
+        synchronized (mMarkerCircle) {
+            for(Polyline p: mMarkerCircle.values()){
+                p.remove();
+            }
+            mMarkerCircle.clear();
+        }
+        synchronized (mMarkerMarker) {
+            for(MarkerView m: mMarkerMarker.values()){
+                m.remove();
+            }
+            mMarkerMarker.clear();
+        }
     }
 
     @Override
@@ -457,11 +469,14 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
         super.onDestroyView();
     }
 
-    private HashMap<MarkerView, Object> mMarkerMap = new HashMap<>();
+    private final HashMap<MarkerView, Object> mMarkerMap = new HashMap<>();
     private Mate selfMate = null;
     private Polygon mRadiusCircle = null;
-    private HashMap<String, Polygon> mMateCircle = new HashMap<>();
-    private HashMap<String, MarkerView> mMateMarker = new HashMap<>();
+    private final HashMap<String, Polygon> mMateCircle = new HashMap<>();
+    private final HashMap<String, MarkerView> mMateMarker = new HashMap<>();
+    private final HashMap<String, MarkerView> mMarkerMarker = new HashMap<>();
+    private final HashMap<String, Polyline> mMarkerCircle = new HashMap<>();
+
 
     @Override
     public void moveTo(final QuadTree.LatLng location) {
@@ -629,9 +644,6 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
             }
         });
     }
-
-    final private HashMap<String, MarkerView> mMarkerMarker = new HashMap<>();
-    final private HashMap<String, Polyline> mMarkerCircle = new HashMap<>();
 
     @Override
     public void onMarkerData(final im.where.whereim.models.Marker marker, final boolean focus) {

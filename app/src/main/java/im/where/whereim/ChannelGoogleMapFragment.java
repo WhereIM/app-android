@@ -340,6 +340,18 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
             }
             mMateMarker.clear();
         }
+        synchronized (mMarkerMarker) {
+            for(Marker m: mMarkerMarker.values()){
+                m.remove();
+            }
+            mMarkerMarker.clear();
+        }
+        synchronized (mMarkerCircle) {
+            for(Circle c: mMarkerCircle.values()){
+                c.remove();
+            }
+            mMarkerCircle.clear();
+        }
     }
 
     @Override
@@ -349,11 +361,14 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
         super.onDestroyView();
     }
 
-    private HashMap<Marker, Object> mMarkerMap = new HashMap<>();
+    private final HashMap<Marker, Object> mMarkerMap = new HashMap<>();
     private Mate selfMate = null;
     private Circle mRadiusCircle = null;
-    private HashMap<String, Circle> mMateCircle = new HashMap<>();
-    private HashMap<String, Marker> mMateMarker = new HashMap<>();
+    private final HashMap<String, Circle> mMateCircle = new HashMap<>();
+    private final HashMap<String, Marker> mMateMarker = new HashMap<>();
+    private final HashMap<String, Marker> mMarkerMarker = new HashMap<>();
+    private final HashMap<String, Circle> mMarkerCircle = new HashMap<>();
+
 
     @Override
     public void moveTo(final QuadTree.LatLng location) {
@@ -519,9 +534,6 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
             }
         });
     }
-
-    final private HashMap<String, Marker> mMarkerMarker = new HashMap<>();
-    final private HashMap<String, Circle> mMarkerCircle = new HashMap<>();
 
     @Override
     public void onMarkerData(final im.where.whereim.models.Marker marker, final boolean focus) {
