@@ -70,6 +70,11 @@ public class PaneMarkerEdit extends BasePane {
     }
 
     @Override
+    public boolean clearOnChannelChanged() {
+        return mId != null;
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }

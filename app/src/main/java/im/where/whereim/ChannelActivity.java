@@ -457,7 +457,11 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
 
     @Override
     protected void onChannelChanged(final Channel prevChannel) {
-        showPane(PaneComp.TAB);
+        FragmentManager fm = getSupportFragmentManager();
+        BasePane currentFragment = (BasePane) fm.findFragmentById(R.id.pane_frame);
+        if(currentFragment.clearOnChannelChanged()) {
+            showPane(PaneComp.TAB);
+        }
         if(prevChannel != null){
             postBinderTask(new CoreService.BinderTask() {
                 @Override

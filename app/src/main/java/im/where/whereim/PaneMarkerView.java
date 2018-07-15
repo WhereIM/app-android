@@ -52,6 +52,11 @@ public class PaneMarkerView extends BasePane {
         return true;
     }
 
+    @Override
+    public boolean clearOnChannelChanged() {
+        return true;
+    }
+
     public void setMarker(Marker marker){
         Bundle args = new Bundle();
         args.putString(FIELD_ID, marker.id);

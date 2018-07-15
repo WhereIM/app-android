@@ -42,6 +42,10 @@ public class BasePane extends BaseChannelFragment {
         return false;
     }
 
+    public boolean clearOnChannelChanged(){
+        return false;
+    }
+
     @Override
     public void onStart() {
         super.onStart();
