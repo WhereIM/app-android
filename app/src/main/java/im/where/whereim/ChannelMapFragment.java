@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import im.where.whereim.geo.QuadTree;
+import im.where.whereim.models.Channel;
 import im.where.whereim.models.Marker;
 import im.where.whereim.models.Mate;
 import im.where.whereim.models.POI;
@@ -94,6 +95,12 @@ abstract public class ChannelMapFragment extends BaseChannelFragment implements 
         super.onViewCreated(view, savedInstanceState);
         mCrosshair = view.findViewById(R.id.crosshair);
         mCrosshair.setVisibility(View.GONE);
+        getChannel(new BaseChannelActivity.GetChannelCallback() {
+            @Override
+            public void onGetChannel(Channel channel) {
+                setCrosshair(channelActivity.showCrosshair());
+            }
+        });
     }
 
     @Override

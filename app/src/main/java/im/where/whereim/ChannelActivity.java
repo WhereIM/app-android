@@ -247,8 +247,15 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         mDrawerLayout.closeDrawer(Gravity.LEFT);
     }
 
+    private boolean mShowCrosshair = false;
+    public boolean showCrosshair(){
+        return mShowCrosshair;
+    }
     public void setCrosshair(boolean display){
-        mChannelMapFragment.setCrosshair(display);
+        mShowCrosshair = display;
+        if(mChannelMapFragment != null){
+            mChannelMapFragment.setCrosshair(display);
+        }
     }
 
     enum PaneSizePolicy {
