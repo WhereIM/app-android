@@ -699,45 +699,6 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     }
 
     @Override
-    protected void refreshEditing(){
-        if(mEditingType== Key.MAP_OBJECT.MARKER){
-            getMapAsync(new OnMapReadyCallback() {
-                @Override
-                public void onMapReady(GoogleMap googleMap) {
-                    if(mEditingMarkerMarker !=null){
-                        mEditingMarkerMarker.remove();
-                    }
-                    mEditingMarkerMarker = googleMap.addMarker(
-                            new MarkerOptions()
-                                    .title(mEditingMarker.name)
-                                    .position(new LatLng(mEditingMarker.latitude, mEditingMarker.longitude))
-                                    .icon(mEditingMarker.getIconBitmapDescriptor())
-                                    .anchor(0.5f, 1f)
-                                    .zIndex(1f)
-                    );
-                    mEditingMarkerMarker.showInfoWindow();
-                    if(mEditingMarkerCircle !=null){
-                        mEditingMarkerCircle.remove();
-                    }
-                    mEditingMarkerCircle = googleMap.addCircle(new CircleOptions()
-                            .center(new LatLng(mEditingMarker.latitude, mEditingMarker.longitude))
-                            .radius(mEditingMarker.radius)
-                            .strokeWidth(3)
-                            .strokeColor(mEditingMarker.isPublic ? Color.RED : 0xFFFFA500));
-                }
-            });
-
-        }else{
-            if(mEditingMarkerMarker !=null){
-                mEditingMarkerMarker.remove();
-            }
-            if(mEditingMarkerCircle !=null){
-                mEditingMarkerCircle.remove();
-            }
-        }
-    }
-
-    @Override
     public boolean onMarkerClick(Marker marker) {
         Object obj = mMarkerMap.get(marker);
         if(obj!=null) { // non-editting marker

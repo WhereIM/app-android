@@ -126,7 +126,6 @@ abstract public class ChannelMapFragment extends BaseChannelFragment implements 
     }
 
     abstract public void setPOI(POI poi);
-    abstract protected void refreshEditing();
     protected void onMapClick(QuadTree.LatLng location){
         channelActivity.clearFocus();
     }

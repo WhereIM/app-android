@@ -807,42 +807,6 @@ public class ChannelMapboxFragment extends ChannelMapFragment implements Locatio
     }
 
     @Override
-    protected void refreshEditing() {
-        if (mEditingType == Key.MAP_OBJECT.MARKER) {
-            getMapAsync(new OnMapReadyCallback() {
-                @Override
-                public void onMapReady(MapboxMap mapboxMap) {
-                    if (mEditingMarkerMarker != null) {
-                        mEditingMarkerMarker.remove();
-                    }
-                    MarkerViewOptions markerViewOptions = new MarkerViewOptions()
-                            .title(mEditingMarker.name)
-                            .position(new LatLng(mEditingMarker.latitude, mEditingMarker.longitude))
-                            .icon(iconFactory.fromResource(mEditingMarker.getIconResId()));
-//                          .zIndex(1f)
-                    mEditingMarkerMarker = mapboxMap.addMarker(markerViewOptions);
-                    mapboxMap.selectMarker(mEditingMarkerMarker);
-                    if (mEditingEnchantmentCircle != null) {
-                        mEditingEnchantmentCircle.remove();
-                    }
-                    mEditingEnchantmentCircle = mapboxMap.addPolyline(new PolylineOptions()
-                            .addAll(polygonCircleForCoordinate(new LatLng(mEditingMarker.latitude, mEditingMarker.longitude), mEditingMarker.radius))
-                            .width(1)
-                            .color(mEditingMarker.isPublic ? Color.RED : 0xFFA500)
-                    );
-                }
-            });
-        } else {
-            if (mEditingMarkerMarker != null) {
-                mEditingMarkerMarker.remove();
-            }
-            if (mEditingEnchantmentCircle != null) {
-                mEditingEnchantmentCircle.remove();
-            }
-        }
-    }
-
-    @Override
     public boolean onMarkerClick(@NonNull Marker marker, @NonNull View view, @NonNull MapboxMap.MarkerViewAdapter adapter) {
         Object obj = mMarkerMap.get(marker);
         if(obj!=null) { // non-editting marker
