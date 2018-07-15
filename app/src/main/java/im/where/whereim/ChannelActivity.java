@@ -125,7 +125,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         mStatus.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                toggleSendingPange();
+                toggleSendingPanel();
             }
         });
 
@@ -231,12 +231,12 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         });
     }
 
-    private void toggleSendingPange(){
+    private void toggleSendingPanel(){
         boolean show = mSendingPane.getVisibility() != View.GONE;
-        setSendingPane(!show);
+        setSendingPanel(!show);
     }
 
-    private void setSendingPane(boolean show){
+    public void setSendingPanel(boolean show){
         mSendingPane.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
@@ -308,7 +308,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     private PaneComp paneComp = PaneComp.TAB;
     void showPane(PaneComp comp){
         paneComp = comp;
-        setSendingPane(false);
+        setSendingPanel(false);
         FragmentManager fm = getSupportFragmentManager();
         fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         switch (comp) {

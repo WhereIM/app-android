@@ -103,6 +103,7 @@ abstract public class ChannelMapFragment extends BaseChannelFragment implements 
 
     abstract protected void refreshEditing();
     protected void onMapClick(QuadTree.LatLng location){
+        channelActivity.setSendingPanel(false);
         channelActivity.closeKeyboard();
     }
 
