@@ -3,7 +3,6 @@ package im.where.whereim;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,42 +23,24 @@ import im.where.whereim.models.Channel;
 import im.where.whereim.models.Marker;
 
 public class PaneMarkerEdit extends BasePane {
+    public static PaneMarkerEdit newInstance(Bundle args) {
+        PaneMarkerEdit fragment = new PaneMarkerEdit();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     public PaneMarkerEdit() {
         // Required empty public constructor
     }
 
-    private final static String FIELD_ID = "id";
-    private final static String FIELD_LAT = "lat";
-    private final static String FIELD_LNG = "lng";
-    private final static String FIELD_NAME = "name";
-    private final static String FIELD_COLOR = "color";
-    private final static String FIELD_RADIUS = "radius";
-    private final static String FIELD_GEOFENCE = "geofence";
-    private final static String FIELD_PUBLIC = "public";
-
-    private Handler mHandler = new Handler();
-
-    public static PaneMarkerEdit newInstance(String id, String name, QuadTree.LatLng location, String color, int radius, boolean geofence, Boolean isPublic) {
-        PaneMarkerEdit fragment = new PaneMarkerEdit();
-
-        Bundle args = new Bundle();
-        args.putString(FIELD_ID, id);
-        if(location != null){
-            args.putDouble(FIELD_LAT, location.latitude);
-            args.putDouble(FIELD_LNG, location.longitude);
-        }
-        args.putString(FIELD_NAME, name);
-        args.putString(FIELD_COLOR, color);
-        args.putInt(FIELD_RADIUS, radius);
-        args.putBoolean(FIELD_GEOFENCE, geofence);
-        if(isPublic != null){
-            args.putBoolean(FIELD_PUBLIC, isPublic);
-        }
-        fragment.setArguments(args);
-
-        return fragment;
-    }
-
+    public final static String FIELD_ID = "id";
+    public final static String FIELD_LAT = "lat";
+    public final static String FIELD_LNG = "lng";
+    public final static String FIELD_NAME = "name";
+    public final static String FIELD_COLOR = "color";
+    public final static String FIELD_RADIUS = "radius";
+    public final static String FIELD_GEOFENCE = "geofence";
+    public final static String FIELD_PUBLIC = "public";
 
     String mId;
     String mName;
@@ -95,9 +76,7 @@ public class PaneMarkerEdit extends BasePane {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Bundle args = getArguments();
+    protected void onSetArguments(Bundle args) {
         mId = args.getString(FIELD_ID);
         if(args.containsKey(FIELD_LAT) && args.containsKey(FIELD_LNG)){
             mLocation = new QuadTree.LatLng(args.getDouble(FIELD_LAT), args.getDouble(FIELD_LNG));
@@ -107,13 +86,18 @@ public class PaneMarkerEdit extends BasePane {
         if(mColor == null){
             mColor = Marker.DEFAULT_COLOR;
         }
-        mRadius = args.getInt(FIELD_RADIUS);
+        if(args.containsKey(FIELD_RADIUS)){
+            mRadius = args.getInt(FIELD_RADIUS);
+        }else{
+            mRadius = Config.DEFAULT_GEOFENCE_RADIUS;
+        }
         mGeofence = args.getBoolean(FIELD_GEOFENCE);
         if(args.containsKey(FIELD_PUBLIC)){
             mIsPublic = args.getBoolean(FIELD_PUBLIC);
         }else{
             mIsPublic = null;
         }
+        updateUI();
     }
 
     @Override
@@ -125,7 +109,6 @@ public class PaneMarkerEdit extends BasePane {
         mEditGeofence = view.findViewById(R.id.geofence);
         mButtonDelete = view.findViewById(R.id.delete);
 
-        mEditName.setText(mName);
         mEditIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -162,9 +145,6 @@ public class PaneMarkerEdit extends BasePane {
                 });
             }
         });
-        if(mId == null){
-            mButtonDelete.setVisibility(View.GONE);
-        }
         mButtonDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -247,12 +227,23 @@ public class PaneMarkerEdit extends BasePane {
             }
         });
 
-        updateUI();
-
         return view;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateUI();
+    }
+
     private void updateUI(){
+        if(!isStarted() || getArguments()==null){
+            return;
+        }
+        mEditName.setText(mName);
+        if(mId == null){
+            mButtonDelete.setVisibility(View.GONE);
+        }
         mEditIcon.setImageResource(Marker.getIconResource(mColor));
         if(mGeofence){
             mEditGeofence.setText(getString(R.string.radius_m, mRadius));

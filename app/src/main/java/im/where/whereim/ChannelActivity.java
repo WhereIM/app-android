@@ -326,7 +326,9 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     }
     private PaneComp paneComp = PaneComp.TAB;
     void showPane(PaneComp comp){
+        Bundle args;
         paneComp = comp;
+        closeKeyboard();
         setSendingPanel(false);
         FragmentManager fm = getSupportFragmentManager();
         fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
@@ -377,8 +379,12 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                         .commit();
                 break;
             case MARKER_CREATE:
+                args = new Bundle();
+                args.putString(PaneMarkerEdit.FIELD_ID, null);
+                args.putString(PaneMarkerEdit.FIELD_NAME, null);
+                args.putBoolean(PaneMarkerEdit.FIELD_GEOFENCE, false);
                 fm.beginTransaction()
-                        .replace(R.id.pane_frame, PaneMarkerEdit.newInstance(null, null, null, null, Config.DEFAULT_GEOFENCE_RADIUS, false, null))
+                        .replace(R.id.pane_frame, PaneMarkerEdit.newInstance(args))
                         .commit();
                 break;
             case FORGE_LOCATION:
@@ -393,6 +399,27 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         resizeHandler.setVisibility(resizable ? View.VISIBLE : View.GONE);
     }
 
+    public void setCurrentPane(BasePane pane){
+        setPaneSizePolicy(pane.getSizePolicy());
+        if(pane.getSizePolicy() == ChannelActivity.PaneSizePolicy.FREE){
+            Integer height = pane.getHeight();
+            if(height != null){
+                setPaneSize(height);
+            }
+        }
+        setPaneResizable(pane.isResizable());
+        setCrosshair(pane.showCrosshair());
+        if(mPaneResult != null){
+            pane.onResult(mPaneResult);
+            mPaneResult = null;
+        }
+    }
+
+    private Bundle mPaneResult = null;
+    public void setPaneResult(Bundle data){
+        mPaneResult = data;
+    }
+
     public void clearFocus(){
         setSendingPanel(false);
         closeKeyboard();
@@ -401,7 +428,6 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         if(currentFragment.requireFocus()){
             fm.popBackStackImmediate();
         }
-        mPaneMarkerView = null;
     }
 
 
@@ -417,45 +443,32 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         return mPoi;
     }
 
-    private PaneMarkerView mPaneMarkerView = null;
-    public void viewMarker(Marker marker){
+    public void startPane(Class<? extends BasePane> pane, Bundle data){
         FragmentManager fm = getSupportFragmentManager();
         BasePane currentFragment = (BasePane) fm.findFragmentById(R.id.pane_frame);
         if(currentFragment != null && currentFragment.lockFocus()){
             return;
         }
-        if(currentFragment instanceof PaneMarkerView){
-            ((PaneMarkerView) currentFragment).setMarker(marker);
+        if(pane.isInstance(currentFragment)){
+            currentFragment.setArguments(data);
         }else{
             if(currentFragment != null){
                 ViewGroup.LayoutParams params = paneFrame.getLayoutParams();
                 currentFragment.setHeight(params.height);
             }
-            mPaneMarkerView = PaneMarkerView.newInstance(marker.id);
-            fm.beginTransaction()
-                    .replace(R.id.pane_frame, mPaneMarkerView)
-                    .addToBackStack(null)
-                    .commit();
+            try {
+                BasePane fragment = pane.newInstance();
+                fragment.setArguments(data);
+                fm.beginTransaction()
+                        .replace(R.id.pane_frame, fragment)
+                        .addToBackStack(null)
+                        .commit();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
         }
-    }
-
-    public void editMarker(String id, QuadTree.LatLng latLng, String name, String color, int radius, boolean geofence, Boolean isPublic){
-        if(latLng != null){
-            mChannelMapFragment.moveTo(latLng);
-        }
-        FragmentManager fm = getSupportFragmentManager();
-        BasePane currentFragment = (BasePane) fm.findFragmentById(R.id.pane_frame);
-        if(currentFragment != null && currentFragment.lockFocus()){
-            return;
-        }
-        if(currentFragment != null){
-            ViewGroup.LayoutParams params = paneFrame.getLayoutParams();
-            currentFragment.setHeight(params.height);
-        }
-        fm.beginTransaction()
-                .replace(R.id.pane_frame, PaneMarkerEdit.newInstance(id, name, latLng, color, radius, geofence, isPublic))
-                .addToBackStack(null)
-                .commit();
     }
 
     public void closeKeyboard(){

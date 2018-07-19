@@ -300,7 +300,16 @@ public class PaneMarker extends BasePane {
 
                             Marker marker = (Marker) mAdapter.getChild(groupPosition, childPosition);
                             if(marker != null) {
-                                channelActivity.editMarker(marker.id, new QuadTree.LatLng(marker.latitude, marker.longitude), marker.name, marker.getIconColor(), marker.radius, marker.geofence, marker.isPublic);
+                                Bundle data = new Bundle();
+                                data.putString(PaneMarkerEdit.FIELD_ID, marker.id);
+                                data.putDouble(PaneMarkerEdit.FIELD_LAT, marker.latitude);
+                                data.putDouble(PaneMarkerEdit.FIELD_LNG, marker.longitude);
+                                data.putString(PaneMarkerEdit.FIELD_NAME, marker.name);
+                                data.putString(PaneMarkerEdit.FIELD_COLOR, marker.getIconColor());
+                                data.putInt(PaneMarkerEdit.FIELD_RADIUS, marker.radius);
+                                data.putBoolean(PaneMarkerEdit.FIELD_GEOFENCE, marker.geofence);
+                                data.putBoolean(PaneMarkerEdit.FIELD_PUBLIC, marker.isPublic);
+                                startPane(PaneMarkerEdit.class, data);
                             }
 
                             return true;

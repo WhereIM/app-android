@@ -1,5 +1,8 @@
 package im.where.whereim;
 
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+
 public class BasePane extends BaseChannelFragment {
     public boolean isResizable(){
         return false;
@@ -9,7 +12,7 @@ public class BasePane extends BaseChannelFragment {
     protected ChannelActivity.PaneSizePolicy getInitialSizePolicy(){
         return ChannelActivity.PaneSizePolicy.FULL;
     }
-    private ChannelActivity.PaneSizePolicy getSizePolicy(){
+    public ChannelActivity.PaneSizePolicy getSizePolicy(){
         if(mSizePolicy == null){
             return getInitialSizePolicy();
         }
@@ -29,6 +32,9 @@ public class BasePane extends BaseChannelFragment {
     public void setHeight(Integer height){
         this.height = height;
     }
+    public Integer getHeight(){
+        return height;
+    }
 
     public boolean showCrosshair(){
         return false;
@@ -47,15 +53,40 @@ public class BasePane extends BaseChannelFragment {
     }
 
     @Override
+    public void setArguments(@Nullable Bundle args) {
+        super.setArguments(args);
+        onSetArguments(args);
+    }
+
+    protected void onSetArguments(Bundle args) {
+
+    }
+
+    private boolean mStarted = false;
+    @Override
     public void onStart() {
         super.onStart();
-        channelActivity.setPaneSizePolicy(getSizePolicy());
-        if(getSizePolicy() == ChannelActivity.PaneSizePolicy.FREE){
-            if(height != null){
-                channelActivity.setPaneSize(height);
-            }
+        channelActivity.setCurrentPane(this);
+        mStarted = true;
+    }
+
+    @Override
+    public void onStop() {
+        mStarted = false;
+        super.onStop();
+    }
+
+    protected boolean isStarted(){
+        return mStarted;
+    }
+
+    public void onResult(Bundle data){
+
+    }
+
+    protected void startPane(Class<? extends BasePane> pane, Bundle data){
+        if(channelActivity != null){
+            channelActivity.startPane(pane, data);
         }
-        channelActivity.setPaneResizable(isResizable());
-        channelActivity.setCrosshair(showCrosshair());
     }
 }

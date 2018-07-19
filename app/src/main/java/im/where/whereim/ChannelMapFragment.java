@@ -143,10 +143,21 @@ abstract public class ChannelMapFragment extends BaseChannelFragment implements 
             Mate mate = (Mate) obj;
         } else if (obj instanceof im.where.whereim.models.Marker) {
             im.where.whereim.models.Marker marker = (im.where.whereim.models.Marker) obj;
-            channelActivity.viewMarker(marker);
+            Bundle data = new Bundle();
+            data.putString(PaneMarkerView.FIELD_ID, marker.id);
+            channelActivity.startPane(PaneMarkerView.class, data);
         } else if (obj instanceof POI) {
             POI poi = (POI) obj;
-            channelActivity.editMarker(null, new QuadTree.LatLng(poi.latitude, poi.longitude), poi.name, null, Config.DEFAULT_GEOFENCE_RADIUS, false, null);
+            moveTo(new QuadTree.LatLng(poi.latitude, poi.longitude));
+            Bundle data = new Bundle();
+            data.putString(PaneMarkerEdit.FIELD_ID, null);
+            data.putDouble(PaneMarkerEdit.FIELD_LAT, poi.latitude);
+            data.putDouble(PaneMarkerEdit.FIELD_LNG, poi.longitude);
+            data.putString(PaneMarkerEdit.FIELD_NAME, poi.name);
+            data.putString(PaneMarkerEdit.FIELD_COLOR, null);
+            data.putInt(PaneMarkerEdit.FIELD_RADIUS, Config.DEFAULT_GEOFENCE_RADIUS);
+            data.putBoolean(PaneMarkerEdit.FIELD_GEOFENCE, false);
+            channelActivity.startPane(PaneMarkerEdit.class, data);
         } else {
             return;
         }
