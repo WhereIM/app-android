@@ -327,11 +327,11 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     private PaneComp paneComp = PaneComp.TAB;
     void showPane(PaneComp comp){
         Bundle args;
-        paneComp = comp;
         closeKeyboard();
         setSendingPanel(false);
         FragmentManager fm = getSupportFragmentManager();
         fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        paneComp = comp;
         switch (comp) {
             case TAB:
                 setSearchResult(new ArrayList<POI>());
@@ -395,6 +395,15 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         }
     }
 
+    public boolean isLocked(){
+        FragmentManager fm = getSupportFragmentManager();
+        BasePane currentFragment = (BasePane) fm.findFragmentById(R.id.pane_frame);
+        if(currentFragment == null || currentFragment.lockFocus()){
+            return true;
+        }
+        return false;
+    }
+
     public void setPaneResizable(boolean resizable){
         resizeHandler.setVisibility(resizable ? View.VISIBLE : View.GONE);
     }
@@ -446,9 +455,6 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     public void startPane(Class<? extends BasePane> pane, Bundle data){
         FragmentManager fm = getSupportFragmentManager();
         BasePane currentFragment = (BasePane) fm.findFragmentById(R.id.pane_frame);
-        if(currentFragment != null && currentFragment.lockFocus()){
-            return;
-        }
         if(pane.isInstance(currentFragment)){
             currentFragment.setArguments(data);
         }else{

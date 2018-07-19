@@ -131,12 +131,17 @@ abstract public class ChannelMapFragment extends BaseChannelFragment implements 
     }
 
     protected void onMapLongClick(QuadTree.LatLng location){
-        moveTo(location);
-        channelActivity.showPane(ChannelActivity.PaneComp.MARKER_CREATE);
+        if(!channelActivity.isLocked()){
+            moveTo(location);
+            channelActivity.showPane(ChannelActivity.PaneComp.MARKER_CREATE);
+        }
     }
 
     public void clickMarker(Object obj) {
         if(obj==null){
+            return;
+        }
+        if(channelActivity.isLocked()){
             return;
         }
         if (obj instanceof Mate) {
