@@ -51,7 +51,7 @@ public class PaneMarkerView extends BasePane {
     String mId;
     TextView mName;
     ImageView mIcon;
-    TextView mGeofence;
+    TextView mEditGeofence;
     View mButtonEdit;
     Marker mMarker;
 
@@ -61,7 +61,7 @@ public class PaneMarkerView extends BasePane {
 
         mName = view.findViewById(R.id.name);
         mIcon = view.findViewById(R.id.icon);
-        mGeofence = view.findViewById(R.id.geofence);
+        mEditGeofence = view.findViewById(R.id.geofence);
         mButtonEdit = view.findViewById(R.id.edit);
 
         mButtonEdit.setOnClickListener(new View.OnClickListener() {
@@ -80,6 +80,16 @@ public class PaneMarkerView extends BasePane {
                 data.putBoolean(PaneMarkerEdit.FIELD_GEOFENCE, mMarker.geofence);
                 data.putBoolean(PaneMarkerEdit.FIELD_PUBLIC, mMarker.isPublic);
                 startPane(PaneMarkerEdit.class, data);
+            }
+        });
+        mEditGeofence.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Bundle args = new Bundle();
+                args.putBoolean(PaneGeofence.FIELD_ACTIVE, mMarker.geofence);
+                args.putInt(PaneGeofence.FIELD_RADIUS, mMarker.radius);
+                args.putBoolean(PaneGeofence.FIELD_APPLY, true);
+                startPane(PaneGeofence.class, args);
             }
         });
 
@@ -109,10 +119,65 @@ public class PaneMarkerView extends BasePane {
     }
 
     @Override
+    void onResult(final Bundle data) {
+        postBinderTask(new CoreService.BinderTask() {
+            @Override
+            public void onBinderReady(final CoreService.CoreBinder binder) {
+                getChannel(new BaseChannelActivity.GetChannelCallback() {
+                    @Override
+                    public void onGetChannel(Channel channel) {
+                        Marker marker = binder.getChannelMarker(channel.id, mId);
+                        marker.geofence = data.getBoolean(PaneGeofence.FIELD_ACTIVE);
+                        marker.radius = data.getInt(PaneGeofence.FIELD_RADIUS);
+
+                        binder.setMarker(marker);
+                    }
+                });
+            }
+        });
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
+        getChannel(new BaseChannelActivity.GetChannelCallback() {
+            @Override
+            public void onGetChannel(final Channel channel) {
+                postBinderTask(new CoreService.BinderTask() {
+                    @Override
+                    public void onBinderReady(CoreService.CoreBinder binder) {
+                        binder.addMarkerListener(channel, mMarkerListener);
+                    }
+                });
+
+            }
+        });
         updateUI();
     }
+
+    @Override
+    public void onStop() {
+        getChannel(new BaseChannelActivity.GetChannelCallback() {
+            @Override
+            public void onGetChannel(final Channel channel) {
+                postBinderTask(new CoreService.BinderTask() {
+                    @Override
+                    public void onBinderReady(CoreService.CoreBinder binder) {
+                        binder.removeMarkerListener(channel, mMarkerListener);
+                    }
+                });
+
+            }
+        });
+        super.onStop();
+    }
+
+    private Runnable mMarkerListener = new Runnable() {
+        @Override
+        public void run() {
+            updateUI();
+        }
+    };
 
     private void updateUI(){
         if(!isStarted()){
@@ -131,9 +196,9 @@ public class PaneMarkerView extends BasePane {
                         mIcon.setImageResource(mMarker.getIconResId());
                         mName.setText(mMarker.name);
                         if(mMarker.geofence){
-                            mGeofence.setText(getString(R.string.radius_m, mMarker.radius));
+                            mEditGeofence.setText(getString(R.string.radius_m, mMarker.radius));
                         }else{
-                            mGeofence.setText(R.string.off);
+                            mEditGeofence.setText(R.string.off);
                         }
                     }
                 });

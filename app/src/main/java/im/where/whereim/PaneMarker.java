@@ -310,6 +310,7 @@ public class PaneMarker extends BasePane {
                                 data.putBoolean(PaneMarkerEdit.FIELD_GEOFENCE, marker.geofence);
                                 data.putBoolean(PaneMarkerEdit.FIELD_PUBLIC, marker.isPublic);
                                 startPane(PaneMarkerEdit.class, data);
+                                channelActivity.moveToMarker(marker, true);
                             }
 
                             return true;

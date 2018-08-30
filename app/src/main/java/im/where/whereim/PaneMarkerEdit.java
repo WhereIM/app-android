@@ -13,7 +13,6 @@ import android.widget.TextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import im.where.whereim.dialogs.DialogGeofence;
 import im.where.whereim.dialogs.DialogIconPicker;
 import im.where.whereim.dialogs.DialogOpenIn;
 import im.where.whereim.dialogs.DialogPublic;
@@ -47,7 +46,7 @@ public class PaneMarkerEdit extends BasePane {
     QuadTree.LatLng mLocation;
     String mColor;
     Integer mRadius;
-    Boolean mGeofence;
+    Boolean mGeofence = false;
     Boolean mIsPublic;
 
     TextView mEditName;
@@ -89,7 +88,7 @@ public class PaneMarkerEdit extends BasePane {
         if(args.containsKey(FIELD_RADIUS)){
             mRadius = args.getInt(FIELD_RADIUS);
         }else{
-            mRadius = Config.DEFAULT_GEOFENCE_RADIUS;
+            mRadius = Config.GEOFENCE_RADIUS[Config.DEFAULT_GEOFENCE_RADIUS_INDEX];
         }
         mGeofence = args.getBoolean(FIELD_GEOFENCE);
         if(args.containsKey(FIELD_PUBLIC)){
@@ -130,19 +129,11 @@ public class PaneMarkerEdit extends BasePane {
         mEditGeofence.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new DialogGeofence(getContext(), mGeofence, mRadius, new DialogGeofence.Callback() {
-                    @Override
-                    public void onDone(boolean active, int radius) {
-                        mGeofence = active;
-                        mRadius = radius;
-                        updateUI();
-                    }
-
-                    @Override
-                    public void onCanceled() {
-
-                    }
-                });
+                Bundle args = new Bundle();
+                args.putBoolean(PaneGeofence.FIELD_ACTIVE, mGeofence);
+                args.putInt(PaneGeofence.FIELD_RADIUS, mRadius);
+                args.putBoolean(PaneGeofence.FIELD_APPLY, false);
+                startPane(PaneGeofence.class, args);
             }
         });
         mButtonDelete.setOnClickListener(new View.OnClickListener() {
@@ -190,7 +181,6 @@ public class PaneMarkerEdit extends BasePane {
 
                         @Override
                         public void onCanceled() {
-                            close();
                         }
                     });
                 }else{
@@ -206,7 +196,7 @@ public class PaneMarkerEdit extends BasePane {
                 if(mLocation != null){
                     channelActivity.setPOI(null);
                 }
-                close();
+                finish();
             }
         });
 
@@ -228,6 +218,14 @@ public class PaneMarkerEdit extends BasePane {
         });
 
         return view;
+    }
+
+    @Override
+    void onResult(Bundle data) {
+        super.onResult(data);
+        mGeofence = data.getBoolean(PaneGeofence.FIELD_ACTIVE);
+        mRadius = data.getInt(PaneGeofence.FIELD_RADIUS);
+        updateUI();
     }
 
     @Override
@@ -278,14 +276,10 @@ public class PaneMarkerEdit extends BasePane {
                         marker.radius = mRadius;
 
                         binder.setMarker(marker);
-                        close();
+                        finish();
                     }
                 });
             }
         });
-    }
-
-    private void close(){
-        channelActivity.onBackPressed();
     }
 }

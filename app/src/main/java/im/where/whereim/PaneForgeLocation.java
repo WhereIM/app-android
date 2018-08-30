@@ -1,27 +1,14 @@
 package im.where.whereim;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import im.where.whereim.dialogs.DialogGeofence;
-import im.where.whereim.dialogs.DialogIconPicker;
-import im.where.whereim.dialogs.DialogOpenIn;
-import im.where.whereim.dialogs.DialogPublic;
-import im.where.whereim.dialogs.DialogShareLocation;
 import im.where.whereim.geo.QuadTree;
 import im.where.whereim.models.Channel;
-import im.where.whereim.models.Marker;
 
 public class PaneForgeLocation extends BasePane {
     public PaneForgeLocation() {

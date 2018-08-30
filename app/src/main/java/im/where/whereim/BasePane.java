@@ -80,13 +80,25 @@ public class BasePane extends BaseChannelFragment {
         return mStarted;
     }
 
-    public void onResult(Bundle data){
+    protected void setResult(Bundle data){
+        if(channelActivity != null){
+            channelActivity.setPaneResult(data);
+        }
+    }
+
+    void onResult(Bundle data){
 
     }
 
     protected void startPane(Class<? extends BasePane> pane, Bundle data){
         if(channelActivity != null){
             channelActivity.startPane(pane, data);
+        }
+    }
+
+    protected void finish(){
+        if(channelActivity != null) {
+            channelActivity.onBackPressed();
         }
     }
 }
