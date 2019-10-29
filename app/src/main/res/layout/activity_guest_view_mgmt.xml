@@ -7,7 +7,7 @@
     android:orientation="vertical"
     tools:context="im.where.whereim.GuestViewMgmtActivity">
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
@@ -41,7 +41,7 @@
                 android:textColor="@color/colorText" />
         </LinearLayout>
 
-    </android.support.v7.widget.Toolbar>
+    </androidx.appcompat.widget.Toolbar>
 
     <ListView
         android:id="@+id/views_list"

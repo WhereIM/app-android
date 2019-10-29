@@ -1,7 +1,7 @@
 package im.where.whereim;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 public class BasePane extends BaseChannelFragment {
     public boolean isResizable(){

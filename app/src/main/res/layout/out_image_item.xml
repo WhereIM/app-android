@@ -26,7 +26,7 @@
             android:paddingTop="5dp"
             android:paddingBottom="5dp">
 
-            <android.support.constraint.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -51,7 +51,7 @@
                     app:layout_constraintBottom_toBottomOf="@id/image"
                     app:layout_constraintEnd_toStartOf="@id/image" />
 
-            </android.support.constraint.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
 

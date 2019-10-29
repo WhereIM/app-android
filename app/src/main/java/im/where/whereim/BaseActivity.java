@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 
 import org.json.JSONObject;
@@ -17,7 +17,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import im.where.whereim.dialogs.DialogChannelJoin;
-import im.where.whereim.geo.QuadTree;
 import im.where.whereim.models.POI;
 import io.branch.referral.Branch;
 import io.branch.referral.BranchError;

@@ -6,24 +6,13 @@ package im.where.whereim.dialogs;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.app.AlertDialog;
+
+import androidx.appcompat.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.Spinner;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import im.where.whereim.CoreService;
-import im.where.whereim.Key;
 import im.where.whereim.R;
-import im.where.whereim.models.Marker;
 
 public class DialogEditSelf {
     public interface Callback {

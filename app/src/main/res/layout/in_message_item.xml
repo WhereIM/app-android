@@ -34,11 +34,11 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:padding="@dimen/content_inset" />
 
-            <android.support.constraint.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <android.support.constraint.ConstraintLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/message_frame"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -74,9 +74,9 @@
                         app:layout_constraintBottom_toBottomOf="@id/message"
                         app:layout_constraintStart_toEndOf="@id/message" />
 
-                </android.support.constraint.ConstraintLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
-            </android.support.constraint.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
     </LinearLayout>

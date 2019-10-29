@@ -1,32 +1,16 @@
 package im.where.whereim.models;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.drawable.Drawable;
-import android.support.v4.content.res.ResourcesCompat;
-import android.text.Html;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
-import android.text.style.ImageSpan;
-import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.sql.SQLInput;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
-
-import im.where.whereim.Key;
-import im.where.whereim.R;
-import im.where.whereim.Util;
-import im.where.whereim.views.WimSpan;
 
 /**
  * Created by buganini on 17/01/17.

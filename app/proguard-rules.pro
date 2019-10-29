@@ -20,3 +20,4 @@
 -keep class com.facebook.applinks.** { *; }
 -keepclassmembers class com.facebook.applinks.** { *; }
 -keep class com.facebook.FacebookSdk { *; }
+-keep class androidx.core.app.CoreComponentFactory { *; }

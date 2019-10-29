@@ -7,7 +7,7 @@
     android:orientation="vertical"
     tools:context="im.where.whereim.ChannelListActivity">
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
@@ -22,7 +22,7 @@
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/colorTextHighlight" />
 
-    </android.support.v7.widget.Toolbar>
+    </androidx.appcompat.widget.Toolbar>
 
     <LinearLayout
         android:layout_width="match_parent"

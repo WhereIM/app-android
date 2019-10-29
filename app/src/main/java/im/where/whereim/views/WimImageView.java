@@ -2,7 +2,6 @@ package im.where.whereim.views;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
@@ -18,7 +17,7 @@ import im.where.whereim.models.Image;
  * Created by buganini on 21/03/18.
  */
 
-public class WimImageView extends android.support.v7.widget.AppCompatImageView {
+public class WimImageView extends androidx.appcompat.widget.AppCompatImageView {
     private Context mContext;
 
     public WimImageView(Context context) {
