@@ -34,8 +34,10 @@ public class WimImageView extends androidx.appcompat.widget.AppCompatImageView {
 
     public void setImage(Image image){
         Glide.with(mContext).load(Config.getThumbnail(image)).apply(new RequestOptions().fitCenter().transform(new RoundedCorners((int)Util.dp2px(mContext, 10)))).into(this);
-        mW = image.width;
-        mH = image.height;
+        if(image != null){
+            mW = image.width;
+            mH = image.height;
+        }
         requestLayout();
     }
 

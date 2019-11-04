@@ -76,10 +76,16 @@ public class Config {
     }
 
     public static String getThumbnail(Image image){
+        if(image==null){
+            return null;
+        }
         return String.format(Locale.ENGLISH, Config.THUMBNAIL_URL, Files.getNameWithoutExtension(image.key)+"."+image.ext);
     }
 
     public static String getPreview(Image image){
+        if(image==null){
+            return null;
+        }
         return String.format(Locale.ENGLISH, Config.PREVIEW_URL, Files.getNameWithoutExtension(image.key)+"."+image.ext);
     }
 }

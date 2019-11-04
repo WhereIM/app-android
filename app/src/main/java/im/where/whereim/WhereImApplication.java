@@ -1,6 +1,5 @@
 package im.where.whereim;
 
-import android.content.Intent;
 import androidx.multidex.MultiDexApplication;
 
 import com.facebook.FacebookSdk;
@@ -22,6 +21,5 @@ public class WhereImApplication extends MultiDexApplication {
         Branch.getAutoInstance(this);
         LoginManager.getInstance().logOut();
         AppEventsLogger.activateApp(this);
-        startService(new Intent(this, CoreService.class));
     }
 }
