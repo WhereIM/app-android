@@ -119,7 +119,7 @@ public class PaneMarkerView extends BasePane {
     }
 
     @Override
-    void onResult(final Bundle data) {
+    boolean onResult(final Bundle data) {
         postBinderTask(new CoreService.BinderTask() {
             @Override
             public void onBinderReady(final CoreService.CoreBinder binder) {
@@ -135,6 +135,7 @@ public class PaneMarkerView extends BasePane {
                 });
             }
         });
+        return true;
     }
 
     @Override

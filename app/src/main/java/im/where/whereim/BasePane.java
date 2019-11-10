@@ -4,6 +4,9 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 
 public class BasePane extends BaseChannelFragment {
+    public final static String FIELD_ACTION = "action";
+
+
     public boolean isResizable(){
         return false;
     }
@@ -86,8 +89,8 @@ public class BasePane extends BaseChannelFragment {
         }
     }
 
-    void onResult(Bundle data){
-
+    boolean onResult(Bundle data){
+        return false;
     }
 
     protected void startPane(Class<? extends BasePane> pane, Bundle data){

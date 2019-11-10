@@ -14,10 +14,14 @@ public class PaneGeofence extends BasePane {
         // Required empty public constructor
     }
 
+    public final static String ACTION_RADIUS = "radius";
+    public final static String ACTION_GEOFENCE = "geofence";
+
     public final static String FIELD_RADIUS = "radius";
     public final static String FIELD_ACTIVE = "active";
     public final static String FIELD_APPLY = "apply";
 
+    private String mAction;
     private int mRadius = Config.DEFAULT_GEOFENCE_RADIUS;
     private NumberPicker mRadiusPicker;
     private Switch mActiveSwitch;
@@ -49,6 +53,7 @@ public class PaneGeofence extends BasePane {
     @Override
     protected void onSetArguments(Bundle args) {
         if(args != null){
+            mAction = args.getString(BasePane.FIELD_ACTION);
             mActive = args.getBoolean(FIELD_ACTIVE);
             mRadius = args.getInt(FIELD_RADIUS);
             mApply = args.getBoolean(FIELD_APPLY);
@@ -97,6 +102,7 @@ public class PaneGeofence extends BasePane {
             @Override
             public void onClick(View view) {
                 Bundle data = new Bundle();
+                data.putString(BasePane.FIELD_ACTION, mAction);
                 data.putBoolean(FIELD_ACTIVE, mActive);
                 data.putInt(FIELD_RADIUS, mRadius);
                 setResult(data);

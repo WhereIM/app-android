@@ -11,6 +11,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -51,7 +52,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
     private Switch mActive;
     private View mActiveLoading;
     private View mSendingPane;
-    private TextView mGeofence;
+    private TextView mGeofenceStatus;
 
     private View resizeHandler;
     private FrameLayout mainFrame;
@@ -70,7 +71,7 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
 
         setContentView(R.layout.activity_channel);
 
-        mGeofence = findViewById(R.id.geofence);
+        mGeofenceStatus = findViewById(R.id.geofence_status);
 
         mDrawerLayout = findViewById(R.id.drawer_layout);
         resizeHandler = findViewById(R.id.resize_handler);
@@ -166,6 +167,20 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         };
         mActive.setOnLongClickListener(deactivate);
         mActiveLoading.setOnLongClickListener(deactivate);
+
+        findViewById(R.id.geofence).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                Bundle args = new Bundle();
+                args.putString(BasePane.FIELD_ACTION, PaneGeofence.ACTION_RADIUS);
+                args.putBoolean(PaneGeofence.FIELD_ACTIVE, mChannel.enable_radius);
+                args.putInt(PaneGeofence.FIELD_RADIUS, mChannel.radius);
+                args.putBoolean(PaneGeofence.FIELD_APPLY, false);
+                startPane(PaneGeofence.class, args);
+
+                return true;
+            }
+        });
 
         findViewById(R.id.forge_location).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -419,8 +434,26 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         setPaneResizable(pane.isResizable());
         setCrosshair(pane.showCrosshair());
         if(mPaneResult != null){
-            pane.onResult(mPaneResult);
+            if(!pane.onResult(mPaneResult)){
+                onResult(mPaneResult);
+            }
             mPaneResult = null;
+        }
+    }
+
+    void onResult(Bundle data){
+        String action = data.getString(BasePane.FIELD_ACTION);
+        if(action != null){
+            switch(action){
+                case PaneGeofence.ACTION_RADIUS: {
+                    int radius = data.getInt(PaneGeofence.ACTION_RADIUS);
+                    if(radius != mChannel.radius){
+                        mBinder.setSelfRadius(mChannel, radius);
+                    }
+                    mBinder.setRadiusActive(mChannel, data.getBoolean(PaneGeofence.FIELD_ACTIVE));
+                }
+                break;
+            }
         }
     }
 
@@ -534,9 +567,9 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
         }
 
         if(mChannel.enable_radius){
-            mGeofence.setText(getString(R.string.radius_m, mChannel.radius));
+            mGeofenceStatus.setText(getString(R.string.radius_m, mChannel.radius));
         }else{
-            mGeofence.setText(R.string.off);
+            mGeofenceStatus.setText(R.string.off);
         }
 
         if(mChannelMapFragment != null) {

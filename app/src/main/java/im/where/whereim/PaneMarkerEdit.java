@@ -3,12 +3,13 @@ package im.where.whereim;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -51,7 +52,8 @@ public class PaneMarkerEdit extends BasePane {
 
     TextView mEditName;
     ImageView mEditIcon;
-    TextView mEditGeofence;
+    View mEditGeofence;
+    TextView mGeofenceStatus;
     View mButtonDelete;
 
     @Override
@@ -106,6 +108,7 @@ public class PaneMarkerEdit extends BasePane {
         mEditName = view.findViewById(R.id.name);
         mEditIcon = view.findViewById(R.id.icon);
         mEditGeofence = view.findViewById(R.id.geofence);
+        mGeofenceStatus = view.findViewById(R.id.geofence_status);
         mButtonDelete = view.findViewById(R.id.delete);
 
         mEditIcon.setOnClickListener(new View.OnClickListener() {
@@ -130,12 +133,14 @@ public class PaneMarkerEdit extends BasePane {
             @Override
             public void onClick(View view) {
                 Bundle args = new Bundle();
+                args.putString(BasePane.FIELD_ACTION, PaneGeofence.ACTION_GEOFENCE);
                 args.putBoolean(PaneGeofence.FIELD_ACTIVE, mGeofence);
                 args.putInt(PaneGeofence.FIELD_RADIUS, mRadius);
                 args.putBoolean(PaneGeofence.FIELD_APPLY, false);
                 startPane(PaneGeofence.class, args);
             }
         });
+
         mButtonDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -221,11 +226,11 @@ public class PaneMarkerEdit extends BasePane {
     }
 
     @Override
-    void onResult(Bundle data) {
-        super.onResult(data);
+    boolean onResult(Bundle data) {
         mGeofence = data.getBoolean(PaneGeofence.FIELD_ACTIVE);
         mRadius = data.getInt(PaneGeofence.FIELD_RADIUS);
         updateUI();
+        return true;
     }
 
     @Override
@@ -244,9 +249,9 @@ public class PaneMarkerEdit extends BasePane {
         }
         mEditIcon.setImageResource(Marker.getIconResource(mColor));
         if(mGeofence){
-            mEditGeofence.setText(getString(R.string.radius_m, mRadius));
+            mGeofenceStatus.setText(getString(R.string.radius_m, mRadius));
         }else{
-            mEditGeofence.setText(R.string.off);
+            mGeofenceStatus.setText(R.string.off);
         }
     }
 

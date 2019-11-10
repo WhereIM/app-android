@@ -618,6 +618,20 @@ public class CoreService extends Service {
             return CoreService.this.getChannelMate(channel_id, mate_id);
         }
 
+        public void setRadiusActive(Channel channel, boolean enabled){
+            try {
+                JSONObject payload = new JSONObject();
+                payload.put(Key.CHANNEL, channel.id);
+                payload.put(Key.ENABLE_RADIUS, enabled);
+                channel.enable_radius = null;
+                String topic = String.format("client/%s/channel/put", mClientId);
+                publish(topic, payload);
+                notifyChannelChangedListeners(channel.id);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
         public void toggleRadiusEnabled(Channel channel){
             if(channel==null){
                 return;
