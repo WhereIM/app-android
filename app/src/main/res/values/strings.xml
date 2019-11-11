@@ -69,6 +69,7 @@
     <string name="create_enchantment">New Geofence</string>
     <string name="create_marker">New Marker</string>
     <string name="forge_location">Forge Location</string>
+    <string name="clear">Clear</string>
     <string name="save_marker">Save Marker</string>
     <string name="radius_m">%1$d m</string>
     <string name="self">Self</string>

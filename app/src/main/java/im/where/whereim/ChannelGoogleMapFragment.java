@@ -443,14 +443,14 @@ public class ChannelGoogleMapFragment extends ChannelMapFragment implements Goog
     }
 
     private void updateSelfMate(){
-        if(selfMate==null)
-            return;
         getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(final GoogleMap googleMap) {
                 getChannel(new ChannelActivity.GetChannelCallback() {
                     @Override
                     public void onGetChannel(Channel channel) {
+                        if(selfMate==null)
+                            return;
                         if(mRadiusCircle!=null){
                             mRadiusCircle.remove();
                             mRadiusCircle = null;

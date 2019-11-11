@@ -27,7 +27,7 @@ public class PaneGeofence extends BasePane {
     private Switch mActiveSwitch;
     private boolean mActive = true;
     private boolean mApply = true;
-    private View mBtnOk;
+    private View mBtnConfirm;
     private View mBtnSave;
 
     @Override
@@ -97,8 +97,8 @@ public class PaneGeofence extends BasePane {
                 updateUI();
             }
         });
-        mBtnOk = view.findViewById(R.id.ok);
-        mBtnOk.setOnClickListener(new View.OnClickListener() {
+        mBtnConfirm = view.findViewById(R.id.confirm);
+        mBtnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Bundle data = new Bundle();
@@ -120,12 +120,6 @@ public class PaneGeofence extends BasePane {
                 finish();
             }
         });
-        view.findViewById(R.id.cancel).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
         return view;
     }
 
@@ -141,7 +135,7 @@ public class PaneGeofence extends BasePane {
         }
         mActiveSwitch.setChecked(mActive);
         mRadiusPicker.setVisibility(mActiveSwitch.isChecked() ? View.VISIBLE : View.GONE);
-        mBtnOk.setVisibility(mApply ? View.GONE : View.VISIBLE);
+        mBtnConfirm.setVisibility(mApply ? View.GONE : View.VISIBLE);
         mBtnSave.setVisibility(mApply ? View.VISIBLE : View.GONE);
     }
 }

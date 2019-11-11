@@ -68,6 +68,7 @@
     <string name="create_enchantment">設立地界</string>
     <string name="create_marker">放置圖釘</string>
     <string name="forge_location">假造位置</string>
+    <string name="clear">清除</string>
     <string name="save_marker">儲存圖釘</string>
     <string name="radius_m">%1$d m</string>
     <string name="self">自己</string>

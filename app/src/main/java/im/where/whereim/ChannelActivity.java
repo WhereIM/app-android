@@ -153,20 +153,6 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
                 });
             }
         });
-        View.OnLongClickListener deactivate = new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                postBinderTask(new CoreService.BinderTask() {
-                    @Override
-                    public void onBinderReady(CoreService.CoreBinder binder) {
-                        binder.deactivateChannel(mChannel);
-                    }
-                });
-                return true;
-            }
-        };
-        mActive.setOnLongClickListener(deactivate);
-        mActiveLoading.setOnLongClickListener(deactivate);
 
         findViewById(R.id.geofence).setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -566,10 +552,14 @@ public class ChannelActivity extends BaseChannelActivity implements CoreService.
             mActive.setChecked(active);
         }
 
-        if(mChannel.enable_radius){
-            mGeofenceStatus.setText(getString(R.string.radius_m, mChannel.radius));
+        if(mChannel.enable_radius==null){
+            mGeofenceStatus.setText("...");
         }else{
-            mGeofenceStatus.setText(R.string.off);
+            if(mChannel.enable_radius){
+                mGeofenceStatus.setText(getString(R.string.radius_m, mChannel.radius));
+            }else{
+                mGeofenceStatus.setText(R.string.off);
+            }
         }
 
         if(mChannelMapFragment != null) {

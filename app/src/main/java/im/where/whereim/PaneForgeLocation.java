@@ -15,8 +15,6 @@ public class PaneForgeLocation extends BasePane {
         // Required empty public constructor
     }
 
-    private Handler mHandler = new Handler();
-
     @Override
     protected ChannelActivity.PaneSizePolicy getInitialSizePolicy() {
         return ChannelActivity.PaneSizePolicy.WRAP;
@@ -36,6 +34,24 @@ public class PaneForgeLocation extends BasePane {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.pane_forge_location, container, false);
 
+        view.findViewById(R.id.clear).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                postBinderTask(new CoreService.BinderTask() {
+                    @Override
+                    public void onBinderReady(final CoreService.CoreBinder binder) {
+                        getChannel(new BaseChannelActivity.GetChannelCallback() {
+                            @Override
+                            public void onGetChannel(Channel channel) {
+                                binder.deactivateChannel(channel);
+                                finish();
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
         view.findViewById(R.id.send).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -47,7 +63,7 @@ public class PaneForgeLocation extends BasePane {
                             public void onGetChannel(Channel channel) {
                                 QuadTree.LatLng location = channelActivity.getMapCenter();
                                 binder.forgeLocation(channelActivity, channel, location.latitude, location.longitude);
-                                close();
+                                finish();
                             }
                         });
                     }
@@ -55,17 +71,6 @@ public class PaneForgeLocation extends BasePane {
             }
         });
 
-        view.findViewById(R.id.cancel).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                close();
-            }
-        });
-
         return view;
-    }
-
-    private void close(){
-        channelActivity.onBackPressed();
     }
 }
