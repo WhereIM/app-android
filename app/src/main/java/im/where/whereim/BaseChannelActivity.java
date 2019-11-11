@@ -101,12 +101,20 @@ public abstract class BaseChannelActivity extends BaseActivity {
         }
     };
 
+    private Runnable mChannelChangedCallback = new Runnable() {
+        @Override
+        public void run() {
+            onChannelChanged(null);
+        }
+    };
+
     @Override
     protected void onResume() {
         super.onResume();
         postBinderTask(new CoreService.BinderTask() {
             @Override
             public void onBinderReady(CoreService.CoreBinder binder) {
+                binder.addChannelChangedListener(mChannel.id, mChannelChangedCallback);
                 binder.addChannelSyncedListeners(mChannelSyncedCallback);
             }
         });
@@ -116,6 +124,7 @@ public abstract class BaseChannelActivity extends BaseActivity {
     protected void onPause() {
         if(mBinder != null){
             mBinder.removeChannelSyncedListeners(mChannelSyncedCallback);
+            mBinder.removeChannelChangedListener(mChannel.id, mChannelChangedCallback);
         }
         super.onPause();
     }
