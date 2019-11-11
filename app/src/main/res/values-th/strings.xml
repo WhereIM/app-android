@@ -12,7 +12,7 @@
     <string name="active_client">ไคลเอ็นต์ไม่ทำงาน</string>
     <string name="active_client_message">ไคลเอ็นต์นี้ไม่ทำงาน ให้นำไคลเอ็นต์อื่นของคุณมาใช้งานหรือไม่?</string>
     <string name="account">บัญชี</string>
-    <string name="logout">ออกจากระบบ</string>
+    <string name="logout">ออกจากระบบ %1$s</string>
     <string name="reset_tips">แสดงเคล็ดลับอีกครั้ง</string>
     <string name="service_provider">ผู้ให้บริการ (แผนที่และการค้นหา)</string>
     <string name="misc">เบ็ดเตล็ด</string>

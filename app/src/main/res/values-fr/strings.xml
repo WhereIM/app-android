@@ -12,7 +12,7 @@
     <string name="active_client">Le client n\'est pas actif</string>
     <string name="active_client_message">Ce client n\'est pas actif, continuez avec votre autre client ?</string>
     <string name="account">Compte</string>
-    <string name="logout">Déconnexion</string>
+    <string name="logout">Déconnexion %1$s</string>
     <string name="reset_tips">Afficher les conseils à nouveau</string>
     <string name="service_provider">Fournisseur de services (carte et recherche)</string>
     <string name="misc">Divers</string>

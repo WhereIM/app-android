@@ -12,7 +12,7 @@
     <string name="active_client">クライアントがアクティブではありません。</string>
     <string name="active_client_message">このクライアントはアクティブではありません。他のクライアントから継承しますか？</string>
     <string name="account">アカウント</string>
-    <string name="logout">ログアウト</string>
+    <string name="logout">ログアウト %1$s</string>
     <string name="reset_tips">ヒントをもう一度表示</string>
     <string name="service_provider">サービスプロバイダー（マップ＆サーチ）</string>
     <string name="misc">多才な</string>

@@ -12,7 +12,7 @@
     <string name="active_client">클라이언트가 활성화되지 않았습니다</string>
     <string name="active_client_message">이 클라이언트가 활성화되지 않았습니다. 다른 클라이언트로 대체 하시겠습니까?</string>
     <string name="account">계정</string>
-    <string name="logout">로그 아웃</string>
+    <string name="logout">로그 아웃 %1$s</string>
     <string name="reset_tips">팁 다시 보기</string>
     <string name="service_provider">서비스 공급자 (지도 및 검색)</string>
     <string name="misc">기타</string>

@@ -14,7 +14,7 @@
     <string name="active_client">Client not active</string>
     <string name="active_client_message">This client is not active, take over from your other client?</string>
     <string name="account">Account</string>
-    <string name="logout">Logout</string>
+    <string name="logout">Logout %1$s</string>
     <string name="reset_tips">Show tips again</string>
     <string name="service_provider">Service Provider (Map &amp; Search)</string>
     <string name="misc">Miscellaneous</string>

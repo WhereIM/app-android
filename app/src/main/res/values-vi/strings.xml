@@ -12,7 +12,7 @@
     <string name="active_client">Thiết bị không kích hoạt</string>
     <string name="active_client_message">Thiết bị này hiện không kích hoạt, bạn có chuyển từ thiết bị khác sang?</string>
     <string name="account">Tài khoản</string>
-    <string name="logout">Đăng xuất</string>
+    <string name="logout">Đăng xuất %1$s</string>
     <string name="reset_tips">Hiển thị mẹo một lần nữa</string>
     <string name="service_provider">Nhà Cung cấp Dịch vụ (Bản đồ &amp; Tìm kiếm)</string>
     <string name="misc">Hỗn hợp</string>

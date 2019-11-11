@@ -12,7 +12,7 @@
     <string name="active_client">Cliente no activo</string>
     <string name="active_client_message">Este cliente no está activo, ¿encargarse de otro cliente?</string>
     <string name="account">Cuenta</string>
-    <string name="logout">Cerrar sesión</string>
+    <string name="logout">Cerrar sesión %1$s</string>
     <string name="reset_tips">Mostrar consejos de nuevo</string>
     <string name="service_provider">Proveedor de Servicio (Mapas y Búsqueda)</string>
     <string name="misc">Misceláneo</string>

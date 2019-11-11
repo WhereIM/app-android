@@ -12,7 +12,7 @@
     <string name="active_client">Клиент не активен</string>
     <string name="active_client_message">Этот клиент не активен, принять его от другого клиента?</string>
     <string name="account">Аккаунт</string>
-    <string name="logout">Выйти</string>
+    <string name="logout">Выйти %1$s</string>
     <string name="reset_tips">Показать подсказки еще раз</string>
     <string name="service_provider">Провайдер услуг (Карта и Поиск)</string>
     <string name="misc">Разное</string>
